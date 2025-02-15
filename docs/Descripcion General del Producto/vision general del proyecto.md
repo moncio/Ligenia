@@ -100,5 +100,4 @@ Una vez validado el MVP, podemos ampliar la plataforma con:
 
 ## 📢 Conclusión
 LIGENIA nace como una solución única en el mercado, combinando automatización de ligas, estadísticas en tiempo real y un chatbot con IA. Su arquitectura gratuita y escalable la convierte en la mejor opción para ligas amateur y semiprofesionales.  
-🎯 **¡LIGENIA está lista para revolucionar la gestión de ligas deportivas!** 🚀
 

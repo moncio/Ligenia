@@ -181,9 +181,6 @@ Chatbot --> UC17
 Chatbot --> UC18
 
 @enduml
-@startuml
-// Código del Diagrama de Casos de Uso generado previamente
-@enduml
 ```
 
 #### 📌 **Descripción de Casos de Uso**
@@ -302,10 +299,6 @@ Usuarios ||--o{ Estadisticas : "1:N"
 Usuarios }--|| Roles : "N:1"
 
 @enduml
-@startuml
-@startuml
-// Código del Diagrama ERD generado previamente
-@enduml
 ```
 
 **Referencia Visual:** Documento gráfico incluido en el directorio "diagramas".
@@ -394,15 +387,10 @@ Sistema --> Chatbot: Respuesta
 Chatbot --> Jugador: Mostrar información
 
 @enduml
-@startuml
-// Código del Diagrama de Secuencia generado previamente
-@enduml
 ```
 
 **Referencia Visual:** Documento gráfico incluido en el directorio "diagramas".
 
 ## 📌 Conclusión
 El análisis realizado proporciona una visión clara y estructurada del sistema **LIGENIA**, estableciendo las bases para su implementación. Se han definido los requisitos funcionales y no funcionales, junto con diagramas explicativos que detallan su funcionamiento.
-
-🚀 *LIGENIA está listo para su desarrollo.*
 
