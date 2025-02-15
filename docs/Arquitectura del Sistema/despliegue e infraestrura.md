@@ -41,48 +41,50 @@ Este documento describe el proceso de despliegue e infraestructura para la plata
 
 ## Estructura de Directorio del Proyecto LIGENIA
 
+```plaintext
 LIGENIA/
 ├── frontend/
-│ ├── src/
-│ │ ├── components/
-│ │ ├── services/
-│ │ ├── utils/
-│ │ └── index.js
-│ ├── tests/
-│ │ ├── unit/
-│ │ └── integration/
-│ ├── config/
-│ │ ├── default.json
-│ │ └── production.json
-│ ├── scripts/
-│ ├── docker/
-│ │ └── Dockerfile
-│ ├── .env
-│ └── README.md
+│   ├── src/
+│   │   ├── components/
+│   │   ├── services/
+│   │   ├── utils/
+│   │   └── index.js
+│   ├── tests/
+│   │   ├── unit/
+│   │   └── integration/
+│   ├── config/
+│   │   ├── default.json
+│   │   └── production.json
+│   ├── scripts/
+│   ├── docker/
+│   │   └── Dockerfile
+│   ├── .env
+│   └── README.md
 ├── backend/
-│ ├── src/
-│ │ ├── controllers/
-│ │ ├── models/
-│ │ ├── routes/
-│ │ ├── services/
-│ │ ├── utils/
-│ │ └── index.js
-│ ├── tests/
-│ │ ├── unit/
-│ │ └── integration/
-│ ├── config/
-│ │ ├── default.json
-│ │ └── production.json
-│ ├── scripts/
-│ ├── docker/
-│ │ └── Dockerfile
-│ ├── .env
-│ └── README.md
+│   ├── src/
+│   │   ├── controllers/
+│   │   ├── models/
+│   │   ├── routes/
+│   │   ├── services/
+│   │   ├── utils/
+│   │   └── index.js
+│   ├── tests/
+│   │   ├── unit/
+│   │   └── integration/
+│   ├── config/
+│   │   ├── default.json
+│   │   └── production.json
+│   ├── scripts/
+│   ├── docker/
+│   │   └── Dockerfile
+│   ├── .env
+│   └── README.md
 ├── docker-compose.yml
 ├── .github/
-│ └── workflows/
+│   └── workflows/
 ├── docs/
 └── README.md
+```
 
 ## Guía de Instalación Paso a Paso
 
