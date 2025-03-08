@@ -1,0 +1,17 @@
+{
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "prisma": "^6.4.1",
+    "supertest": "^7.0.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.4.1",
+    "bcrypt": "^5.1.1"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  },
+  "scripts": {
+    "seed": "npx prisma db seed"
+  }
+}
