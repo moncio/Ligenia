@@ -6,7 +6,7 @@ import { IUseCase, Result } from '../../domain/interfaces/use-case.interface';
 /**
  * Caso de uso para la creación de ligas
  */
-export class CreateLeagueUseCase implements IUseCase<CreateLeagueDto, Result<League>> {
+export class CreateLeagueUseCase implements IUseCase<CreateLeagueDto, League> {
   constructor(private readonly leagueRepository: ILeagueRepository) {}
 
   /**

@@ -2,14 +2,14 @@
  * Interfaz genérica para casos de uso
  */
 export interface IUseCase<TInput, TOutput> {
-  execute(input: TInput): Promise<TOutput>;
+  execute(input: TInput): Promise<Result<TOutput>>;
 }
 
 /**
  * Interfaz para casos de uso que no requieren entrada
  */
 export interface IUseCaseWithoutInput<TOutput> {
-  execute(): Promise<TOutput>;
+  execute(): Promise<Result<TOutput>>;
 }
 
 /**

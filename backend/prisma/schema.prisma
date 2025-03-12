@@ -13,6 +13,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum TournamentFormat {
+  SINGLE_ELIMINATION
+  DOUBLE_ELIMINATION
+  ROUND_ROBIN
+  SWISS
+}
+
 enum TournamentStatus {
   DRAFT
   ACTIVE
@@ -110,6 +117,7 @@ model Tournament {
   leagueId       String
   name           String            @db.VarChar(100)
   description    String?           @db.Text
+  format         TournamentFormat  @default(SINGLE_ELIMINATION)
   modality       TournamentModality @default(DOUBLES)
   status         TournamentStatus  @default(DRAFT)
   teams          Team[]
@@ -122,6 +130,7 @@ model Tournament {
   registrationFee Decimal?         @db.Decimal(10, 2)
   maxTeams       Int?              // Número máximo de equipos permitidos
   minTeams       Int?              // Número mínimo de equipos para comenzar
+  registrationDeadline DateTime?   // Fecha límite para registrarse
   logoUrl        String?           @db.VarChar(255)
   createdAt      DateTime          @default(now())
   updatedAt      DateTime          @updatedAt

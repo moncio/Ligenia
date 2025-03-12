@@ -1,40 +1,35 @@
 import { Request, Response } from 'express';
-import { CreateLeagueUseCase } from '../../core/use-cases/league/create-league.use-case';
-import { GetLeagueByIdUseCase } from '../../core/use-cases/league/get-league-by-id.use-case';
-import { GetAllLeaguesUseCase } from '../../core/use-cases/league/get-all-leagues.use-case';
-import { UpdateLeagueUseCase } from '../../core/use-cases/league/update-league.use-case';
-import { DeleteLeagueUseCase } from '../../core/use-cases/league/delete-league.use-case';
-import { CreateLeagueDto, createLeagueSchema } from '../../core/domain/dtos/create-league.dto';
-import { UpdateLeagueDto, updateLeagueSchema } from '../../core/domain/dtos/update-league.dto';
+import { CreateTournamentUseCase } from '../../core/use-cases/tournament/create-tournament.use-case';
+import { GetTournamentByIdUseCase } from '../../core/use-cases/tournament/get-tournament-by-id.use-case';
+import { GetAllTournamentsUseCase } from '../../core/use-cases/tournament/get-all-tournaments.use-case';
+import { UpdateTournamentUseCase } from '../../core/use-cases/tournament/update-tournament.use-case';
+import { DeleteTournamentUseCase } from '../../core/use-cases/tournament/delete-tournament.use-case';
+import { CreateTournamentDto, createTournamentSchema } from '../../core/domain/dtos/create-tournament.dto';
+import { UpdateTournamentDto } from '../../core/domain/dtos/update-tournament.dto';
 import { BadRequestError, ConflictError, NotFoundError } from '../middlewares/error.middleware';
 
 /**
- * Controlador para las ligas
+ * Controlador para los torneos
  */
-export class LeagueController {
+export class TournamentController {
   constructor(
-    private readonly createLeagueUseCase: CreateLeagueUseCase,
-    private readonly getLeagueByIdUseCase: GetLeagueByIdUseCase,
-    private readonly getAllLeaguesUseCase: GetAllLeaguesUseCase,
-    private readonly updateLeagueUseCase: UpdateLeagueUseCase,
-    private readonly deleteLeagueUseCase: DeleteLeagueUseCase
+    private readonly createTournamentUseCase: CreateTournamentUseCase,
+    private readonly getTournamentByIdUseCase: GetTournamentByIdUseCase,
+    private readonly getAllTournamentsUseCase: GetAllTournamentsUseCase,
+    private readonly updateTournamentUseCase: UpdateTournamentUseCase,
+    private readonly deleteTournamentUseCase: DeleteTournamentUseCase
   ) {}
 
   /**
-   * Crea una nueva liga
+   * Crea un nuevo torneo
    */
   async create(req: Request, res: Response): Promise<void> {
     try {
       // Validar los datos de entrada
-      const leagueData = createLeagueSchema.parse(req.body);
-
-      // Asignar el ID del usuario autenticado como administrador si no se proporciona
-      if (!leagueData.adminId && req.user) {
-        leagueData.adminId = req.user.userId;
-      }
+      const tournamentData = createTournamentSchema.parse(req.body);
 
       // Ejecutar el caso de uso
-      const result = await this.createLeagueUseCase.execute(leagueData as CreateLeagueDto);
+      const result = await this.createTournamentUseCase.execute(tournamentData as CreateTournamentDto);
 
       // Manejar el resultado
       if (result.isSuccess) {
@@ -45,7 +40,9 @@ export class LeagueController {
       } else {
         // Determinar el tipo de error
         const error = result.getError();
-        if (error.message.includes('Ya existe una liga con el nombre')) {
+        if (error.message.includes('La liga especificada no existe')) {
+          throw new NotFoundError(error.message);
+        } else if (error.message.includes('Ya existe un torneo con el nombre')) {
           throw new ConflictError(error.message);
         } else {
           throw new BadRequestError(error.message);
@@ -58,14 +55,14 @@ export class LeagueController {
   }
 
   /**
-   * Obtiene una liga por su ID
+   * Obtiene un torneo por su ID
    */
   async getById(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
 
       // Ejecutar el caso de uso
-      const result = await this.getLeagueByIdUseCase.execute(id);
+      const result = await this.getTournamentByIdUseCase.execute(id);
 
       // Manejar el resultado
       if (result.isSuccess) {
@@ -76,7 +73,7 @@ export class LeagueController {
       } else {
         // Determinar el tipo de error
         const error = result.getError();
-        if (error.message.includes('La liga no existe')) {
+        if (error.message.includes('El torneo no existe')) {
           throw new NotFoundError(error.message);
         } else {
           throw new BadRequestError(error.message);
@@ -89,19 +86,19 @@ export class LeagueController {
   }
 
   /**
-   * Obtiene todas las ligas con paginación
+   * Obtiene todos los torneos con paginación y filtrado opcional
    */
   async getAll(req: Request, res: Response): Promise<void> {
     try {
-      // Extraer parámetros de paginación de la query
-      const { page = '1', limit = '10', sortBy = 'creationDate', sortOrder = 'desc' } = req.query;
+      // Extraer parámetros de consulta
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+      const leagueId = req.query.leagueId as string;
 
       // Ejecutar el caso de uso
-      const result = await this.getAllLeaguesUseCase.execute({
-        page: parseInt(page as string, 10),
-        limit: parseInt(limit as string, 10),
-        sortBy: sortBy as string,
-        sortOrder: (sortOrder as string) === 'asc' ? 'asc' : 'desc',
+      const result = await this.getAllTournamentsUseCase.execute({
+        pagination: { page, limit },
+        leagueId,
       });
 
       // Manejar el resultado
@@ -120,17 +117,15 @@ export class LeagueController {
   }
 
   /**
-   * Actualiza una liga existente
+   * Actualiza un torneo existente
    */
   async update(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
-      
-      // Validar los datos de entrada
-      const updateData = updateLeagueSchema.parse(req.body);
+      const updateData = req.body as UpdateTournamentDto;
 
       // Ejecutar el caso de uso
-      const result = await this.updateLeagueUseCase.execute([id, updateData as UpdateLeagueDto]);
+      const result = await this.updateTournamentUseCase.execute([id, updateData]);
 
       // Manejar el resultado
       if (result.isSuccess) {
@@ -141,9 +136,11 @@ export class LeagueController {
       } else {
         // Determinar el tipo de error
         const error = result.getError();
-        if (error.message.includes('La liga no existe')) {
+        if (error.message.includes('El torneo no existe')) {
           throw new NotFoundError(error.message);
-        } else if (error.message.includes('Ya existe una liga con el nombre')) {
+        } else if (error.message.includes('La liga especificada no existe')) {
+          throw new NotFoundError(error.message);
+        } else if (error.message.includes('Ya existe un torneo con el nombre')) {
           throw new ConflictError(error.message);
         } else {
           throw new BadRequestError(error.message);
@@ -156,28 +153,26 @@ export class LeagueController {
   }
 
   /**
-   * Elimina una liga existente
+   * Elimina un torneo
    */
   async delete(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
 
       // Ejecutar el caso de uso
-      const result = await this.deleteLeagueUseCase.execute(id);
+      const result = await this.deleteTournamentUseCase.execute(id);
 
       // Manejar el resultado
       if (result.isSuccess) {
         res.status(200).json({
           status: 'success',
-          message: 'Liga eliminada correctamente',
+          message: 'Torneo eliminado correctamente',
         });
       } else {
         // Determinar el tipo de error
         const error = result.getError();
-        if (error.message.includes('La liga no existe')) {
+        if (error.message.includes('El torneo no existe')) {
           throw new NotFoundError(error.message);
-        } else if (error.message.includes('tiene torneos asociados')) {
-          throw new ConflictError(error.message);
         } else {
           throw new BadRequestError(error.message);
         }
