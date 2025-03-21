@@ -98,6 +98,102 @@ Los endpoints de administración permiten a los usuarios con roles específicos 
 | Estadísticas                  | GET         | /api/statistics         | Obtener estadísticas de jugadores y equipos           |
 | Chatbot IA                    | POST        | /api/chatbot            | Consultar al chatbot sobre reglas y estadísticas      |
 
+## Endpoints para Torneos y Rankings (MVP)
+
+### Torneos
+
+#### `GET /api/tournaments`
+- **Descripción**: Obtiene la lista de todos los torneos.
+- **Parámetros de consulta**:
+  - `page`: Número de página (por defecto: 1)
+  - `limit`: Número de elementos por página (por defecto: 10)
+  - `status`: Filtrar por estado (DRAFT, ACTIVE, COMPLETED, CANCELLED)
+- **Respuesta**: Lista paginada de torneos.
+
+#### `GET /api/tournaments/:id`
+- **Descripción**: Obtiene los detalles de un torneo específico.
+- **Parámetros de ruta**:
+  - `id`: ID del torneo
+- **Respuesta**: Detalles completos del torneo.
+
+#### `POST /api/tournaments`
+- **Descripción**: Crea un nuevo torneo (solo administradores).
+- **Cuerpo de la solicitud**:
+  ```json
+  {
+    "name": "Torneo de Verano 2023",
+    "description": "Torneo de eliminación directa",
+    "leagueId": "uuid-de-la-liga",
+    "startDate": "2023-07-15T10:00:00Z",
+    "endDate": "2023-07-16T18:00:00Z",
+    "registrationDeadline": "2023-07-12T23:59:59Z",
+    "maxTeams": 16,
+    "format": "SINGLE_ELIMINATION",
+    "modality": "DOUBLES",
+    "location": "uuid-de-la-ubicacion",
+    "rules": "Reglas específicas del torneo...",
+    "prizes": "Descripción de los premios..."
+  }
+  ```
+- **Respuesta**: Torneo creado.
+
+#### `PUT /api/tournaments/:id`
+- **Descripción**: Actualiza un torneo existente (solo administradores).
+- **Parámetros de ruta**:
+  - `id`: ID del torneo
+- **Cuerpo de la solicitud**: Datos actualizados del torneo.
+- **Respuesta**: Torneo actualizado.
+
+#### `DELETE /api/tournaments/:id`
+- **Descripción**: Elimina un torneo (solo administradores).
+- **Parámetros de ruta**:
+  - `id`: ID del torneo
+- **Respuesta**: Confirmación de eliminación.
+
+### Generación de Partidos
+
+#### `POST /api/tournaments/:id/generate-matches`
+- **Descripción**: Genera automáticamente los partidos para un torneo en formato Single Elimination (solo administradores).
+- **Parámetros de ruta**:
+  - `id`: ID del torneo
+- **Respuesta**: Lista de partidos generados.
+
+### Inscripción de Equipos
+
+#### `POST /api/tournaments/:id/teams`
+- **Descripción**: Inscribe un equipo en un torneo.
+- **Parámetros de ruta**:
+  - `id`: ID del torneo
+- **Cuerpo de la solicitud**:
+  ```json
+  {
+    "name": "Nombre del Equipo",
+    "players": ["uuid-jugador-1", "uuid-jugador-2"]
+  }
+  ```
+- **Respuesta**: Confirmación de inscripción.
+
+#### `GET /api/tournaments/:id/teams`
+- **Descripción**: Obtiene la lista de equipos inscritos en un torneo.
+- **Parámetros de ruta**:
+  - `id`: ID del torneo
+- **Respuesta**: Lista de equipos inscritos.
+
+### Clasificaciones y Rankings
+
+#### `GET /api/tournaments/:id/standings`
+- **Descripción**: Obtiene las clasificaciones actuales de un torneo.
+- **Parámetros de ruta**:
+  - `id`: ID del torneo
+- **Respuesta**: Clasificación del torneo.
+
+#### `GET /api/rankings/players`
+- **Descripción**: Obtiene el ranking global de jugadores.
+- **Parámetros de consulta**:
+  - `page`: Número de página (por defecto: 1)
+  - `limit`: Número de elementos por página (por defecto: 10)
+- **Respuesta**: Ranking paginado de jugadores.
+
 ## Uso de Swagger
 
 Swagger es una herramienta poderosa para documentar y probar APIs. Al integrar Swagger en el desarrollo de la API de LIGENIA, se generará automáticamente una documentación interactiva que permitirá a los desarrolladores explorar y probar los endpoints de manera sencilla. Swagger facilita la comprensión de la API y asegura que los desarrolladores tengan acceso a ejemplos claros de solicitudes y respuestas.

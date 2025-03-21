@@ -101,3 +101,47 @@ Una vez validado el MVP, podemos ampliar la plataforma con:
 ## 📢 Conclusión
 LIGENIA nace como una solución única en el mercado, combinando automatización de ligas, estadísticas en tiempo real y un chatbot con IA. Su arquitectura gratuita y escalable la convierte en la mejor opción para ligas amateur y semiprofesionales.  
 
+## MVP: Sistema de Torneos y Rankings
+
+Para la versión mínima viable (MVP) del proyecto LIGENIA, nos centraremos en implementar un sistema completo de gestión de torneos con formato de eliminación directa (Single Elimination) y un sistema de rankings individuales.
+
+### Características del MVP
+
+1. **Gestión de Torneos**
+   - Creación y administración de torneos en formato Single Elimination
+   - Soporte para torneos con 16, 32 o 64 equipos máximo
+   - Cada equipo compuesto por 2 jugadores
+   - Fecha límite de inscripción automática (3 días antes del inicio)
+   - Notificaciones automáticas a usuarios sobre nuevos torneos
+
+2. **Inscripción de Equipos**
+   - Interfaz para que los usuarios formen equipos e inscriban a torneos
+   - Validación de inscripciones según plazos y límites de participantes
+   - Gestión de equipos por parte de los usuarios
+
+3. **Generación de Emparejamientos**
+   - Sorteo automático de emparejamientos en formato Single Elimination
+   - Generación del cuadro completo del torneo
+   - Visualización del bracket del torneo
+
+4. **Sistema de Puntuación**
+   - Asignación de puntos según la ronda alcanzada en el torneo
+   - Distribución equitativa de puntos entre miembros del equipo
+   - Actualización automática de puntuaciones al finalizar partidos
+
+5. **Rankings Individuales**
+   - Cálculo de rankings basado en puntos acumulados
+   - Visualización de rankings globales
+   - Historial de participación en torneos
+
+### Prioridades para el MVP
+
+El MVP se centrará en ofrecer una experiencia completa pero simplificada del sistema de torneos, priorizando:
+
+1. La correcta implementación del formato Single Elimination
+2. Un sistema robusto de inscripción de equipos
+3. La generación automática de emparejamientos
+4. El cálculo preciso de rankings individuales
+
+Las funcionalidades avanzadas como análisis estadístico detallado, predicciones con IA y otros formatos de torneo se implementarán en versiones posteriores.
+

@@ -13,7 +13,11 @@ Este documento describe el diagrama de componentes del sistema LIGENIA, una plat
    - [Database (PostgreSQL)](#database-postgresql)
    - [External Services](#external-services)
    - [Infraestructura de Despliegue (Railway)](#infraestructura-de-despliegue-railway)
-3. [Conclusión](#conclusión)
+3. [Componentes del Sistema de Torneos y Rankings (MVP)](#componentes-del-sistema-de-torneos-y-rankings-mvp)
+   - [Componentes del Backend](#componentes-del-backend)
+   - [Componentes del Frontend](#componentes-del-frontend)
+   - [Interacciones entre Componentes](#interacciones-entre-componentes)
+4. [Conclusión](#conclusión)
 
 ## Explicación de los Componentes y sus Relaciones
 
@@ -96,6 +100,88 @@ package "Infrastructure" {
 }
 @enduml
 ```
+
+## Componentes del Sistema de Torneos y Rankings (MVP)
+
+### Componentes del Backend
+
+#### 1. Módulo de Gestión de Torneos
+- **TournamentController**: Maneja las solicitudes HTTP relacionadas con torneos.
+- **TournamentService**: Implementa la lógica de negocio para la gestión de torneos.
+- **TournamentRepository**: Gestiona el acceso a datos de torneos en la base de datos.
+
+#### 2. Módulo de Generación de Emparejamientos
+- **TournamentMatchesController**: Maneja las solicitudes para generar emparejamientos.
+- **SingleEliminationService**: Implementa el algoritmo de generación de emparejamientos para el formato Single Elimination.
+- **MatchRepository**: Gestiona el acceso a datos de partidos en la base de datos.
+
+#### 3. Módulo de Inscripción de Equipos
+- **TeamController**: Maneja las solicitudes relacionadas con equipos.
+- **TeamService**: Implementa la lógica de negocio para la gestión de equipos.
+- **TeamRepository**: Gestiona el acceso a datos de equipos en la base de datos.
+
+#### 4. Módulo de Rankings y Clasificaciones
+- **PlayerRankingController**: Maneja las solicitudes relacionadas con rankings de jugadores.
+- **TournamentStandingsController**: Maneja las solicitudes relacionadas con clasificaciones de torneos.
+- **RankingService**: Implementa la lógica para calcular rankings individuales.
+- **StatisticRepository**: Gestiona el acceso a datos de estadísticas en la base de datos.
+
+#### 5. Módulo de Notificaciones
+- **NotificationController**: Maneja las solicitudes relacionadas con notificaciones.
+- **NotificationService**: Implementa la lógica para enviar notificaciones a usuarios.
+- **NotificationRepository**: Gestiona el acceso a datos de notificaciones en la base de datos.
+
+### Componentes del Frontend
+
+#### 1. Componentes de Administración de Torneos
+- **TournamentCreationForm**: Formulario para crear y editar torneos.
+- **TournamentList**: Lista de torneos con opciones de filtrado.
+- **TournamentDetail**: Vista detallada de un torneo específico.
+- **MatchGenerationPanel**: Panel para generar emparejamientos de un torneo.
+
+#### 2. Componentes de Participación en Torneos
+- **TournamentRegistration**: Interfaz para inscribir equipos en torneos.
+- **TeamCreation**: Formulario para crear equipos.
+- **MyTournaments**: Lista de torneos en los que participa el usuario.
+
+#### 3. Componentes de Visualización de Torneos
+- **TournamentBracket**: Visualización del cuadro de eliminación directa.
+- **MatchCard**: Tarjeta que muestra información de un partido.
+- **MatchResult**: Componente para registrar resultados de partidos.
+
+#### 4. Componentes de Rankings
+- **PlayerRankings**: Tabla de rankings de jugadores.
+- **TournamentStandings**: Clasificación de un torneo específico.
+- **PlayerProfile**: Perfil de jugador con historial de torneos y puntos.
+
+#### 5. Componentes de Notificaciones
+- **NotificationCenter**: Centro de notificaciones para usuarios.
+- **NotificationBadge**: Indicador de notificaciones no leídas.
+
+### Interacciones entre Componentes
+
+1. **Creación de Torneos**:
+   - El administrador utiliza el **TournamentCreationForm** para crear un torneo.
+   - El **TournamentController** procesa la solicitud y utiliza el **TournamentService** para crear el torneo.
+   - El **NotificationService** envía notificaciones a todos los usuarios.
+
+2. **Inscripción de Equipos**:
+   - Los usuarios utilizan el **TournamentRegistration** para inscribir equipos.
+   - El **TeamController** procesa la solicitud y utiliza el **TeamService** para registrar el equipo.
+
+3. **Generación de Emparejamientos**:
+   - El administrador utiliza el **MatchGenerationPanel** para generar emparejamientos.
+   - El **TournamentMatchesController** procesa la solicitud y utiliza el **SingleEliminationService** para generar los partidos.
+   - Los partidos generados se visualizan en el **TournamentBracket**.
+
+4. **Registro de Resultados**:
+   - Los usuarios o administradores utilizan el **MatchResult** para registrar resultados.
+   - El **MatchController** procesa la solicitud y actualiza el estado del partido.
+   - El **RankingService** actualiza automáticamente los rankings basados en los resultados.
+
+5. **Visualización de Rankings**:
+   - Los usuarios acceden al **PlayerRankings** para ver los rankings actuales.
+   - El **PlayerRankingController** procesa la solicitud y utiliza el **RankingService** para calcular los rankings.
 
 ## Conclusión
 
