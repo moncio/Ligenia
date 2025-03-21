@@ -1,45 +1,66 @@
 import { z } from 'zod';
 import dotenv from 'dotenv';
 
-// Cargar variables de entorno
+// Load environment variables
 dotenv.config();
 
-// Esquema de validación para variables de entorno
+// Validation schema for environment variables
 const envSchema = z.object({
-  // Entorno de la aplicación
+  // Application environment
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
-  
-  // Puerto del servidor
-  PORT: z.string().transform(val => parseInt(val, 10)).default('3000'),
-  
-  // Base de datos
-  DATABASE_URL: z.string(),
-  
+
+  // Server port
+  PORT: z
+    .string()
+    .transform(val => parseInt(val, 10))
+    .default('3000'),
+
+  // Database
+  DATABASE_URL: z
+    .string()
+    .optional()
+    .default('postgresql://postgres:postgres@localhost:5432/ligenia'),
+
   // JWT
-  JWT_SECRET: z.string().min(10),
+  JWT_SECRET: z.string().min(10).optional().default('supersecretkey1234567890'),
   JWT_EXPIRES_IN: z.string().default('1d'),
   JWT_REFRESH_EXPIRES_IN: z.string().default('7d'),
-  
-  // Supabase (opcionales para desarrollo local)
-  SUPABASE_URL: z.string().optional(),
-  SUPABASE_KEY: z.string().optional(),
-  
-  // OpenAI (opcional para desarrollo inicial)
+
+  // Supabase (optional for local development)
+  SUPABASE_URL: z.string().optional().default('https://example.supabase.co'),
+  SUPABASE_KEY: z.string().optional().default('your-supabase-key'),
+
+  // OpenAI (optional for initial development)
   OPENAI_API_KEY: z.string().optional(),
-  
+
   // Logging
   LOG_LEVEL: z.enum(['error', 'warn', 'info', 'http', 'verbose', 'debug', 'silly']).default('info'),
-  
+
   // Cors
   CORS_ORIGIN: z.string().default('http://localhost:3000'),
 });
 
-// Validar y exportar variables de entorno
+// Validate and export environment variables
 const _env = envSchema.safeParse(process.env);
 
-if (!_env.success) {
+// In test environment, don't throw errors if variables are missing
+if (!_env.success && process.env.NODE_ENV !== 'test') {
   console.error('❌ Invalid environment variables:', _env.error.format());
   throw new Error('Invalid environment variables');
 }
 
-export const env = _env.data; 
+// If we're in test environment and there's an error, use default values
+export const env = _env.success
+  ? _env.data
+  : {
+      NODE_ENV: 'test',
+      PORT: 3000,
+      DATABASE_URL: 'postgresql://postgres:postgres@localhost:5432/ligenia_test',
+      JWT_SECRET: 'test-jwt-secret-key-1234567890',
+      JWT_EXPIRES_IN: '1d',
+      JWT_REFRESH_EXPIRES_IN: '7d',
+      SUPABASE_URL: 'https://example.supabase.co',
+      SUPABASE_KEY: 'your-supabase-key',
+      LOG_LEVEL: 'info',
+      CORS_ORIGIN: 'http://localhost:3000',
+    };

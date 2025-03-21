@@ -1,77 +1,121 @@
 import { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
-import { env } from '../../config/env';
-import { UnauthorizedError, ForbiddenError } from './error.middleware';
+import { IAuthService, IAuthUser } from '../../core/application/interfaces/auth';
+import { UserRole } from '@prisma/client';
+import { UnauthorizedError } from '../../shared/errors/auth.error';
 
 /**
- * Interfaz para el payload del token JWT
+ * Extended Express Request with user information
+ * Adds typed user property to the Express Request object
  */
-export interface JwtPayload {
-  userId: string;
-  roles: string[];
-  iat?: number;
-  exp?: number;
+export interface AuthRequest extends Request {
+  user?: IAuthUser;
 }
 
 /**
- * Extiende la interfaz Request para incluir el usuario autenticado
+ * Authentication middleware
+ * Validates JWT token from Authorization header (Bearer token) and adds user info to request
+ * 
+ * @param authService - Authentication service implementation
+ * @returns Express middleware function
+ * @throws Returns 401 Unauthorized if token is missing, invalid, or expired
+ * 
+ * Usage:
+ * ```
+ * router.use('/protected-route', authMiddleware(authService), (req, res) => {
+ *   // Access user info with req.user
+ *   res.json({ user: req.user });
+ * });
+ * ```
  */
-declare global {
-  namespace Express {
-    interface Request {
-      user?: JwtPayload;
-    }
-  }
-}
-
-/**
- * Middleware para verificar la autenticación del usuario
- */
-export const authenticate = (req: Request, _res: Response, next: NextFunction) => {
-  try {
-    // Obtener el token del header de autorización
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      throw new UnauthorizedError('Authentication required');
-    }
-
-    // Extraer el token
-    const token = authHeader.split(' ')[1];
-    if (!token) {
-      throw new UnauthorizedError('Authentication token missing');
-    }
-
-    // Verificar el token
+export const authMiddleware = (authService: IAuthService) => {
+  return async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const decoded = jwt.verify(token, env.JWT_SECRET) as JwtPayload;
-      req.user = decoded;
+      // Get token from Authorization header
+      const authHeader = req.headers.authorization;
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({
+          status: 'error',
+          message: 'Unauthorized: No token provided',
+        });
+      }
+
+      const token = authHeader.split(' ')[1];
+      
+      // Validate token
+      const result = await authService.validateToken(token);
+      
+      if (result.isFailure) {
+        return res.status(401).json({
+          status: 'error',
+          message: result.getError().message,
+        });
+      }
+
+      const { valid, user } = result.getValue();
+      
+      if (!valid || !user) {
+        return res.status(401).json({
+          status: 'error',
+          message: 'Unauthorized: Invalid token',
+        });
+      }
+
+      // Add user to request
+      req.user = user;
       next();
     } catch (error) {
-      throw new UnauthorizedError('Invalid or expired token');
+      console.error('Auth middleware error:', error);
+      return res.status(500).json({
+        status: 'error',
+        message: 'Internal server error during authentication',
+      });
     }
-  } catch (error) {
-    next(error);
-  }
+  };
 };
 
 /**
- * Middleware para verificar los roles del usuario
+ * Role-based authorization middleware
+ * Checks if the authenticated user has one of the allowed roles
+ * Must be used after authMiddleware to ensure user info is available
+ * 
+ * @param roles - Array of allowed role names (e.g., [UserRole.ADMIN])
+ * @returns Express middleware function
+ * @throws Returns 403 Forbidden if user doesn't have the required role
+ * 
+ * Usage:
+ * ```
+ * router.use('/admin',
+ *   authMiddleware(authService),
+ *   roleMiddleware([UserRole.ADMIN]),
+ *   adminController.dashboard
+ * );
+ * ```
  */
-export const authorize = (allowedRoles: string[]) => {
-  return (req: Request, _res: Response, next: NextFunction) => {
+export const roleMiddleware = (roles: UserRole[]) => {
+  return (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       if (!req.user) {
-        throw new UnauthorizedError('Authentication required');
+        throw new UnauthorizedError();
       }
 
-      const hasRole = req.user.roles.some(role => allowedRoles.includes(role));
+      // The role from IAuthUser might be a string, so we need to convert it to UserRole enum
+      const userRole = req.user.role as unknown as UserRole;
+      const hasRole = roles.includes(userRole);
+      
       if (!hasRole) {
-        throw new ForbiddenError('Insufficient permissions');
+        return res.status(403).json({
+          status: 'error',
+          message: `Forbidden: Access requires one of these roles: ${roles.join(', ')}`,
+        });
       }
 
       next();
     } catch (error) {
-      next(error);
+      console.error('Role middleware error:', error);
+      return res.status(500).json({
+        status: 'error',
+        message: 'Internal server error during authorization',
+      });
     }
   };
-}; 
+};

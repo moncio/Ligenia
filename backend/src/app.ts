@@ -1,45 +1,49 @@
-import express from 'express';
+import 'reflect-metadata'; // Required for inversify
+import express, { Application, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import dotenv from 'dotenv';
 import morgan from 'morgan';
-import { env } from './config/env';
-import { logger } from './config/logger';
-import { errorHandler, zodErrorHandler } from './api/middlewares/error.middleware';
-import { setupRoutes } from './api/routes';
+import { container } from './config/di-container';
+import { TYPES } from './config/di-container';
+import { IAuthService } from './core/application/interfaces/auth';
+import apiRoutes from './api/routes/index';
 
-// Crear aplicación Express
-const app = express();
+// Load environment variables
+dotenv.config();
 
-// Middlewares
-app.use(helmet()); // Seguridad
-app.use(cors({ origin: env.CORS_ORIGIN })); // CORS
-app.use(express.json()); // Parseo de JSON
-app.use(express.urlencoded({ extended: true })); // Parseo de URL-encoded
-app.use(morgan('dev')); // Logging de HTTP
+// Initialize application
+const app: Application = express();
+const port = process.env.PORT || 3000;
 
-// Ruta de salud
-app.get('/health', (_req, res) => {
-  res.status(200).json({ status: 'ok', environment: env.NODE_ENV });
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cors());
+app.use(helmet());
+app.use(morgan('dev'));
+
+// Routes
+app.use('/api', apiRoutes);
+
+// Health check
+app.get('/health', (req: Request, res: Response) => {
+  res.status(200).json({ status: 'Server is running' });
 });
 
-// Rutas de la API
-app.use('/api/v1', setupRoutes());
-
-// Middleware para convertir errores de Zod
-app.use(zodErrorHandler);
-
-// Middleware para manejo de errores
-app.use(errorHandler);
-
-// Middleware para rutas no encontradas
-app.use((_req, res) => {
-  res.status(404).json({ status: 'error', message: 'Route not found' });
+// Global error handler
+app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+  console.error(err.stack);
+  res.status(500).json({
+    message: 'An unexpected error occurred',
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined
+  });
 });
 
-// Iniciar servidor
+// Start server
 if (process.env.NODE_ENV !== 'test') {
-  app.listen(env.PORT, () => {
-    logger.info(`Server running on port ${env.PORT} in ${env.NODE_ENV} mode`);
+  app.listen(port, () => {
+    console.log(`Server is running on port ${port}`);
   });
 }
 

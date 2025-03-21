@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,11 +7,185 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model User {
+  id                 String               @id @default(uuid())
+  email              String               @unique
+  /// @zod.string().min(8) - Almacena solo hash bcrypt, nunca texto plano
+  password           String
+  /// @zod.string().min(2).max(100)
+  name               String
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  role               UserRole             @default(PLAYER)
+  emailVerified      Boolean              @default(false)
+  awayMatches        Match[]              @relation("AwayPlayerOne")
+  awayMatchesTwo     Match[]              @relation("AwayPlayerTwo")
+  homeMatches        Match[]              @relation("HomePlayerOne")
+  homeMatchesTwo     Match[]              @relation("HomePlayerTwo")
+  performanceHistory PerformanceHistory[]
+  playerProfile      Player?
+  statistics         Statistic[]
+  preferences        UserPreference?
+  tokens             UserToken[]
+  tournaments        Tournament[]         @relation("TournamentParticipants")
+
+  @@index([name])
+  @@index([role])
+  @@index([email])
+}
+
+model Player {
+  id         String      @id @default(uuid())
+  userId     String      @unique
+  level      PlayerLevel @default(P3)
+  age        Int?
+  country    String?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  avatar_url String?
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([level])
+}
+
+model Tournament {
+  id                  String           @id @default(uuid())
+  /// @zod.string().min(3).max(100)
+  name                String
+  description         String?
+  startDate           DateTime
+  endDate             DateTime
+  registrationEndDate DateTime
+  location            String?
+  format              TournamentFormat @default(SINGLE_ELIMINATION)
+  category            PlayerLevel      @default(P3)
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+  status              TournamentStatus @default(DRAFT)
+  matches             Match[]
+  statistics          Statistic[]
+  participants        User[]           @relation("TournamentParticipants")
+
+  @@index([startDate, endDate])
+  @@index([name])
+  @@index([registrationEndDate])
+  @@index([category])
+  @@index([status, startDate])
+}
+
+model Match {
+  id              String      @id @default(uuid())
+  tournamentId    String
+  homePlayerOneId String
+  homePlayerTwoId String
+  awayPlayerOneId String
+  awayPlayerTwoId String
+  round           Int
+  date            DateTime?
+  location        String?
+  status          MatchStatus @default(PENDING)
+  homeScore       Int?
+  awayScore       Int?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  awayPlayerOne   User        @relation("AwayPlayerOne", fields: [awayPlayerOneId], references: [id])
+  awayPlayerTwo   User        @relation("AwayPlayerTwo", fields: [awayPlayerTwoId], references: [id])
+  homePlayerOne   User        @relation("HomePlayerOne", fields: [homePlayerOneId], references: [id])
+  homePlayerTwo   User        @relation("HomePlayerTwo", fields: [homePlayerTwoId], references: [id])
+  tournament      Tournament  @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+
+  @@index([tournamentId])
+  @@index([status])
+  @@index([date])
+  @@index([round])
+  @@index([homePlayerOneId, homePlayerTwoId])
+  @@index([awayPlayerOneId, awayPlayerTwoId])
+  @@index([status, date])
+}
+
+model Statistic {
+  id            String     @id @default(uuid())
+  userId        String
+  tournamentId  String
+  matchesPlayed Int        @default(0)
+  wins          Int        @default(0)
+  losses        Int        @default(0)
+  points        Int        @default(0)
+  rank          Int        @default(0)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  tournament    Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, tournamentId])
+  @@index([userId])
+  @@index([tournamentId])
+  @@index([points])
+  @@index([wins, losses])
+  @@index([rank])
+}
+
+model UserPreference {
+  id        String   @id @default(uuid())
+  userId    String   @unique
+  theme     String   @default("system")
+  fontSize  Int      @default(16)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PerformanceHistory {
+  id            String   @id @default(uuid())
+  userId        String
+  year          Int
+  month         Int?
+  matchesPlayed Int      @default(0)
+  wins          Int      @default(0)
+  losses        Int      @default(0)
+  points        Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, year, month])
+  @@index([userId, year])
+}
+
+model UserToken {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique
+  type      String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId, type])
+  @@index([expiresAt])
+}
+
+enum UserRole {
+  ADMIN
+  PLAYER
+}
+
 enum TournamentFormat {
   SINGLE_ELIMINATION
-  DOUBLE_ELIMINATION
-  ROUND_ROBIN
-  SWISS
+}
+
+enum MatchStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum PlayerLevel {
+  P1
+  P2
+  P3
 }
 
 enum TournamentStatus {
@@ -25,291 +193,4 @@ enum TournamentStatus {
   ACTIVE
   COMPLETED
   CANCELLED
-}
-
-enum MatchStatus {
-  SCHEDULED
-  IN_PROGRESS
-  COMPLETED
-  CANCELLED
-  POSTPONED
-}
-
-enum TournamentModality {
-  SINGLES
-  DOUBLES
-  MIXED
-}
-
-enum ScoringType {
-  STANDARD
-  ADVANCED
-  CUSTOM
-}
-
-enum AuditActionType {
-  CREATE
-  UPDATE
-  DELETE
-  LOGIN
-  LOGOUT
-  PASSWORD_CHANGE
-  PERMISSION_CHANGE
-  SYSTEM_CONFIG
-}
-
-model User {
-  id                      String         @id @default(uuid())
-  name                    String         @db.VarChar(100)
-  email                   String         @unique @db.VarChar(255)
-  password                String         @db.VarChar(255)
-  roles                   Role[]         @relation("UserRoles")
-  registrationDate        DateTime       @default(now())
-  leagues                 League[]
-  teams                   Team[]         @relation("UserTeams")
-  statistics              Statistic[]    @relation("UserStatistics")
-  teamsAsPlayer1          Team[]         @relation("Player1")
-  teamsAsPlayer2          Team[]         @relation("Player2")
-  chatbots                Chatbot[]      @relation("UserChatbots")
-  notifications           Notification[]
-  auditLogs               AuditLog[]
-  // Campos de seguridad
-  isEmailVerified         Boolean        @default(false)
-  emailVerificationToken  String?        @db.VarChar(255)
-  emailVerificationExpiry DateTime?
-  resetPasswordToken      String?        @db.VarChar(255)
-  resetPasswordExpiry     DateTime?
-  lastLogin               DateTime?
-  failedLoginAttempts     Int            @default(0)
-  lockedUntil             DateTime?
-  twoFactorEnabled        Boolean        @default(false)
-  twoFactorSecret         String?        @db.VarChar(255)
-  // Campos de perfil adicionales
-  profilePictureUrl       String?        @db.VarChar(255)
-  phoneNumber             String?        @db.VarChar(20)
-  birthDate               DateTime?
-  preferredHand           String?        @db.VarChar(10) // Diestro, Zurdo, Ambidiestro
-  playingLevel            String?        @db.VarChar(20) // Principiante, Intermedio, Avanzado, Profesional
-  createdAt               DateTime       @default(now())
-  updatedAt               DateTime       @updatedAt
-
-  @@index([email])
-  @@index([isEmailVerified])
-  @@index([lastLogin])
-  @@index([failedLoginAttempts])
-}
-
-model League {
-  id           String       @id @default(uuid())
-  name         String       @db.VarChar(100)
-  admin        User         @relation(fields: [adminId], references: [id])
-  adminId      String
-  scoringType  ScoringType  @default(STANDARD)
-  creationDate DateTime     @default(now())
-  tournaments  Tournament[]
-  description  String?      @db.Text
-  logoUrl      String?      @db.VarChar(255)
-  isPublic     Boolean      @default(true)
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-
-  @@index([adminId])
-  @@index([name])
-  @@index([isPublic])
-  @@index([creationDate])
-}
-
-model Tournament {
-  id                   String             @id @default(uuid())
-  league               League             @relation(fields: [leagueId], references: [id])
-  leagueId             String
-  name                 String             @db.VarChar(100)
-  description          String?            @db.Text
-  format               TournamentFormat   @default(SINGLE_ELIMINATION)
-  modality             TournamentModality @default(DOUBLES)
-  status               TournamentStatus   @default(DRAFT)
-  teams                Team[]
-  matches              Match[]
-  statistics           Statistic[]
-  startDate            DateTime?
-  endDate              DateTime?
-  rules                Json? // Reglas específicas del torneo
-  prizes               Json? // Información sobre premios
-  registrationFee      Decimal?           @db.Decimal(10, 2)
-  maxTeams             Int? // Número máximo de equipos permitidos
-  minTeams             Int? // Número mínimo de equipos para comenzar
-  registrationDeadline DateTime? // Fecha límite para registrarse
-  logoUrl              String?            @db.VarChar(255)
-  createdAt            DateTime           @default(now())
-  updatedAt            DateTime           @updatedAt
-
-  @@index([leagueId])
-  @@index([status])
-  @@index([startDate, endDate])
-  @@index([name])
-}
-
-model Team {
-  id             String     @id @default(uuid())
-  tournament     Tournament @relation(fields: [tournamentId], references: [id])
-  tournamentId   String
-  player1        User       @relation("Player1", fields: [player1Id], references: [id])
-  player2        User       @relation("Player2", fields: [player2Id], references: [id])
-  player1Id      String
-  player2Id      String
-  users          User[]     @relation("UserTeams")
-  matchesAsTeam1 Match[]    @relation("Team1")
-  matchesAsTeam2 Match[]    @relation("Team2")
-  matches        Match[]    @relation("TeamMatches")
-  name           String?    @db.VarChar(100)
-  logoUrl        String?    @db.VarChar(255)
-  ranking        Int? // Posición en el ranking
-  createdAt      DateTime   @default(now())
-  updatedAt      DateTime   @updatedAt
-
-  @@index([tournamentId])
-  @@index([player1Id, player2Id])
-  @@index([name])
-  @@index([ranking])
-}
-
-model Match {
-  id           String      @id @default(uuid())
-  tournament   Tournament  @relation(fields: [tournamentId], references: [id])
-  tournamentId String
-  team1        Team        @relation("Team1", fields: [team1Id], references: [id])
-  team2        Team        @relation("Team2", fields: [team2Id], references: [id])
-  result       Json
-  date         DateTime
-  status       MatchStatus @default(SCHEDULED)
-  statistics   Statistic[] @relation("MatchStatistics")
-  team1Id      String
-  team2Id      String
-  teams        Team[]      @relation("TeamMatches")
-  location     Location?   @relation(fields: [locationId], references: [id])
-  locationId   String?
-  notes        String?     @db.Text
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
-
-  @@index([tournamentId])
-  @@index([date])
-  @@index([status])
-  @@index([team1Id, team2Id])
-  @@index([locationId])
-}
-
-model Statistic {
-  id                    String     @id @default(uuid())
-  player                User       @relation("UserStatistics", fields: [playerId], references: [id])
-  playerId              String
-  tournament            Tournament @relation(fields: [tournamentId], references: [id])
-  tournamentId          String
-  points                Int        @default(0)
-  wins                  Int        @default(0)
-  losses                Int        @default(0)
-  matches               Match[]    @relation("MatchStatistics")
-  // Estadísticas adicionales
-  setsWon               Int        @default(0)
-  setsLost              Int        @default(0)
-  gamesWon              Int        @default(0)
-  gamesLost             Int        @default(0)
-  aces                  Int        @default(0)
-  doubleFaults          Int        @default(0)
-  breakPointsSaved      Int        @default(0)
-  breakPointsFaced      Int        @default(0)
-  firstServePercentage  Decimal?   @db.Decimal(5, 2)
-  secondServePercentage Decimal?   @db.Decimal(5, 2)
-  winningPercentage     Decimal?   @db.Decimal(5, 2)
-  performanceRating     Decimal?   @db.Decimal(5, 2)
-  advancedStats         Json? // Para estadísticas más específicas o personalizadas
-  createdAt             DateTime   @default(now())
-  updatedAt             DateTime   @updatedAt
-
-  @@index([playerId])
-  @@index([tournamentId])
-  @@index([points])
-  @@index([wins, losses])
-  @@index([performanceRating])
-}
-
-model Chatbot {
-  id        String   @id @default(uuid())
-  name      String   @db.VarChar(100)
-  users     User[]   @relation("UserChatbots")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model Role {
-  id          String   @id @default(uuid())
-  name        String   @unique @db.VarChar(50)
-  description String?  @db.Text
-  permissions Json? // Almacena permisos específicos como un objeto JSON
-  users       User[]   @relation("UserRoles")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@index([name])
-}
-
-model Location {
-  id          String   @id @default(uuid())
-  name        String   @db.VarChar(100)
-  address     String   @db.VarChar(255)
-  city        String   @db.VarChar(100)
-  postalCode  String?  @db.VarChar(20)
-  country     String   @db.VarChar(100)
-  coordinates Json? // Almacena coordenadas geográficas como {lat: x, lng: y}
-  facilities  Json? // Almacena información sobre instalaciones disponibles
-  matches     Match[] // Relación con los partidos que se juegan en esta ubicación
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@index([city])
-  @@index([name])
-}
-
-enum NotificationType {
-  MATCH_SCHEDULED
-  MATCH_RESULT
-  TOURNAMENT_UPDATE
-  TEAM_INVITATION
-  SYSTEM_ANNOUNCEMENT
-}
-
-model Notification {
-  id          String           @id @default(uuid())
-  type        NotificationType
-  title       String           @db.VarChar(100)
-  message     String           @db.Text
-  isRead      Boolean          @default(false)
-  user        User             @relation(fields: [userId], references: [id])
-  userId      String
-  relatedData Json? // Datos adicionales relacionados con la notificación
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-
-  @@index([userId])
-  @@index([type])
-  @@index([isRead])
-  @@index([createdAt])
-}
-
-model AuditLog {
-  id         String          @id @default(uuid())
-  actionType AuditActionType
-  entityType String          @db.VarChar(50) // User, League, Tournament, etc.
-  entityId   String          @db.VarChar(50) // ID de la entidad afectada
-  userId     String // Usuario que realizó la acción
-  user       User            @relation(fields: [userId], references: [id])
-  ipAddress  String?         @db.VarChar(50)
-  userAgent  String?         @db.VarChar(255)
-  details    Json? // Detalles adicionales de la acción
-  createdAt  DateTime        @default(now())
-
-  @@index([actionType])
-  @@index([entityType, entityId])
-  @@index([userId])
-  @@index([createdAt])
 }

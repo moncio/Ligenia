@@ -13,6 +13,8 @@ yarn-error.log*
 
 # Environment Variables
 .env
+!.env.test
+!.env.test.fixed
 
 # Prisma
 prisma/.env

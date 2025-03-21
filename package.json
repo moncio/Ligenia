@@ -1,0 +1,28 @@
+{
+  "name": "ligenia",
+  "version": "1.0.0",
+  "description": "Ligenia - Tournament and player management platform",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "jest",
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "prisma:migrate": "env $(cat .env.test | xargs) prisma migrate deploy --schema=backend/prisma/schema.prisma",
+    "prisma:generate": "prisma generate --schema=backend/prisma/schema.prisma",
+    "prisma:seed": "ts-node backend/prisma/seed.ts"
+  },
+  "keywords": [],
+  "author": "Jaime Menendez",
+  "license": "MIT",
+  "dependencies": {
+    "@prisma/client": "^6.5.0",
+    "prisma": "^6.5.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/moncio/ligenia.git"
+  }
+}
