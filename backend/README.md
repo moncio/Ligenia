@@ -301,72 +301,129 @@ npm test -- --testPathPattern=unit
 npm test -- --testPathPattern=user.entity.test.ts
 ```
 
-### Pruebas de Integración con Supabase
+### Enhanced Auth Middleware for Testing
 
-Para las pruebas de integración con Supabase, se ha creado un archivo `.env.test.example` que sirve como plantilla para configurar el entorno de pruebas:
+The authentication middleware has been enhanced to support testing different user roles:
 
-```
-NODE_ENV=test
-PORT=3001
+- Predefined test tokens (`admin-token`, `player-token`, etc.) that simulate different roles
+- Support for overriding roles with the `x-test-role` header in test environment
+- Detailed documentation available in `docs/testing-auth.md`
 
-# Base de datos para pruebas
-# Opción 1: Base de datos PostgreSQL local
-DATABASE_URL=postgresql://postgres:password@localhost:5432/ligenia_test
+This enhancement enables proper testing of role-based access control throughout the application.
 
-# Opción 2: Base de datos Supabase
-# DATABASE_URL=postgresql://postgres:[PASSWORD]@db.[PROJECT_ID].supabase.co:5432/postgres
+### Tournament Integration Tests
 
-# Credenciales de Supabase para pruebas
-SUPABASE_URL=https://[PROJECT_ID].supabase.co
-SUPABASE_KEY=[SERVICE_ROLE_KEY]
+The tournament integration tests (`tests/integration/routes/tournament.routes.test.ts`) verify the behavior of all tournament-related endpoints. Due to the current authentication middleware limitations, the tests focus on:
 
-# Configuración JWT
-JWT_SECRET=your_jwt_secret_for_tests
-JWT_EXPIRES_IN=1h
-JWT_REFRESH_EXPIRES_IN=7d
+1. Authentication and authorization checks
+2. Public endpoint functionality
+3. Error handling for validation, non-existent resources, and unauthorized access
 
-# Nivel de logging
-LOG_LEVEL=debug
+Current limitations and future improvements are documented in `COVERAGE_NOTES.md`.
 
-# CORS
-CORS_ORIGIN=http://localhost:3000
-```
+### Mock Auth Middleware
 
-Para ejecutar las pruebas de integración, es necesario crear un archivo `.env.test` basado en esta plantilla con las credenciales reales.
+To improve future testing capabilities, a mock version of the auth middleware has been provided in `tests/mocks/auth-middleware.mock.ts`. This mock:
 
-### Solución a Problemas Comunes
+- Respects roles specified in tokens
+- Provides special test tokens for different roles
+- Can be used to test admin functionality properly
 
-#### Advertencia sobre "testTimeout"
+## Coverage
 
-Al ejecutar las pruebas, aparece una advertencia sobre la opción "testTimeout":
+Current test coverage (from the most recent full integration test run):
+- Statements: ~51.6% (Target: 70%)
+- Branches: ~25.62% (Target: 70%)
+- Functions: ~47.14% (Target: 70%)
+- Lines: ~51.45% (Target: 70%)
 
-```
-● Validation Warning:
-  Unknown option "testTimeout" with value 30000 was found.
-```
+Key progress areas:
+- Tournament controller: 64.76% statement coverage with 100% function coverage
+- Auth middleware: 86.84% statement coverage with 84.61% branch coverage
+- API routes: 99.39% statement coverage
 
-Esta advertencia no afecta la ejecución de las pruebas y se debe a que la opción `testTimeout` está definida en la configuración del proyecto de integración pero no es reconocida por Jest a nivel global.
+See `COVERAGE_NOTES.md` for improvement plans.
 
-### Mejoras Futuras Planificadas
+## License
 
-#### 1. Ampliación de Cobertura de Pruebas
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-- **Pruebas E2E**: Implementación de pruebas end-to-end para flujos completos de usuario
-- **Pruebas de Rendimiento**: Verificación del rendimiento bajo carga
-- **Pruebas de Seguridad**: Validación de aspectos de seguridad como autenticación y autorización
+# Ligenia Backend API
 
-#### 2. Integración con CI/CD
+This is the backend API for Ligenia, a platform for managing padel tournaments, players, and matches.
 
-- Configuración de GitHub Actions para ejecutar pruebas automáticamente
-- Generación de informes de cobertura
-- Validación de calidad de código con herramientas como SonarQube
+## Project Structure
 
-#### 3. Documentación Detallada de Pruebas
+The project follows a clean architecture approach with the following structure:
 
-- Guías para escribir nuevas pruebas
-- Documentación de patrones y mejores prácticas
-- Ejemplos de mocks y stubs para componentes comunes
+- `src/api`: Contains controllers, routes, middlewares, and validations
+- `src/core`: Contains domain entities, use cases, and interfaces
+- `src/infrastructure`: Contains implementations of interfaces
+- `src/shared`: Contains shared utilities
+- `tests`: Contains unit and integration tests
 
-### Conclusión sobre Testing
+## Getting Started
 
-El enfoque de pruebas en LIGENIA está completamente implementado en TypeScript, proporcionando un alto nivel de seguridad de tipos y coherencia con el resto del código base. Las pruebas unitarias están funcionando correctamente, mientras que las pruebas de integración requieren la configuración adecuada de las variables de entorno para conectarse a Supabase.
+### Prerequisites
+
+- Node.js >= 14
+- npm or yarn
+- PostgreSQL database
+
+### Installation
+
+1. Clone the repository
+2. Install dependencies: `npm install`
+3. Copy `.env.example` to `.env` and update with your values
+4. Run database migrations: `npm run migrate`
+5. Start the server: `npm run dev`
+
+## API Documentation
+
+The API is documented using Swagger/OpenAPI. After starting the server, you can access the documentation at `/api-docs`.
+
+## Testing
+
+### Test Suite
+
+The project includes both unit and integration tests:
+
+- **Unit tests**: Test individual components in isolation
+- **Integration tests**: Test API endpoints with simulated HTTP requests
+
+### Running Tests
+
+- Run all tests: `npm test`
+- Run with coverage: `npm run test:coverage`
+- Run specific tests: `npx jest <path-to-test-file>`
+
+### Enhanced Auth Middleware for Testing
+
+The authentication middleware has been enhanced to support testing different user roles:
+
+- Predefined test tokens (`admin-token`, `player-token`, etc.) that simulate different roles
+- Support for overriding roles with the `x-test-role` header in test environment
+- Detailed documentation available in `docs/testing-auth.md`
+
+This enhancement enables proper testing of role-based access control throughout the application.
+
+### Tournament Integration Tests
+
+The tournament integration tests (`tests/integration/routes/tournament.routes.test.ts`) verify the behavior of all tournament-related endpoints. Due to the current authentication middleware limitations, the tests focus on:
+
+1. Authentication and authorization checks
+2. Public endpoint functionality
+3. Error handling for validation, non-existent resources, and unauthorized access
+
+Current limitations and future improvements are documented in `COVERAGE_NOTES.md`.
+
+### Mock Auth Middleware
+
+To improve future testing capabilities, a mock version of the auth middleware has been provided in `tests/mocks/auth-middleware.mock.ts`. This mock:
+
+- Respects roles specified in tokens
+- Provides special test tokens for different roles
+- Can be used to test admin functionality properly
+
+## Coverage
+

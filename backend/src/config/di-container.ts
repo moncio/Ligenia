@@ -8,9 +8,15 @@ export const TYPES = {
 };
 
 // Create and configure container
-const container = new Container();
+let container: Container;
 
-// Register dependencies
-container.bind<IAuthService>(TYPES.AuthService).to(SupabaseAuthService);
+// En entorno de pruebas, el contenedor se configura externamente
+if (process.env.NODE_ENV === 'test') {
+  container = new Container();
+} else {
+  // En entorno de producción o desarrollo, configuramos normalmente
+  container = new Container();
+  container.bind<IAuthService>(TYPES.AuthService).to(SupabaseAuthService);
+}
 
 export { container }; 

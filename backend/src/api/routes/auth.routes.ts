@@ -1,47 +1,73 @@
 import { Router } from 'express';
-import { IAuthService } from '../../core/application/interfaces/auth';
-import { authMiddleware } from '../middlewares/auth.middleware';
 import { AuthController } from '../controllers/auth.controller';
+import { authenticate } from '../middlewares/auth.middleware';
+import { validateBody } from '../middlewares/validate.middleware';
+import { 
+  loginSchema, 
+  registerSchema, 
+  forgotPasswordSchema, 
+  resetPasswordSchema, 
+  verifyEmailSchema,
+  refreshTokenSchema
+} from '../validations/user.validation';
 
-// Export a function that receives the auth service and returns the router
-export default function authRoutes(authService: IAuthService) {
-  const router = Router();
-  const authController = new AuthController(authService);
+const router = Router();
+const authController = new AuthController();
 
-  /**
-   * @route POST /api/auth/login
-   * @desc Login a user
-   * @access Public
-   */
-  router.post('/login', authController.login);
+// Ruta para registrar un nuevo usuario
+router.post(
+  '/register',
+  validateBody(registerSchema),
+  authController.register
+);
 
-  /**
-   * @route POST /api/auth/register
-   * @desc Register a new user
-   * @access Public
-   */
-  router.post('/register', authController.register);
+// Ruta para iniciar sesión
+router.post(
+  '/login',
+  validateBody(loginSchema),
+  authController.login
+);
 
-  /**
-   * @route POST /api/auth/refresh-token
-   * @desc Refresh token
-   * @access Public
-   */
-  router.post('/refresh-token', authController.refreshToken);
+// Ruta para cerrar sesión
+router.post(
+  '/logout',
+  authenticate,
+  authController.logout
+);
 
-  /**
-   * @route GET /api/auth/me
-   * @desc Get current user
-   * @access Private
-   */
-  router.get('/me', authMiddleware(authService), authController.getCurrentUser);
+// Ruta para refrescar el token
+router.post(
+  '/refresh-token',
+  validateBody(refreshTokenSchema),
+  authController.refreshToken
+);
 
-  /**
-   * @route POST /api/auth/logout
-   * @desc Logout user
-   * @access Public
-   */
-  router.post('/logout', authController.logout);
+// Ruta para obtener el perfil del usuario actual
+router.get(
+  '/me',
+  authenticate,
+  authController.getMe
+);
 
-  return router;
-} 
+// Ruta para solicitar restablecimiento de contraseña
+router.post(
+  '/forgot-password',
+  validateBody(forgotPasswordSchema),
+  authController.forgotPassword
+);
+
+// Ruta para restablecer contraseña
+router.post(
+  '/reset-password',
+  validateBody(resetPasswordSchema),
+  authController.resetPassword
+);
+
+// Ruta para verificar email
+router.post(
+  '/verify-email',
+  validateBody(verifyEmailSchema),
+  authController.verifyEmail
+);
+
+export default router; 

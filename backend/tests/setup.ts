@@ -1,15 +1,27 @@
 import { PrismaClient } from '@prisma/client';
 import { config } from 'dotenv';
+import { setupSupabaseMock, mockSupabaseModule } from './utils/supabaseMock';
+import { resolve } from 'path';
 
 // Load test environment variables
-config({ path: '.env.test' });
+config({ path: resolve(__dirname, '../.env.test') });
 
 // Create a new PrismaClient instance for testing
 export const prisma = new PrismaClient();
 
 // Global setup
-beforeAll(async () => {
-  // Add any global setup here
+beforeAll(() => {
+  // Mock del módulo de Supabase
+  mockSupabaseModule();
+  
+  // Configurar el entorno de prueba
+  process.env.NODE_ENV = 'test';
+  
+  // Forzar que Jest use las rutas correctas
+  jest.mock('@supabase/supabase-js', () => require('./mocks/supabase.mock'));
+  
+  // Configurar mocks de servicios externos
+  setupSupabaseMock();
 });
 
 // Global teardown
