@@ -6,7 +6,7 @@ import dotenv from 'dotenv';
 import morgan from 'morgan';
 import { container } from './config/di-container';
 import { TYPES } from './config/di-container';
-import { IAuthService } from './core/application/interfaces/auth';
+import { IAuthService } from './core/application/interfaces/auth-service.interface';
 import apiRoutes from './api/routes/index';
 
 // Load environment variables

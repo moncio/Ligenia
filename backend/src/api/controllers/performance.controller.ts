@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { AuthRequest } from '../middlewares/auth.middleware';
 import { UserRole } from '@prisma/client';
+import { TrackPerformanceTrendsUseCase } from '../../core/application/use-cases/performance-history/track-performance-trends.use-case';
 
 export class PerformanceController {
   /**
@@ -298,4 +299,48 @@ export class PerformanceController {
       return res.status(500).json({ status: 'error', message: 'Internal server error' });
     }
   };
+
+  /**
+   * Track performance trends
+   * @route GET /api/performance/trends
+   */
+  public trackPerformanceTrends = async (req: Request, res: Response) => {
+    try {
+      // Obtener parámetros de consulta (ya validados por el middleware)
+      const { userId, timeframe } = req.query;
+
+      // Obtener el caso de uso desde el contenedor de DI
+      const trackPerformanceTrendsUseCase = (req as any).container.resolve(
+        'trackPerformanceTrendsUseCase'
+      );
+
+      // Ejecutar el caso de uso
+      const result = await trackPerformanceTrendsUseCase.execute({
+        userId: userId as string,
+        ...(timeframe && { timeframe: timeframe as 'monthly' | 'yearly' | 'all' })
+      });
+
+      if (result.isFailure()) {
+        return res.status(400).json({
+          status: 'error',
+          message: result.getError().message
+        });
+      }
+
+      const trends = result.getValue();
+
+      return res.status(200).json({
+        status: 'success',
+        data: {
+          trends
+        }
+      });
+    } catch (error) {
+      console.error('Error tracking performance trends:', error);
+      return res.status(500).json({
+        status: 'error',
+        message: 'Error interno del servidor'
+      });
+    }
+  }
 } 

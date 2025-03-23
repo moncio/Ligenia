@@ -8,7 +8,8 @@ import {
   userIdParamSchema,
   createPerformanceSchema,
   updatePerformanceSchema,
-  getPerformanceQuerySchema
+  getPerformanceQuerySchema,
+  performanceTrendsQuerySchema
 } from '../validations/performance.validation';
 
 const router = Router();
@@ -97,6 +98,17 @@ router.get(
   '/summary',
   validateQuery(getPerformanceQuerySchema),
   performanceController.getPerformanceSummary
+);
+
+/**
+ * @route GET /api/performance/trends
+ * @desc Track performance trends
+ * @access Public
+ */
+router.get(
+  '/trends',
+  validateQuery(performanceTrendsQuerySchema),
+  performanceController.trackPerformanceTrends
 );
 
 export default router; 

@@ -7,7 +7,7 @@ import { config } from 'dotenv';
 import path from 'path';
 import { Container } from 'inversify';
 import { TYPES, container } from '../../src/config/di-container';
-import { IAuthService } from '../../src/core/application/interfaces/auth';
+import { IAuthService } from '../../src/core/application/interfaces/auth-service.interface';
 import { MockAuthService } from '../mocks/auth-service.mock';
 
 // Cargar variables de entorno de prueba

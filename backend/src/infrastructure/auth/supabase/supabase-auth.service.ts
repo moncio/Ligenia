@@ -1,13 +1,14 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { Result } from '../../../shared/result';
 import {
-  IAuthService,
+  IAuthService } from '../../../core/application/interfaces/auth-service.interface';
+import {
   IAuthUser,
   ILoginCredentials,
   IRegistrationData,
   ITokenResponse,
   ITokenValidationResponse,
-} from '../../../core/application/interfaces/auth';
+} from '../../../core/application/interfaces/auth.types';
 import {
   AuthError,
   EmailAlreadyInUseError,
@@ -317,5 +318,15 @@ export class SupabaseAuthService implements IAuthService {
     } catch (error) {
       return Result.fail(new InvalidTokenError());
     }
+  }
+
+  async verifyPassword(plainPassword: string, hashedPassword: string): Promise<boolean> {
+    // Supabase handles password verification internally, so this is a placeholder
+    return true;
+  }
+
+  async generateToken(user: IAuthUser): Promise<string> {
+    // Supabase handles token generation internally, so this is a placeholder
+    return 'supabase-generated-token';
   }
 } 

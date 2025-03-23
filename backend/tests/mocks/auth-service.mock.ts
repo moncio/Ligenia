@@ -1,6 +1,7 @@
-import { IAuthService, IAuthUser, ILoginCredentials, IRegistrationData, ITokenResponse, ITokenValidationResponse } from '../../src/core/application/interfaces/auth';
+import { IAuthUser, ILoginCredentials, IRegistrationData, ITokenResponse, ITokenValidationResponse } from '../../src/core/application/interfaces/auth.types';
+import { IAuthService } from '../../src/core/application/interfaces/auth-service.interface';
 import { Result } from '../../src/shared/result';
-import { UserRole } from '@prisma/client';
+import { UserRole } from '../../src/core/domain/user/user.entity';
 import jwt from 'jsonwebtoken';
 
 // Definición de tipos para los usuarios mock
@@ -128,7 +129,7 @@ export class MockAuthService implements IAuthService {
     
     // Asegurar que el rol es un valor válido del enum UserRole
     let userRole: UserRole;
-    if (data.role === UserRole.ADMIN) {
+    if (data.role === 'ADMIN') {
       userRole = UserRole.ADMIN;
     } else {
       userRole = UserRole.PLAYER;
@@ -242,6 +243,19 @@ export class MockAuthService implements IAuthService {
     }
     
     return Result.fail(new Error('Invalid refresh token'));
+  }
+
+  async verifyPassword(plainPassword: string, hashedPassword: string): Promise<boolean> {
+    // Mock password verification logic
+    return plainPassword === hashedPassword;
+  }
+
+  async generateToken(user: IAuthUser): Promise<string> {
+    return generateTestToken({
+      id: user.id, 
+      email: user.email, 
+      role: user.role as UserRole
+    });
   }
 }
 

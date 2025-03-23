@@ -36,4 +36,12 @@ export const getPerformanceQuerySchema = z.object({
   month: z.string().regex(/^([1-9]|1[0-2])$/, { message: 'Month must be a number between 1 and 12' }).optional(),
   limit: z.string().regex(/^\d+$/, { message: 'Limit must be a number' }).optional(),
   offset: z.string().regex(/^\d+$/, { message: 'Offset must be a number' }).optional()
+});
+
+// Esquema de validación para consulta de tendencias de rendimiento
+export const performanceTrendsQuerySchema = z.object({
+  userId: z.string().uuid({ message: 'Invalid user ID format' }),
+  timeframe: z.enum(['monthly', 'yearly', 'all'], {
+    errorMap: () => ({ message: 'Timeframe must be monthly, yearly, or all' })
+  }).optional()
 }); 
