@@ -3,11 +3,11 @@ import { UserController } from '../controllers/user.controller';
 import { authenticate, authorize } from '../middlewares/auth.middleware';
 import { UserRole } from '@prisma/client';
 import { validateBody, validateParams, validateQuery } from '../middlewares/validate.middleware';
-import { 
-  idParamSchema, 
-  createUserSchema, 
-  updateUserSchema, 
-  changePasswordSchema 
+import {
+  idParamSchema,
+  createUserSchema,
+  updateUserSchema,
+  changePasswordSchema,
 } from '../validations/user.validation';
 import { updatePreferenceSchema } from '../validations/preference.validation';
 
@@ -19,24 +19,14 @@ const userController = new UserController();
  * @desc Get all users
  * @access Private - Admin
  */
-router.get(
-  '/',
-  authenticate,
-  authorize([UserRole.ADMIN]),
-  userController.getUsers
-);
+router.get('/', authenticate, authorize([UserRole.ADMIN]), userController.getUsers);
 
 /**
  * @route GET /api/users/:id
  * @desc Get user by ID
  * @access Private - Self or Admin
  */
-router.get(
-  '/:id',
-  authenticate,
-  validateParams(idParamSchema),
-  userController.getUserById
-);
+router.get('/:id', authenticate, validateParams(idParamSchema), userController.getUserById);
 
 /**
  * @route POST /api/users
@@ -48,7 +38,7 @@ router.post(
   authenticate,
   authorize([UserRole.ADMIN]),
   validateBody(createUserSchema),
-  userController.createUser
+  userController.createUser,
 );
 
 /**
@@ -61,7 +51,7 @@ router.put(
   authenticate,
   validateParams(idParamSchema),
   validateBody(updateUserSchema),
-  userController.updateUser
+  userController.updateUser,
 );
 
 /**
@@ -69,12 +59,7 @@ router.put(
  * @desc Delete user
  * @access Private - Self or Admin
  */
-router.delete(
-  '/:id',
-  authenticate,
-  validateParams(idParamSchema),
-  userController.deleteUser
-);
+router.delete('/:id', authenticate, validateParams(idParamSchema), userController.deleteUser);
 
 /**
  * @route GET /api/users/:id/statistics
@@ -85,7 +70,7 @@ router.get(
   '/:id/statistics',
   authenticate,
   validateParams(idParamSchema),
-  userController.getUserStatistics
+  userController.getUserStatistics,
 );
 
 /**
@@ -97,7 +82,7 @@ router.get(
   '/:id/preferences',
   authenticate,
   validateParams(idParamSchema),
-  userController.getUserPreferences
+  userController.getUserPreferences,
 );
 
 /**
@@ -110,7 +95,7 @@ router.put(
   authenticate,
   validateParams(idParamSchema),
   validateBody(updatePreferenceSchema),
-  userController.updateUserPreferences
+  userController.updateUserPreferences,
 );
 
 /**
@@ -123,7 +108,7 @@ router.post(
   authenticate,
   validateParams(idParamSchema),
   validateBody(changePasswordSchema),
-  userController.changePassword
+  userController.changePassword,
 );
 
 /**
@@ -131,21 +116,13 @@ router.post(
  * @desc Get user performance by year
  * @access Private
  */
-router.get(
-  '/:id/performance/:year',
-  authenticate,
-  userController.getUserPerformance
-);
+router.get('/:id/performance/:year', authenticate, userController.getUserPerformance);
 
 /**
  * @route GET /api/users/:id/match-history
  * @desc Get user match history
  * @access Private
  */
-router.get(
-  '/:id/match-history',
-  authenticate,
-  userController.getMatchHistory
-);
+router.get('/:id/match-history', authenticate, userController.getMatchHistory);
 
-export default router; 
+export default router;

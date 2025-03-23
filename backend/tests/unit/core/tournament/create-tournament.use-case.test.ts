@@ -1,6 +1,11 @@
 import { CreateTournamentUseCase } from '../../../../src/core/application/use-cases/tournament/create-tournament.use-case';
 import { ITournamentRepository } from '../../../../src/core/application/interfaces/repositories/tournament.repository';
-import { Tournament, TournamentFormat, TournamentStatus, PlayerLevel } from '../../../../src/core/domain/tournament/tournament.entity';
+import {
+  Tournament,
+  TournamentFormat,
+  TournamentStatus,
+  PlayerLevel,
+} from '../../../../src/core/domain/tournament/tournament.entity';
 import { Result } from '../../../../src/shared/result';
 
 // Mock for Tournament Repository
@@ -78,7 +83,7 @@ describe('CreateTournamentUseCase', () => {
       maxParticipants: 16,
       registrationDeadline: '2023-07-10T23:59:59Z',
       category: PlayerLevel.P3,
-      createdById: '00000000-0000-0000-0000-000000000001'
+      createdById: '00000000-0000-0000-0000-000000000001',
     };
 
     // Act
@@ -86,7 +91,7 @@ describe('CreateTournamentUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const tournament = result.getValue();
     expect(tournament.id).toBeDefined();
     expect(tournament.name).toBe(input.name);
@@ -97,7 +102,7 @@ describe('CreateTournamentUseCase', () => {
     expect(tournament.maxParticipants).toBe(input.maxParticipants);
     expect(tournament.category).toBe(input.category);
     expect(tournament.createdById).toBe(input.createdById);
-    
+
     // Date conversions
     expect(tournament.startDate).toEqual(new Date(input.startDate));
     expect(tournament.endDate).toEqual(new Date(input.endDate));
@@ -113,7 +118,7 @@ describe('CreateTournamentUseCase', () => {
       endDate: '2023-07-14T18:00:00Z', // End date before start date
       format: TournamentFormat.SINGLE_ELIMINATION,
       status: TournamentStatus.DRAFT,
-      createdById: '00000000-0000-0000-0000-000000000001'
+      createdById: '00000000-0000-0000-0000-000000000001',
     };
 
     // Act
@@ -134,7 +139,7 @@ describe('CreateTournamentUseCase', () => {
       format: TournamentFormat.SINGLE_ELIMINATION,
       status: TournamentStatus.DRAFT,
       registrationDeadline: '2023-07-16T00:00:00Z', // After start date
-      createdById: '00000000-0000-0000-0000-000000000001'
+      createdById: '00000000-0000-0000-0000-000000000001',
     };
 
     // Act
@@ -152,7 +157,7 @@ describe('CreateTournamentUseCase', () => {
       startDate: '2023-07-15T09:00:00Z',
       format: TournamentFormat.SINGLE_ELIMINATION,
       status: TournamentStatus.DRAFT,
-      createdById: '00000000-0000-0000-0000-000000000001'
+      createdById: '00000000-0000-0000-0000-000000000001',
     };
 
     // Act
@@ -170,7 +175,7 @@ describe('CreateTournamentUseCase', () => {
       name: 'Minimalist Tournament',
       startDate: '2023-07-15T09:00:00Z',
       format: TournamentFormat.SINGLE_ELIMINATION,
-      createdById: '00000000-0000-0000-0000-000000000001'
+      createdById: '00000000-0000-0000-0000-000000000001',
     };
 
     // Act
@@ -178,14 +183,14 @@ describe('CreateTournamentUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const tournament = result.getValue();
     expect(tournament.id).toBeDefined();
     expect(tournament.name).toBe(input.name);
     expect(tournament.description).toBe(''); // Default value
     expect(tournament.format).toBe(input.format);
     expect(tournament.status).toBe(TournamentStatus.DRAFT); // Default value
-    
+
     // Optional fields should be null
     expect(tournament.location).toBe(null);
     expect(tournament.maxParticipants).toBe(null);
@@ -193,4 +198,4 @@ describe('CreateTournamentUseCase', () => {
     expect(tournament.registrationDeadline).toBe(null);
     expect(tournament.category).toBe(null);
   });
-}); 
+});

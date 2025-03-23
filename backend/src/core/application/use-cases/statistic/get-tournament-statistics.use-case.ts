@@ -10,16 +10,19 @@ import { IPlayerRepository } from '../../interfaces/repositories/player.reposito
 const PaginationSchema = z.object({
   page: z.number().int().positive().default(1),
   limit: z.number().int().positive().max(100).default(10),
-  sortBy: z.enum(['winRate', 'matchesPlayed', 'matchesWon', 'totalPoints', 'averageScore']).optional().default('winRate'),
-  sortOrder: z.enum(['asc', 'desc']).optional().default('desc')
+  sortBy: z
+    .enum(['winRate', 'matchesPlayed', 'matchesWon', 'totalPoints', 'averageScore'])
+    .optional()
+    .default('winRate'),
+  sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
 });
 
 // Input validation schema
 const GetTournamentStatisticsInputSchema = z.object({
   tournamentId: z.string().uuid({
-    message: 'Invalid tournament ID format'
+    message: 'Invalid tournament ID format',
   }),
-  pagination: PaginationSchema.optional()
+  pagination: PaginationSchema.optional(),
 });
 
 // Input type
@@ -65,12 +68,14 @@ export class GetTournamentStatisticsUseCase extends BaseUseCase<
   constructor(
     private readonly statisticRepository: IStatisticRepository,
     private readonly tournamentRepository: ITournamentRepository,
-    private readonly playerRepository: IPlayerRepository
+    private readonly playerRepository: IPlayerRepository,
   ) {
     super();
   }
 
-  protected async executeImpl(input: GetTournamentStatisticsInput): Promise<Result<GetTournamentStatisticsOutput>> {
+  protected async executeImpl(
+    input: GetTournamentStatisticsInput,
+  ): Promise<Result<GetTournamentStatisticsOutput>> {
     try {
       // Validate input
       let validatedData: GetTournamentStatisticsInput;
@@ -79,7 +84,7 @@ export class GetTournamentStatisticsUseCase extends BaseUseCase<
       } catch (validationError) {
         if (validationError instanceof z.ZodError) {
           return Result.fail<GetTournamentStatisticsOutput>(
-            new Error(validationError.errors[0].message)
+            new Error(validationError.errors[0].message),
           );
         }
         throw validationError;
@@ -88,9 +93,7 @@ export class GetTournamentStatisticsUseCase extends BaseUseCase<
       // Check if tournament exists
       const tournament = await this.tournamentRepository.findById(validatedData.tournamentId);
       if (!tournament) {
-        return Result.fail<GetTournamentStatisticsOutput>(
-          new Error('Tournament not found')
-        );
+        return Result.fail<GetTournamentStatisticsOutput>(new Error('Tournament not found'));
       }
 
       // Set pagination defaults if not provided
@@ -98,17 +101,17 @@ export class GetTournamentStatisticsUseCase extends BaseUseCase<
         page: 1,
         limit: 10,
         sortBy: 'winRate',
-        sortOrder: 'desc'
+        sortOrder: 'desc',
       };
 
       // Get tournament participants
       const participants = await this.tournamentRepository.getParticipants(
-        validatedData.tournamentId
+        validatedData.tournamentId,
       );
 
       if (participants.length === 0) {
         return Result.fail<GetTournamentStatisticsOutput>(
-          new Error('No participants found in this tournament')
+          new Error('No participants found in this tournament'),
         );
       }
 
@@ -128,7 +131,7 @@ export class GetTournamentStatisticsUseCase extends BaseUseCase<
       // Check if any statistics were found
       if (allStatistics.length === 0) {
         return Result.fail<GetTournamentStatisticsOutput>(
-          new Error('No statistics found for tournament participants')
+          new Error('No statistics found for tournament participants'),
         );
       }
 
@@ -136,15 +139,12 @@ export class GetTournamentStatisticsUseCase extends BaseUseCase<
       const sortedStatistics = this.sortStatistics(
         allStatistics,
         pagination.sortBy,
-        pagination.sortOrder
+        pagination.sortOrder,
       );
 
       // Apply pagination
       const offset = (pagination.page - 1) * pagination.limit;
-      const paginatedStatistics = sortedStatistics.slice(
-        offset,
-        offset + pagination.limit
-      );
+      const paginatedStatistics = sortedStatistics.slice(offset, offset + pagination.limit);
 
       // Calculate summary statistics
       const summary = this.calculateSummaryStats(allStatistics);
@@ -160,12 +160,12 @@ export class GetTournamentStatisticsUseCase extends BaseUseCase<
           total: allStatistics.length,
           page: pagination.page,
           limit: pagination.limit,
-          totalPages: Math.ceil(allStatistics.length / pagination.limit)
-        }
+          totalPages: Math.ceil(allStatistics.length / pagination.limit),
+        },
       });
     } catch (error) {
       return Result.fail<GetTournamentStatisticsOutput>(
-        error instanceof Error ? error : new Error('Failed to get tournament statistics')
+        error instanceof Error ? error : new Error('Failed to get tournament statistics'),
       );
     }
   }
@@ -173,11 +173,7 @@ export class GetTournamentStatisticsUseCase extends BaseUseCase<
   /**
    * Sort statistics based on sort criteria
    */
-  private sortStatistics(
-    statistics: Statistic[],
-    sortBy: string,
-    sortOrder: string
-  ): Statistic[] {
+  private sortStatistics(statistics: Statistic[], sortBy: string, sortOrder: string): Statistic[] {
     return [...statistics].sort((a, b) => {
       let comparison = 0;
 
@@ -213,48 +209,39 @@ export class GetTournamentStatisticsUseCase extends BaseUseCase<
     let topScorer: { playerId: string; totalPoints: number } | null = null;
     let highestWinRate: { playerId: string; winRate: number } | null = null;
     let mostMatchesPlayed: { playerId: string; matchesPlayed: number } | null = null;
-    
+
     // Calculate total matches and average win rate
     let totalMatchesPlayed = 0;
     let totalWinRate = 0;
 
     statistics.forEach(stat => {
       // Update top scorer if current stat has higher total points
-      if (
-        !topScorer || 
-        stat.totalPoints > topScorer.totalPoints
-      ) {
+      if (!topScorer || stat.totalPoints > topScorer.totalPoints) {
         topScorer = {
           playerId: stat.playerId,
-          totalPoints: stat.totalPoints
+          totalPoints: stat.totalPoints,
         };
       }
 
       // Update highest win rate if current stat has higher win rate and played more than 0 matches
-      if (
-        stat.matchesPlayed > 0 &&
-        (!highestWinRate || stat.winRate > highestWinRate.winRate)
-      ) {
+      if (stat.matchesPlayed > 0 && (!highestWinRate || stat.winRate > highestWinRate.winRate)) {
         highestWinRate = {
           playerId: stat.playerId,
-          winRate: stat.winRate
+          winRate: stat.winRate,
         };
       }
 
       // Update most matches played if current stat has played more matches
-      if (
-        !mostMatchesPlayed || 
-        stat.matchesPlayed > mostMatchesPlayed.matchesPlayed
-      ) {
+      if (!mostMatchesPlayed || stat.matchesPlayed > mostMatchesPlayed.matchesPlayed) {
         mostMatchesPlayed = {
           playerId: stat.playerId,
-          matchesPlayed: stat.matchesPlayed
+          matchesPlayed: stat.matchesPlayed,
         };
       }
 
       // Sum up for averages
       totalMatchesPlayed += stat.matchesPlayed;
-      
+
       // Only add win rate to total if player has played matches
       if (stat.matchesPlayed > 0) {
         totalWinRate += stat.winRate;
@@ -263,23 +250,23 @@ export class GetTournamentStatisticsUseCase extends BaseUseCase<
 
     // Calculate average win rate (only for players who have played matches)
     const playersWithMatches = statistics.filter(s => s.matchesPlayed > 0).length;
-    const averageWinRate = playersWithMatches > 0 
-      ? totalWinRate / playersWithMatches 
-      : 0;
+    const averageWinRate = playersWithMatches > 0 ? totalWinRate / playersWithMatches : 0;
 
     return {
       topScorer,
       highestWinRate,
       mostMatchesPlayed,
       averageWinRate,
-      totalMatchesPlayed
+      totalMatchesPlayed,
     };
   }
 
   /**
    * Enhance summary statistics with player names
    */
-  private async enhanceSummaryWithPlayerNames(summary: GetTournamentStatisticsOutput['summary']): Promise<void> {
+  private async enhanceSummaryWithPlayerNames(
+    summary: GetTournamentStatisticsOutput['summary'],
+  ): Promise<void> {
     // Add player names to summary entries
     if (summary.topScorer) {
       const player = await this.playerRepository.findById(summary.topScorer.playerId);
@@ -302,4 +289,4 @@ export class GetTournamentStatisticsUseCase extends BaseUseCase<
       }
     }
   }
-} 
+}

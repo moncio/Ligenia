@@ -46,7 +46,7 @@ beforeAll(async () => {
       prisma.tournament.deleteMany(),
       prisma.user.deleteMany(),
     ]);
-    
+
     // Aquí podrías añadir seeds para pruebas
   } catch (error) {
     console.error('Error en setup de pruebas:', error);
@@ -60,7 +60,7 @@ afterAll(async () => {
     await prisma.$transaction([
       prisma.match.deleteMany(),
       prisma.player.deleteMany(),
-      prisma.statistic.deleteMany(), 
+      prisma.statistic.deleteMany(),
       prisma.tournament.deleteMany(),
       prisma.user.deleteMany(),
     ]);

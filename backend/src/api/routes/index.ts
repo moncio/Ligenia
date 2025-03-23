@@ -28,4 +28,4 @@ router.use('/rankings', rankingRoutes);
 router.use('/preferences', preferenceRoutes);
 router.use('/performance', performanceRoutes);
 
-export default router; 
+export default router;

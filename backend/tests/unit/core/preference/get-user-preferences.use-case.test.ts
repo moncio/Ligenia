@@ -1,6 +1,9 @@
 import { UserPreference } from '@prisma/client';
 import { IPreferenceRepository } from '../../../../src/core/application/interfaces/repositories/preference.repository';
-import { GetUserPreferencesUseCase, GetUserPreferencesInput } from '../../../../src/core/application/use-cases/preference/get-user-preferences.use-case';
+import {
+  GetUserPreferencesUseCase,
+  GetUserPreferencesInput,
+} from '../../../../src/core/application/use-cases/preference/get-user-preferences.use-case';
 
 // Mock repository implementation
 class MockPreferenceRepository implements IPreferenceRepository {
@@ -15,7 +18,7 @@ class MockPreferenceRepository implements IPreferenceRepository {
       theme: 'light',
       fontSize: 16,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
   }
 
@@ -23,11 +26,14 @@ class MockPreferenceRepository implements IPreferenceRepository {
     if (userId === 'error-user-id') {
       throw new Error('Database connection error');
     }
-    
+
     return this.mockData[userId] || null;
   }
 
-  async updateUserPreferences(userId: string, data: Partial<UserPreference>): Promise<UserPreference> {
+  async updateUserPreferences(
+    userId: string,
+    data: Partial<UserPreference>,
+  ): Promise<UserPreference> {
     if (!this.mockData[userId]) {
       // Create new preferences if they don't exist
       this.mockData[userId] = {
@@ -37,17 +43,17 @@ class MockPreferenceRepository implements IPreferenceRepository {
         fontSize: 16,
         createdAt: new Date(),
         updatedAt: new Date(),
-        ...data
+        ...data,
       };
     } else {
       // Update existing preferences
       this.mockData[userId] = {
         ...this.mockData[userId],
         ...data,
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
     }
-    
+
     return this.mockData[userId];
   }
 
@@ -61,7 +67,7 @@ class MockPreferenceRepository implements IPreferenceRepository {
         theme: 'system',
         fontSize: 16,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
     } else {
       // Reset existing to defaults
@@ -69,10 +75,10 @@ class MockPreferenceRepository implements IPreferenceRepository {
         ...this.mockData[userId],
         theme: 'system',
         fontSize: 16,
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
     }
-    
+
     return this.mockData[userId];
   }
 }
@@ -88,17 +94,17 @@ describe('GetUserPreferencesUseCase', () => {
 
   // Helper function to create a valid input
   const createValidInput = (): GetUserPreferencesInput => ({
-    userId: '123e4567-e89b-12d3-a456-426614174000'
+    userId: '123e4567-e89b-12d3-a456-426614174000',
   });
 
   describe('Get user preferences', () => {
     test('should retrieve existing user preferences', async () => {
       // Arrange
       const input = createValidInput();
-      
+
       // Act
       const result = await useCase.execute(input);
-      
+
       // Assert
       expect(result.isSuccess).toBe(true);
       const preferences = result.getValue();
@@ -111,12 +117,12 @@ describe('GetUserPreferencesUseCase', () => {
     test('should return null for non-existing user preferences', async () => {
       // Arrange
       const input = {
-        userId: '123e4567-e89b-12d3-a456-426614174999' // Non-existing user
+        userId: '123e4567-e89b-12d3-a456-426614174999', // Non-existing user
       };
-      
+
       // Act
       const result = await useCase.execute(input);
-      
+
       // Assert
       expect(result.isSuccess).toBe(true);
       expect(result.getValue()).toBeNull();
@@ -127,12 +133,12 @@ describe('GetUserPreferencesUseCase', () => {
     test('should fail with invalid user ID', async () => {
       // Arrange
       const input = {
-        userId: 'invalid-user-id'
+        userId: 'invalid-user-id',
       };
-      
+
       // Act
       const result = await useCase.execute(input as any);
-      
+
       // Assert
       expect(result.isFailure).toBe(true);
       expect(result.getError().message).toContain('Invalid user ID format');
@@ -143,15 +149,15 @@ describe('GetUserPreferencesUseCase', () => {
     test('should handle repository errors', async () => {
       // Arrange
       const input = {
-        userId: 'error-user-id'
+        userId: 'error-user-id',
       };
-      
+
       // Act
       const result = await useCase.execute(input);
-      
+
       // Assert
       expect(result.isFailure).toBe(true);
       expect(result.getError().message).toBe('Database connection error');
     });
   });
-}); 
+});

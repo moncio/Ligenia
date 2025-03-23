@@ -7,7 +7,7 @@ import {
   idParamSchema,
   createPlayerSchema,
   updatePlayerSchema,
-  getPlayersQuerySchema
+  getPlayersQuerySchema,
 } from '../validations/player.validation';
 
 const router = Router();
@@ -18,22 +18,14 @@ const playerController = new PlayerController();
  * @desc Get all players (admin only)
  * @access Private - Admin
  */
-router.get(
-  '/',
-  validateQuery(getPlayersQuerySchema),
-  playerController.getPlayers
-);
+router.get('/', validateQuery(getPlayersQuerySchema), playerController.getPlayers);
 
 /**
  * @route GET /api/players/:id
  * @desc Get player by ID
  * @access Private - Any authenticated user
  */
-router.get(
-  '/:id',
-  validateParams(idParamSchema),
-  playerController.getPlayerById
-);
+router.get('/:id', validateParams(idParamSchema), playerController.getPlayerById);
 
 /**
  * @route POST /api/players
@@ -45,7 +37,7 @@ router.post(
   authenticate,
   authorize([UserRole.ADMIN]),
   validateBody(createPlayerSchema),
-  playerController.createPlayer
+  playerController.createPlayer,
 );
 
 /**
@@ -58,7 +50,7 @@ router.put(
   authenticate,
   validateParams(idParamSchema),
   validateBody(updatePlayerSchema),
-  playerController.updatePlayer
+  playerController.updatePlayer,
 );
 
 /**
@@ -71,7 +63,7 @@ router.delete(
   authenticate,
   authorize([UserRole.ADMIN]),
   validateParams(idParamSchema),
-  playerController.deletePlayer
+  playerController.deletePlayer,
 );
 
 /**
@@ -79,22 +71,14 @@ router.delete(
  * @desc Get player statistics
  * @access Private - Any authenticated user
  */
-router.get(
-  '/:id/statistics',
-  validateParams(idParamSchema),
-  playerController.getPlayerStatistics
-);
+router.get('/:id/statistics', validateParams(idParamSchema), playerController.getPlayerStatistics);
 
 /**
  * @route GET /api/players/:id/matches
  * @desc Get player matches
  * @access Private - Any authenticated user
  */
-router.get(
-  '/:id/matches',
-  validateParams(idParamSchema),
-  playerController.getPlayerMatches
-);
+router.get('/:id/matches', validateParams(idParamSchema), playerController.getPlayerMatches);
 
 /**
  * @route GET /api/players/:id/tournaments
@@ -104,7 +88,7 @@ router.get(
 router.get(
   '/:id/tournaments',
   validateParams(idParamSchema),
-  playerController.getPlayerTournaments
+  playerController.getPlayerTournaments,
 );
 
-export default router; 
+export default router;

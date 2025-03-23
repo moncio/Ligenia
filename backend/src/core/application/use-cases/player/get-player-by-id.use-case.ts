@@ -7,8 +7,8 @@ import { IPlayerRepository } from '../../interfaces/repositories/player.reposito
 // Input validation schema
 const GetPlayerByIdInputSchema = z.object({
   id: z.string().uuid({
-    message: 'Invalid player ID format'
-  })
+    message: 'Invalid player ID format',
+  }),
 });
 
 // Input type
@@ -22,13 +22,8 @@ export interface GetPlayerByIdOutput {
 /**
  * Use case for getting a player by ID
  */
-export class GetPlayerByIdUseCase extends BaseUseCase<
-  GetPlayerByIdInput,
-  GetPlayerByIdOutput
-> {
-  constructor(
-    private readonly playerRepository: IPlayerRepository
-  ) {
+export class GetPlayerByIdUseCase extends BaseUseCase<GetPlayerByIdInput, GetPlayerByIdOutput> {
+  constructor(private readonly playerRepository: IPlayerRepository) {
     super();
   }
 
@@ -40,9 +35,7 @@ export class GetPlayerByIdUseCase extends BaseUseCase<
         validatedData = await GetPlayerByIdInputSchema.parseAsync(input);
       } catch (validationError) {
         if (validationError instanceof z.ZodError) {
-          return Result.fail<GetPlayerByIdOutput>(
-            new Error(validationError.errors[0].message)
-          );
+          return Result.fail<GetPlayerByIdOutput>(new Error(validationError.errors[0].message));
         }
         throw validationError;
       }
@@ -50,16 +43,14 @@ export class GetPlayerByIdUseCase extends BaseUseCase<
       // Find player
       const player = await this.playerRepository.findById(validatedData.id);
       if (!player) {
-        return Result.fail<GetPlayerByIdOutput>(
-          new Error('Player not found')
-        );
+        return Result.fail<GetPlayerByIdOutput>(new Error('Player not found'));
       }
 
       return Result.ok<GetPlayerByIdOutput>({ player });
     } catch (error) {
       return Result.fail<GetPlayerByIdOutput>(
-        error instanceof Error ? error : new Error('Failed to get player by ID')
+        error instanceof Error ? error : new Error('Failed to get player by ID'),
       );
     }
   }
-} 
+}

@@ -1,9 +1,7 @@
 import { Router } from 'express';
 import { RankingController } from '../controllers/statistic.controller';
 import { validateParams, validateQuery } from '../middlewares/validate.middleware';
-import { 
-  getRankingsQuerySchema 
-} from '../validations/statistic.validation';
+import { getRankingsQuerySchema } from '../validations/statistic.validation';
 import { z } from 'zod';
 import { PlayerLevel } from '@prisma/client';
 
@@ -15,11 +13,7 @@ const rankingController = new RankingController();
  * @desc Get global rankings
  * @access Public
  */
-router.get(
-  '/',
-  validateQuery(getRankingsQuerySchema),
-  rankingController.getRankings
-);
+router.get('/', validateQuery(getRankingsQuerySchema), rankingController.getRankings);
 
 /**
  * @route GET /api/rankings/:categoryId
@@ -28,12 +22,14 @@ router.get(
  */
 router.get(
   '/:categoryId',
-  validateParams(z.object({
-    categoryId: z.nativeEnum(PlayerLevel, {
-      errorMap: () => ({ message: 'Invalid player category' })
-    })
-  })),
-  rankingController.getRankingsByCategory
+  validateParams(
+    z.object({
+      categoryId: z.nativeEnum(PlayerLevel, {
+        errorMap: () => ({ message: 'Invalid player category' }),
+      }),
+    }),
+  ),
+  rankingController.getRankingsByCategory,
 );
 
-export default router; 
+export default router;

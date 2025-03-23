@@ -1,3 +1,3 @@
 import { SupabaseAuthService } from './supabase';
 
-export { SupabaseAuthService }; 
+export { SupabaseAuthService };

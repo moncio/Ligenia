@@ -405,19 +405,20 @@
 <a name='L340'></a><a href='#L340'>340</a>
 <a name='L341'></a><a href='#L341'>341</a>
 <a name='L342'></a><a href='#L342'>342</a>
-<a name='L343'></a><a href='#L343'>343</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L343'></a><a href='#L343'>343</a>
+<a name='L344'></a><a href='#L344'>344</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -495,7 +496,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -544,7 +545,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -589,7 +590,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -653,7 +654,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -714,7 +715,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -745,6 +746,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Request, Response } from 'express';
@@ -766,11 +768,11 @@ export class MatchController {
 &nbsp;
       // TODO: Implementar la lógica para obtener todos los partidos desde el caso de uso correspondiente
       // En este punto solo implementamos una respuesta simulada
-      
+&nbsp;
       // Simulación de datos de partidos para la respuesta
       let matches = <span class="cstat-no" title="statement not covered" >[</span>
-        { 
-          id: '1', 
+        {
+          id: '1',
           tournamentId: 'tournament1-uuid',
           homePlayerOneId: 'player1-uuid',
           homePlayerTwoId: 'player2-uuid',
@@ -783,10 +785,10 @@ export class MatchController {
           homeScore: null as number | null,
           awayScore: null as number | null,
           createdAt: '2023-07-01T10:00:00Z',
-          updatedAt: '2023-07-01T10:00:00Z'
+          updatedAt: '2023-07-01T10:00:00Z',
         },
-        { 
-          id: '2', 
+        {
+          id: '2',
           tournamentId: 'tournament1-uuid',
           homePlayerOneId: 'player5-uuid',
           homePlayerTwoId: 'player6-uuid',
@@ -799,8 +801,8 @@ export class MatchController {
           homeScore: 6,
           awayScore: 4,
           createdAt: '2023-07-01T11:00:00Z',
-          updatedAt: '2023-07-10T14:00:00Z'
-        }
+          updatedAt: '2023-07-10T14:00:00Z',
+        },
       ];
 &nbsp;
       // Aplicar filtros si se proporcionaron
@@ -816,16 +818,16 @@ export class MatchController {
 <span class="cstat-no" title="statement not covered" >        return res.status(200).json({</span>
           status: 'success',
           data: {
-            matches: []
-          }
+            matches: [],
+          },
         });
       }
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      return res.status(200).json({</span>
         status: 'success',
         data: {
-          matches
-        }
+          matches,
+        },
       });
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      console.error('Error getting matches:', error);</span>
@@ -841,12 +843,12 @@ export class MatchController {
 <span class="cstat-no" title="statement not covered" >    try {</span>
       // El parámetro id ya ha sido validado por el middleware
       const { id } = <span class="cstat-no" title="statement not covered" >req.params;</span>
-      
+&nbsp;
       // Verificar si el ID proporcionado es un ID ficticio para pruebas
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (id === '00000000-0000-0000-0000-000000000000') {</span>
 <span class="cstat-no" title="statement not covered" >        return res.status(404).json({</span>
           status: 'error',
-          message: 'Match not found'
+          message: 'Match not found',
         });
       }
 &nbsp;
@@ -867,14 +869,14 @@ export class MatchController {
         awayPlayerTwoId: 'player4-uuid',
         awayPlayerTwoName: 'Player 4',
         status: 'scheduled',
-        scheduledDate: new Date().toISOString()
+        scheduledDate: new Date().toISOString(),
       };
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      return res.status(200).json({</span>
         status: 'success',
         data: {
-          match
-        }
+          match,
+        },
       });
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      console.error('Error getting match by ID:', error);</span>
@@ -895,7 +897,7 @@ export class MatchController {
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!req.user || req.user.role !== UserRole.ADMIN) {</span>
 <span class="cstat-no" title="statement not covered" >        return res.status(403).json({</span>
           status: 'error',
-          message: 'You do not have permission to create matches'
+          message: 'You do not have permission to create matches',
         });
       }
 &nbsp;
@@ -910,15 +912,15 @@ export class MatchController {
       ) {
 <span class="cstat-no" title="statement not covered" >        return res.status(400).json({</span>
           status: 'error',
-          message: 'Players must be unique'
+          message: 'Players must be unique',
         });
       }
 &nbsp;
       const match = <span class="cstat-no" title="statement not covered" >await prisma.match.create({</span>
         data: {
           ...matchData,
-          status: matchData.status || MatchStatus.PENDING
-        }
+          status: matchData.status || MatchStatus.PENDING,
+        },
       });
 <span class="cstat-no" title="statement not covered" >      res.status(201).json({ status: 'success', data: { match } });</span>
     } catch (error) {
@@ -941,7 +943,7 @@ export class MatchController {
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!req.user || req.user.role !== UserRole.ADMIN) {</span>
 <span class="cstat-no" title="statement not covered" >        return res.status(403).json({</span>
           status: 'error',
-          message: 'You do not have permission to update matches'
+          message: 'You do not have permission to update matches',
         });
       }
 &nbsp;
@@ -949,7 +951,7 @@ export class MatchController {
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (id === '00000000-0000-0000-0000-000000000000') {</span>
 <span class="cstat-no" title="statement not covered" >        return res.status(404).json({</span>
           status: 'error',
-          message: 'Match not found'
+          message: 'Match not found',
         });
       }
 &nbsp;
@@ -971,19 +973,19 @@ export class MatchController {
         homeScore: null as number | null,
         awayScore: null as number | null,
       };
-      
+&nbsp;
       // Simulación de datos de un partido actualizado para la respuesta
       const updatedMatch<span class="cstat-no" title="statement not covered" > = {</span>
         ...existingMatch,
         ...matchData,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       };
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      return res.status(200).json({</span>
         status: 'success',
         data: {
-          match: updatedMatch
-        }
+          match: updatedMatch,
+        },
       });
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      console.error('Error updating match:', error);</span>
@@ -1005,7 +1007,7 @@ export class MatchController {
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!req.user || req.user.role !== UserRole.ADMIN) {</span>
 <span class="cstat-no" title="statement not covered" >        return res.status(403).json({</span>
           status: 'error',
-          message: 'You do not have permission to update match scores'
+          message: 'You do not have permission to update match scores',
         });
       }
 &nbsp;
@@ -1013,7 +1015,7 @@ export class MatchController {
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (id === '00000000-0000-0000-0000-000000000000') {</span>
 <span class="cstat-no" title="statement not covered" >        return res.status(404).json({</span>
           status: 'error',
-          message: 'Match not found'
+          message: 'Match not found',
         });
       }
 &nbsp;
@@ -1037,14 +1039,14 @@ export class MatchController {
       const match<span class="cstat-no" title="statement not covered" > = {</span>
         ...existingMatch,
         ...scoreData,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       };
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      return res.status(200).json({</span>
         status: 'success',
         data: {
-          match
-        }
+          match,
+        },
       });
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      console.error('Error updating match score:', error);</span>
@@ -1065,7 +1067,7 @@ export class MatchController {
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!req.user || req.user.role !== UserRole.ADMIN) {</span>
 <span class="cstat-no" title="statement not covered" >        return res.status(403).json({</span>
           status: 'error',
-          message: 'You do not have permission to delete matches'
+          message: 'You do not have permission to delete matches',
         });
       }
 &nbsp;
@@ -1073,7 +1075,7 @@ export class MatchController {
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (id === '00000000-0000-0000-0000-000000000000') {</span>
 <span class="cstat-no" title="statement not covered" >        return res.status(404).json({</span>
           status: 'error',
-          message: 'Match not found'
+          message: 'Match not found',
         });
       }
 &nbsp;
@@ -1082,21 +1084,22 @@ export class MatchController {
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      return res.status(200).json({</span>
         status: 'success',
-        message: 'Match deleted successfully'
+        message: 'Match deleted successfully',
       });
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      console.error('Error deleting match:', error);</span>
 <span class="cstat-no" title="statement not covered" >      return res.status(500).json({ status: 'error', message: 'Internal server error' });</span>
     }
   };
-} </pre></td></tr></table></pre>
+}
+&nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-03-23T19:34:14.050Z
+                at 2025-03-23T22:37:40.856Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

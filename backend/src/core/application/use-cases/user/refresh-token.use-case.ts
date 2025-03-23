@@ -7,7 +7,7 @@ import { ITokenResponse } from '../../interfaces/auth.types';
 
 // Define input schema using Zod
 const RefreshTokenInputSchema = z.object({
-  refreshToken: z.string().min(10)
+  refreshToken: z.string().min(10),
 });
 
 type RefreshTokenInput = z.infer<typeof RefreshTokenInputSchema>;
@@ -31,8 +31,8 @@ export class RefreshTokenUseCase extends BaseUseCase<RefreshTokenInput, ITokenRe
       return result;
     } catch (error) {
       return Result.fail<ITokenResponse>(
-        error instanceof Error ? error : new Error('Token refresh failed')
+        error instanceof Error ? error : new Error('Token refresh failed'),
       );
     }
   }
-} 
+}

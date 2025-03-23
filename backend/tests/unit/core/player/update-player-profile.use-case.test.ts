@@ -1,4 +1,7 @@
-import { UpdatePlayerProfileUseCase, UpdatePlayerProfileInput } from '../../../../src/core/application/use-cases/player/update-player-profile.use-case';
+import {
+  UpdatePlayerProfileUseCase,
+  UpdatePlayerProfileInput,
+} from '../../../../src/core/application/use-cases/player/update-player-profile.use-case';
 import { IPlayerRepository } from '../../../../src/core/application/interfaces/repositories/player.repository';
 import { IUserRepository } from '../../../../src/core/application/interfaces/repositories/user.repository';
 import { Player } from '../../../../src/core/domain/player/player.entity';
@@ -92,7 +95,7 @@ describe('UpdatePlayerProfileUseCase', () => {
       'test@example.com',
       'password',
       'Test User',
-      UserRole.PLAYER
+      UserRole.PLAYER,
     );
 
     adminUser = new User(
@@ -100,7 +103,7 @@ describe('UpdatePlayerProfileUseCase', () => {
       'admin@example.com',
       'password',
       'Admin User',
-      UserRole.ADMIN
+      UserRole.ADMIN,
     );
 
     // Create a test player with a valid UUID
@@ -109,7 +112,7 @@ describe('UpdatePlayerProfileUseCase', () => {
       testUser.id,
       PlayerLevel.P3,
       30,
-      'Spain'
+      'Spain',
     );
 
     // Initialize repositories with test data
@@ -127,7 +130,7 @@ describe('UpdatePlayerProfileUseCase', () => {
       requestingUserId: testUser.id,
       level: PlayerLevel.P2,
       age: 31,
-      country: 'Portugal'
+      country: 'Portugal',
     };
 
     // Act
@@ -135,10 +138,10 @@ describe('UpdatePlayerProfileUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const successResult = result.getValue();
     expect(successResult.success).toBe(true);
-    
+
     // Verify player was updated in repository
     const updatedPlayer = await playerRepository.findById(testPlayer.id);
     expect(updatedPlayer!.level).toBe(PlayerLevel.P2);
@@ -153,7 +156,7 @@ describe('UpdatePlayerProfileUseCase', () => {
       requestingUserId: adminUser.id,
       level: PlayerLevel.P1,
       age: 32,
-      country: 'France'
+      country: 'France',
     };
 
     // Act
@@ -161,10 +164,10 @@ describe('UpdatePlayerProfileUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const successResult = result.getValue();
     expect(successResult.success).toBe(true);
-    
+
     // Verify player was updated in repository
     const updatedPlayer = await playerRepository.findById(testPlayer.id);
     expect(updatedPlayer!.level).toBe(PlayerLevel.P1);
@@ -177,7 +180,7 @@ describe('UpdatePlayerProfileUseCase', () => {
     const input: UpdatePlayerProfileInput = {
       id: '123e4567-e89b-12d3-a456-426614174005', // Valid UUID but non-existent player
       requestingUserId: testUser.id,
-      level: PlayerLevel.P2
+      level: PlayerLevel.P2,
     };
 
     // Act
@@ -193,7 +196,7 @@ describe('UpdatePlayerProfileUseCase', () => {
     const input: UpdatePlayerProfileInput = {
       id: testPlayer.id,
       requestingUserId: '123e4567-e89b-12d3-a456-426614174006', // Valid UUID but non-existent user
-      level: PlayerLevel.P2
+      level: PlayerLevel.P2,
     };
 
     // Act
@@ -211,14 +214,14 @@ describe('UpdatePlayerProfileUseCase', () => {
       'another@example.com',
       'password',
       'Another User',
-      UserRole.PLAYER
+      UserRole.PLAYER,
     );
     await userRepository.save(anotherUser);
 
     const input: UpdatePlayerProfileInput = {
       id: testPlayer.id,
       requestingUserId: anotherUser.id,
-      level: PlayerLevel.P2
+      level: PlayerLevel.P2,
     };
 
     // Act
@@ -234,7 +237,7 @@ describe('UpdatePlayerProfileUseCase', () => {
     const input = {
       id: 'not-a-uuid',
       requestingUserId: testUser.id,
-      level: 'INVALID_LEVEL'
+      level: 'INVALID_LEVEL',
     };
 
     // Act
@@ -251,7 +254,7 @@ describe('UpdatePlayerProfileUseCase', () => {
     const input: UpdatePlayerProfileInput = {
       id: testPlayer.id,
       requestingUserId: testUser.id,
-      level: PlayerLevel.P4
+      level: PlayerLevel.P4,
       // Not updating age or country
     };
 
@@ -260,14 +263,14 @@ describe('UpdatePlayerProfileUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const successResult = result.getValue();
     expect(successResult.success).toBe(true);
-    
+
     // Verify player was updated in repository
     const updatedPlayer = await playerRepository.findById(testPlayer.id);
     expect(updatedPlayer!.level).toBe(PlayerLevel.P4); // Updated
     expect(updatedPlayer!.age).toBe(30); // Unchanged
     expect(updatedPlayer!.country).toBe('Spain'); // Unchanged
   });
-}); 
+});

@@ -1,7 +1,15 @@
-import { CompleteTournamentUseCase, CompleteTournamentInput } from '../../../../src/core/application/use-cases/tournament/complete-tournament.use-case';
+import {
+  CompleteTournamentUseCase,
+  CompleteTournamentInput,
+} from '../../../../src/core/application/use-cases/tournament/complete-tournament.use-case';
 import { ITournamentRepository } from '../../../../src/core/application/interfaces/repositories/tournament.repository';
 import { IUserRepository } from '../../../../src/core/application/interfaces/repositories/user.repository';
-import { Tournament, TournamentFormat, TournamentStatus, PlayerLevel } from '../../../../src/core/domain/tournament/tournament.entity';
+import {
+  Tournament,
+  TournamentFormat,
+  TournamentStatus,
+  PlayerLevel,
+} from '../../../../src/core/domain/tournament/tournament.entity';
 import { User, UserRole } from '../../../../src/core/domain/user/user.entity';
 
 // Mock Tournament Repository
@@ -129,7 +137,7 @@ describe('CompleteTournamentUseCase', () => {
       PlayerLevel.P1,
       creatorUserId,
       createDate(1, 7, 2023),
-      createDate(1, 7, 2023)
+      createDate(1, 7, 2023),
     );
 
     const openTournament = new Tournament(
@@ -146,7 +154,7 @@ describe('CompleteTournamentUseCase', () => {
       PlayerLevel.P1,
       creatorUserId,
       createDate(1, 8, 2023),
-      createDate(1, 8, 2023)
+      createDate(1, 8, 2023),
     );
 
     const activeTournament = new Tournament(
@@ -163,7 +171,7 @@ describe('CompleteTournamentUseCase', () => {
       PlayerLevel.P1,
       creatorUserId,
       createDate(1, 9, 2023),
-      createDate(1, 9, 2023)
+      createDate(1, 9, 2023),
     );
 
     const completedTournament = new Tournament(
@@ -180,7 +188,7 @@ describe('CompleteTournamentUseCase', () => {
       PlayerLevel.P1,
       creatorUserId,
       createDate(1, 10, 2023),
-      createDate(1, 10, 2023)
+      createDate(1, 10, 2023),
     );
 
     const cancelledTournament = new Tournament(
@@ -197,7 +205,7 @@ describe('CompleteTournamentUseCase', () => {
       PlayerLevel.P1,
       creatorUserId,
       createDate(1, 11, 2023),
-      createDate(1, 11, 2023)
+      createDate(1, 11, 2023),
     );
 
     // Initialize repository with sample tournaments
@@ -206,7 +214,7 @@ describe('CompleteTournamentUseCase', () => {
       openTournament,
       activeTournament,
       completedTournament,
-      cancelledTournament
+      cancelledTournament,
     ]);
 
     // Create sample users
@@ -218,7 +226,7 @@ describe('CompleteTournamentUseCase', () => {
       UserRole.ADMIN,
       true,
       createDate(1, 1, 2023),
-      createDate(1, 1, 2023)
+      createDate(1, 1, 2023),
     );
 
     const creatorUser = new User(
@@ -229,7 +237,7 @@ describe('CompleteTournamentUseCase', () => {
       UserRole.PLAYER,
       true,
       createDate(1, 1, 2023),
-      createDate(1, 1, 2023)
+      createDate(1, 1, 2023),
     );
 
     const regularUser = new User(
@@ -240,15 +248,11 @@ describe('CompleteTournamentUseCase', () => {
       UserRole.PLAYER,
       true,
       createDate(1, 1, 2023),
-      createDate(1, 1, 2023)
+      createDate(1, 1, 2023),
     );
 
     // Initialize user repository with sample users
-    userRepository = new MockUserRepository([
-      adminUser,
-      creatorUser,
-      regularUser
-    ]);
+    userRepository = new MockUserRepository([adminUser, creatorUser, regularUser]);
 
     // Initialize use case
     useCase = new CompleteTournamentUseCase(tournamentRepository, userRepository);
@@ -257,13 +261,13 @@ describe('CompleteTournamentUseCase', () => {
   it('should successfully complete an ACTIVE tournament by admin', async () => {
     const input: CompleteTournamentInput = {
       tournamentId: activeTournamentId,
-      userId: adminUserId
+      userId: adminUserId,
     };
 
     const result = await useCase.execute(input);
 
     expect(result.isSuccess).toBe(true);
-    
+
     const output = result.getValue();
     expect(output.tournament.status).toBe(TournamentStatus.COMPLETED);
     expect(output.message).toContain('successfully');
@@ -276,13 +280,13 @@ describe('CompleteTournamentUseCase', () => {
   it('should successfully complete an ACTIVE tournament by creator', async () => {
     const input: CompleteTournamentInput = {
       tournamentId: activeTournamentId,
-      userId: creatorUserId
+      userId: creatorUserId,
     };
 
     const result = await useCase.execute(input);
 
     expect(result.isSuccess).toBe(true);
-    
+
     const output = result.getValue();
     expect(output.tournament.status).toBe(TournamentStatus.COMPLETED);
     expect(output.message).toContain('successfully');
@@ -295,7 +299,7 @@ describe('CompleteTournamentUseCase', () => {
   it('should fail when regular user tries to complete a tournament', async () => {
     const input: CompleteTournamentInput = {
       tournamentId: activeTournamentId,
-      userId: regularUserId
+      userId: regularUserId,
     };
 
     const result = await useCase.execute(input);
@@ -307,7 +311,7 @@ describe('CompleteTournamentUseCase', () => {
   it('should fail when trying to complete a DRAFT tournament', async () => {
     const input: CompleteTournamentInput = {
       tournamentId: draftTournamentId,
-      userId: adminUserId
+      userId: adminUserId,
     };
 
     const result = await useCase.execute(input);
@@ -319,7 +323,7 @@ describe('CompleteTournamentUseCase', () => {
   it('should fail when trying to complete an OPEN tournament', async () => {
     const input: CompleteTournamentInput = {
       tournamentId: openTournamentId,
-      userId: adminUserId
+      userId: adminUserId,
     };
 
     const result = await useCase.execute(input);
@@ -331,7 +335,7 @@ describe('CompleteTournamentUseCase', () => {
   it('should fail when trying to complete an already COMPLETED tournament', async () => {
     const input: CompleteTournamentInput = {
       tournamentId: completedTournamentId,
-      userId: adminUserId
+      userId: adminUserId,
     };
 
     const result = await useCase.execute(input);
@@ -343,7 +347,7 @@ describe('CompleteTournamentUseCase', () => {
   it('should fail when trying to complete a CANCELLED tournament', async () => {
     const input: CompleteTournamentInput = {
       tournamentId: cancelledTournamentId,
-      userId: adminUserId
+      userId: adminUserId,
     };
 
     const result = await useCase.execute(input);
@@ -355,7 +359,7 @@ describe('CompleteTournamentUseCase', () => {
   it('should fail when tournament does not exist', async () => {
     const input: CompleteTournamentInput = {
       tournamentId: nonExistingTournamentId,
-      userId: adminUserId
+      userId: adminUserId,
     };
 
     const result = await useCase.execute(input);
@@ -367,7 +371,7 @@ describe('CompleteTournamentUseCase', () => {
   it('should fail when user does not exist', async () => {
     const input: CompleteTournamentInput = {
       tournamentId: activeTournamentId,
-      userId: nonExistingUserId
+      userId: nonExistingUserId,
     };
 
     const result = await useCase.execute(input);
@@ -380,7 +384,7 @@ describe('CompleteTournamentUseCase', () => {
   it('should fail with invalid input data', async () => {
     const input = {
       tournamentId: 'invalid-uuid',
-      userId: adminUserId
+      userId: adminUserId,
     } as CompleteTournamentInput;
 
     const result = await useCase.execute(input);
@@ -388,4 +392,4 @@ describe('CompleteTournamentUseCase', () => {
     expect(result.isFailure).toBe(true);
     expect(result.getError().message).toContain('Invalid input');
   });
-}); 
+});

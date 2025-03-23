@@ -17,7 +17,7 @@ process.env.JWT_SECRET = 'test-jwt-secret';
 jest.mock('@supabase/supabase-js', () => {
   const { createMockSupabaseClient } = require('../utils/supabaseMock');
   return {
-    createClient: jest.fn().mockImplementation(() => createMockSupabaseClient())
+    createClient: jest.fn().mockImplementation(() => createMockSupabaseClient()),
   };
 });
 

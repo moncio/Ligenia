@@ -10,8 +10,8 @@ import { Match, MatchStatus } from '../../../domain/match/match.entity';
 // Input validation schema
 const CalculatePlayerStatisticsInputSchema = z.object({
   playerId: z.string().uuid({
-    message: 'Invalid player ID format'
-  })
+    message: 'Invalid player ID format',
+  }),
 });
 
 // Input type
@@ -32,12 +32,14 @@ export class CalculatePlayerStatisticsUseCase extends BaseUseCase<
   constructor(
     private readonly statisticRepository: IStatisticRepository,
     private readonly playerRepository: IPlayerRepository,
-    private readonly matchRepository: IMatchRepository
+    private readonly matchRepository: IMatchRepository,
   ) {
     super();
   }
 
-  protected async executeImpl(input: CalculatePlayerStatisticsInput): Promise<Result<CalculatePlayerStatisticsOutput>> {
+  protected async executeImpl(
+    input: CalculatePlayerStatisticsInput,
+  ): Promise<Result<CalculatePlayerStatisticsOutput>> {
     try {
       // Validate input
       let validatedData: CalculatePlayerStatisticsInput;
@@ -46,7 +48,7 @@ export class CalculatePlayerStatisticsUseCase extends BaseUseCase<
       } catch (validationError) {
         if (validationError instanceof z.ZodError) {
           return Result.fail<CalculatePlayerStatisticsOutput>(
-            new Error(validationError.errors[0].message)
+            new Error(validationError.errors[0].message),
           );
         }
         throw validationError;
@@ -55,9 +57,7 @@ export class CalculatePlayerStatisticsUseCase extends BaseUseCase<
       // Check if player exists
       const player = await this.playerRepository.findById(validatedData.playerId);
       if (!player) {
-        return Result.fail<CalculatePlayerStatisticsOutput>(
-          new Error('Player not found')
-        );
+        return Result.fail<CalculatePlayerStatisticsOutput>(new Error('Player not found'));
       }
 
       // Get all completed matches for the player
@@ -66,12 +66,12 @@ export class CalculatePlayerStatisticsUseCase extends BaseUseCase<
 
       // Retrieve existing statistic or create a new one
       let statistic = await this.statisticRepository.findByPlayerId(validatedData.playerId);
-      
+
       if (!statistic) {
         // Create new statistic
         statistic = new Statistic(
           `statistic-${Date.now()}`, // Simple unique ID generation for testing
-          validatedData.playerId
+          validatedData.playerId,
         );
       } else {
         // Reset existing statistic to recalculate
@@ -91,7 +91,7 @@ export class CalculatePlayerStatisticsUseCase extends BaseUseCase<
       return Result.ok<CalculatePlayerStatisticsOutput>({ statistic });
     } catch (error) {
       return Result.fail<CalculatePlayerStatisticsOutput>(
-        error instanceof Error ? error : new Error('Failed to calculate player statistics')
+        error instanceof Error ? error : new Error('Failed to calculate player statistics'),
       );
     }
   }
@@ -102,7 +102,7 @@ export class CalculatePlayerStatisticsUseCase extends BaseUseCase<
   private calculateStatisticsFromMatches(
     statistic: Statistic,
     matches: Match[],
-    playerId: string
+    playerId: string,
   ): void {
     if (matches.length === 0) {
       return;
@@ -134,7 +134,7 @@ export class CalculatePlayerStatisticsUseCase extends BaseUseCase<
 
       // Determine if player won
       const playerWon = playerScore > opponentScore;
-      
+
       // Update match statistics
       statistic.updateAfterMatch(playerWon, playerScore);
 
@@ -149,4 +149,4 @@ export class CalculatePlayerStatisticsUseCase extends BaseUseCase<
     statistic.tournamentsPlayed = tournamentIds.size;
     statistic.tournamentsWon = tournamentWins.size;
   }
-} 
+}

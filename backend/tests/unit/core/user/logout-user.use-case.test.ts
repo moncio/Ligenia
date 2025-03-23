@@ -25,11 +25,14 @@ describe('LogoutUserUseCase', () => {
   });
 
   it('should succeed for a valid token', async () => {
-    const validResponse: ITokenValidationResponse = { valid: true, user: { id: '1', email: 'test@example.com', role: UserRole.PLAYER, emailVerified: true } };
+    const validResponse: ITokenValidationResponse = {
+      valid: true,
+      user: { id: '1', email: 'test@example.com', role: UserRole.PLAYER, emailVerified: true },
+    };
     mockAuthService.validateToken.mockResolvedValue(Result.ok(validResponse));
 
     const result = await useCase.execute({ token: 'valid-token-12345' });
-    
+
     expect(result.isSuccess).toBe(true);
     expect(mockAuthService.validateToken).toHaveBeenCalledWith('valid-token-12345');
   });
@@ -38,7 +41,7 @@ describe('LogoutUserUseCase', () => {
     mockAuthService.validateToken.mockResolvedValue(Result.fail(new Error('Invalid token')));
 
     const result = await useCase.execute({ token: 'invalid-token-12345' });
-    
+
     expect(result.isFailure).toBe(true);
     expect(result.getError().message).toBe('Invalid token');
     expect(mockAuthService.validateToken).toHaveBeenCalledWith('invalid-token-12345');
@@ -46,8 +49,8 @@ describe('LogoutUserUseCase', () => {
 
   it('should fail for invalid input format', async () => {
     const result = await useCase.execute({ token: 'short' });
-    
+
     expect(result.isFailure).toBe(true);
     expect(result.getError().message).toContain('character');
   });
-}); 
+});

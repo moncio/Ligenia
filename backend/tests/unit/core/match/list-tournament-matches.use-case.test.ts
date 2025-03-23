@@ -1,8 +1,16 @@
-import { ListTournamentMatchesUseCase, ListTournamentMatchesInput } from '../../../../src/core/application/use-cases/match/list-tournament-matches.use-case';
+import {
+  ListTournamentMatchesUseCase,
+  ListTournamentMatchesInput,
+} from '../../../../src/core/application/use-cases/match/list-tournament-matches.use-case';
 import { IMatchRepository } from '../../../../src/core/application/interfaces/repositories/match.repository';
 import { ITournamentRepository } from '../../../../src/core/application/interfaces/repositories/tournament.repository';
 import { Match, MatchStatus } from '../../../../src/core/domain/match/match.entity';
-import { Tournament, TournamentStatus, PlayerLevel, TournamentFormat } from '../../../../src/core/domain/tournament/tournament.entity';
+import {
+  Tournament,
+  TournamentStatus,
+  PlayerLevel,
+  TournamentFormat,
+} from '../../../../src/core/domain/tournament/tournament.entity';
 
 describe('ListTournamentMatchesUseCase', () => {
   let listTournamentMatchesUseCase: ListTournamentMatchesUseCase;
@@ -10,7 +18,7 @@ describe('ListTournamentMatchesUseCase', () => {
   let mockTournamentRepository: jest.Mocked<ITournamentRepository>;
 
   const tournamentId = '123e4567-e89b-12d3-a456-426614174000';
-  
+
   beforeEach(() => {
     mockMatchRepository = {
       findById: jest.fn(),
@@ -18,7 +26,7 @@ describe('ListTournamentMatchesUseCase', () => {
       findByTournamentAndRound: jest.fn(),
       findByPlayerId: jest.fn(),
       save: jest.fn(),
-      delete: jest.fn()
+      delete: jest.fn(),
     };
 
     mockTournamentRepository = {
@@ -33,12 +41,12 @@ describe('ListTournamentMatchesUseCase', () => {
       unregisterParticipant: jest.fn(),
       isParticipantRegistered: jest.fn(),
       getParticipants: jest.fn(),
-      countParticipantsByTournamentId: jest.fn()
+      countParticipantsByTournamentId: jest.fn(),
     };
 
     listTournamentMatchesUseCase = new ListTournamentMatchesUseCase(
       mockMatchRepository,
-      mockTournamentRepository
+      mockTournamentRepository,
     );
   });
 
@@ -58,37 +66,44 @@ describe('ListTournamentMatchesUseCase', () => {
       PlayerLevel.P3, // category
       '123e4567-e89b-12d3-a456-426614174001', // createdById
       new Date('2023-08-01'), // createdAt
-      new Date('2023-08-01')  // updatedAt
+      new Date('2023-08-01'), // updatedAt
     );
   };
 
   // Create mock matches for a tournament
   const createMockMatches = (count: number, status?: MatchStatus, round?: number) => {
     const matches: Match[] = [];
-    
+
     for (let i = 0; i < count; i++) {
-      matches.push(new Match(
-        `match-${i}`,
-        tournamentId,
-        `player-${i}-1`,
-        `player-${i}-2`,
-        `player-${i}-3`,
-        `player-${i}-4`,
-        round || Math.floor(i / 4) + 1, // Group matches into rounds
-        new Date(`2023-10-0${(i % 9) + 1}`), // Different days
-        `Court ${i % 5 + 1}`,
-        status || (i % 5 === 0 ? MatchStatus.PENDING : 
-                 i % 5 === 1 ? MatchStatus.SCHEDULED : 
-                 i % 5 === 2 ? MatchStatus.IN_PROGRESS : 
-                 i % 5 === 3 ? MatchStatus.COMPLETED : 
-                 MatchStatus.CANCELED),
-        i % 5 === 3 ? 3 : null, // Only completed matches have scores
-        i % 5 === 3 ? 1 : null,
-        new Date('2023-09-01'),
-        new Date('2023-09-01')
-      ));
+      matches.push(
+        new Match(
+          `match-${i}`,
+          tournamentId,
+          `player-${i}-1`,
+          `player-${i}-2`,
+          `player-${i}-3`,
+          `player-${i}-4`,
+          round || Math.floor(i / 4) + 1, // Group matches into rounds
+          new Date(`2023-10-0${(i % 9) + 1}`), // Different days
+          `Court ${(i % 5) + 1}`,
+          status ||
+            (i % 5 === 0
+              ? MatchStatus.PENDING
+              : i % 5 === 1
+                ? MatchStatus.SCHEDULED
+                : i % 5 === 2
+                  ? MatchStatus.IN_PROGRESS
+                  : i % 5 === 3
+                    ? MatchStatus.COMPLETED
+                    : MatchStatus.CANCELED),
+          i % 5 === 3 ? 3 : null, // Only completed matches have scores
+          i % 5 === 3 ? 1 : null,
+          new Date('2023-09-01'),
+          new Date('2023-09-01'),
+        ),
+      );
     }
-    
+
     return matches;
   };
 
@@ -97,9 +112,9 @@ describe('ListTournamentMatchesUseCase', () => {
     const mockTournament = createMockTournament();
     const mockMatches = createMockMatches(25); // Create 25 matches
     const defaultPageSize = 10;
-    
+
     mockTournamentRepository.findById.mockResolvedValue(mockTournament);
-    mockMatchRepository.findByFilter.mockImplementation((filter) => {
+    mockMatchRepository.findByFilter.mockImplementation(filter => {
       if (filter.limit && filter.offset !== undefined) {
         // Return paginated results
         return Promise.resolve(mockMatches.slice(filter.offset, filter.offset + filter.limit));
@@ -108,14 +123,14 @@ describe('ListTournamentMatchesUseCase', () => {
         return Promise.resolve(mockMatches);
       }
     });
-    
+
     const input: ListTournamentMatchesInput = {
-      tournamentId
+      tournamentId,
     };
-    
+
     // Act
     const result = await listTournamentMatchesUseCase.execute(input);
-    
+
     // Assert
     expect(result.isSuccess).toBe(true);
     if (result.isSuccess) {
@@ -137,9 +152,9 @@ describe('ListTournamentMatchesUseCase', () => {
     const mockMatches = createMockMatches(25); // Create 25 matches
     const pageSize = 5;
     const page = 3;
-    
+
     mockTournamentRepository.findById.mockResolvedValue(mockTournament);
-    mockMatchRepository.findByFilter.mockImplementation((filter) => {
+    mockMatchRepository.findByFilter.mockImplementation(filter => {
       if (filter.limit && filter.offset !== undefined) {
         // Return paginated results
         return Promise.resolve(mockMatches.slice(filter.offset, filter.offset + filter.limit));
@@ -148,16 +163,16 @@ describe('ListTournamentMatchesUseCase', () => {
         return Promise.resolve(mockMatches);
       }
     });
-    
+
     const input: ListTournamentMatchesInput = {
       tournamentId,
       page,
-      limit: pageSize
+      limit: pageSize,
     };
-    
+
     // Act
     const result = await listTournamentMatchesUseCase.execute(input);
-    
+
     // Assert
     expect(result.isSuccess).toBe(true);
     if (result.isSuccess) {
@@ -176,12 +191,14 @@ describe('ListTournamentMatchesUseCase', () => {
     const mockTournament = createMockTournament();
     const allMockMatches = createMockMatches(25);
     const completedMatches = createMockMatches(5, MatchStatus.COMPLETED);
-    
+
     mockTournamentRepository.findById.mockResolvedValue(mockTournament);
-    mockMatchRepository.findByFilter.mockImplementation((filter) => {
+    mockMatchRepository.findByFilter.mockImplementation(filter => {
       if (filter.status === MatchStatus.COMPLETED) {
         if (filter.limit && filter.offset !== undefined) {
-          return Promise.resolve(completedMatches.slice(filter.offset, filter.offset + filter.limit));
+          return Promise.resolve(
+            completedMatches.slice(filter.offset, filter.offset + filter.limit),
+          );
         }
         return Promise.resolve(completedMatches);
       } else {
@@ -191,15 +208,15 @@ describe('ListTournamentMatchesUseCase', () => {
         return Promise.resolve(allMockMatches);
       }
     });
-    
+
     const input: ListTournamentMatchesInput = {
       tournamentId,
-      status: MatchStatus.COMPLETED
+      status: MatchStatus.COMPLETED,
     };
-    
+
     // Act
     const result = await listTournamentMatchesUseCase.execute(input);
-    
+
     // Assert
     expect(result.isSuccess).toBe(true);
     if (result.isSuccess) {
@@ -209,8 +226,8 @@ describe('ListTournamentMatchesUseCase', () => {
       expect(mockMatchRepository.findByFilter).toHaveBeenCalledWith(
         expect.objectContaining({
           tournamentId,
-          status: MatchStatus.COMPLETED
-        })
+          status: MatchStatus.COMPLETED,
+        }),
       );
     }
   });
@@ -220,9 +237,9 @@ describe('ListTournamentMatchesUseCase', () => {
     const mockTournament = createMockTournament();
     const allMockMatches = createMockMatches(25);
     const round2Matches = createMockMatches(4, undefined, 2);
-    
+
     mockTournamentRepository.findById.mockResolvedValue(mockTournament);
-    mockMatchRepository.findByFilter.mockImplementation((filter) => {
+    mockMatchRepository.findByFilter.mockImplementation(filter => {
       if (filter.round === 2) {
         if (filter.limit && filter.offset !== undefined) {
           return Promise.resolve(round2Matches.slice(filter.offset, filter.offset + filter.limit));
@@ -235,15 +252,15 @@ describe('ListTournamentMatchesUseCase', () => {
         return Promise.resolve(allMockMatches);
       }
     });
-    
+
     const input: ListTournamentMatchesInput = {
       tournamentId,
-      round: 2
+      round: 2,
     };
-    
+
     // Act
     const result = await listTournamentMatchesUseCase.execute(input);
-    
+
     // Assert
     expect(result.isSuccess).toBe(true);
     if (result.isSuccess) {
@@ -253,8 +270,8 @@ describe('ListTournamentMatchesUseCase', () => {
       expect(mockMatchRepository.findByFilter).toHaveBeenCalledWith(
         expect.objectContaining({
           tournamentId,
-          round: 2
-        })
+          round: 2,
+        }),
       );
     }
   });
@@ -264,12 +281,14 @@ describe('ListTournamentMatchesUseCase', () => {
     const mockTournament = createMockTournament();
     const allMockMatches = createMockMatches(25);
     const filteredMatches = createMockMatches(2, MatchStatus.COMPLETED, 2);
-    
+
     mockTournamentRepository.findById.mockResolvedValue(mockTournament);
-    mockMatchRepository.findByFilter.mockImplementation((filter) => {
+    mockMatchRepository.findByFilter.mockImplementation(filter => {
       if (filter.status === MatchStatus.COMPLETED && filter.round === 2) {
         if (filter.limit && filter.offset !== undefined) {
-          return Promise.resolve(filteredMatches.slice(filter.offset, filter.offset + filter.limit));
+          return Promise.resolve(
+            filteredMatches.slice(filter.offset, filter.offset + filter.limit),
+          );
         }
         return Promise.resolve(filteredMatches);
       } else {
@@ -279,16 +298,16 @@ describe('ListTournamentMatchesUseCase', () => {
         return Promise.resolve(allMockMatches);
       }
     });
-    
+
     const input: ListTournamentMatchesInput = {
       tournamentId,
       status: MatchStatus.COMPLETED,
-      round: 2
+      round: 2,
     };
-    
+
     // Act
     const result = await listTournamentMatchesUseCase.execute(input);
-    
+
     // Assert
     expect(result.isSuccess).toBe(true);
     if (result.isSuccess) {
@@ -299,8 +318,8 @@ describe('ListTournamentMatchesUseCase', () => {
         expect.objectContaining({
           tournamentId,
           status: MatchStatus.COMPLETED,
-          round: 2
-        })
+          round: 2,
+        }),
       );
     }
   });
@@ -308,19 +327,19 @@ describe('ListTournamentMatchesUseCase', () => {
   test('should return empty array when no matches are found', async () => {
     // Arrange
     const mockTournament = createMockTournament();
-    
+
     mockTournamentRepository.findById.mockResolvedValue(mockTournament);
     mockMatchRepository.findByFilter.mockResolvedValue([]);
-    
+
     const input: ListTournamentMatchesInput = {
       tournamentId,
       status: MatchStatus.CANCELED,
-      round: 10 // Non-existent round
+      round: 10, // Non-existent round
     };
-    
+
     // Act
     const result = await listTournamentMatchesUseCase.execute(input);
-    
+
     // Assert
     expect(result.isSuccess).toBe(true);
     if (result.isSuccess) {
@@ -336,14 +355,14 @@ describe('ListTournamentMatchesUseCase', () => {
   test('should fail when tournament is not found', async () => {
     // Arrange
     mockTournamentRepository.findById.mockResolvedValue(null);
-    
+
     const input: ListTournamentMatchesInput = {
-      tournamentId
+      tournamentId,
     };
-    
+
     // Act
     const result = await listTournamentMatchesUseCase.execute(input);
-    
+
     // Assert
     expect(result.isFailure).toBe(true);
     expect(result.getError().message).toContain('Tournament not found');
@@ -353,12 +372,12 @@ describe('ListTournamentMatchesUseCase', () => {
   test('should fail with invalid tournament ID format', async () => {
     // Arrange
     const invalidInput = {
-      tournamentId: 'invalid-uuid'
+      tournamentId: 'invalid-uuid',
     } as ListTournamentMatchesInput;
-    
+
     // Act
     const result = await listTournamentMatchesUseCase.execute(invalidInput);
-    
+
     // Assert
     expect(result.isFailure).toBe(true);
     expect(result.getError().message).toContain('Invalid tournament ID format');
@@ -371,12 +390,12 @@ describe('ListTournamentMatchesUseCase', () => {
     const invalidInput = {
       tournamentId,
       page: -1, // Invalid page number
-      limit: 200 // Exceeds maximum limit
+      limit: 200, // Exceeds maximum limit
     } as ListTournamentMatchesInput;
-    
+
     // Act
     const result = await listTournamentMatchesUseCase.execute(invalidInput);
-    
+
     // Assert
     expect(result.isFailure).toBe(true);
     expect(result.getError().message).toContain('Invalid input');
@@ -388,17 +407,17 @@ describe('ListTournamentMatchesUseCase', () => {
     // Arrange
     const errorMessage = 'Database error';
     mockTournamentRepository.findById.mockRejectedValue(new Error(errorMessage));
-    
+
     const input: ListTournamentMatchesInput = {
-      tournamentId
+      tournamentId,
     };
-    
+
     // Act
     const result = await listTournamentMatchesUseCase.execute(input);
-    
+
     // Assert
     expect(result.isFailure).toBe(true);
     expect(result.getError().message).toContain(errorMessage);
     expect(mockMatchRepository.findByFilter).not.toHaveBeenCalled();
   });
-}); 
+});

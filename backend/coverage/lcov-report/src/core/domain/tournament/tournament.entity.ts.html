@@ -178,7 +178,8 @@
 <a name='L113'></a><a href='#L113'>113</a>
 <a name='L114'></a><a href='#L114'>114</a>
 <a name='L115'></a><a href='#L115'>115</a>
-<a name='L116'></a><a href='#L116'>116</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L116'></a><a href='#L116'>116</a>
+<a name='L117'></a><a href='#L117'>117</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -292,12 +293,13 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >export enum T</span>ournamentFormat {</span>
 <span class="cstat-no" title="statement not covered" >  SINGLE_ELIMINATION = 'SINGLE_ELIMINATION',</span>
 <span class="cstat-no" title="statement not covered" >  DOUBLE_ELIMINATION = 'DOUBLE_ELIMINATION',</span>
 <span class="cstat-no" title="statement not covered" >  ROUND_ROBIN = 'ROUND_ROBIN',</span>
-<span class="cstat-no" title="statement not covered" >  SWISS = 'SWISS'</span>
+<span class="cstat-no" title="statement not covered" >  SWISS = 'SWISS',</span>
 }
 &nbsp;
 <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >export enum T</span>ournamentStatus {</span>
@@ -305,7 +307,7 @@
 <span class="cstat-no" title="statement not covered" >  OPEN = 'OPEN',</span>
 <span class="cstat-no" title="statement not covered" >  ACTIVE = 'ACTIVE',</span>
 <span class="cstat-no" title="statement not covered" >  COMPLETED = 'COMPLETED',</span>
-<span class="cstat-no" title="statement not covered" >  CANCELLED = 'CANCELLED'</span>
+<span class="cstat-no" title="statement not covered" >  CANCELLED = 'CANCELLED',</span>
 }
 &nbsp;
 <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >export enum P</span>layerLevel {</span>
@@ -313,7 +315,7 @@
 <span class="cstat-no" title="statement not covered" >  P2 = 'P2',</span>
 <span class="cstat-no" title="statement not covered" >  P3 = 'P3',</span>
 <span class="cstat-no" title="statement not covered" >  P4 = 'P4',</span>
-<span class="cstat-no" title="statement not covered" >  P5 = 'P5'</span>
+<span class="cstat-no" title="statement not covered" >  P5 = 'P5',</span>
 }
 &nbsp;
 <span class="cstat-no" title="statement not covered" >export class T</span>ournament {
@@ -331,7 +333,7 @@
     public <span class="cstat-no" title="statement not covered" >category: PlayerLevel | null,</span>
     public <span class="cstat-no" title="statement not covered" >createdById: string,</span>
     public <span class="cstat-no" title="statement not covered" >createdAt: Date = <span class="branch-0 cbranch-no" title="branch not covered" >n</span>ew Date(),</span>
-    public <span class="cstat-no" title="statement not covered" >updatedAt: Date = <span class="branch-0 cbranch-no" title="branch not covered" >n</span>ew Date()</span>
+    public <span class="cstat-no" title="statement not covered" >updatedAt: Date = <span class="branch-0 cbranch-no" title="branch not covered" >n</span>ew Date(),</span>
   ) {}
 &nbsp;
   // Domain methods
@@ -355,7 +357,7 @@
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.status !== TournamentStatus.OPEN) {</span>
 <span class="cstat-no" title="statement not covered" >      throw new Error('Only open tournaments can be started');</span>
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    this.status = TournamentStatus.ACTIVE;</span>
 <span class="cstat-no" title="statement not covered" >    this.updatedAt = new Date();</span>
   }
@@ -364,7 +366,7 @@
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.status !== TournamentStatus.ACTIVE) {</span>
 <span class="cstat-no" title="statement not covered" >      throw new Error('Only active tournaments can be completed');</span>
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    this.status = TournamentStatus.COMPLETED;</span>
 <span class="cstat-no" title="statement not covered" >    this.updatedAt = new Date();</span>
   }
@@ -373,7 +375,7 @@
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.status === TournamentStatus.COMPLETED) {</span>
 <span class="cstat-no" title="statement not covered" >      throw new Error('Completed tournaments cannot be cancelled');</span>
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    this.status = TournamentStatus.CANCELLED;</span>
 <span class="cstat-no" title="statement not covered" >    this.updatedAt = new Date();</span>
   }
@@ -388,7 +390,7 @@
     maxParticipants?: number | null,
     registrationDeadline?: Date | null,
     category?: PlayerLevel | null,
-    status?: TournamentStatus
+    status?: TournamentStatus,
   ): void {
     // Only draft or open tournaments can be updated
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (this.status !== TournamentStatus.DRAFT &amp;&amp; this.status !== TournamentStatus.OPEN) {</span>
@@ -408,14 +410,15 @@
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    this.updatedAt = new Date();</span>
   }
-} </pre></td></tr></table></pre>
+}
+&nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-03-23T19:34:14.050Z
+                at 2025-03-23T22:37:40.856Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

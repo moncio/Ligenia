@@ -28,7 +28,7 @@ export class StatisticController {
           wins: 8,
           losses: 2,
           points: 24,
-          rank: 1
+          rank: 1,
         },
         {
           id: '2',
@@ -40,15 +40,15 @@ export class StatisticController {
           wins: 6,
           losses: 4,
           points: 18,
-          rank: 2
-        }
+          rank: 2,
+        },
       ];
 
       return res.status(200).json({
         status: 'success',
         data: {
-          statistics
-        }
+          statistics,
+        },
       });
     } catch (error) {
       console.error('Error getting statistics:', error);
@@ -78,14 +78,14 @@ export class StatisticController {
         wins: 8,
         losses: 2,
         points: 24,
-        rank: 1
+        rank: 1,
       };
 
       return res.status(200).json({
         status: 'success',
         data: {
-          statistic
-        }
+          statistic,
+        },
       });
     } catch (error) {
       console.error('Error getting statistic by ID:', error);
@@ -106,7 +106,7 @@ export class StatisticController {
       if (!req.user || req.user.role !== UserRole.ADMIN) {
         return res.status(403).json({
           status: 'error',
-          message: 'You do not have permission to create statistics'
+          message: 'You do not have permission to create statistics',
         });
       }
 
@@ -117,14 +117,14 @@ export class StatisticController {
         id: 'generated-uuid',
         ...statisticData,
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       };
 
       return res.status(201).json({
         status: 'success',
         data: {
-          statistic
-        }
+          statistic,
+        },
       });
     } catch (error) {
       console.error('Error creating statistic:', error);
@@ -146,7 +146,7 @@ export class StatisticController {
       if (!req.user || req.user.role !== UserRole.ADMIN) {
         return res.status(403).json({
           status: 'error',
-          message: 'You do not have permission to update statistics'
+          message: 'You do not have permission to update statistics',
         });
       }
 
@@ -158,14 +158,14 @@ export class StatisticController {
         userId: 'user1',
         tournamentId: 'tournament1',
         ...statisticData,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       };
 
       return res.status(200).json({
         status: 'success',
         data: {
-          statistic
-        }
+          statistic,
+        },
       });
     } catch (error) {
       console.error('Error updating statistic:', error);
@@ -186,7 +186,7 @@ export class StatisticController {
       if (!req.user || req.user.role !== UserRole.ADMIN) {
         return res.status(403).json({
           status: 'error',
-          message: 'You do not have permission to delete statistics'
+          message: 'You do not have permission to delete statistics',
         });
       }
 
@@ -195,7 +195,7 @@ export class StatisticController {
 
       return res.status(200).json({
         status: 'success',
-        message: 'Statistic deleted successfully'
+        message: 'Statistic deleted successfully',
       });
     } catch (error) {
       console.error('Error deleting statistic:', error);
@@ -225,7 +225,7 @@ export class StatisticController {
           wins: 8,
           losses: 2,
           points: 24,
-          rank: 1
+          rank: 1,
         },
         {
           id: '2',
@@ -236,15 +236,15 @@ export class StatisticController {
           wins: 5,
           losses: 3,
           points: 15,
-          rank: 3
-        }
+          rank: 3,
+        },
       ];
 
       return res.status(200).json({
         status: 'success',
         data: {
-          statistics
-        }
+          statistics,
+        },
       });
     } catch (error) {
       console.error('Error getting user statistics:', error);
@@ -274,7 +274,7 @@ export class StatisticController {
           wins: 8,
           losses: 2,
           points: 24,
-          rank: 1
+          rank: 1,
         },
         {
           id: '2',
@@ -285,15 +285,15 @@ export class StatisticController {
           wins: 6,
           losses: 4,
           points: 18,
-          rank: 2
-        }
+          rank: 2,
+        },
       ];
 
       return res.status(200).json({
         status: 'success',
         data: {
-          statistics
-        }
+          statistics,
+        },
       });
     } catch (error) {
       console.error('Error getting tournament statistics:', error);
@@ -328,7 +328,7 @@ export class RankingController {
       // Get query parameters (limit and offset for pagination)
       const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 20;
       const offset = req.query.offset ? parseInt(req.query.offset as string, 10) : 0;
-      
+
       // Query the database to get player rankings based on total points
       const rawPlayerRankings = await prisma.$queryRaw`
         SELECT 
@@ -348,21 +348,21 @@ export class RankingController {
           total_points DESC, full_name ASC
         LIMIT ${limit} OFFSET ${offset}
       `;
-      
+
       // Transform any BigInt values to regular numbers
       const playerRankings = this.transformRankingResults(rawPlayerRankings as any[]);
-      
+
       return res.status(200).json({
         status: 'success',
         data: {
-          rankings: playerRankings
-        }
+          rankings: playerRankings,
+        },
       });
     } catch (error) {
       console.error('Error getting rankings:', error);
       return res.status(500).json({
         status: 'error',
-        message: 'Failed to retrieve rankings'
+        message: 'Failed to retrieve rankings',
       });
     }
   };
@@ -376,12 +376,12 @@ export class RankingController {
       const { categoryId } = req.params;
       const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 20;
       const offset = req.query.offset ? parseInt(req.query.offset as string, 10) : 0;
-      
+
       // Validate that categoryId is a valid PlayerLevel
       if (!Object.values(PlayerLevel).includes(categoryId as PlayerLevel)) {
         return res.status(400).json({
           status: 'error',
-          message: 'Invalid player category'
+          message: 'Invalid player category',
         });
       }
 
@@ -406,22 +406,22 @@ export class RankingController {
           total_points DESC, full_name ASC
         LIMIT ${limit} OFFSET ${offset}
       `;
-      
+
       // Transform any BigInt values to regular numbers
       const playerRankings = this.transformRankingResults(rawPlayerRankings as any[]);
-      
+
       return res.status(200).json({
         status: 'success',
         data: {
-          rankings: playerRankings
-        }
+          rankings: playerRankings,
+        },
       });
     } catch (error) {
       console.error('Error getting rankings by category:', error);
       return res.status(500).json({
         status: 'error',
-        message: 'Failed to retrieve rankings by category'
+        message: 'Failed to retrieve rankings by category',
       });
     }
   };
-} 
+}

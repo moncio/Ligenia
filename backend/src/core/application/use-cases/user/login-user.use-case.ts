@@ -7,7 +7,7 @@ import { ILoginCredentials, ITokenResponse } from '../../interfaces/auth.types';
 // Define input schema using Zod
 const LoginUserInputSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(6)
+  password: z.string().min(6),
 });
 
 type LoginUserInput = z.infer<typeof LoginUserInputSchema>;
@@ -28,16 +28,16 @@ export class LoginUserUseCase extends BaseUseCase<LoginUserInput, ITokenResponse
       // Use validated data as ILoginCredentials
       const credentials: ILoginCredentials = {
         email: input.email,
-        password: input.password
+        password: input.password,
       };
-      
+
       // Delegate login process to authService
       const result = await this.authService.login(credentials);
       return result;
     } catch (error) {
       return Result.fail<ITokenResponse>(
-        error instanceof Error ? error : new Error('Authentication failed')
+        error instanceof Error ? error : new Error('Authentication failed'),
       );
     }
   }
-} 
+}

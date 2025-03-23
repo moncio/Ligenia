@@ -213,9 +213,7 @@
 <a name='L148'></a><a href='#L148'>148</a>
 <a name='L149'></a><a href='#L149'>149</a>
 <a name='L150'></a><a href='#L150'>150</a>
-<a name='L151'></a><a href='#L151'>151</a>
-<a name='L152'></a><a href='#L152'>152</a>
-<a name='L153'></a><a href='#L153'>153</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L151'></a><a href='#L151'>151</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -256,26 +254,26 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -353,9 +351,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -366,6 +361,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import { BaseUseCase } from '../../base/base.use-case';</span>
 <span class="cstat-no" title="statement not covered" >import { Result } from '../../../../shared/result';</span>
@@ -378,8 +374,8 @@ import { IMatchRepository } from '../../interfaces/repositories/match.repository
 // Input validation schema
 const UpdateStatisticsAfterMatchInputSchema = <span class="cstat-no" title="statement not covered" >z.object({</span>
   matchId: z.string().uuid({
-    message: 'Invalid match ID format'
-  })
+    message: 'Invalid match ID format',
+  }),
 });
 &nbsp;
 // Input type
@@ -402,12 +398,14 @@ export interface UpdateStatisticsAfterMatchOutput {
 &gt; {
 <span class="fstat-no" title="function not covered" >  constructor(</span>
     private readonly <span class="cstat-no" title="statement not covered" >statisticRepository: IStatisticRepository,</span>
-    private readonly <span class="cstat-no" title="statement not covered" >matchRepository: IMatchRepository</span>
+    private readonly <span class="cstat-no" title="statement not covered" >matchRepository: IMatchRepository,</span>
   ) {
 <span class="cstat-no" title="statement not covered" >    super();</span>
   }
 &nbsp;
-  protected async <span class="fstat-no" title="function not covered" >executeImpl(</span>input: UpdateStatisticsAfterMatchInput): Promise&lt;Result&lt;UpdateStatisticsAfterMatchOutput&gt;&gt; {
+  protected async <span class="fstat-no" title="function not covered" >executeImpl(</span>
+    input: UpdateStatisticsAfterMatchInput,
+  ): Promise&lt;Result&lt;UpdateStatisticsAfterMatchOutput&gt;&gt; {
 <span class="cstat-no" title="statement not covered" >    try {</span>
       // Validate input
       let validatedData: UpdateStatisticsAfterMatchInput;
@@ -416,7 +414,7 @@ export interface UpdateStatisticsAfterMatchOutput {
       } catch (validationError) {
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (validationError instanceof z.ZodError) {</span>
 <span class="cstat-no" title="statement not covered" >          return Result.fail&lt;UpdateStatisticsAfterMatchOutput&gt;(</span>
-            new Error(validationError.errors[0].message)
+            new Error(validationError.errors[0].message),
           );
         }
 <span class="cstat-no" title="statement not covered" >        throw validationError;</span>
@@ -425,22 +423,20 @@ export interface UpdateStatisticsAfterMatchOutput {
       // Find match
       const match = <span class="cstat-no" title="statement not covered" >await this.matchRepository.findById(validatedData.matchId);</span>
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!match) {</span>
-<span class="cstat-no" title="statement not covered" >        return Result.fail&lt;UpdateStatisticsAfterMatchOutput&gt;(</span>
-          new Error('Match not found')
-        );
+<span class="cstat-no" title="statement not covered" >        return Result.fail&lt;UpdateStatisticsAfterMatchOutput&gt;(new Error('Match not found'));</span>
       }
 &nbsp;
       // Check if match is completed
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (match.status !== MatchStatus.COMPLETED) {</span>
 <span class="cstat-no" title="statement not covered" >        return Result.fail&lt;UpdateStatisticsAfterMatchOutput&gt;(</span>
-          new Error('Cannot update statistics for a match that is not completed')
+          new Error('Cannot update statistics for a match that is not completed'),
         );
       }
 &nbsp;
       // Check if scores are recorded
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (match.homeScore === null || match.awayScore === null) {</span>
 <span class="cstat-no" title="statement not covered" >        return Result.fail&lt;UpdateStatisticsAfterMatchOutput&gt;(</span>
-          new Error('Match scores not recorded')
+          new Error('Match scores not recorded'),
         );
       }
 &nbsp;
@@ -452,26 +448,26 @@ export interface UpdateStatisticsAfterMatchOutput {
       const homePlayerOneStatistic = <span class="cstat-no" title="statement not covered" >await this.updatePlayerStatistic(</span>
         match.homePlayerOneId,
         homeTeamWon,
-        match.homeScore
+        match.homeScore,
       );
 &nbsp;
       const homePlayerTwoStatistic = <span class="cstat-no" title="statement not covered" >await this.updatePlayerStatistic(</span>
         match.homePlayerTwoId,
         homeTeamWon,
-        match.homeScore
+        match.homeScore,
       );
 &nbsp;
       // Update away team player statistics
       const awayPlayerOneStatistic = <span class="cstat-no" title="statement not covered" >await this.updatePlayerStatistic(</span>
         match.awayPlayerOneId,
         awayTeamWon,
-        match.awayScore
+        match.awayScore,
       );
 &nbsp;
       const awayPlayerTwoStatistic = <span class="cstat-no" title="statement not covered" >await this.updatePlayerStatistic(</span>
         match.awayPlayerTwoId,
         awayTeamWon,
-        match.awayScore
+        match.awayScore,
       );
 &nbsp;
       // Return statistics from each team
@@ -479,11 +475,11 @@ export interface UpdateStatisticsAfterMatchOutput {
         homePlayerOneStatistic: homePlayerOneStatistic,
         homePlayerTwoStatistic: homePlayerTwoStatistic,
         awayPlayerOneStatistic: awayPlayerOneStatistic,
-        awayPlayerTwoStatistic: awayPlayerTwoStatistic
+        awayPlayerTwoStatistic: awayPlayerTwoStatistic,
       });
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      return Result.fail&lt;UpdateStatisticsAfterMatchOutput&gt;(</span>
-        error instanceof Error ? error : new Error('Failed to update statistics after match')
+        error instanceof Error ? error : new Error('Failed to update statistics after match'),
       );
     }
   }
@@ -494,17 +490,14 @@ export interface UpdateStatisticsAfterMatchOutput {
   private async <span class="fstat-no" title="function not covered" >updatePlayerStatistic(</span>
     playerId: string,
     won: boolean,
-    score: number
+    score: number,
   ): Promise&lt;Statistic&gt; {
     // Find existing statistic or create a new one
     let statistic = <span class="cstat-no" title="statement not covered" >await this.statisticRepository.findByPlayerId(playerId);</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!statistic) {</span>
       // Create new statistic
-<span class="cstat-no" title="statement not covered" >      statistic = new Statistic(</span>
-        `statistic-${Date.now()}-${playerId.substring(0, 8)}`,
-        playerId
-      );
+<span class="cstat-no" title="statement not covered" >      statistic = new Statistic(`statistic-${Date.now()}-${playerId.substring(0, 8)}`, playerId);</span>
     }
 &nbsp;
     // Update statistics
@@ -519,14 +512,15 @@ export interface UpdateStatisticsAfterMatchOutput {
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    return statistic;</span>
   }
-} </pre></td></tr></table></pre>
+}
+&nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-03-23T19:34:14.050Z
+                at 2025-03-23T22:37:40.856Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>

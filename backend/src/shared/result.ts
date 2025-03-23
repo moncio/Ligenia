@@ -57,7 +57,10 @@ export class Result<T> {
    * Creates a failed result
    * @param error Error that caused the failure
    */
-  static fail<U>(error: Error): Result<U> {
+  static fail<U>(error: Error | string): Result<U> {
+    if (typeof error === 'string') {
+      return new Result<U>(false, new Error(error));
+    }
     return new Result<U>(false, error);
   }
-} 
+}

@@ -1,8 +1,17 @@
 import { BaseUseCase } from '../../base/base.use-case';
 import { Result } from '../../../../shared/result';
 import { z } from 'zod';
-import { Tournament, TournamentStatus, PlayerLevel } from '../../../domain/tournament/tournament.entity';
-import { ITournamentRepository, PaginationOptions, DateRangeFilter, TournamentFilter } from '../../interfaces/repositories/tournament.repository';
+import {
+  Tournament,
+  TournamentStatus,
+  PlayerLevel,
+} from '../../../domain/tournament/tournament.entity';
+import {
+  ITournamentRepository,
+  PaginationOptions,
+  DateRangeFilter,
+  TournamentFilter,
+} from '../../interfaces/repositories/tournament.repository';
 import { IPlayerRepository } from '../../interfaces/repositories/player.repository';
 
 // Input validation schema
@@ -38,22 +47,26 @@ export class GetPlayerTournamentsUseCase extends BaseUseCase<
 > {
   constructor(
     private readonly tournamentRepository: ITournamentRepository,
-    private readonly playerRepository: IPlayerRepository
+    private readonly playerRepository: IPlayerRepository,
   ) {
     super();
   }
 
   // Main execution method
-  protected async executeImpl(input: GetPlayerTournamentsInput): Promise<Result<GetPlayerTournamentsOutput>> {
+  protected async executeImpl(
+    input: GetPlayerTournamentsInput,
+  ): Promise<Result<GetPlayerTournamentsOutput>> {
     console.log('Input to GetPlayerTournamentsUseCase:', input);
-    
+
     try {
       // Input validation
       try {
         await GetPlayerTournamentsInputSchema.parseAsync(input);
       } catch (error) {
         if (error instanceof z.ZodError) {
-          const validationErrors = error.errors.map(err => `${err.path}: ${err.message}`).join(', ');
+          const validationErrors = error.errors
+            .map(err => `${err.path}: ${err.message}`)
+            .join(', ');
           return Result.fail(new Error(`Invalid input: ${validationErrors}`));
         }
         throw error;
@@ -62,7 +75,7 @@ export class GetPlayerTournamentsUseCase extends BaseUseCase<
       // Find player
       const player = await this.playerRepository.findById(input.playerId);
       console.log('Player found:', player);
-      
+
       if (!player) {
         return Result.fail(new Error('Player not found'));
       }
@@ -73,19 +86,25 @@ export class GetPlayerTournamentsUseCase extends BaseUseCase<
 
       // Filter tournaments to only those where the player is registered
       let playerTournaments: Tournament[] = [];
-      
+
       for (const tournament of allTournaments) {
         console.log(`Checking registration for tournament: ${tournament.id} ${tournament.name}`);
-        const isRegistered = await this.tournamentRepository.isParticipantRegistered(tournament.id, player.id);
+        const isRegistered = await this.tournamentRepository.isParticipantRegistered(
+          tournament.id,
+          player.id,
+        );
         console.log('Is player registered:', isRegistered);
-        
+
         if (isRegistered) {
           playerTournaments.push(tournament);
         }
       }
-      
+
       console.log('Player tournaments after checking registrations:', playerTournaments.length);
-      console.log('Player tournaments IDs:', playerTournaments.map(t => t.id));
+      console.log(
+        'Player tournaments IDs:',
+        playerTournaments.map(t => t.id),
+      );
 
       // Now apply the filters to the player's tournaments
       if (input.status !== undefined) {
@@ -124,7 +143,7 @@ export class GetPlayerTournamentsUseCase extends BaseUseCase<
       if (input.sortField && input.sortOrder) {
         const { sortField, sortOrder } = input;
         console.log(`Sorting by ${sortField} in ${sortOrder} order`);
-        
+
         playerTournaments.sort((a: any, b: any) => {
           if (a[sortField] < b[sortField]) return sortOrder === 'asc' ? -1 : 1;
           if (a[sortField] > b[sortField]) return sortOrder === 'asc' ? 1 : -1;
@@ -135,7 +154,7 @@ export class GetPlayerTournamentsUseCase extends BaseUseCase<
       // Apply pagination
       const skip = input.skip || 0;
       const limit = input.limit || 10;
-      
+
       const paginatedTournaments = playerTournaments.slice(skip, skip + limit);
       console.log('After pagination:', paginatedTournaments.length);
 
@@ -143,10 +162,10 @@ export class GetPlayerTournamentsUseCase extends BaseUseCase<
         tournaments: paginatedTournaments,
         total,
         skip,
-        limit
+        limit,
       });
     } catch (error) {
       return Result.fail(error as Error);
     }
   }
-} 
+}

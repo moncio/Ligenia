@@ -28,7 +28,7 @@ export class PerformanceController {
           losses: 5,
           points: 30,
           createdAt: '2023-01-31T23:59:59Z',
-          updatedAt: '2023-01-31T23:59:59Z'
+          updatedAt: '2023-01-31T23:59:59Z',
         },
         {
           id: '2',
@@ -41,15 +41,15 @@ export class PerformanceController {
           losses: 6,
           points: 36,
           createdAt: '2023-02-28T23:59:59Z',
-          updatedAt: '2023-02-28T23:59:59Z'
-        }
+          updatedAt: '2023-02-28T23:59:59Z',
+        },
       ];
 
       return res.status(200).json({
         status: 'success',
         data: {
-          performance: performanceRecords
-        }
+          performance: performanceRecords,
+        },
       });
     } catch (error) {
       console.error('Error getting performance history:', error);
@@ -80,14 +80,14 @@ export class PerformanceController {
         losses: 5,
         points: 30,
         createdAt: '2023-01-31T23:59:59Z',
-        updatedAt: '2023-01-31T23:59:59Z'
+        updatedAt: '2023-01-31T23:59:59Z',
       };
 
       return res.status(200).json({
         status: 'success',
         data: {
-          performance
-        }
+          performance,
+        },
       });
     } catch (error) {
       console.error('Error getting performance by ID:', error);
@@ -121,7 +121,7 @@ export class PerformanceController {
           losses: 5,
           points: 30,
           createdAt: '2023-01-31T23:59:59Z',
-          updatedAt: '2023-01-31T23:59:59Z'
+          updatedAt: '2023-01-31T23:59:59Z',
         },
         {
           id: '2',
@@ -134,15 +134,15 @@ export class PerformanceController {
           losses: 6,
           points: 36,
           createdAt: '2023-02-28T23:59:59Z',
-          updatedAt: '2023-02-28T23:59:59Z'
-        }
+          updatedAt: '2023-02-28T23:59:59Z',
+        },
       ];
 
       return res.status(200).json({
         status: 'success',
         data: {
-          performance: performanceRecords
-        }
+          performance: performanceRecords,
+        },
       });
     } catch (error) {
       console.error('Error getting user performance:', error);
@@ -163,7 +163,7 @@ export class PerformanceController {
       if (!req.user || req.user.role !== UserRole.ADMIN) {
         return res.status(403).json({
           status: 'error',
-          message: 'You do not have permission to create performance records'
+          message: 'You do not have permission to create performance records',
         });
       }
 
@@ -174,14 +174,14 @@ export class PerformanceController {
         id: 'generated-uuid',
         ...performanceData,
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       };
 
       return res.status(201).json({
         status: 'success',
         data: {
-          performance
-        }
+          performance,
+        },
       });
     } catch (error) {
       console.error('Error creating performance record:', error);
@@ -203,7 +203,7 @@ export class PerformanceController {
       if (!req.user || req.user.role !== UserRole.ADMIN) {
         return res.status(403).json({
           status: 'error',
-          message: 'You do not have permission to update performance records'
+          message: 'You do not have permission to update performance records',
         });
       }
 
@@ -216,14 +216,14 @@ export class PerformanceController {
         year: 2023,
         month: 1,
         ...performanceData,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       };
 
       return res.status(200).json({
         status: 'success',
         data: {
-          performance
-        }
+          performance,
+        },
       });
     } catch (error) {
       console.error('Error updating performance record:', error);
@@ -244,7 +244,7 @@ export class PerformanceController {
       if (!req.user || req.user.role !== UserRole.ADMIN) {
         return res.status(403).json({
           status: 'error',
-          message: 'You do not have permission to delete performance records'
+          message: 'You do not have permission to delete performance records',
         });
       }
 
@@ -253,7 +253,7 @@ export class PerformanceController {
 
       return res.status(200).json({
         status: 'success',
-        message: 'Performance record deleted successfully'
+        message: 'Performance record deleted successfully',
       });
     } catch (error) {
       console.error('Error deleting performance record:', error);
@@ -284,15 +284,15 @@ export class PerformanceController {
         bestMonth: {
           month: 4,
           wins: 12,
-          points: 36
-        }
+          points: 36,
+        },
       };
 
       return res.status(200).json({
         status: 'success',
         data: {
-          summary
-        }
+          summary,
+        },
       });
     } catch (error) {
       console.error('Error getting performance summary:', error);
@@ -311,19 +311,19 @@ export class PerformanceController {
 
       // Obtener el caso de uso desde el contenedor de DI
       const trackPerformanceTrendsUseCase = (req as any).container.resolve(
-        'trackPerformanceTrendsUseCase'
+        'trackPerformanceTrendsUseCase',
       );
 
       // Ejecutar el caso de uso
       const result = await trackPerformanceTrendsUseCase.execute({
         userId: userId as string,
-        ...(timeframe && { timeframe: timeframe as 'monthly' | 'yearly' | 'all' })
+        ...(timeframe && { timeframe: timeframe as 'monthly' | 'yearly' | 'all' }),
       });
 
       if (result.isFailure()) {
         return res.status(400).json({
           status: 'error',
-          message: result.getError().message
+          message: result.getError().message,
         });
       }
 
@@ -332,15 +332,15 @@ export class PerformanceController {
       return res.status(200).json({
         status: 'success',
         data: {
-          trends
-        }
+          trends,
+        },
       });
     } catch (error) {
       console.error('Error tracking performance trends:', error);
       return res.status(500).json({
         status: 'error',
-        message: 'Error interno del servidor'
+        message: 'Error interno del servidor',
       });
     }
-  }
-} 
+  };
+}

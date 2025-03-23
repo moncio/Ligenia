@@ -1,4 +1,7 @@
-import { GetPlayerByIdUseCase, GetPlayerByIdInput } from '../../../../src/core/application/use-cases/player/get-player-by-id.use-case';
+import {
+  GetPlayerByIdUseCase,
+  GetPlayerByIdInput,
+} from '../../../../src/core/application/use-cases/player/get-player-by-id.use-case';
 import { IPlayerRepository } from '../../../../src/core/application/interfaces/repositories/player.repository';
 import { Player } from '../../../../src/core/domain/player/player.entity';
 import { PlayerLevel } from '../../../../src/core/domain/tournament/tournament.entity';
@@ -59,7 +62,7 @@ describe('GetPlayerByIdUseCase', () => {
       '123e4567-e89b-12d3-a456-426614174001',
       PlayerLevel.P3,
       30,
-      'Spain'
+      'Spain',
     );
 
     // Initialize repository with test data
@@ -72,7 +75,7 @@ describe('GetPlayerByIdUseCase', () => {
   it('should get a player by ID successfully', async () => {
     // Arrange
     const input: GetPlayerByIdInput = {
-      id: testPlayer.id
+      id: testPlayer.id,
     };
 
     // Act
@@ -80,7 +83,7 @@ describe('GetPlayerByIdUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const player = result.getValue().player;
     expect(player.id).toBe(testPlayer.id);
     expect(player.userId).toBe(testPlayer.userId);
@@ -92,7 +95,7 @@ describe('GetPlayerByIdUseCase', () => {
   it('should fail when player does not exist', async () => {
     // Arrange
     const input: GetPlayerByIdInput = {
-      id: '123e4567-e89b-12d3-a456-426614174002' // Valid UUID but non-existent player
+      id: '123e4567-e89b-12d3-a456-426614174002', // Valid UUID but non-existent player
     };
 
     // Act
@@ -106,7 +109,7 @@ describe('GetPlayerByIdUseCase', () => {
   it('should fail with invalid input data', async () => {
     // Arrange
     const input = {
-      id: 'not-a-uuid'
+      id: 'not-a-uuid',
     };
 
     // Act
@@ -117,4 +120,4 @@ describe('GetPlayerByIdUseCase', () => {
     expect(result.isFailure).toBe(true);
     expect(result.getError().message).toContain('Invalid player ID format');
   });
-}); 
+});

@@ -33,9 +33,7 @@ export interface IRankingRepository {
    * Count total number of rankings
    * @param options Optional filtering options
    */
-  count(options?: {
-    playerLevel?: PlayerLevel;
-  }): Promise<number>;
+  count(options?: { playerLevel?: PlayerLevel }): Promise<number>;
 
   /**
    * Save a new ranking
@@ -60,16 +58,19 @@ export interface IRankingRepository {
    * @param playerLevel Player level
    * @param options Optional filtering and pagination options
    */
-  findByPlayerLevel(playerLevel: PlayerLevel, options?: {
-    limit?: number;
-    offset?: number;
-    sortBy?: 'rankingPoints' | 'categoryPosition';
-    sortOrder?: 'asc' | 'desc';
-  }): Promise<Ranking[]>;
+  findByPlayerLevel(
+    playerLevel: PlayerLevel,
+    options?: {
+      limit?: number;
+      offset?: number;
+      sortBy?: 'rankingPoints' | 'categoryPosition';
+      sortOrder?: 'asc' | 'desc';
+    },
+  ): Promise<Ranking[]>;
 
   /**
    * Get the number of players in a category
    * @param playerLevel Player level
    */
   countByPlayerLevel(playerLevel: PlayerLevel): Promise<number>;
-} 
+}

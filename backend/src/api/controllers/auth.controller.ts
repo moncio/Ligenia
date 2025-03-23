@@ -24,7 +24,7 @@ export class AuthController {
         name: userData.name,
         role: userData.role || 'USER',
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       };
 
       // Generar token simulado
@@ -36,8 +36,8 @@ export class AuthController {
         data: {
           user,
           token,
-          refreshToken
-        }
+          refreshToken,
+        },
       });
     } catch (error) {
       console.error('Error registering user:', error);
@@ -64,7 +64,7 @@ export class AuthController {
         name: 'Test User',
         role: 'USER',
         createdAt: '2023-01-01T00:00:00Z',
-        updatedAt: '2023-01-01T00:00:00Z'
+        updatedAt: '2023-01-01T00:00:00Z',
       };
 
       // Generar token simulado
@@ -76,8 +76,8 @@ export class AuthController {
         data: {
           user,
           token,
-          refreshToken
-        }
+          refreshToken,
+        },
       });
     } catch (error) {
       console.error('Error logging in:', error);
@@ -95,7 +95,7 @@ export class AuthController {
       if (!req.user) {
         return res.status(401).json({
           status: 'error',
-          message: 'You must be logged in to logout'
+          message: 'You must be logged in to logout',
         });
       }
 
@@ -104,7 +104,7 @@ export class AuthController {
 
       return res.status(200).json({
         status: 'success',
-        message: 'Logged out successfully'
+        message: 'Logged out successfully',
       });
     } catch (error) {
       console.error('Error logging out:', error);
@@ -132,8 +132,8 @@ export class AuthController {
         status: 'success',
         data: {
           token: newToken,
-          refreshToken: newRefreshToken
-        }
+          refreshToken: newRefreshToken,
+        },
       });
     } catch (error) {
       console.error('Error refreshing token:', error);
@@ -151,7 +151,7 @@ export class AuthController {
       if (!req.user) {
         return res.status(401).json({
           status: 'error',
-          message: 'Not authenticated'
+          message: 'Not authenticated',
         });
       }
 
@@ -164,14 +164,14 @@ export class AuthController {
         name: req.user.name,
         role: req.user.role,
         createdAt: '2023-01-01T00:00:00Z',
-        updatedAt: '2023-01-01T00:00:00Z'
+        updatedAt: '2023-01-01T00:00:00Z',
       };
 
       return res.status(200).json({
         status: 'success',
         data: {
-          user
-        }
+          user,
+        },
       });
     } catch (error) {
       console.error('Error getting user profile:', error);
@@ -193,7 +193,7 @@ export class AuthController {
 
       return res.status(200).json({
         status: 'success',
-        message: `Password reset link sent to ${email}`
+        message: `Password reset link sent to ${email}`,
       });
     } catch (error) {
       console.error('Error requesting password reset:', error);
@@ -215,7 +215,7 @@ export class AuthController {
 
       return res.status(200).json({
         status: 'success',
-        message: 'Password reset successfully'
+        message: 'Password reset successfully',
       });
     } catch (error) {
       console.error('Error resetting password:', error);
@@ -237,11 +237,11 @@ export class AuthController {
 
       return res.status(200).json({
         status: 'success',
-        message: 'Email verified successfully'
+        message: 'Email verified successfully',
       });
     } catch (error) {
       console.error('Error verifying email:', error);
       return res.status(500).json({ status: 'error', message: 'Internal server error' });
     }
   };
-} 
+}

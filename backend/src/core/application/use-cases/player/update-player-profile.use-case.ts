@@ -10,21 +10,31 @@ import { UserRole } from '../../../domain/user/user.entity';
 // Input validation schema
 const UpdatePlayerProfileInputSchema = z.object({
   id: z.string().uuid({
-    message: 'Invalid player ID format'
+    message: 'Invalid player ID format',
   }),
   requestingUserId: z.string().uuid({
-    message: 'Invalid user ID format'
+    message: 'Invalid user ID format',
   }),
-  level: z.nativeEnum(PlayerLevel, {
-    errorMap: () => ({ message: 'Level must be a valid PlayerLevel' })
-  }).optional(),
+  level: z
+    .nativeEnum(PlayerLevel, {
+      errorMap: () => ({ message: 'Level must be a valid PlayerLevel' }),
+    })
+    .optional(),
   age: z.number().int().positive().optional().nullable(),
-  country: z.string().min(2, {
-    message: 'Country must be at least 2 characters'
-  }).optional().nullable(),
-  avatarUrl: z.string().url({
-    message: 'Avatar URL must be a valid URL'
-  }).optional().nullable()
+  country: z
+    .string()
+    .min(2, {
+      message: 'Country must be at least 2 characters',
+    })
+    .optional()
+    .nullable(),
+  avatarUrl: z
+    .string()
+    .url({
+      message: 'Avatar URL must be a valid URL',
+    })
+    .optional()
+    .nullable(),
 });
 
 // Input type
@@ -44,12 +54,14 @@ export class UpdatePlayerProfileUseCase extends BaseUseCase<
 > {
   constructor(
     private readonly playerRepository: IPlayerRepository,
-    private readonly userRepository: IUserRepository
+    private readonly userRepository: IUserRepository,
   ) {
     super();
   }
 
-  protected async executeImpl(input: UpdatePlayerProfileInput): Promise<Result<UpdatePlayerProfileOutput>> {
+  protected async executeImpl(
+    input: UpdatePlayerProfileInput,
+  ): Promise<Result<UpdatePlayerProfileOutput>> {
     try {
       // Validate input first
       let validatedData: UpdatePlayerProfileInput;
@@ -58,7 +70,7 @@ export class UpdatePlayerProfileUseCase extends BaseUseCase<
       } catch (validationError) {
         if (validationError instanceof z.ZodError) {
           return Result.fail<UpdatePlayerProfileOutput>(
-            new Error(validationError.errors[0].message)
+            new Error(validationError.errors[0].message),
           );
         }
         throw validationError;
@@ -67,27 +79,20 @@ export class UpdatePlayerProfileUseCase extends BaseUseCase<
       // Find player
       const player = await this.playerRepository.findById(validatedData.id);
       if (!player) {
-        return Result.fail<UpdatePlayerProfileOutput>(
-          new Error('Player not found')
-        );
+        return Result.fail<UpdatePlayerProfileOutput>(new Error('Player not found'));
       }
 
       // Check if requesting user exists
       const requestingUser = await this.userRepository.findById(validatedData.requestingUserId);
       if (!requestingUser) {
-        return Result.fail<UpdatePlayerProfileOutput>(
-          new Error('User not found')
-        );
+        return Result.fail<UpdatePlayerProfileOutput>(new Error('User not found'));
       }
 
       // Check if user is authorized to update this player
       // Only the owner or admin can update a player's profile
-      if (
-        player.userId !== requestingUser.id &&
-        requestingUser.role !== UserRole.ADMIN
-      ) {
+      if (player.userId !== requestingUser.id && requestingUser.role !== UserRole.ADMIN) {
         return Result.fail<UpdatePlayerProfileOutput>(
-          new Error('Not authorized to update this player profile')
+          new Error('Not authorized to update this player profile'),
         );
       }
 
@@ -96,7 +101,7 @@ export class UpdatePlayerProfileUseCase extends BaseUseCase<
         level: validatedData.level,
         age: validatedData.age,
         country: validatedData.country,
-        avatarUrl: validatedData.avatarUrl
+        avatarUrl: validatedData.avatarUrl,
       });
 
       // Save updated player
@@ -105,8 +110,8 @@ export class UpdatePlayerProfileUseCase extends BaseUseCase<
       return Result.ok<UpdatePlayerProfileOutput>({ success: true });
     } catch (error) {
       return Result.fail<UpdatePlayerProfileOutput>(
-        error instanceof Error ? error : new Error('Failed to update player profile')
+        error instanceof Error ? error : new Error('Failed to update player profile'),
       );
     }
   }
-} 
+}

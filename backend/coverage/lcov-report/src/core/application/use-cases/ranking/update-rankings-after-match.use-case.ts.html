@@ -180,8 +180,7 @@
 <a name='L115'></a><a href='#L115'>115</a>
 <a name='L116'></a><a href='#L116'>116</a>
 <a name='L117'></a><a href='#L117'>117</a>
-<a name='L118'></a><a href='#L118'>118</a>
-<a name='L119'></a><a href='#L119'>119</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L118'></a><a href='#L118'>118</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -233,8 +232,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -298,6 +295,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import { BaseUseCase } from '../../base/base.use-case';</span>
 <span class="cstat-no" title="statement not covered" >import { Result } from '../../../../shared/result';</span>
@@ -310,8 +308,8 @@ import { CalculatePlayerRankingsUseCase } from './calculate-player-rankings.use-
 // Input validation schema
 const UpdateRankingsAfterMatchInputSchema = <span class="cstat-no" title="statement not covered" >z.object({</span>
   matchId: z.string().uuid({
-    message: 'Invalid match ID format'
-  })
+    message: 'Invalid match ID format',
+  }),
 });
 &nbsp;
 // Input type
@@ -334,13 +332,13 @@ export interface UpdateRankingsAfterMatchOutput {
 <span class="fstat-no" title="function not covered" >  constructor(</span>
     private readonly <span class="cstat-no" title="statement not covered" >rankingRepository: IRankingRepository,</span>
     private readonly <span class="cstat-no" title="statement not covered" >matchRepository: IMatchRepository,</span>
-    private readonly <span class="cstat-no" title="statement not covered" >calculatePlayerRankingsUseCase: CalculatePlayerRankingsUseCase</span>
+    private readonly <span class="cstat-no" title="statement not covered" >calculatePlayerRankingsUseCase: CalculatePlayerRankingsUseCase,</span>
   ) {
 <span class="cstat-no" title="statement not covered" >    super();</span>
   }
 &nbsp;
   protected async <span class="fstat-no" title="function not covered" >executeImpl(</span>
-    input: UpdateRankingsAfterMatchInput
+    input: UpdateRankingsAfterMatchInput,
   ): Promise&lt;Result&lt;UpdateRankingsAfterMatchOutput&gt;&gt; {
 <span class="cstat-no" title="statement not covered" >    try {</span>
       // Validate input
@@ -348,17 +346,15 @@ export interface UpdateRankingsAfterMatchOutput {
 &nbsp;
       // Get match details
       const match = <span class="cstat-no" title="statement not covered" >await this.matchRepository.findById(validatedData.matchId);</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!match) {</span>
-<span class="cstat-no" title="statement not covered" >        return Result.fail&lt;UpdateRankingsAfterMatchOutput&gt;(</span>
-          new Error('Match not found')
-        );
+<span class="cstat-no" title="statement not covered" >        return Result.fail&lt;UpdateRankingsAfterMatchOutput&gt;(new Error('Match not found'));</span>
       }
 &nbsp;
       // Only update rankings for completed matches
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (match.status !== MatchStatus.COMPLETED) {</span>
 <span class="cstat-no" title="statement not covered" >        return Result.fail&lt;UpdateRankingsAfterMatchOutput&gt;(</span>
-          new Error('Cannot update rankings for a match that is not completed')
+          new Error('Cannot update rankings for a match that is not completed'),
         );
       }
 &nbsp;
@@ -370,7 +366,7 @@ export interface UpdateRankingsAfterMatchOutput {
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      for (const playerId of playerIds) {</span>
         const result = <span class="cstat-no" title="statement not covered" >await this.calculatePlayerRankingsUseCase.execute({</span>
-          playerId
+          playerId,
         });
 &nbsp;
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (result.isSuccess) {</span>
@@ -380,11 +376,11 @@ export interface UpdateRankingsAfterMatchOutput {
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      return Result.ok&lt;UpdateRankingsAfterMatchOutput&gt;({</span>
         playersUpdated,
-        matchId: validatedData.matchId
+        matchId: validatedData.matchId,
       });
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      return Result.fail&lt;UpdateRankingsAfterMatchOutput&gt;(</span>
-        error instanceof Error ? error : new Error('Failed to update rankings after match')
+        error instanceof Error ? error : new Error('Failed to update rankings after match'),
       );
     }
   }
@@ -417,14 +413,15 @@ export interface UpdateRankingsAfterMatchOutput {
     // Remove duplicates (in case a player is in both home and away teams)
 <span class="cstat-no" title="statement not covered" >    return [...new Set(playerIds)];</span>
   }
-} </pre></td></tr></table></pre>
+}
+&nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-03-23T19:34:14.050Z
+                at 2025-03-23T22:37:40.856Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>

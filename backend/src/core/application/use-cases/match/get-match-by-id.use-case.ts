@@ -7,16 +7,14 @@ import { IMatchRepository } from '../../interfaces/repositories/match.repository
 // Input validation schema
 const GetMatchByIdInputSchema = z.object({
   id: z.string().uuid({
-    message: 'Invalid match ID format'
-  })
+    message: 'Invalid match ID format',
+  }),
 });
 
 type GetMatchByIdInput = z.infer<typeof GetMatchByIdInputSchema>;
 
 export class GetMatchByIdUseCase extends BaseUseCase<GetMatchByIdInput, Match> {
-  constructor(
-    private matchRepository: IMatchRepository
-  ) {
+  constructor(private matchRepository: IMatchRepository) {
     super();
   }
 
@@ -42,4 +40,4 @@ export class GetMatchByIdUseCase extends BaseUseCase<GetMatchByIdInput, Match> {
       return Result.fail<Match>(error instanceof Error ? error : new Error(String(error)));
     }
   }
-} 
+}

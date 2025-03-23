@@ -9,7 +9,7 @@ export const mockUsers = {
     name: 'Admin User',
     role: 'admin',
     emailVerified: true,
-    password: 'password123'
+    password: 'password123',
   },
   player: {
     id: 'player-uuid',
@@ -17,32 +17,32 @@ export const mockUsers = {
     name: 'Player User',
     role: 'player',
     emailVerified: true,
-    password: 'password123'
+    password: 'password123',
   },
   nonExistent: {
     email: 'nonexistent@example.com',
-    password: 'wrongpassword'
-  }
+    password: 'wrongpassword',
+  },
 };
 
 export const mockTokens = {
   valid: 'valid-token',
   invalid: 'invalid-token',
-  expired: 'expired-token'
+  expired: 'expired-token',
 };
 
 export const mockSessions = {
   valid: {
     access_token: mockTokens.valid,
     refresh_token: 'valid-refresh-token',
-    expires_at: Date.now() + 3600000 // 1 hour from now
-  }
+    expires_at: Date.now() + 3600000, // 1 hour from now
+  },
 };
 
 // Helper to generate test tokens for users with specific roles
 export const generateTestToken = (
   user: { id: string; email: string; role: string },
-  expiresIn = '1h'
+  expiresIn = '1h',
 ): string => {
   const secret = process.env.JWT_SECRET || 'test-secret-key';
   return jwt.sign(
@@ -51,9 +51,9 @@ export const generateTestToken = (
       email: user.email,
       role: user.role,
       aud: 'authenticated',
-      exp: Math.floor(Date.now() / 1000) + (60 * 60) // 1 hour from now
+      exp: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour from now
     },
-    secret
+    secret,
   );
 };
 
@@ -70,12 +70,12 @@ export const createMockSupabaseClient = () => {
                 email: mockUsers.admin.email,
                 user_metadata: {
                   name: mockUsers.admin.name,
-                  role: mockUsers.admin.role
-                }
+                  role: mockUsers.admin.role,
+                },
               },
-              session: mockSessions.valid
+              session: mockSessions.valid,
             },
-            error: null
+            error: null,
           };
         } else if (email === mockUsers.player.email && password === mockUsers.player.password) {
           return {
@@ -85,20 +85,20 @@ export const createMockSupabaseClient = () => {
                 email: mockUsers.player.email,
                 user_metadata: {
                   name: mockUsers.player.name,
-                  role: mockUsers.player.role
-                }
+                  role: mockUsers.player.role,
+                },
               },
-              session: mockSessions.valid
+              session: mockSessions.valid,
             },
-            error: null
+            error: null,
           };
         } else {
           return {
             data: { user: null, session: null },
             error: {
               message: 'Invalid login credentials',
-              status: 400
-            }
+              status: 400,
+            },
           };
         }
       }),
@@ -109,8 +109,8 @@ export const createMockSupabaseClient = () => {
             data: { user: null, session: null },
             error: {
               message: 'User already registered',
-              status: 400
-            }
+              status: 400,
+            },
           };
         }
 
@@ -118,7 +118,7 @@ export const createMockSupabaseClient = () => {
         const newUser = {
           id: `new-user-${Date.now()}`,
           email,
-          user_metadata: options?.data || {}
+          user_metadata: options?.data || {},
         };
 
         return {
@@ -128,16 +128,16 @@ export const createMockSupabaseClient = () => {
               access_token: generateTestToken({
                 id: newUser.id,
                 email: newUser.email,
-                role: newUser.user_metadata.role || 'player'
+                role: newUser.user_metadata.role || 'player',
               }),
               refresh_token: 'new-refresh-token',
-              expires_at: Date.now() + 3600000
-            }
+              expires_at: Date.now() + 3600000,
+            },
           },
-          error: null
+          error: null,
         };
       }),
-      getUser: jest.fn().mockImplementation((token) => {
+      getUser: jest.fn().mockImplementation(token => {
         if (token === mockTokens.valid) {
           return {
             data: {
@@ -146,71 +146,71 @@ export const createMockSupabaseClient = () => {
                 email: mockUsers.admin.email,
                 user_metadata: {
                   name: mockUsers.admin.name,
-                  role: mockUsers.admin.role
-                }
-              }
+                  role: mockUsers.admin.role,
+                },
+              },
             },
-            error: null
+            error: null,
           };
         } else {
           return {
             data: { user: null },
             error: {
               message: 'Invalid token',
-              status: 401
-            }
+              status: 401,
+            },
           };
         }
       }),
       getSession: jest.fn().mockImplementation(() => {
         return {
           data: {
-            session: mockSessions.valid
+            session: mockSessions.valid,
           },
-          error: null
+          error: null,
         };
       }),
       admin: {
-        deleteUser: jest.fn().mockImplementation((id) => {
+        deleteUser: jest.fn().mockImplementation(id => {
           if (id === mockUsers.admin.id || id === mockUsers.player.id) {
             return {
               data: { user: { id } },
-              error: null
+              error: null,
             };
           } else {
             return {
               data: { user: null },
               error: {
                 message: 'User not found',
-                status: 404
-              }
+                status: 404,
+              },
             };
           }
-        })
+        }),
       },
-      setSession: jest.fn().mockImplementation((currentSession) => {
+      setSession: jest.fn().mockImplementation(currentSession => {
         if (currentSession.refresh_token === 'valid-refresh-token') {
           return {
             data: {
               session: {
                 ...mockSessions.valid,
-                access_token: 'new-access-token'
-              }
+                access_token: 'new-access-token',
+              },
             },
-            error: null
+            error: null,
           };
         } else {
           return {
             data: { session: null },
             error: {
               message: 'Invalid refresh token',
-              status: 401
-            }
+              status: 401,
+            },
           };
         }
-      })
+      }),
     },
-    from: jest.fn().mockImplementation((table) => {
+    from: jest.fn().mockImplementation(table => {
       return {
         select: jest.fn().mockReturnThis(),
         insert: jest.fn().mockReturnThis(),
@@ -225,16 +225,16 @@ export const createMockSupabaseClient = () => {
                 email: mockUsers.admin.email,
                 name: mockUsers.admin.name,
                 role: mockUsers.admin.role,
-                emailVerified: true
+                emailVerified: true,
               },
-              error: null
+              error: null,
             };
           } else {
             return { data: null, error: null };
           }
-        })
+        }),
       };
-    })
+    }),
   };
 };
 
@@ -255,15 +255,15 @@ export const setupSupabaseMock = () => {
 
   // Mock the supabase module directly
   jest.mock('@supabase/supabase-js', () => ({
-    createClient: jest.fn().mockImplementation(() => createMockSupabaseClient())
+    createClient: jest.fn().mockImplementation(() => createMockSupabaseClient()),
   }));
 
   // Configurar el mock de "from" para manejar consultas específicas
   const mockClient = createMockSupabaseClient();
-  
+
   // Modificar el mock de "from" para manejar las consultas específicas a la tabla User
   const originalFrom = mockClient.from;
-  mockClient.from = jest.fn().mockImplementation((table) => {
+  mockClient.from = jest.fn().mockImplementation(table => {
     if (table === 'User') {
       return {
         select: jest.fn().mockReturnThis(),
@@ -282,9 +282,9 @@ export const setupSupabaseMock = () => {
                       email: mockUsers.admin.email,
                       name: mockUsers.admin.name,
                       role: mockUsers.admin.role,
-                      emailVerified: true
+                      emailVerified: true,
                     },
-                    error: null
+                    error: null,
                   };
                 } else if (value === mockUsers.player.email) {
                   return {
@@ -293,9 +293,9 @@ export const setupSupabaseMock = () => {
                       email: mockUsers.player.email,
                       name: mockUsers.player.name,
                       role: mockUsers.player.role,
-                      emailVerified: true
+                      emailVerified: true,
                     },
-                    error: null
+                    error: null,
                   };
                 }
               } else if (field === 'id') {
@@ -306,9 +306,9 @@ export const setupSupabaseMock = () => {
                       email: mockUsers.admin.email,
                       name: mockUsers.admin.name,
                       role: mockUsers.admin.role,
-                      emailVerified: true
+                      emailVerified: true,
                     },
-                    error: null
+                    error: null,
                   };
                 } else if (value === mockUsers.player.id) {
                   return {
@@ -317,24 +317,24 @@ export const setupSupabaseMock = () => {
                       email: mockUsers.player.email,
                       name: mockUsers.player.name,
                       role: mockUsers.player.role,
-                      emailVerified: true
+                      emailVerified: true,
                     },
-                    error: null
+                    error: null,
                   };
                 }
               }
-              
+
               // No match, return null data
               return { data: null, error: null };
-            })
+            }),
           };
         }),
         single: jest.fn().mockImplementation(() => {
           return {
             data: null,
-            error: { message: 'Not found', status: 404 }
+            error: { message: 'Not found', status: 404 },
           };
-        })
+        }),
       };
     }
     return originalFrom(table);
@@ -342,4 +342,4 @@ export const setupSupabaseMock = () => {
 
   // Devolver el mock client para uso directo en pruebas
   return mockClient;
-}; 
+};

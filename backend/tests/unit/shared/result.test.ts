@@ -24,4 +24,4 @@ describe('Result', () => {
       expect(() => result.getValue()).toThrow();
     });
   });
-}); 
+});

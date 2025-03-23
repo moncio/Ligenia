@@ -37,15 +37,9 @@ export class RegisterUserUseCase extends BaseUseCase<RegisterUserInput, User> {
       return Result.fail<User>(new Error('Email already in use'));
     }
 
-    const newUser = new User(
-      '',
-      input.email,
-      input.password,
-      input.name,
-      input.role as UserRole
-    );
+    const newUser = new User('', input.email, input.password, input.name, input.role as UserRole);
 
     await this.userRepository.save(newUser);
     return Result.ok<User>(newUser);
   }
-} 
+}

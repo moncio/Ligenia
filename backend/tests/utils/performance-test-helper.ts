@@ -4,7 +4,7 @@ import { createPlayerTestData } from './player-test-helper';
 
 /**
  * Performance Test Helper
- * 
+ *
  * This file contains utility functions for creating test performance data
  * in the test database. These functions are useful for testing performance-related
  * endpoints that require actual data in the database.
@@ -28,38 +28,37 @@ export interface PerformanceTestData {
  */
 export async function createPerformanceTestData(
   prisma: PrismaClient,
-  performanceCount: number = 3
+  performanceCount: number = 3,
 ): Promise<PerformanceTestData> {
   try {
     // Create player test data which will give us users
     const playerTestData = await createPlayerTestData(prisma, false);
-    
+
     // Gather users to create performance records for
-    const playerUsers = [
-      playerTestData.playerUser,
-      playerTestData.secondPlayerUser
-    ].filter((user): user is User => user !== undefined);
-    
+    const playerUsers = [playerTestData.playerUser, playerTestData.secondPlayerUser].filter(
+      (user): user is User => user !== undefined,
+    );
+
     // If we need more users than we have, create them
     if (playerUsers.length < performanceCount) {
       for (let i = playerUsers.length; i < performanceCount; i++) {
         const extraUser = await prisma.user.create({
           data: {
-            email: `performance-player${i+2}@example.com`,
-            name: `Performance Player ${i+2}`,
+            email: `performance-player${i + 2}@example.com`,
+            name: `Performance Player ${i + 2}`,
             password: 'hashed_password',
             role: UserRole.PLAYER,
-            emailVerified: true
-          }
+            emailVerified: true,
+          },
         });
         playerUsers.push(extraUser);
       }
     }
-    
+
     // Create performance records for each player
     const performances: PerformanceHistory[] = [];
     const currentYear = new Date().getFullYear();
-    
+
     for (let i = 0; i < playerUsers.length; i++) {
       // Create multiple performance records for each user (for different months)
       for (let month = 1; month <= 3; month++) {
@@ -68,18 +67,18 @@ export async function createPerformanceTestData(
         const wins = Math.max(0, 8 - i - month); // Different win counts by user and month
         const losses = matchesPlayed - wins;
         const points = wins * 10;
-        
+
         // Check if performance record already exists
         const existingPerformance = await prisma.performanceHistory.findUnique({
           where: {
             userId_year_month: {
               userId: playerUsers[i].id,
               year: currentYear,
-              month: month
-            }
-          }
+              month: month,
+            },
+          },
         });
-        
+
         if (existingPerformance) {
           // Update existing performance
           const updatedPerformance = await prisma.performanceHistory.update({
@@ -87,15 +86,15 @@ export async function createPerformanceTestData(
               userId_year_month: {
                 userId: playerUsers[i].id,
                 year: currentYear,
-                month: month
-              }
+                month: month,
+              },
             },
             data: {
               matchesPlayed,
               wins,
               losses,
-              points
-            }
+              points,
+            },
           });
           performances.push(updatedPerformance);
         } else {
@@ -108,28 +107,28 @@ export async function createPerformanceTestData(
               matchesPlayed,
               wins,
               losses,
-              points
-            }
+              points,
+            },
           });
           performances.push(newPerformance);
         }
       }
-      
+
       // Also create an annual performance record (without month)
       const annualMatchesPlayed = 30 + i * 5;
       const annualWins = Math.max(0, 20 - i * 3);
       const annualLosses = annualMatchesPlayed - annualWins;
       const annualPoints = annualWins * 10;
-      
+
       // Check if annual performance already exists
       const existingAnnualPerformance = await prisma.performanceHistory.findFirst({
         where: {
           userId: playerUsers[i].id,
           year: currentYear,
-          month: null
-        }
+          month: null,
+        },
       });
-      
+
       if (existingAnnualPerformance) {
         // Update existing annual performance
         const updatedAnnualPerformance = await prisma.performanceHistory.update({
@@ -138,8 +137,8 @@ export async function createPerformanceTestData(
             matchesPlayed: annualMatchesPlayed,
             wins: annualWins,
             losses: annualLosses,
-            points: annualPoints
-          }
+            points: annualPoints,
+          },
         });
         performances.push(updatedAnnualPerformance);
       } else {
@@ -152,17 +151,17 @@ export async function createPerformanceTestData(
             matchesPlayed: annualMatchesPlayed,
             wins: annualWins,
             losses: annualLosses,
-            points: annualPoints
-          }
+            points: annualPoints,
+          },
         });
         performances.push(newAnnualPerformance);
       }
     }
-    
+
     return {
       adminUser: playerTestData.adminUser,
       playerUsers,
-      performances
+      performances,
     };
   } catch (error) {
     console.error('Error creating performance test data:', error);
@@ -190,13 +189,13 @@ export async function createBasicPerformance(
     wins: number;
     losses: number;
     points: number;
-  }>
+  }>,
 ): Promise<PerformanceHistory> {
   const matchesPlayed = data?.matchesPlayed ?? 5;
   const wins = data?.wins ?? 3;
   const losses = data?.losses ?? 2;
   const points = data?.points ?? wins * 10;
-  
+
   if (month !== null) {
     // Check if monthly performance already exists
     const existingPerformance = await prisma.performanceHistory.findUnique({
@@ -204,11 +203,11 @@ export async function createBasicPerformance(
         userId_year_month: {
           userId,
           year,
-          month
-        }
-      }
+          month,
+        },
+      },
     });
-    
+
     if (existingPerformance) {
       // Update existing performance
       return prisma.performanceHistory.update({
@@ -216,15 +215,15 @@ export async function createBasicPerformance(
           userId_year_month: {
             userId,
             year,
-            month
-          }
+            month,
+          },
         },
         data: {
           matchesPlayed,
           wins,
           losses,
-          points
-        }
+          points,
+        },
       });
     }
   } else {
@@ -233,10 +232,10 @@ export async function createBasicPerformance(
       where: {
         userId,
         year,
-        month: null
-      }
+        month: null,
+      },
     });
-    
+
     if (existingPerformance) {
       // Update existing performance
       return prisma.performanceHistory.update({
@@ -245,12 +244,12 @@ export async function createBasicPerformance(
           matchesPlayed,
           wins,
           losses,
-          points
-        }
+          points,
+        },
       });
     }
   }
-  
+
   // Create new performance
   return prisma.performanceHistory.create({
     data: {
@@ -260,14 +259,14 @@ export async function createBasicPerformance(
       matchesPlayed,
       wins,
       losses,
-      points
-    }
+      points,
+    },
   });
 }
 
 /**
  * Calculate win rate for statistical analysis
- * 
+ *
  * @param wins Number of wins
  * @param matchesPlayed Total matches played
  * @returns Win rate as a percentage
@@ -289,25 +288,29 @@ export async function cleanupPerformanceTestData(
   prisma: PrismaClient,
   userId?: string,
   year?: number,
-  month?: number | null
+  month?: number | null,
 ): Promise<void> {
   try {
     const whereClause: any = {};
-    
+
     if (userId) whereClause.userId = userId;
     if (year !== undefined) whereClause.year = year;
     if (month !== undefined) whereClause.month = month;
-    
+
     if (Object.keys(whereClause).length > 0) {
       // Delete specific performance records
       await prisma.performanceHistory.deleteMany({ where: whereClause });
-      
+
       if (userId && year !== undefined && month !== undefined) {
-        console.log(`Cleaned up performance for user ${userId} in year ${year}${month !== null ? `, month ${month}` : ''}`);
+        console.log(
+          `Cleaned up performance for user ${userId} in year ${year}${month !== null ? `, month ${month}` : ''}`,
+        );
       } else if (userId) {
         console.log(`Cleaned up all performance records for user ${userId}`);
       } else if (year !== undefined) {
-        console.log(`Cleaned up all performance records for year ${year}${month !== null ? `, month ${month}` : ''}`);
+        console.log(
+          `Cleaned up all performance records for year ${year}${month !== null ? `, month ${month}` : ''}`,
+        );
       }
     } else {
       // Delete all test performance records
@@ -315,12 +318,12 @@ export async function cleanupPerformanceTestData(
       const testUserIds = Object.values(mockUsers).map(user => user.id);
       await prisma.performanceHistory.deleteMany({
         where: {
-          userId: { in: testUserIds }
-        }
+          userId: { in: testUserIds },
+        },
       });
-      console.log("Cleaned up all test performance records");
+      console.log('Cleaned up all test performance records');
     }
   } catch (error) {
-    console.error("Unexpected error in cleanupPerformanceTestData:", error);
+    console.error('Unexpected error in cleanupPerformanceTestData:', error);
   }
-} 
+}

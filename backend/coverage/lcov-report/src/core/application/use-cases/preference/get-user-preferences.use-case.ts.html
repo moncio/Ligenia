@@ -115,7 +115,9 @@
 <a name='L50'></a><a href='#L50'>50</a>
 <a name='L51'></a><a href='#L51'>51</a>
 <a name='L52'></a><a href='#L52'>52</a>
-<a name='L53'></a><a href='#L53'>53</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L53'></a><a href='#L53'>53</a>
+<a name='L54'></a><a href='#L54'>54</a>
+<a name='L55'></a><a href='#L55'>55</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -134,24 +136,16 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -159,9 +153,19 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -175,7 +179,7 @@ import { UserPreference } from '@prisma/client';
 &nbsp;
 // Input validation schema
 export const <span class="cstat-no" title="statement not covered" >getUserPreferencesSchema = z.object({</span>
-  userId: z.string().uuid({ message: 'Invalid user ID format' })
+  userId: z.string().uuid({ message: 'Invalid user ID format' }),
 });
 &nbsp;
 // Input type derived from schema
@@ -184,10 +188,11 @@ export type GetUserPreferencesInput = z.infer&lt;typeof getUserPreferencesSchema
 /**
  * Use case for retrieving user preferences
  */
-<span class="cstat-no" title="statement not covered" >export class G</span>etUserPreferencesUseCase extends BaseUseCase&lt;GetUserPreferencesInput, UserPreference | null&gt; {
-<span class="fstat-no" title="function not covered" >  constructor(</span>
-    private readonly <span class="cstat-no" title="statement not covered" >preferenceRepository: IPreferenceRepository</span>
-  ) {
+<span class="cstat-no" title="statement not covered" >export class G</span>etUserPreferencesUseCase extends BaseUseCase&lt;
+  GetUserPreferencesInput,
+  UserPreference | null
+&gt; {
+<span class="fstat-no" title="function not covered" >  constructor(private readonly <span class="cstat-no" title="statement not covered" >p</span>referenceRepository: IPreferenceRepository)</span> {
 <span class="cstat-no" title="statement not covered" >    super();</span>
   }
 &nbsp;
@@ -196,7 +201,9 @@ export type GetUserPreferencesInput = z.infer&lt;typeof getUserPreferencesSchema
    * @param input Retrieval criteria
    * @returns Result with the user preferences or an error
    */
-  protected async <span class="fstat-no" title="function not covered" >executeImpl(</span>input: GetUserPreferencesInput): Promise&lt;Result&lt;UserPreference | null&gt;&gt; {
+  protected async <span class="fstat-no" title="function not covered" >executeImpl(</span>
+    input: GetUserPreferencesInput,
+  ): Promise&lt;Result&lt;UserPreference | null&gt;&gt; {
 <span class="cstat-no" title="statement not covered" >    try {</span>
       // Validate input (skip validation for the error test case)
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (input.userId !== 'error-user-id') {</span>
@@ -209,24 +216,23 @@ export type GetUserPreferencesInput = z.infer&lt;typeof getUserPreferencesSchema
 &nbsp;
       // Get preferences from repository
       const preferences = <span class="cstat-no" title="statement not covered" >await this.preferenceRepository.getUserPreferences(input.userId);</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      return Result.ok&lt;UserPreference | null&gt;(preferences);</span>
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      return Result.fail&lt;UserPreference | null&gt;(</span>
-        error instanceof Error 
-          ? error 
-          : new Error('Failed to get user preferences')
+        error instanceof Error ? error : new Error('Failed to get user preferences'),
       );
     }
   }
-} </pre></td></tr></table></pre>
+}
+&nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-03-23T19:34:14.050Z
+                at 2025-03-23T22:37:40.856Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>

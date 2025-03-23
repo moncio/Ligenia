@@ -8,30 +8,36 @@ import { ITournamentRepository } from '../../interfaces/repositories/tournament.
 // Input validation schema
 const CreateMatchInputSchema = z.object({
   tournamentId: z.string().uuid({
-    message: 'Invalid tournament ID format'
+    message: 'Invalid tournament ID format',
   }),
   homePlayerOneId: z.string().uuid({
-    message: 'Invalid home player one ID format'
+    message: 'Invalid home player one ID format',
   }),
   homePlayerTwoId: z.string().uuid({
-    message: 'Invalid home player two ID format'
+    message: 'Invalid home player two ID format',
   }),
   awayPlayerOneId: z.string().uuid({
-    message: 'Invalid away player one ID format'
+    message: 'Invalid away player one ID format',
   }),
   awayPlayerTwoId: z.string().uuid({
-    message: 'Invalid away player two ID format'
+    message: 'Invalid away player two ID format',
   }),
   round: z.number().int().positive({
-    message: 'Round must be a positive integer'
+    message: 'Round must be a positive integer',
   }),
-  date: z.string().refine((val) => !isNaN(Date.parse(val)), {
-    message: 'Invalid date format'
-  }).optional().nullable(),
+  date: z
+    .string()
+    .refine(val => !isNaN(Date.parse(val)), {
+      message: 'Invalid date format',
+    })
+    .optional()
+    .nullable(),
   location: z.string().max(100).optional().nullable(),
-  status: z.nativeEnum(MatchStatus, {
-    errorMap: () => ({ message: 'Invalid match status' })
-  }).default(MatchStatus.PENDING)
+  status: z
+    .nativeEnum(MatchStatus, {
+      errorMap: () => ({ message: 'Invalid match status' }),
+    })
+    .default(MatchStatus.PENDING),
 });
 
 type CreateMatchInput = z.infer<typeof CreateMatchInputSchema>;
@@ -39,7 +45,7 @@ type CreateMatchInput = z.infer<typeof CreateMatchInputSchema>;
 export class CreateMatchUseCase extends BaseUseCase<CreateMatchInput, Match> {
   constructor(
     private matchRepository: IMatchRepository,
-    private tournamentRepository: ITournamentRepository
+    private tournamentRepository: ITournamentRepository,
   ) {
     super();
   }
@@ -66,7 +72,9 @@ export class CreateMatchUseCase extends BaseUseCase<CreateMatchInput, Match> {
       // Business rules validation
       // 1. Tournament should be active or in open state to create matches
       if (tournament.status !== 'ACTIVE' && tournament.status !== 'OPEN') {
-        return Result.fail<Match>(new Error('Cannot create matches for tournaments that are not active or open'));
+        return Result.fail<Match>(
+          new Error('Cannot create matches for tournaments that are not active or open'),
+        );
       }
 
       // 2. Check for duplicate players
@@ -74,9 +82,9 @@ export class CreateMatchUseCase extends BaseUseCase<CreateMatchInput, Match> {
         validatedData.homePlayerOneId,
         validatedData.homePlayerTwoId,
         validatedData.awayPlayerOneId,
-        validatedData.awayPlayerTwoId
+        validatedData.awayPlayerTwoId,
       ];
-      
+
       const uniquePlayerIds = new Set(playerIds);
       if (uniquePlayerIds.size !== playerIds.length) {
         return Result.fail<Match>(new Error('Duplicate players are not allowed'));
@@ -104,8 +112,8 @@ export class CreateMatchUseCase extends BaseUseCase<CreateMatchInput, Match> {
       return Result.ok<Match>(match);
     } catch (error) {
       return Result.fail<Match>(
-        error instanceof Error ? error : new Error('Failed to create match')
+        error instanceof Error ? error : new Error('Failed to create match'),
       );
     }
   }
-} 
+}

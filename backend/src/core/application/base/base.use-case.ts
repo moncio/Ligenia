@@ -27,8 +27,8 @@ export abstract class BaseUseCase<TInput, TOutput> implements IUseCase<TInput, T
         return Result.fail<TOutput>(new Error(error.errors[0].message));
       }
       return Result.fail<TOutput>(
-        error instanceof Error ? error : new Error('Internal server error')
+        error instanceof Error ? error : new Error('Internal server error'),
       );
     }
   }
-} 
+}

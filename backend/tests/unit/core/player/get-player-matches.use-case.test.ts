@@ -1,6 +1,12 @@
-import { GetPlayerMatchesUseCase, GetPlayerMatchesInput } from '../../../../src/core/application/use-cases/player/get-player-matches.use-case';
+import {
+  GetPlayerMatchesUseCase,
+  GetPlayerMatchesInput,
+} from '../../../../src/core/application/use-cases/player/get-player-matches.use-case';
 import { IPlayerRepository } from '../../../../src/core/application/interfaces/repositories/player.repository';
-import { IMatchRepository, MatchFilter } from '../../../../src/core/application/interfaces/repositories/match.repository';
+import {
+  IMatchRepository,
+  MatchFilter,
+} from '../../../../src/core/application/interfaces/repositories/match.repository';
 import { Player } from '../../../../src/core/domain/player/player.entity';
 import { Match, MatchStatus } from '../../../../src/core/domain/match/match.entity';
 import { PlayerLevel } from '../../../../src/core/domain/tournament/tournament.entity';
@@ -66,11 +72,12 @@ class MockMatchRepository implements IMatchRepository {
 
     if (filter.userId) {
       // For simplicity, we check if the userId matches any player in the match
-      result = result.filter(m =>
-        m.homePlayerOneId === filter.userId ||
-        m.homePlayerTwoId === filter.userId ||
-        m.awayPlayerOneId === filter.userId ||
-        m.awayPlayerTwoId === filter.userId
+      result = result.filter(
+        m =>
+          m.homePlayerOneId === filter.userId ||
+          m.homePlayerTwoId === filter.userId ||
+          m.awayPlayerOneId === filter.userId ||
+          m.awayPlayerTwoId === filter.userId,
       );
     }
 
@@ -107,11 +114,12 @@ class MockMatchRepository implements IMatchRepository {
   }
 
   async findByPlayerId(playerId: string): Promise<Match[]> {
-    return this.matches.filter(m =>
-      m.homePlayerOneId === playerId ||
-      m.homePlayerTwoId === playerId ||
-      m.awayPlayerOneId === playerId ||
-      m.awayPlayerTwoId === playerId
+    return this.matches.filter(
+      m =>
+        m.homePlayerOneId === playerId ||
+        m.homePlayerTwoId === playerId ||
+        m.awayPlayerOneId === playerId ||
+        m.awayPlayerTwoId === playerId,
     );
   }
 
@@ -140,11 +148,12 @@ class MockMatchRepository implements IMatchRepository {
 
     if (filter.userId) {
       // For simplicity, we check if the userId matches any player in the match
-      result = result.filter(m =>
-        m.homePlayerOneId === filter.userId ||
-        m.homePlayerTwoId === filter.userId ||
-        m.awayPlayerOneId === filter.userId ||
-        m.awayPlayerTwoId === filter.userId
+      result = result.filter(
+        m =>
+          m.homePlayerOneId === filter.userId ||
+          m.homePlayerTwoId === filter.userId ||
+          m.awayPlayerOneId === filter.userId ||
+          m.awayPlayerTwoId === filter.userId,
       );
     }
 
@@ -186,9 +195,9 @@ describe('GetPlayerMatchesUseCase', () => {
       '123e4567-e89b-12d3-a456-426614174001',
       PlayerLevel.P3,
       30,
-      'Spain'
+      'Spain',
     );
-    
+
     // Create test matches
     testMatches = [
       new Match(
@@ -217,7 +226,7 @@ describe('GetPlayerMatchesUseCase', () => {
         'Court 2',
         MatchStatus.PENDING,
         null, // Scores are null for pending matches
-        null
+        null,
       ),
       new Match(
         '123e4567-e89b-12d3-a456-426614174102',
@@ -231,7 +240,7 @@ describe('GetPlayerMatchesUseCase', () => {
         'Court 3',
         MatchStatus.SCHEDULED,
         null,
-        null
+        null,
       ),
       new Match(
         '123e4567-e89b-12d3-a456-426614174103',
@@ -245,7 +254,7 @@ describe('GetPlayerMatchesUseCase', () => {
         'Court 4',
         MatchStatus.SCHEDULED,
         null,
-        null
+        null,
       ),
       new Match(
         '123e4567-e89b-12d3-a456-426614174104',
@@ -259,8 +268,8 @@ describe('GetPlayerMatchesUseCase', () => {
         'Court 5',
         MatchStatus.CANCELED,
         null,
-        null
-      )
+        null,
+      ),
     ];
 
     // Initialize repositories with test data
@@ -274,7 +283,7 @@ describe('GetPlayerMatchesUseCase', () => {
   it('should get all player matches with default pagination', async () => {
     // Arrange
     const input: GetPlayerMatchesInput = {
-      playerId: testPlayer.id
+      playerId: testPlayer.id,
     };
 
     // Act
@@ -282,7 +291,7 @@ describe('GetPlayerMatchesUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const { matches, total, skip, limit } = result.getValue();
     expect(matches).toHaveLength(4); // All matches where the player is playing
     expect(total).toBe(4);
@@ -294,7 +303,7 @@ describe('GetPlayerMatchesUseCase', () => {
     // Arrange
     const input: GetPlayerMatchesInput = {
       playerId: testPlayer.id,
-      status: MatchStatus.SCHEDULED
+      status: MatchStatus.SCHEDULED,
     };
 
     // Act
@@ -302,7 +311,7 @@ describe('GetPlayerMatchesUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const { matches, total } = result.getValue();
     expect(matches).toHaveLength(1);
     expect(total).toBe(1);
@@ -313,7 +322,7 @@ describe('GetPlayerMatchesUseCase', () => {
     // Arrange
     const input: GetPlayerMatchesInput = {
       playerId: testPlayer.id,
-      tournamentId: '123e4567-e89b-12d3-a456-426614174200'
+      tournamentId: '123e4567-e89b-12d3-a456-426614174200',
     };
 
     // Act
@@ -321,11 +330,13 @@ describe('GetPlayerMatchesUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const { matches, total } = result.getValue();
     expect(matches).toHaveLength(2);
     expect(total).toBe(2);
-    expect(matches.every(m => m.tournamentId === '123e4567-e89b-12d3-a456-426614174200')).toBe(true);
+    expect(matches.every(m => m.tournamentId === '123e4567-e89b-12d3-a456-426614174200')).toBe(
+      true,
+    );
   });
 
   it('should filter matches by date range', async () => {
@@ -333,7 +344,7 @@ describe('GetPlayerMatchesUseCase', () => {
     const input: GetPlayerMatchesInput = {
       playerId: testPlayer.id,
       fromDate: new Date('2023-06-10'),
-      toDate: new Date('2023-06-30')
+      toDate: new Date('2023-06-30'),
     };
 
     // Act
@@ -341,16 +352,16 @@ describe('GetPlayerMatchesUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const { matches, total } = result.getValue();
     expect(matches).toHaveLength(2);
     expect(total).toBe(2);
     // Check that all matches are within the date range
-    expect(matches.every(m => 
-      m.date && 
-      m.date >= new Date('2023-06-10') && 
-      m.date <= new Date('2023-06-30')
-    )).toBe(true);
+    expect(
+      matches.every(
+        m => m.date && m.date >= new Date('2023-06-10') && m.date <= new Date('2023-06-30'),
+      ),
+    ).toBe(true);
   });
 
   it('should apply pagination correctly', async () => {
@@ -358,7 +369,7 @@ describe('GetPlayerMatchesUseCase', () => {
     const input: GetPlayerMatchesInput = {
       playerId: testPlayer.id,
       skip: 1,
-      limit: 2
+      limit: 2,
     };
 
     // Act
@@ -366,7 +377,7 @@ describe('GetPlayerMatchesUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const { matches, total, skip, limit } = result.getValue();
     expect(matches).toHaveLength(2);
     expect(total).toBe(4);
@@ -377,7 +388,7 @@ describe('GetPlayerMatchesUseCase', () => {
   it('should fail when player does not exist', async () => {
     // Arrange
     const input: GetPlayerMatchesInput = {
-      playerId: '123e4567-e89b-12d3-a456-426614174999' // non-existent player ID
+      playerId: '123e4567-e89b-12d3-a456-426614174999', // non-existent player ID
     };
 
     // Act
@@ -392,7 +403,7 @@ describe('GetPlayerMatchesUseCase', () => {
     // Arrange
     const input = {
       playerId: 'not-a-uuid',
-      status: 'INVALID_STATUS'
+      status: 'INVALID_STATUS',
     };
 
     // Act
@@ -403,4 +414,4 @@ describe('GetPlayerMatchesUseCase', () => {
     expect(result.isFailure).toBe(true);
     expect(result.getError().message).toContain('Invalid player ID format');
   });
-}); 
+});

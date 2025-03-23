@@ -9,8 +9,8 @@ import { Match, MatchStatus } from '../../../domain/match/match.entity';
 // Input validation schema
 const UpdateRankingsAfterMatchInputSchema = z.object({
   matchId: z.string().uuid({
-    message: 'Invalid match ID format'
-  })
+    message: 'Invalid match ID format',
+  }),
 });
 
 // Input type
@@ -33,13 +33,13 @@ export class UpdateRankingsAfterMatchUseCase extends BaseUseCase<
   constructor(
     private readonly rankingRepository: IRankingRepository,
     private readonly matchRepository: IMatchRepository,
-    private readonly calculatePlayerRankingsUseCase: CalculatePlayerRankingsUseCase
+    private readonly calculatePlayerRankingsUseCase: CalculatePlayerRankingsUseCase,
   ) {
     super();
   }
 
   protected async executeImpl(
-    input: UpdateRankingsAfterMatchInput
+    input: UpdateRankingsAfterMatchInput,
   ): Promise<Result<UpdateRankingsAfterMatchOutput>> {
     try {
       // Validate input
@@ -47,17 +47,15 @@ export class UpdateRankingsAfterMatchUseCase extends BaseUseCase<
 
       // Get match details
       const match = await this.matchRepository.findById(validatedData.matchId);
-      
+
       if (!match) {
-        return Result.fail<UpdateRankingsAfterMatchOutput>(
-          new Error('Match not found')
-        );
+        return Result.fail<UpdateRankingsAfterMatchOutput>(new Error('Match not found'));
       }
 
       // Only update rankings for completed matches
       if (match.status !== MatchStatus.COMPLETED) {
         return Result.fail<UpdateRankingsAfterMatchOutput>(
-          new Error('Cannot update rankings for a match that is not completed')
+          new Error('Cannot update rankings for a match that is not completed'),
         );
       }
 
@@ -69,7 +67,7 @@ export class UpdateRankingsAfterMatchUseCase extends BaseUseCase<
 
       for (const playerId of playerIds) {
         const result = await this.calculatePlayerRankingsUseCase.execute({
-          playerId
+          playerId,
         });
 
         if (result.isSuccess) {
@@ -79,11 +77,11 @@ export class UpdateRankingsAfterMatchUseCase extends BaseUseCase<
 
       return Result.ok<UpdateRankingsAfterMatchOutput>({
         playersUpdated,
-        matchId: validatedData.matchId
+        matchId: validatedData.matchId,
       });
     } catch (error) {
       return Result.fail<UpdateRankingsAfterMatchOutput>(
-        error instanceof Error ? error : new Error('Failed to update rankings after match')
+        error instanceof Error ? error : new Error('Failed to update rankings after match'),
       );
     }
   }
@@ -116,4 +114,4 @@ export class UpdateRankingsAfterMatchUseCase extends BaseUseCase<
     // Remove duplicates (in case a player is in both home and away teams)
     return [...new Set(playerIds)];
   }
-} 
+}

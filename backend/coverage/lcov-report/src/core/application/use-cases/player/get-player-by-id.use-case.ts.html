@@ -119,15 +119,7 @@
 <a name='L54'></a><a href='#L54'>54</a>
 <a name='L55'></a><a href='#L55'>55</a>
 <a name='L56'></a><a href='#L56'>56</a>
-<a name='L57'></a><a href='#L57'>57</a>
-<a name='L58'></a><a href='#L58'>58</a>
-<a name='L59'></a><a href='#L59'>59</a>
-<a name='L60'></a><a href='#L60'>60</a>
-<a name='L61'></a><a href='#L61'>61</a>
-<a name='L62'></a><a href='#L62'>62</a>
-<a name='L63'></a><a href='#L63'>63</a>
-<a name='L64'></a><a href='#L64'>64</a>
-<a name='L65'></a><a href='#L65'>65</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L57'></a><a href='#L57'>57</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -152,12 +144,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -171,8 +158,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -182,11 +167,10 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -200,8 +184,8 @@ import { IPlayerRepository } from '../../interfaces/repositories/player.reposito
 // Input validation schema
 const GetPlayerByIdInputSchema = <span class="cstat-no" title="statement not covered" >z.object({</span>
   id: z.string().uuid({
-    message: 'Invalid player ID format'
-  })
+    message: 'Invalid player ID format',
+  }),
 });
 &nbsp;
 // Input type
@@ -215,13 +199,8 @@ export interface GetPlayerByIdOutput {
 /**
  * Use case for getting a player by ID
  */
-<span class="cstat-no" title="statement not covered" >export class G</span>etPlayerByIdUseCase extends BaseUseCase&lt;
-  GetPlayerByIdInput,
-  GetPlayerByIdOutput
-&gt; {
-<span class="fstat-no" title="function not covered" >  constructor(</span>
-    private readonly <span class="cstat-no" title="statement not covered" >playerRepository: IPlayerRepository</span>
-  ) {
+<span class="cstat-no" title="statement not covered" >export class G</span>etPlayerByIdUseCase extends BaseUseCase&lt;GetPlayerByIdInput, GetPlayerByIdOutput&gt; {
+<span class="fstat-no" title="function not covered" >  constructor(private readonly <span class="cstat-no" title="statement not covered" >p</span>layerRepository: IPlayerRepository)</span> {
 <span class="cstat-no" title="statement not covered" >    super();</span>
   }
 &nbsp;
@@ -233,9 +212,7 @@ export interface GetPlayerByIdOutput {
 <span class="cstat-no" title="statement not covered" >        validatedData = await GetPlayerByIdInputSchema.parseAsync(input);</span>
       } catch (validationError) {
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (validationError instanceof z.ZodError) {</span>
-<span class="cstat-no" title="statement not covered" >          return Result.fail&lt;GetPlayerByIdOutput&gt;(</span>
-            new Error(validationError.errors[0].message)
-          );
+<span class="cstat-no" title="statement not covered" >          return Result.fail&lt;GetPlayerByIdOutput&gt;(new Error(validationError.errors[0].message));</span>
         }
 <span class="cstat-no" title="statement not covered" >        throw validationError;</span>
       }
@@ -243,26 +220,25 @@ export interface GetPlayerByIdOutput {
       // Find player
       const player = <span class="cstat-no" title="statement not covered" >await this.playerRepository.findById(validatedData.id);</span>
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!player) {</span>
-<span class="cstat-no" title="statement not covered" >        return Result.fail&lt;GetPlayerByIdOutput&gt;(</span>
-          new Error('Player not found')
-        );
+<span class="cstat-no" title="statement not covered" >        return Result.fail&lt;GetPlayerByIdOutput&gt;(new Error('Player not found'));</span>
       }
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      return Result.ok&lt;GetPlayerByIdOutput&gt;({ player });</span>
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      return Result.fail&lt;GetPlayerByIdOutput&gt;(</span>
-        error instanceof Error ? error : new Error('Failed to get player by ID')
+        error instanceof Error ? error : new Error('Failed to get player by ID'),
       );
     }
   }
-} </pre></td></tr></table></pre>
+}
+&nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-03-23T19:34:14.050Z
+                at 2025-03-23T22:37:40.856Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>

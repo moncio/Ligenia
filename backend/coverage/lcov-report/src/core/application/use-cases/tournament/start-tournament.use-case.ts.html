@@ -192,18 +192,15 @@
 <a name='L127'></a><a href='#L127'>127</a>
 <a name='L128'></a><a href='#L128'>128</a>
 <a name='L129'></a><a href='#L129'>129</a>
-<a name='L130'></a><a href='#L130'>130</a>
-<a name='L131'></a><a href='#L131'>131</a>
-<a name='L132'></a><a href='#L132'>132</a>
-<a name='L133'></a><a href='#L133'>133</a>
-<a name='L134'></a><a href='#L134'>134</a>
-<a name='L135'></a><a href='#L135'>135</a>
-<a name='L136'></a><a href='#L136'>136</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L130'></a><a href='#L130'>130</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -241,15 +238,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -261,8 +254,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -270,11 +261,11 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -291,8 +282,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -321,15 +310,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -340,12 +328,15 @@
 import { ITournamentRepository } from '../../interfaces/repositories/tournament.repository';
 <span class="cstat-no" title="statement not covered" >import { UserRole } from '../../../domain/user/user.entity';</span>
 import { IUserRepository } from '../../interfaces/repositories/user.repository';
-import { GenerateTournamentBracketUseCase, GenerateTournamentBracketInput } from './generate-tournament-bracket.use-case';
+import {
+  GenerateTournamentBracketUseCase,
+  GenerateTournamentBracketInput,
+} from './generate-tournament-bracket.use-case';
 &nbsp;
 // Schema for validation of start tournament input
 const startTournamentSchema = <span class="cstat-no" title="statement not covered" >z.object({</span>
   tournamentId: z.string().uuid({ message: 'Tournament ID must be a valid UUID' }),
-  userId: z.string().uuid({ message: 'User ID must be a valid UUID' })
+  userId: z.string().uuid({ message: 'User ID must be a valid UUID' }),
 });
 &nbsp;
 // Input type inferred from the schema
@@ -370,21 +361,17 @@ export interface StartTournamentOutput {
 <span class="fstat-no" title="function not covered" >  constructor(</span>
     private readonly <span class="cstat-no" title="statement not covered" >tournamentRepository: ITournamentRepository,</span>
     private readonly <span class="cstat-no" title="statement not covered" >userRepository: IUserRepository,</span>
-    private readonly <span class="cstat-no" title="statement not covered" >generateTournamentBracketUseCase: GenerateTournamentBracketUseCase</span>
+    private readonly <span class="cstat-no" title="statement not covered" >generateTournamentBracketUseCase: GenerateTournamentBracketUseCase,</span>
   ) {
 <span class="cstat-no" title="statement not covered" >    super();</span>
   }
 &nbsp;
-  protected async <span class="fstat-no" title="function not covered" >executeImpl(</span>
-    input: StartTournamentInput
-  ): Promise&lt;Result&lt;StartTournamentOutput&gt;&gt; {
+  protected async <span class="fstat-no" title="function not covered" >executeImpl(</span>input: StartTournamentInput): Promise&lt;Result&lt;StartTournamentOutput&gt;&gt; {
 <span class="cstat-no" title="statement not covered" >    try {</span>
       // Validate input
       const validationResult = <span class="cstat-no" title="statement not covered" >startTournamentSchema.safeParse(input);</span>
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!validationResult.success) {</span>
-<span class="cstat-no" title="statement not covered" >        return Result.fail(</span>
-          new Error(`Invalid input: ${validationResult.error.message}`)
-        );
+<span class="cstat-no" title="statement not covered" >        return Result.fail(new Error(`Invalid input: ${validationResult.error.message}`));</span>
       }
 &nbsp;
       const { tournamentId, userId } = <span class="cstat-no" title="statement not covered" >validationResult.data;</span>
@@ -392,24 +379,22 @@ export interface StartTournamentOutput {
       // Check if tournament exists
       const tournament = <span class="cstat-no" title="statement not covered" >await this.tournamentRepository.findById(tournamentId);</span>
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!tournament) {</span>
-<span class="cstat-no" title="statement not covered" >        return Result.fail(</span>
-          new Error(`Tournament with ID ${tournamentId} not found`)
-        );
+<span class="cstat-no" title="statement not covered" >        return Result.fail(new Error(`Tournament with ID ${tournamentId} not found`));</span>
       }
 &nbsp;
       // Check if tournament is in the correct state to be started
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (tournament.status !== TournamentStatus.OPEN) {</span>
 <span class="cstat-no" title="statement not covered" >        return Result.fail(</span>
-          new Error(`Only tournaments in OPEN state can be started. Current state: ${tournament.status}`)
+          new Error(
+            `Only tournaments in OPEN state can be started. Current state: ${tournament.status}`,
+          ),
         );
       }
 &nbsp;
       // Check if user has permission to start the tournament
       const user = <span class="cstat-no" title="statement not covered" >await this.userRepository.findById(userId);</span>
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!user) {</span>
-<span class="cstat-no" title="statement not covered" >        return Result.fail(</span>
-          new Error(`User with ID ${userId} not found`)
-        );
+<span class="cstat-no" title="statement not covered" >        return Result.fail(new Error(`User with ID ${userId} not found`));</span>
       }
 &nbsp;
       // Only admin or creator can start the tournament
@@ -418,16 +403,14 @@ export interface StartTournamentOutput {
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!isAdmin &amp;&amp; !isCreator) {</span>
 <span class="cstat-no" title="statement not covered" >        return Result.fail(</span>
-          new Error('Only admins or the tournament creator can start a tournament')
+          new Error('Only admins or the tournament creator can start a tournament'),
         );
       }
 &nbsp;
       // Check if tournament has minimum required participants
       const participantCount = <span class="cstat-no" title="statement not covered" >await this.tournamentRepository.countParticipants(tournamentId);</span>
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (participantCount &lt; 2) {</span>
-<span class="cstat-no" title="statement not covered" >        return Result.fail(</span>
-          new Error('Tournament needs at least 2 participants to start')
-        );
+<span class="cstat-no" title="statement not covered" >        return Result.fail(new Error('Tournament needs at least 2 participants to start'));</span>
       }
 &nbsp;
       // Update tournament status to ACTIVE
@@ -440,42 +423,41 @@ export interface StartTournamentOutput {
       // Generate the tournament bracket
       const bracketInput: GenerateTournamentBracketInput = <span class="cstat-no" title="statement not covered" >{</span>
         tournamentId,
-        userId
+        userId,
       };
-      
+&nbsp;
       const bracketResult = <span class="cstat-no" title="statement not covered" >await this.generateTournamentBracketUseCase.execute(bracketInput);</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (bracketResult.isFailure) {</span>
         // Revert tournament status if bracket generation fails
 <span class="cstat-no" title="statement not covered" >        tournament.status = TournamentStatus.OPEN;</span>
 <span class="cstat-no" title="statement not covered" >        await this.tournamentRepository.update(tournament);</span>
-        
+&nbsp;
 <span class="cstat-no" title="statement not covered" >        return Result.fail(</span>
-          new Error(`Tournament started but bracket generation failed: ${bracketResult.getError().message}`)
+          new Error(
+            `Tournament started but bracket generation failed: ${bracketResult.getError().message}`,
+          ),
         );
       }
 &nbsp;
       // Return success result with bracket info
 <span class="cstat-no" title="statement not covered" >      return Result.ok({</span>
         tournament,
-        message: `Tournament started successfully with ${bracketResult.getValue().matchesCreated} matches created`
+        message: `Tournament started successfully with ${bracketResult.getValue().matchesCreated} matches created`,
       });
     } catch (error) {
-<span class="cstat-no" title="statement not covered" >      return Result.fail(</span>
-        error instanceof Error 
-          ? error 
-          : new Error('Failed to start tournament')
-      );
+<span class="cstat-no" title="statement not covered" >      return Result.fail(error instanceof Error ? error : new Error('Failed to start tournament'));</span>
     }
   }
-} </pre></td></tr></table></pre>
+}
+&nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-03-23T19:34:14.050Z
+                at 2025-03-23T22:37:40.856Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>

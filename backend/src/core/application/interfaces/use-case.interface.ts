@@ -19,4 +19,4 @@ export interface IUseCase<TInput, TOutput> {
  */
 export interface IUseCaseWithoutInput<TOutput> {
   execute(): Promise<Result<TOutput>>;
-} 
+}

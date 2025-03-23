@@ -10,27 +10,27 @@ import { PlayerLevel } from '../../../domain/tournament/tournament.entity';
 const PaginationSchema = z.object({
   page: z.number().int().positive().default(1),
   limit: z.number().int().positive().max(100).default(10),
-  sortBy: z.enum(['winRate', 'matchesPlayed', 'matchesWon', 'totalPoints', 'averageScore']).optional().default('totalPoints'),
-  sortOrder: z.enum(['asc', 'desc']).optional().default('desc')
+  sortBy: z
+    .enum(['winRate', 'matchesPlayed', 'matchesWon', 'totalPoints', 'averageScore'])
+    .optional()
+    .default('totalPoints'),
+  sortOrder: z.enum(['asc', 'desc']).optional().default('desc'),
 });
 
 // Input validation schema
 const ListGlobalStatisticsInputSchema = z.object({
-  playerLevel: z.enum([
-    PlayerLevel.P1,
-    PlayerLevel.P2,
-    PlayerLevel.P3,
-    PlayerLevel.P4,
-    PlayerLevel.P5
-  ]).optional(),
-  pagination: PaginationSchema.optional()
+  playerLevel: z
+    .enum([PlayerLevel.P1, PlayerLevel.P2, PlayerLevel.P3, PlayerLevel.P4, PlayerLevel.P5])
+    .optional(),
+  pagination: PaginationSchema.optional(),
 });
 
 // Input type
 export type ListGlobalStatisticsInput = z.infer<typeof ListGlobalStatisticsInputSchema>;
 
 // Statistics with enhanced data
-export interface EnhancedStatistic extends Omit<Statistic, 'updateAfterMatch' | 'updateAfterTournament' | 'reset'> {
+export interface EnhancedStatistic
+  extends Omit<Statistic, 'updateAfterMatch' | 'updateAfterTournament' | 'reset'> {
   playerName?: string;
   playerAvatarUrl?: string;
   playerLevel?: PlayerLevel;
@@ -83,12 +83,14 @@ export class ListGlobalStatisticsUseCase extends BaseUseCase<
 > {
   constructor(
     private readonly statisticRepository: IStatisticRepository,
-    private readonly playerRepository: IPlayerRepository
+    private readonly playerRepository: IPlayerRepository,
   ) {
     super();
   }
 
-  protected async executeImpl(input: ListGlobalStatisticsInput): Promise<Result<ListGlobalStatisticsOutput>> {
+  protected async executeImpl(
+    input: ListGlobalStatisticsInput,
+  ): Promise<Result<ListGlobalStatisticsOutput>> {
     try {
       // Validate input
       let validatedData: ListGlobalStatisticsInput;
@@ -97,7 +99,7 @@ export class ListGlobalStatisticsUseCase extends BaseUseCase<
       } catch (validationError) {
         if (validationError instanceof z.ZodError) {
           return Result.fail<ListGlobalStatisticsOutput>(
-            new Error(validationError.errors[0].message)
+            new Error(validationError.errors[0].message),
           );
         }
         throw validationError;
@@ -108,38 +110,34 @@ export class ListGlobalStatisticsUseCase extends BaseUseCase<
         page: 1,
         limit: 10,
         sortBy: 'totalPoints',
-        sortOrder: 'desc'
+        sortOrder: 'desc',
       };
 
       // Get all statistics
       const allStatistics = await this.statisticRepository.findAll();
 
       if (allStatistics.length === 0) {
-        return Result.fail<ListGlobalStatisticsOutput>(
-          new Error('No statistics found')
-        );
+        return Result.fail<ListGlobalStatisticsOutput>(new Error('No statistics found'));
       }
 
       // Get all players for enhancing statistics
       const allPlayers = await this.playerRepository.findAll();
-      
+
       // Filter by player level if specified
       let filteredStatistics = allStatistics;
-      
+
       if (validatedData.playerLevel) {
         const playersWithLevel = allPlayers.filter(
-          player => player.level === validatedData.playerLevel
+          player => player.level === validatedData.playerLevel,
         );
-        
+
         const playerIds = playersWithLevel.map(player => player.id);
-        
-        filteredStatistics = allStatistics.filter(
-          stat => playerIds.includes(stat.playerId)
-        );
-        
+
+        filteredStatistics = allStatistics.filter(stat => playerIds.includes(stat.playerId));
+
         if (filteredStatistics.length === 0) {
           return Result.fail<ListGlobalStatisticsOutput>(
-            new Error(`No statistics found for players with level ${validatedData.playerLevel}`)
+            new Error(`No statistics found for players with level ${validatedData.playerLevel}`),
           );
         }
       }
@@ -148,21 +146,15 @@ export class ListGlobalStatisticsUseCase extends BaseUseCase<
       const { rankedStatistics, sortCriteria } = this.rankStatistics(
         filteredStatistics,
         pagination.sortBy,
-        pagination.sortOrder
+        pagination.sortOrder,
       );
 
       // Enhance statistics with player data
-      const enhancedStatistics = this.enhanceStatisticsWithPlayerData(
-        rankedStatistics,
-        allPlayers
-      );
+      const enhancedStatistics = this.enhanceStatisticsWithPlayerData(rankedStatistics, allPlayers);
 
       // Apply pagination
       const offset = (pagination.page - 1) * pagination.limit;
-      const paginatedStatistics = enhancedStatistics.slice(
-        offset,
-        offset + pagination.limit
-      );
+      const paginatedStatistics = enhancedStatistics.slice(offset, offset + pagination.limit);
 
       // Calculate summary statistics
       const summary = this.calculateSummaryStats(enhancedStatistics, sortCriteria);
@@ -175,12 +167,12 @@ export class ListGlobalStatisticsUseCase extends BaseUseCase<
           total: enhancedStatistics.length,
           page: pagination.page,
           limit: pagination.limit,
-          totalPages: Math.ceil(enhancedStatistics.length / pagination.limit)
-        }
+          totalPages: Math.ceil(enhancedStatistics.length / pagination.limit),
+        },
       });
     } catch (error) {
       return Result.fail<ListGlobalStatisticsOutput>(
-        error instanceof Error ? error : new Error('Failed to list global statistics')
+        error instanceof Error ? error : new Error('Failed to list global statistics'),
       );
     }
   }
@@ -191,8 +183,8 @@ export class ListGlobalStatisticsUseCase extends BaseUseCase<
   private rankStatistics(
     statistics: Statistic[],
     sortBy: string,
-    sortOrder: string
-  ): { rankedStatistics: Statistic[], sortCriteria: string } {
+    sortOrder: string,
+  ): { rankedStatistics: Statistic[]; sortCriteria: string } {
     // Create a copy of statistics to sort
     const sortedStatistics = [...statistics];
 
@@ -225,7 +217,7 @@ export class ListGlobalStatisticsUseCase extends BaseUseCase<
 
     return {
       rankedStatistics: sortedStatistics,
-      sortCriteria: sortBy
+      sortCriteria: sortBy,
     };
   }
 
@@ -234,11 +226,11 @@ export class ListGlobalStatisticsUseCase extends BaseUseCase<
    */
   private enhanceStatisticsWithPlayerData(
     statistics: Statistic[],
-    players: any[]
+    players: any[],
   ): EnhancedStatistic[] {
     return statistics.map((stat, index) => {
       const player = players.find(p => p.id === stat.playerId);
-      
+
       // Create a new object with all Statistic properties plus our enhanced ones
       const enhancedStat: EnhancedStatistic = {
         ...stat,
@@ -248,9 +240,9 @@ export class ListGlobalStatisticsUseCase extends BaseUseCase<
         rank: index + 1, // 1-based ranking
         updateAfterMatch: stat.updateAfterMatch.bind(stat),
         updateAfterTournament: stat.updateAfterTournament.bind(stat),
-        reset: stat.reset.bind(stat)
+        reset: stat.reset.bind(stat),
       };
-      
+
       return enhancedStat;
     });
   }
@@ -260,30 +252,30 @@ export class ListGlobalStatisticsUseCase extends BaseUseCase<
    */
   private calculateSummaryStats(
     statistics: EnhancedStatistic[],
-    sortCriteria: string
+    sortCriteria: string,
   ): ListGlobalStatisticsOutput['summary'] {
     // Initialize with null values
-    let topScorer: { 
-      playerId: string; 
-      playerName?: string; 
+    let topScorer: {
+      playerId: string;
+      playerName?: string;
       totalPoints: number;
       rank: number;
     } | null = null;
-    
-    let highestWinRate: { 
-      playerId: string; 
-      playerName?: string; 
+
+    let highestWinRate: {
+      playerId: string;
+      playerName?: string;
       winRate: number;
       rank: number;
     } | null = null;
-    
-    let mostMatchesPlayed: { 
-      playerId: string; 
-      playerName?: string; 
+
+    let mostMatchesPlayed: {
+      playerId: string;
+      playerName?: string;
       matchesPlayed: number;
       rank: number;
     } | null = null;
-    
+
     // Calculate total matches and average win rate
     let totalMatchesPlayed = 0;
     let totalWinRate = 0;
@@ -293,56 +285,45 @@ export class ListGlobalStatisticsUseCase extends BaseUseCase<
     statistics.forEach(stat => {
       // Update total matches and win rate
       totalMatchesPlayed += stat.matchesPlayed;
-      
+
       if (stat.matchesPlayed > 0) {
         totalWinRate += stat.winRate;
         playersWithMatches++;
       }
 
       // Find top scorer if not already set or if higher
-      if (
-        !topScorer || 
-        stat.totalPoints > topScorer.totalPoints
-      ) {
+      if (!topScorer || stat.totalPoints > topScorer.totalPoints) {
         topScorer = {
           playerId: stat.playerId,
           playerName: stat.playerName,
           totalPoints: stat.totalPoints,
-          rank: stat.rank
+          rank: stat.rank,
         };
       }
 
       // Find highest win rate if not already set or if higher
-      if (
-        stat.matchesPlayed > 0 &&
-        (!highestWinRate || stat.winRate > highestWinRate.winRate)
-      ) {
+      if (stat.matchesPlayed > 0 && (!highestWinRate || stat.winRate > highestWinRate.winRate)) {
         highestWinRate = {
           playerId: stat.playerId,
           playerName: stat.playerName,
           winRate: stat.winRate,
-          rank: stat.rank
+          rank: stat.rank,
         };
       }
 
       // Find most matches played if not already set or if higher
-      if (
-        !mostMatchesPlayed || 
-        stat.matchesPlayed > mostMatchesPlayed.matchesPlayed
-      ) {
+      if (!mostMatchesPlayed || stat.matchesPlayed > mostMatchesPlayed.matchesPlayed) {
         mostMatchesPlayed = {
           playerId: stat.playerId,
           playerName: stat.playerName,
           matchesPlayed: stat.matchesPlayed,
-          rank: stat.rank
+          rank: stat.rank,
         };
       }
     });
 
     // Calculate average win rate
-    const averageWinRate = playersWithMatches > 0 
-      ? totalWinRate / playersWithMatches 
-      : 0;
+    const averageWinRate = playersWithMatches > 0 ? totalWinRate / playersWithMatches : 0;
 
     return {
       topScorer,
@@ -350,7 +331,7 @@ export class ListGlobalStatisticsUseCase extends BaseUseCase<
       mostMatchesPlayed,
       totalPlayers: statistics.length,
       totalMatchesPlayed,
-      averageWinRate
+      averageWinRate,
     };
   }
-} 
+}

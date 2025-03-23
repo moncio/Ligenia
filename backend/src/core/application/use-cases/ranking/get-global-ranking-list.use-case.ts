@@ -13,7 +13,7 @@ const GetGlobalRankingListInputSchema = z.object({
   offset: z.number().int().min(0).default(0),
   playerLevel: z.nativeEnum(PlayerLevel).optional(),
   sortBy: z.enum(['rankingPoints', 'globalPosition']).default('globalPosition'),
-  sortOrder: z.enum(['asc', 'desc']).default('asc')
+  sortOrder: z.enum(['asc', 'desc']).default('asc'),
 });
 
 // Input type
@@ -40,13 +40,13 @@ export class GetGlobalRankingListUseCase extends BaseUseCase<
 > {
   constructor(
     private readonly rankingRepository: IRankingRepository,
-    private readonly playerRepository: IPlayerRepository
+    private readonly playerRepository: IPlayerRepository,
   ) {
     super();
   }
 
   protected async executeImpl(
-    input: GetGlobalRankingListInput
+    input: GetGlobalRankingListInput,
   ): Promise<Result<GetGlobalRankingListOutput>> {
     try {
       // Validate input
@@ -54,7 +54,7 @@ export class GetGlobalRankingListUseCase extends BaseUseCase<
 
       // Get total count for pagination
       const totalCount = await this.rankingRepository.count({
-        playerLevel: validatedData.playerLevel
+        playerLevel: validatedData.playerLevel,
       });
 
       // Get rankings with pagination and sorting
@@ -63,7 +63,7 @@ export class GetGlobalRankingListUseCase extends BaseUseCase<
         offset: validatedData.offset,
         playerLevel: validatedData.playerLevel,
         sortBy: validatedData.sortBy,
-        sortOrder: validatedData.sortOrder
+        sortOrder: validatedData.sortOrder,
       });
 
       // Get player details for each ranking
@@ -87,17 +87,17 @@ export class GetGlobalRankingListUseCase extends BaseUseCase<
         total: totalCount,
         limit: validatedData.limit,
         offset: validatedData.offset,
-        hasMore: validatedData.offset + rankings.length < totalCount
+        hasMore: validatedData.offset + rankings.length < totalCount,
       };
 
       return Result.ok<GetGlobalRankingListOutput>({
         rankings: rankingsWithPlayer,
-        pagination
+        pagination,
       });
     } catch (error) {
       return Result.fail<GetGlobalRankingListOutput>(
-        error instanceof Error ? error : new Error('Failed to get global ranking list')
+        error instanceof Error ? error : new Error('Failed to get global ranking list'),
       );
     }
   }
-} 
+}

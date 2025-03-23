@@ -1,17 +1,22 @@
 import { PerformanceHistory } from '@prisma/client';
 import { IPerformanceHistoryRepository } from '../../../../src/core/application/interfaces/repositories/performance-history.repository';
-import { RecordPerformanceEntryUseCase, RecordPerformanceEntryInput } from '../../../../src/core/application/use-cases/performance-history/record-performance-entry.use-case';
+import {
+  RecordPerformanceEntryUseCase,
+  RecordPerformanceEntryInput,
+} from '../../../../src/core/application/use-cases/performance-history/record-performance-entry.use-case';
 
 // Mock repository implementation
 class MockPerformanceHistoryRepository implements IPerformanceHistoryRepository {
   private mockData: PerformanceHistory[] = [];
 
-  async create(data: Omit<PerformanceHistory, 'id' | 'createdAt' | 'updatedAt'>): Promise<PerformanceHistory> {
+  async create(
+    data: Omit<PerformanceHistory, 'id' | 'createdAt' | 'updatedAt'>,
+  ): Promise<PerformanceHistory> {
     const newEntry: PerformanceHistory = {
       id: 'mock-id-' + Date.now(),
       createdAt: new Date(),
       updatedAt: new Date(),
-      ...data
+      ...data,
     };
     this.mockData.push(newEntry);
     return newEntry;
@@ -36,13 +41,13 @@ class MockPerformanceHistoryRepository implements IPerformanceHistoryRepository 
     if (index === -1) {
       throw new Error('Performance history entry not found');
     }
-    
+
     const updatedEntry = {
       ...this.mockData[index],
       ...data,
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
-    
+
     this.mockData[index] = updatedEntry;
     return updatedEntry;
   }
@@ -62,14 +67,12 @@ class MockPerformanceHistoryRepository implements IPerformanceHistoryRepository 
       totalWins: 7,
       totalLosses: 3,
       winRate: 70,
-      avgPointsPerMonth: 15
+      avgPointsPerMonth: 15,
     };
   }
 
   async findPerformanceTrends(userId: string, timeframe?: string): Promise<any[]> {
-    return [
-      { period: 'Jan', matchesPlayed: 3, wins: 2, losses: 1, points: 6 }
-    ];
+    return [{ period: 'Jan', matchesPlayed: 3, wins: 2, losses: 1, points: 6 }];
   }
 
   // Helper method for tests to set mock data
@@ -95,17 +98,17 @@ describe('RecordPerformanceEntryUseCase', () => {
     matchesPlayed: 5,
     wins: 3,
     losses: 2,
-    points: 9
+    points: 9,
   });
 
   describe('Create new performance entry', () => {
     test('should create a new performance entry successfully', async () => {
       // Arrange
       const input = createValidInput();
-      
+
       // Act
       const result = await useCase.execute(input);
-      
+
       // Assert
       expect(result.isSuccess).toBe(true);
       const performanceEntry = result.getValue();
@@ -123,12 +126,12 @@ describe('RecordPerformanceEntryUseCase', () => {
       // Arrange
       const input = {
         userId: '123e4567-e89b-12d3-a456-426614174000',
-        year: 2023
+        year: 2023,
       } as RecordPerformanceEntryInput;
-      
+
       // Act
       const result = await useCase.execute(input);
-      
+
       // Assert
       expect(result.isSuccess).toBe(true);
       const performanceEntry = result.getValue();
@@ -152,10 +155,10 @@ describe('RecordPerformanceEntryUseCase', () => {
         losses: 2,
         points: 3,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
       repository.setMockData([existingEntry]);
-      
+
       const input: RecordPerformanceEntryInput = {
         userId: existingEntry.userId,
         year: existingEntry.year,
@@ -163,12 +166,12 @@ describe('RecordPerformanceEntryUseCase', () => {
         matchesPlayed: 5,
         wins: 3,
         losses: 2,
-        points: 9
+        points: 9,
       };
-      
+
       // Act
       const result = await useCase.execute(input);
-      
+
       // Assert
       expect(result.isSuccess).toBe(true);
       const updatedEntry = result.getValue();
@@ -185,12 +188,12 @@ describe('RecordPerformanceEntryUseCase', () => {
       // Arrange
       const input = {
         ...createValidInput(),
-        userId: 'invalid-uuid'
+        userId: 'invalid-uuid',
       };
-      
+
       // Act
       const result = await useCase.execute(input as any);
-      
+
       // Assert
       expect(result.isFailure).toBe(true);
       expect(result.getError().message).toContain('Invalid user ID format');
@@ -200,12 +203,12 @@ describe('RecordPerformanceEntryUseCase', () => {
       // Arrange
       const input = {
         ...createValidInput(),
-        year: 1999 // Below min value
+        year: 1999, // Below min value
       };
-      
+
       // Act
       const result = await useCase.execute(input);
-      
+
       // Assert
       expect(result.isFailure).toBe(true);
     });
@@ -214,12 +217,12 @@ describe('RecordPerformanceEntryUseCase', () => {
       // Arrange
       const input = {
         ...createValidInput(),
-        month: 13 // Invalid month
+        month: 13, // Invalid month
       };
-      
+
       // Act
       const result = await useCase.execute(input);
-      
+
       // Assert
       expect(result.isFailure).toBe(true);
     });
@@ -228,12 +231,12 @@ describe('RecordPerformanceEntryUseCase', () => {
       // Arrange
       const input = {
         ...createValidInput(),
-        matchesPlayed: -1 // Negative value
+        matchesPlayed: -1, // Negative value
       };
-      
+
       // Act
       const result = await useCase.execute(input);
-      
+
       // Assert
       expect(result.isFailure).toBe(true);
     });
@@ -246,13 +249,13 @@ describe('RecordPerformanceEntryUseCase', () => {
       jest.spyOn(repository, 'findByUserId').mockImplementation(() => {
         throw new Error('Database connection error');
       });
-      
+
       // Act
       const result = await useCase.execute(input);
-      
+
       // Assert
       expect(result.isFailure).toBe(true);
       expect(result.getError().message).toBe('Database connection error');
     });
   });
-}); 
+});

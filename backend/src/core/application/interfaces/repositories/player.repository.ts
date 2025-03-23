@@ -57,4 +57,4 @@ export interface IPlayerRepository {
    * Delete a player
    */
   delete(id: string): Promise<void>;
-} 
+}

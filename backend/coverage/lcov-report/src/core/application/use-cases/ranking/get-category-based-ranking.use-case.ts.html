@@ -167,11 +167,7 @@
 <a name='L102'></a><a href='#L102'>102</a>
 <a name='L103'></a><a href='#L103'>103</a>
 <a name='L104'></a><a href='#L104'>104</a>
-<a name='L105'></a><a href='#L105'>105</a>
-<a name='L106'></a><a href='#L106'>106</a>
-<a name='L107'></a><a href='#L107'>107</a>
-<a name='L108'></a><a href='#L108'>108</a>
-<a name='L109'></a><a href='#L109'>109</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L105'></a><a href='#L105'>105</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -240,9 +236,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -273,7 +266,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -291,12 +283,12 @@ import { Player } from '../../../domain/player/player.entity';
 // Input validation schema
 const GetCategoryBasedRankingInputSchema = <span class="cstat-no" title="statement not covered" >z.object({</span>
   playerLevel: z.nativeEnum(PlayerLevel, {
-    errorMap: <span class="fstat-no" title="function not covered" >() =</span>&gt; (<span class="cstat-no" title="statement not covered" >{ message: 'Invalid player level' })</span>
+    errorMap: <span class="fstat-no" title="function not covered" >() =</span>&gt; (<span class="cstat-no" title="statement not covered" >{ message: 'Invalid player level' })</span>,
   }),
   limit: z.number().int().positive().default(10),
   offset: z.number().int().min(0).default(0),
   sortBy: z.enum(['rankingPoints', 'categoryPosition']).default('categoryPosition'),
-  sortOrder: z.enum(['asc', 'desc']).default('asc')
+  sortOrder: z.enum(['asc', 'desc']).default('asc'),
 });
 &nbsp;
 // Input type
@@ -324,13 +316,13 @@ export interface GetCategoryBasedRankingOutput {
 &gt; {
 <span class="fstat-no" title="function not covered" >  constructor(</span>
     private readonly <span class="cstat-no" title="statement not covered" >rankingRepository: IRankingRepository,</span>
-    private readonly <span class="cstat-no" title="statement not covered" >playerRepository: IPlayerRepository</span>
+    private readonly <span class="cstat-no" title="statement not covered" >playerRepository: IPlayerRepository,</span>
   ) {
 <span class="cstat-no" title="statement not covered" >    super();</span>
   }
 &nbsp;
   protected async <span class="fstat-no" title="function not covered" >executeImpl(</span>
-    input: GetCategoryBasedRankingInput
+    input: GetCategoryBasedRankingInput,
   ): Promise&lt;Result&lt;GetCategoryBasedRankingOutput&gt;&gt; {
 <span class="cstat-no" title="statement not covered" >    try {</span>
       // Validate input
@@ -340,15 +332,12 @@ export interface GetCategoryBasedRankingOutput {
       const totalCount = <span class="cstat-no" title="statement not covered" >await this.rankingRepository.countByPlayerLevel(validatedData.playerLevel);</span>
 &nbsp;
       // Get rankings for this category with specified sorting and pagination
-      const rankings = <span class="cstat-no" title="statement not covered" >await this.rankingRepository.findByPlayerLevel(</span>
-        validatedData.playerLevel,
-        {
-          limit: validatedData.limit,
-          offset: validatedData.offset,
-          sortBy: validatedData.sortBy,
-          sortOrder: validatedData.sortOrder
-        }
-      );
+      const rankings = <span class="cstat-no" title="statement not covered" >await this.rankingRepository.findByPlayerLevel(validatedData.playerLevel, {</span>
+        limit: validatedData.limit,
+        offset: validatedData.offset,
+        sortBy: validatedData.sortBy,
+        sortOrder: validatedData.sortOrder,
+      });
 &nbsp;
       // Get player details for each ranking
       const playerIds = <span class="cstat-no" title="statement not covered" >rankings.map(<span class="fstat-no" title="function not covered" >ranking </span>=&gt; <span class="cstat-no" title="statement not covered" >ranking.playerId)</span>;</span>
@@ -371,30 +360,29 @@ export interface GetCategoryBasedRankingOutput {
         total: totalCount,
         limit: validatedData.limit,
         offset: validatedData.offset,
-        hasMore: validatedData.offset + rankings.length &lt; totalCount
+        hasMore: validatedData.offset + rankings.length &lt; totalCount,
       };
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      return Result.ok&lt;GetCategoryBasedRankingOutput&gt;({</span>
         rankings: rankingsWithPlayer,
         pagination,
-        playerLevel: validatedData.playerLevel
+        playerLevel: validatedData.playerLevel,
       });
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      return Result.fail&lt;GetCategoryBasedRankingOutput&gt;(</span>
-        error instanceof Error 
-          ? error 
-          : new Error('Failed to get category-based ranking')
+        error instanceof Error ? error : new Error('Failed to get category-based ranking'),
       );
     }
   }
-} </pre></td></tr></table></pre>
+}
+&nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-03-23T19:34:14.050Z
+                at 2025-03-23T22:37:40.856Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>

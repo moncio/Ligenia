@@ -21,11 +21,11 @@ export const authenticate = async (req: AuthRequest, res: Response, next: NextFu
   try {
     // Obtener token de autorización del header
     const authHeader = req.headers.authorization;
-    
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({
         status: 'error',
-        message: 'Authentication token is missing'
+        message: 'Authentication token is missing',
       });
     }
 
@@ -36,7 +36,7 @@ export const authenticate = async (req: AuthRequest, res: Response, next: NextFu
     if (token === 'invalid-token') {
       return res.status(401).json({
         status: 'error',
-        message: 'Invalid or expired token'
+        message: 'Invalid or expired token',
       });
     }
 
@@ -67,7 +67,7 @@ export const authenticate = async (req: AuthRequest, res: Response, next: NextFu
       id: userId,
       email,
       name,
-      role
+      role,
     };
 
     next();
@@ -75,7 +75,7 @@ export const authenticate = async (req: AuthRequest, res: Response, next: NextFu
     console.error('Authentication error:', error);
     return res.status(500).json({
       status: 'error',
-      message: 'Internal server error during authentication'
+      message: 'Internal server error during authentication',
     });
   }
 };
@@ -90,7 +90,7 @@ export const authorize = (roles: UserRole[]) => {
       if (!req.user) {
         return res.status(401).json({
           status: 'error',
-          message: 'User not authenticated'
+          message: 'User not authenticated',
         });
       }
 
@@ -98,7 +98,7 @@ export const authorize = (roles: UserRole[]) => {
       if (!roles.includes(req.user.role)) {
         return res.status(403).json({
           status: 'error',
-          message: 'You do not have permission to access this resource'
+          message: 'You do not have permission to access this resource',
         });
       }
 
@@ -107,7 +107,7 @@ export const authorize = (roles: UserRole[]) => {
       console.error('Authorization error:', error);
       return res.status(500).json({
         status: 'error',
-        message: 'Internal server error during authorization'
+        message: 'Internal server error during authorization',
       });
     }
   };

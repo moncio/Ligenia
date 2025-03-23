@@ -10,12 +10,12 @@ import { PlayerLevel } from '../../../domain/tournament/tournament.entity';
 // Input validation schema
 const GetCategoryBasedRankingInputSchema = z.object({
   playerLevel: z.nativeEnum(PlayerLevel, {
-    errorMap: () => ({ message: 'Invalid player level' })
+    errorMap: () => ({ message: 'Invalid player level' }),
   }),
   limit: z.number().int().positive().default(10),
   offset: z.number().int().min(0).default(0),
   sortBy: z.enum(['rankingPoints', 'categoryPosition']).default('categoryPosition'),
-  sortOrder: z.enum(['asc', 'desc']).default('asc')
+  sortOrder: z.enum(['asc', 'desc']).default('asc'),
 });
 
 // Input type
@@ -43,13 +43,13 @@ export class GetCategoryBasedRankingUseCase extends BaseUseCase<
 > {
   constructor(
     private readonly rankingRepository: IRankingRepository,
-    private readonly playerRepository: IPlayerRepository
+    private readonly playerRepository: IPlayerRepository,
   ) {
     super();
   }
 
   protected async executeImpl(
-    input: GetCategoryBasedRankingInput
+    input: GetCategoryBasedRankingInput,
   ): Promise<Result<GetCategoryBasedRankingOutput>> {
     try {
       // Validate input
@@ -59,15 +59,12 @@ export class GetCategoryBasedRankingUseCase extends BaseUseCase<
       const totalCount = await this.rankingRepository.countByPlayerLevel(validatedData.playerLevel);
 
       // Get rankings for this category with specified sorting and pagination
-      const rankings = await this.rankingRepository.findByPlayerLevel(
-        validatedData.playerLevel,
-        {
-          limit: validatedData.limit,
-          offset: validatedData.offset,
-          sortBy: validatedData.sortBy,
-          sortOrder: validatedData.sortOrder
-        }
-      );
+      const rankings = await this.rankingRepository.findByPlayerLevel(validatedData.playerLevel, {
+        limit: validatedData.limit,
+        offset: validatedData.offset,
+        sortBy: validatedData.sortBy,
+        sortOrder: validatedData.sortOrder,
+      });
 
       // Get player details for each ranking
       const playerIds = rankings.map(ranking => ranking.playerId);
@@ -90,20 +87,18 @@ export class GetCategoryBasedRankingUseCase extends BaseUseCase<
         total: totalCount,
         limit: validatedData.limit,
         offset: validatedData.offset,
-        hasMore: validatedData.offset + rankings.length < totalCount
+        hasMore: validatedData.offset + rankings.length < totalCount,
       };
 
       return Result.ok<GetCategoryBasedRankingOutput>({
         rankings: rankingsWithPlayer,
         pagination,
-        playerLevel: validatedData.playerLevel
+        playerLevel: validatedData.playerLevel,
       });
     } catch (error) {
       return Result.fail<GetCategoryBasedRankingOutput>(
-        error instanceof Error 
-          ? error 
-          : new Error('Failed to get category-based ranking')
+        error instanceof Error ? error : new Error('Failed to get category-based ranking'),
       );
     }
   }
-} 
+}

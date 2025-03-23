@@ -133,8 +133,7 @@
 <a name='L68'></a><a href='#L68'>68</a>
 <a name='L69'></a><a href='#L69'>69</a>
 <a name='L70'></a><a href='#L70'>70</a>
-<a name='L71'></a><a href='#L71'>71</a>
-<a name='L72'></a><a href='#L72'>72</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L71'></a><a href='#L71'>71</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -151,29 +150,13 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -183,6 +166,17 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -190,18 +184,22 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -212,27 +210,27 @@
 import { IMatchRepository } from '../../interfaces/repositories/match.repository';
 &nbsp;
 // Input validation schema
-const RecordMatchResultInputSchema = <span class="cstat-no" title="statement not covered" >z.object({</span>
-  id: z.string().uuid({
-    message: 'Invalid match ID format'
-  }),
-  homeScore: z.number().int().nonnegative({
-    message: 'Home score must be a non-negative integer'
-  }),
-  awayScore: z.number().int().nonnegative({
-    message: 'Away score must be a non-negative integer'
+const RecordMatchResultInputSchema = <span class="cstat-no" title="statement not covered" >z</span>
+  .object({
+    id: z.string().uuid({
+      message: 'Invalid match ID format',
+    }),
+    homeScore: z.number().int().nonnegative({
+      message: 'Home score must be a non-negative integer',
+    }),
+    awayScore: z.number().int().nonnegative({
+      message: 'Away score must be a non-negative integer',
+    }),
   })
-}).refine(<span class="fstat-no" title="function not covered" >(d</span>ata) =&gt; <span class="cstat-no" title="statement not covered" >data.homeScore !== data.awayScore,</span> {
-  message: 'Scores cannot be equal, a winner must be determined',
-  path: ['homeScore'] // Path to the field that will receive the error
-});
+  .refine(<span class="fstat-no" title="function not covered" >data </span>=&gt; <span class="cstat-no" title="statement not covered" >data.homeScore !== data.awayScore,</span> {
+    message: 'Scores cannot be equal, a winner must be determined',
+    path: ['homeScore'], // Path to the field that will receive the error
+  });
 &nbsp;
 type RecordMatchResultInput = z.infer&lt;typeof RecordMatchResultInputSchema&gt;;
 &nbsp;
 <span class="cstat-no" title="statement not covered" >export class R</span>ecordMatchResultUseCase extends BaseUseCase&lt;RecordMatchResultInput, Match&gt; {
-<span class="fstat-no" title="function not covered" >  constructor(</span>
-    private <span class="cstat-no" title="statement not covered" >matchRepository: IMatchRepository</span>
-  ) {
+<span class="fstat-no" title="function not covered" >  constructor(private <span class="cstat-no" title="statement not covered" >m</span>atchRepository: IMatchRepository)</span> {
 <span class="cstat-no" title="statement not covered" >    super();</span>
   }
 &nbsp;
@@ -254,16 +252,16 @@ type RecordMatchResultInput = z.infer&lt;typeof RecordMatchResultInputSchema&gt;
 &nbsp;
       // Check if match is in the correct state (IN_PROGRESS)
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (match.status !== MatchStatus.IN_PROGRESS) {</span>
-<span class="cstat-no" title="statement not covered" >        return Result.fail&lt;Match&gt;(new Error('Only matches in IN_PROGRESS state can have results recorded'));</span>
+<span class="cstat-no" title="statement not covered" >        return Result.fail&lt;Match&gt;(</span>
+          new Error('Only matches in IN_PROGRESS state can have results recorded'),
+        );
       }
 &nbsp;
       // Record the match result
 <span class="cstat-no" title="statement not covered" >      try {</span>
 <span class="cstat-no" title="statement not covered" >        match.updateScore(validatedData.homeScore, validatedData.awayScore);</span>
       } catch (error) {
-<span class="cstat-no" title="statement not covered" >        return Result.fail&lt;Match&gt;(</span>
-          error instanceof Error ? error : new Error(String(error))
-        );
+<span class="cstat-no" title="statement not covered" >        return Result.fail&lt;Match&gt;(error instanceof Error ? error : new Error(String(error)));</span>
       }
 &nbsp;
       // Save updated match
@@ -271,19 +269,18 @@ type RecordMatchResultInput = z.infer&lt;typeof RecordMatchResultInputSchema&gt;
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      return Result.ok&lt;Match&gt;(match);</span>
     } catch (error) {
-<span class="cstat-no" title="statement not covered" >      return Result.fail&lt;Match&gt;(</span>
-        error instanceof Error ? error : new Error(String(error))
-      );
+<span class="cstat-no" title="statement not covered" >      return Result.fail&lt;Match&gt;(error instanceof Error ? error : new Error(String(error)));</span>
     }
   }
-} </pre></td></tr></table></pre>
+}
+&nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-03-23T19:34:14.050Z
+                at 2025-03-23T22:37:40.856Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>

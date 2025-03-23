@@ -3,13 +3,13 @@ import { PerformanceController } from '../controllers/performance.controller';
 import { authenticate, authorize } from '../middlewares/auth.middleware';
 import { UserRole } from '@prisma/client';
 import { validateBody, validateParams, validateQuery } from '../middlewares/validate.middleware';
-import { 
+import {
   idParamSchema,
   userIdParamSchema,
   createPerformanceSchema,
   updatePerformanceSchema,
   getPerformanceQuerySchema,
-  performanceTrendsQuerySchema
+  performanceTrendsQuerySchema,
 } from '../validations/performance.validation';
 
 const router = Router();
@@ -23,7 +23,7 @@ const performanceController = new PerformanceController();
 router.get(
   '/',
   validateQuery(getPerformanceQuerySchema),
-  performanceController.getPerformanceHistory
+  performanceController.getPerformanceHistory,
 );
 
 /**
@@ -31,11 +31,7 @@ router.get(
  * @desc Get performance record by ID
  * @access Public
  */
-router.get(
-  '/:id',
-  validateParams(idParamSchema),
-  performanceController.getPerformanceById
-);
+router.get('/:id', validateParams(idParamSchema), performanceController.getPerformanceById);
 
 /**
  * @route GET /api/performance/user/:userId
@@ -46,7 +42,7 @@ router.get(
   '/user/:userId',
   validateParams(userIdParamSchema),
   validateQuery(getPerformanceQuerySchema),
-  performanceController.getUserPerformance
+  performanceController.getUserPerformance,
 );
 
 /**
@@ -59,7 +55,7 @@ router.post(
   authenticate,
   authorize([UserRole.ADMIN]),
   validateBody(createPerformanceSchema),
-  performanceController.createPerformance
+  performanceController.createPerformance,
 );
 
 /**
@@ -73,7 +69,7 @@ router.put(
   authorize([UserRole.ADMIN]),
   validateParams(idParamSchema),
   validateBody(updatePerformanceSchema),
-  performanceController.updatePerformance
+  performanceController.updatePerformance,
 );
 
 /**
@@ -86,7 +82,7 @@ router.delete(
   authenticate,
   authorize([UserRole.ADMIN]),
   validateParams(idParamSchema),
-  performanceController.deletePerformance
+  performanceController.deletePerformance,
 );
 
 /**
@@ -97,7 +93,7 @@ router.delete(
 router.get(
   '/summary',
   validateQuery(getPerformanceQuerySchema),
-  performanceController.getPerformanceSummary
+  performanceController.getPerformanceSummary,
 );
 
 /**
@@ -108,7 +104,7 @@ router.get(
 router.get(
   '/trends',
   validateQuery(performanceTrendsQuerySchema),
-  performanceController.trackPerformanceTrends
+  performanceController.trackPerformanceTrends,
 );
 
-export default router; 
+export default router;

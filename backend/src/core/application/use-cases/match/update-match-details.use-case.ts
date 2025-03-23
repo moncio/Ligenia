@@ -7,38 +7,58 @@ import { IMatchRepository } from '../../interfaces/repositories/match.repository
 // Input validation schema
 const UpdateMatchDetailsInputSchema = z.object({
   id: z.string().uuid({
-    message: 'Invalid match ID format'
+    message: 'Invalid match ID format',
   }),
-  homePlayerOneId: z.string().uuid({
-    message: 'Invalid home player one ID format'
-  }).optional(),
-  homePlayerTwoId: z.string().uuid({
-    message: 'Invalid home player two ID format'
-  }).optional(),
-  awayPlayerOneId: z.string().uuid({
-    message: 'Invalid away player one ID format'
-  }).optional(),
-  awayPlayerTwoId: z.string().uuid({
-    message: 'Invalid away player two ID format'
-  }).optional(),
-  round: z.number().int().positive({
-    message: 'Round must be a positive integer'
-  }).optional(),
-  date: z.string().refine((val) => !isNaN(Date.parse(val)), {
-    message: 'Invalid date format'
-  }).optional().nullable(),
+  homePlayerOneId: z
+    .string()
+    .uuid({
+      message: 'Invalid home player one ID format',
+    })
+    .optional(),
+  homePlayerTwoId: z
+    .string()
+    .uuid({
+      message: 'Invalid home player two ID format',
+    })
+    .optional(),
+  awayPlayerOneId: z
+    .string()
+    .uuid({
+      message: 'Invalid away player one ID format',
+    })
+    .optional(),
+  awayPlayerTwoId: z
+    .string()
+    .uuid({
+      message: 'Invalid away player two ID format',
+    })
+    .optional(),
+  round: z
+    .number()
+    .int()
+    .positive({
+      message: 'Round must be a positive integer',
+    })
+    .optional(),
+  date: z
+    .string()
+    .refine(val => !isNaN(Date.parse(val)), {
+      message: 'Invalid date format',
+    })
+    .optional()
+    .nullable(),
   location: z.string().max(100).optional().nullable(),
-  status: z.nativeEnum(MatchStatus, {
-    errorMap: () => ({ message: 'Invalid match status' })
-  }).optional()
+  status: z
+    .nativeEnum(MatchStatus, {
+      errorMap: () => ({ message: 'Invalid match status' }),
+    })
+    .optional(),
 });
 
 type UpdateMatchDetailsInput = z.infer<typeof UpdateMatchDetailsInputSchema>;
 
 export class UpdateMatchDetailsUseCase extends BaseUseCase<UpdateMatchDetailsInput, Match> {
-  constructor(
-    private matchRepository: IMatchRepository
-  ) {
+  constructor(private matchRepository: IMatchRepository) {
     super();
   }
 
@@ -80,10 +100,10 @@ export class UpdateMatchDetailsUseCase extends BaseUseCase<UpdateMatchDetailsInp
       }
 
       // Parse date if present
-      const date = validatedData.date 
-        ? new Date(validatedData.date) 
-        : validatedData.date === null 
-          ? null 
+      const date = validatedData.date
+        ? new Date(validatedData.date)
+        : validatedData.date === null
+          ? null
           : match.date;
 
       // Update match details
@@ -95,7 +115,7 @@ export class UpdateMatchDetailsUseCase extends BaseUseCase<UpdateMatchDetailsInp
         validatedData.round,
         date,
         validatedData.location,
-        validatedData.status
+        validatedData.status,
       );
 
       // Save updated match
@@ -103,9 +123,7 @@ export class UpdateMatchDetailsUseCase extends BaseUseCase<UpdateMatchDetailsInp
 
       return Result.ok<Match>(match);
     } catch (error) {
-      return Result.fail<Match>(
-        error instanceof Error ? error : new Error(String(error))
-      );
+      return Result.fail<Match>(error instanceof Error ? error : new Error(String(error)));
     }
   }
-} 
+}

@@ -1,4 +1,7 @@
-import { UpdatePlayerLevelUseCase, UpdatePlayerLevelInput } from '../../../../src/core/application/use-cases/player/update-player-level.use-case';
+import {
+  UpdatePlayerLevelUseCase,
+  UpdatePlayerLevelInput,
+} from '../../../../src/core/application/use-cases/player/update-player-level.use-case';
 import { IPlayerRepository } from '../../../../src/core/application/interfaces/repositories/player.repository';
 import { Player } from '../../../../src/core/domain/player/player.entity';
 import { PlayerLevel } from '../../../../src/core/domain/tournament/tournament.entity';
@@ -59,7 +62,7 @@ describe('UpdatePlayerLevelUseCase', () => {
       '123e4567-e89b-12d3-a456-426614174001',
       PlayerLevel.P3,
       30,
-      'Spain'
+      'Spain',
     );
 
     // Initialize repository with test data
@@ -73,7 +76,7 @@ describe('UpdatePlayerLevelUseCase', () => {
     // Arrange
     const input: UpdatePlayerLevelInput = {
       playerId: testPlayer.id,
-      level: PlayerLevel.P2
+      level: PlayerLevel.P2,
     };
 
     // Act
@@ -81,10 +84,10 @@ describe('UpdatePlayerLevelUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const { message } = result.getValue();
     expect(message).toContain('Player level updated to P2 successfully');
-    
+
     // Verify that player was actually updated
     const updatedPlayer = await playerRepository.findById(testPlayer.id);
     expect(updatedPlayer?.level).toBe(PlayerLevel.P2);
@@ -94,7 +97,7 @@ describe('UpdatePlayerLevelUseCase', () => {
     // Arrange
     const input: UpdatePlayerLevelInput = {
       playerId: '123e4567-e89b-12d3-a456-426614174999', // non-existent player ID
-      level: PlayerLevel.P1
+      level: PlayerLevel.P1,
     };
 
     // Act
@@ -109,7 +112,7 @@ describe('UpdatePlayerLevelUseCase', () => {
     // Arrange
     const input = {
       playerId: 'not-a-uuid',
-      level: PlayerLevel.P1
+      level: PlayerLevel.P1,
     };
 
     // Act
@@ -125,7 +128,7 @@ describe('UpdatePlayerLevelUseCase', () => {
     // Arrange
     const input = {
       playerId: testPlayer.id,
-      level: 'INVALID_LEVEL'
+      level: 'INVALID_LEVEL',
     };
 
     // Act
@@ -136,4 +139,4 @@ describe('UpdatePlayerLevelUseCase', () => {
     expect(result.isFailure).toBe(true);
     expect(result.getError().message).toContain('Invalid player level');
   });
-}); 
+});

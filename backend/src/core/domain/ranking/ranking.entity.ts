@@ -14,7 +14,7 @@ export class Ranking {
     public positionChange: number = 0,
     public lastCalculated: Date = new Date(),
     public createdAt: Date = new Date(),
-    public updatedAt: Date = new Date()
+    public updatedAt: Date = new Date(),
   ) {}
 
   /**
@@ -34,9 +34,7 @@ export class Ranking {
   updateGlobalPosition(newPosition: number): void {
     this.previousPosition = this.globalPosition;
     this.globalPosition = newPosition;
-    this.positionChange = this.previousPosition !== null 
-      ? this.previousPosition - newPosition 
-      : 0;
+    this.positionChange = this.previousPosition !== null ? this.previousPosition - newPosition : 0;
     this.updatedAt = new Date();
     this.lastCalculated = new Date();
   }
@@ -59,4 +57,4 @@ export class Ranking {
     this.playerLevel = newLevel;
     this.updatedAt = new Date();
   }
-} 
+}

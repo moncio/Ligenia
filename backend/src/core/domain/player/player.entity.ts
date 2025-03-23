@@ -13,7 +13,7 @@ export class Player {
     public country: string | null = null,
     public avatarUrl: string | null = null,
     public createdAt: Date = new Date(),
-    public updatedAt: Date = new Date()
+    public updatedAt: Date = new Date(),
   ) {}
 
   /**
@@ -53,4 +53,4 @@ export class Player {
 
     this.updatedAt = new Date();
   }
-} 
+}

@@ -1,4 +1,7 @@
-import { UpdateStatisticsAfterMatchUseCase, UpdateStatisticsAfterMatchInput } from '../../../../src/core/application/use-cases/statistic/update-statistics-after-match.use-case';
+import {
+  UpdateStatisticsAfterMatchUseCase,
+  UpdateStatisticsAfterMatchInput,
+} from '../../../../src/core/application/use-cases/statistic/update-statistics-after-match.use-case';
 import { IStatisticRepository } from '../../../../src/core/application/interfaces/repositories/statistic.repository';
 import { IMatchRepository } from '../../../../src/core/application/interfaces/repositories/match.repository';
 import { Statistic } from '../../../../src/core/domain/statistic/statistic.entity';
@@ -40,7 +43,7 @@ class MockStatisticRepository implements IStatisticRepository {
       statistic.averageScore,
       statistic.tournamentsPlayed,
       statistic.tournamentsWon,
-      statistic.winRate
+      statistic.winRate,
     );
     this.statistics.push(statCopy);
   }
@@ -59,7 +62,7 @@ class MockStatisticRepository implements IStatisticRepository {
         statistic.averageScore,
         statistic.tournamentsPlayed,
         statistic.tournamentsWon,
-        statistic.winRate
+        statistic.winRate,
       );
       this.statistics[index] = statCopy;
     }
@@ -93,9 +96,7 @@ class MockMatchRepository implements IMatchRepository {
   }
 
   async findByTournamentAndRound(tournamentId: string, round: number): Promise<Match[]> {
-    return this.matches.filter(
-      m => m.tournamentId === tournamentId && m.round === round
-    );
+    return this.matches.filter(m => m.tournamentId === tournamentId && m.round === round);
   }
 
   async findByPlayerId(playerId: string): Promise<Match[]> {
@@ -104,7 +105,7 @@ class MockMatchRepository implements IMatchRepository {
         m.homePlayerOneId === playerId ||
         m.homePlayerTwoId === playerId ||
         m.awayPlayerOneId === playerId ||
-        m.awayPlayerTwoId === playerId
+        m.awayPlayerTwoId === playerId,
     );
   }
 
@@ -134,10 +135,10 @@ describe('UpdateStatisticsAfterMatchUseCase', () => {
   // Repository mocks
   let statisticRepository: IStatisticRepository;
   let matchRepository: IMatchRepository;
-  
+
   // Use case
   let useCase: UpdateStatisticsAfterMatchUseCase;
-  
+
   // Test data
   const matchId = '123e4567-e89b-12d3-a456-426614174000';
   const tournamentId = '123e4567-e89b-12d3-a456-426614174001';
@@ -145,7 +146,7 @@ describe('UpdateStatisticsAfterMatchUseCase', () => {
   const homePlayerTwoId = '123e4567-e89b-12d3-a456-426614174003';
   const awayPlayerOneId = '123e4567-e89b-12d3-a456-426614174004';
   const awayPlayerTwoId = '123e4567-e89b-12d3-a456-426614174005';
-  
+
   const completedMatch = new Match(
     matchId,
     tournamentId,
@@ -158,11 +159,11 @@ describe('UpdateStatisticsAfterMatchUseCase', () => {
     'Test Location',
     MatchStatus.COMPLETED,
     10, // homeScore
-    5   // awayScore
+    5, // awayScore
   );
-  
+
   const pendingMatch = new Match(
-    '123e4567-e89b-12d3-a456-426614174006',  // Valid UUID
+    '123e4567-e89b-12d3-a456-426614174006', // Valid UUID
     tournamentId,
     homePlayerOneId,
     homePlayerTwoId,
@@ -173,11 +174,11 @@ describe('UpdateStatisticsAfterMatchUseCase', () => {
     'Test Location',
     MatchStatus.PENDING,
     null, // homeScore
-    null  // awayScore
+    null, // awayScore
   );
-  
+
   const noScoresMatch = new Match(
-    '123e4567-e89b-12d3-a456-426614174007',  // Valid UUID
+    '123e4567-e89b-12d3-a456-426614174007', // Valid UUID
     tournamentId,
     homePlayerOneId,
     homePlayerTwoId,
@@ -188,9 +189,9 @@ describe('UpdateStatisticsAfterMatchUseCase', () => {
     'Test Location',
     MatchStatus.COMPLETED,
     null, // homeScore
-    null  // awayScore
+    null, // awayScore
   );
-  
+
   // Existing player statistics
   const homePlayerOneStatistic = new Statistic(
     'home-player-one-stat',
@@ -199,22 +200,19 @@ describe('UpdateStatisticsAfterMatchUseCase', () => {
     3, // matchesWon
     2, // matchesLost
     40, // totalPoints
-    8,  // averageScore
-    2,  // tournamentsPlayed
-    0,  // tournamentsWon
-    60  // winRate
+    8, // averageScore
+    2, // tournamentsPlayed
+    0, // tournamentsWon
+    60, // winRate
   );
 
   beforeEach(() => {
     // Initialize repositories
     statisticRepository = new MockStatisticRepository([homePlayerOneStatistic]);
     matchRepository = new MockMatchRepository([completedMatch, pendingMatch, noScoresMatch]);
-    
+
     // Initialize use case
-    useCase = new UpdateStatisticsAfterMatchUseCase(
-      statisticRepository,
-      matchRepository
-    );
+    useCase = new UpdateStatisticsAfterMatchUseCase(statisticRepository, matchRepository);
   });
 
   it('should update player statistics after a completed match', async () => {
@@ -230,23 +228,23 @@ describe('UpdateStatisticsAfterMatchUseCase', () => {
     expect(result.getValue().homePlayerTwoStatistic).toBeDefined();
     expect(result.getValue().awayPlayerOneStatistic).toBeDefined();
     expect(result.getValue().awayPlayerTwoStatistic).toBeDefined();
-    
+
     // Check home player statistics updated correctly
     const homePlayerStats = result.getValue().homePlayerOneStatistic;
     expect(homePlayerStats.playerId).toBe(homePlayerOneId);
     expect(homePlayerStats.matchesPlayed).toBe(6); // Was 5, now 6
-    expect(homePlayerStats.matchesWon).toBe(4);    // Was 3, now 4 (home team won)
-    expect(homePlayerStats.matchesLost).toBe(2);   // Unchanged
-    expect(homePlayerStats.totalPoints).toBe(50);  // Was 40, added 10
+    expect(homePlayerStats.matchesWon).toBe(4); // Was 3, now 4 (home team won)
+    expect(homePlayerStats.matchesLost).toBe(2); // Unchanged
+    expect(homePlayerStats.totalPoints).toBe(50); // Was 40, added 10
     expect(homePlayerStats.winRate).toBeCloseTo(66.67); // 4/6 * 100
-    
+
     // Check away player statistics created correctly
     const awayPlayerStats = result.getValue().awayPlayerOneStatistic;
     expect(awayPlayerStats.playerId).toBe(awayPlayerOneId);
     expect(awayPlayerStats.matchesPlayed).toBe(1);
-    expect(awayPlayerStats.matchesWon).toBe(0);    // Away team lost
+    expect(awayPlayerStats.matchesWon).toBe(0); // Away team lost
     expect(awayPlayerStats.matchesLost).toBe(1);
-    expect(awayPlayerStats.totalPoints).toBe(5);   // Away score
+    expect(awayPlayerStats.totalPoints).toBe(5); // Away score
     expect(awayPlayerStats.winRate).toBe(0);
   });
 
@@ -264,20 +262,19 @@ describe('UpdateStatisticsAfterMatchUseCase', () => {
       'Test Location',
       MatchStatus.COMPLETED,
       10, // homeScore
-      5   // awayScore
+      5, // awayScore
     );
-    
+
     // Use new repository instances to ensure isolation
     const freshStatRepo = new MockStatisticRepository([]);
     const singleMatchRepo = new MockMatchRepository([testMatch]);
-    
-    const isolatedUseCase = new UpdateStatisticsAfterMatchUseCase(
-      freshStatRepo,
-      singleMatchRepo
-    );
-    
+
+    const isolatedUseCase = new UpdateStatisticsAfterMatchUseCase(freshStatRepo, singleMatchRepo);
+
     // Act
-    const result = await isolatedUseCase.execute({ matchId: '123e4567-e89b-12d3-a456-426614174009' });
+    const result = await isolatedUseCase.execute({
+      matchId: '123e4567-e89b-12d3-a456-426614174009',
+    });
 
     // Debug
     if (result.isFailure) {
@@ -286,13 +283,13 @@ describe('UpdateStatisticsAfterMatchUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     // Check that all the returned statistics exist
     expect(result.getValue().homePlayerOneStatistic).toBeDefined();
     expect(result.getValue().homePlayerTwoStatistic).toBeDefined();
     expect(result.getValue().awayPlayerOneStatistic).toBeDefined();
     expect(result.getValue().awayPlayerTwoStatistic).toBeDefined();
-    
+
     // Check that all players got statistics
     expect(await freshStatRepo.findByPlayerId('player-a-uuid')).not.toBeNull();
     expect(await freshStatRepo.findByPlayerId('player-b-uuid')).not.toBeNull();
@@ -322,7 +319,9 @@ describe('UpdateStatisticsAfterMatchUseCase', () => {
 
     // Assert
     expect(result.isFailure).toBe(true);
-    expect(result.getError().message).toBe('Cannot update statistics for a match that is not completed');
+    expect(result.getError().message).toBe(
+      'Cannot update statistics for a match that is not completed',
+    );
   });
 
   it('should fail when match scores are not recorded', async () => {
@@ -357,13 +356,13 @@ describe('UpdateStatisticsAfterMatchUseCase', () => {
 
     // Act
     const result = await useCase.execute(input);
-    
+
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     // Check homePlayer has statistics record with updated values
     const homePlayerStats = result.getValue().homePlayerOneStatistic;
     expect(homePlayerStats.id).toBe(existingStatId);
     expect(homePlayerStats.matchesPlayed).toBe(7); // Tests are not isolated, so this could be 6 or 7 depending on execution order
   });
-}); 
+});

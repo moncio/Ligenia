@@ -7,16 +7,21 @@ import supertest from 'supertest';
 import app from '../../../src/app';
 import { UserRole, PlayerLevel, TournamentFormat, TournamentStatus } from '@prisma/client';
 import { prisma } from '../setup';
-import { createTournamentTestData, TournamentTestData, cleanupTournamentTestData, createBasicTournament } from '../../utils/tournament-test-helper';
+import {
+  createTournamentTestData,
+  TournamentTestData,
+  cleanupTournamentTestData,
+  createBasicTournament,
+} from '../../utils/tournament-test-helper';
 
 /**
  * This test suite uses the enhanced authentication middleware
  * that supports different roles for testing purposes:
- * 
+ *
  * - 'admin-token' - Simulates user with ADMIN role
  * - 'valid-token' - Simulates user with PLAYER role
  * - 'x-test-role' header - Can override the role in test environment
- * 
+ *
  * See /docs/testing-auth.md for more details on testing auth
  */
 
@@ -42,7 +47,7 @@ const tournamentData = {
   location: 'Test Location',
   maxParticipants: 32,
   registrationEndDate: new Date(Date.now() + 29 * 24 * 60 * 60 * 1000).toISOString(),
-  category: PlayerLevel.P3
+  category: PlayerLevel.P3,
 };
 
 // Invalid tournament data for validation tests
@@ -52,7 +57,7 @@ const invalidTournamentData = {
   format: 'INVALID_FORMAT',
   status: 'INVALID_STATUS',
   maxParticipants: -1, // Invalid number
-  category: 'INVALID_LEVEL'
+  category: 'INVALID_LEVEL',
 };
 
 // Shared test data
@@ -64,7 +69,7 @@ describe('Tournament Routes - Integration Tests', () => {
   beforeAll(async () => {
     // Create test tournament with admin, players, and matches
     testData = await createTournamentTestData(prisma);
-    
+
     // Create a second tournament with different status for filtering tests
     secondTournament = await createBasicTournament(prisma, TournamentStatus.COMPLETED);
   });
@@ -82,7 +87,7 @@ describe('Tournament Routes - Integration Tests', () => {
   describe('Authentication Checks', () => {
     it('should return 401 when accessing protected routes without token', async () => {
       const response = await agent.post('/api/tournaments');
-        
+
       expect(response.status).toBe(401);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body).toHaveProperty('message', 'Authentication token is missing');
@@ -92,7 +97,7 @@ describe('Tournament Routes - Integration Tests', () => {
       const response = await agent
         .post('/api/tournaments')
         .set('Authorization', 'Bearer invalid-token');
-        
+
       expect(response.status).toBe(401);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body).toHaveProperty('message', 'Invalid or expired token');
@@ -102,7 +107,7 @@ describe('Tournament Routes - Integration Tests', () => {
       const response = await agent
         .post('/api/tournaments')
         .set('Authorization', 'InvalidPrefix admin-token');
-        
+
       expect(response.status).toBe(401);
       expect(response.body).toHaveProperty('status', 'error');
     });
@@ -114,10 +119,13 @@ describe('Tournament Routes - Integration Tests', () => {
         .post('/api/tournaments')
         .set('Authorization', 'Bearer valid-token')
         .send(tournamentData);
-        
+
       expect(response.status).toBe(403);
       expect(response.body).toHaveProperty('status', 'error');
-      expect(response.body).toHaveProperty('message', 'You do not have permission to access this resource');
+      expect(response.body).toHaveProperty(
+        'message',
+        'You do not have permission to access this resource',
+      );
     });
 
     it('should return 200 when admin tries to access admin-only routes', async () => {
@@ -125,7 +133,7 @@ describe('Tournament Routes - Integration Tests', () => {
         .post('/api/tournaments')
         .set('Authorization', 'Bearer admin-token')
         .send(tournamentData);
-        
+
       // Note: This test may fail if actual implementation doesn't handle tournament creation properly
       // It's only testing that role-based authorization works
       expect(response.status).not.toBe(403); // Should not be forbidden based on role
@@ -137,7 +145,7 @@ describe('Tournament Routes - Integration Tests', () => {
         .set('Authorization', 'Bearer valid-token')
         .set('x-test-role', 'ADMIN')
         .send(tournamentData);
-        
+
       // Should not be forbidden because we overrode the role to ADMIN
       expect(response.status).not.toBe(403);
     });
@@ -146,12 +154,12 @@ describe('Tournament Routes - Integration Tests', () => {
   describe('GET /api/tournaments', () => {
     it('should return a list of tournaments', async () => {
       const response = await agent.get('/api/tournaments');
-        
+
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
       expect(response.body.data).toHaveProperty('tournaments');
       expect(Array.isArray(response.body.data.tournaments)).toBe(true);
-      
+
       // Since the controller uses mock data, we won't find our actual test tournament
       // Just verify that we get an array of tournaments
       expect(response.body.data.tournaments.length).toBeGreaterThan(0);
@@ -161,59 +169,57 @@ describe('Tournament Routes - Integration Tests', () => {
       const response = await agent
         .get('/api/tournaments')
         .query({ status: TournamentStatus.ACTIVE });
-        
+
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
       expect(response.body.data).toHaveProperty('tournaments');
       expect(Array.isArray(response.body.data.tournaments)).toBe(true);
-      
+
       // If any tournaments are returned, they should all have the requested status
       if (response.body.data.tournaments.length > 0) {
-        expect(response.body.data.tournaments.every((t: any) => t.status === TournamentStatus.ACTIVE)).toBe(true);
+        expect(
+          response.body.data.tournaments.every((t: any) => t.status === TournamentStatus.ACTIVE),
+        ).toBe(true);
       }
     });
 
     it('should filter tournaments by category when provided', async () => {
-      const response = await agent
-        .get('/api/tournaments')
-        .query({ category: PlayerLevel.P3 });
-        
+      const response = await agent.get('/api/tournaments').query({ category: PlayerLevel.P3 });
+
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
       expect(response.body.data).toHaveProperty('tournaments');
       expect(Array.isArray(response.body.data.tournaments)).toBe(true);
-      
+
       // If any tournaments are returned, they should all have the requested category
       if (response.body.data.tournaments.length > 0) {
-        expect(response.body.data.tournaments.every((t: any) => t.category === PlayerLevel.P3)).toBe(true);
+        expect(
+          response.body.data.tournaments.every((t: any) => t.category === PlayerLevel.P3),
+        ).toBe(true);
       }
     });
 
     it('should combine multiple filters when provided', async () => {
-      const response = await agent
-        .get('/api/tournaments')
-        .query({ 
-          status: TournamentStatus.ACTIVE,
-          category: PlayerLevel.P3
-        });
-        
+      const response = await agent.get('/api/tournaments').query({
+        status: TournamentStatus.ACTIVE,
+        category: PlayerLevel.P3,
+      });
+
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
-      
+
       // If any tournaments are returned, they should match all filters
       if (response.body.data.tournaments.length > 0) {
-        const allMatch = response.body.data.tournaments.every((t: any) => 
-          t.status === TournamentStatus.ACTIVE && t.category === PlayerLevel.P3
+        const allMatch = response.body.data.tournaments.every(
+          (t: any) => t.status === TournamentStatus.ACTIVE && t.category === PlayerLevel.P3,
         );
         expect(allMatch).toBe(true);
       }
     });
 
     it('should return 400 with invalid query parameters', async () => {
-      const response = await agent
-        .get('/api/tournaments')
-        .query({ status: 'INVALID_STATUS' });
-        
+      const response = await agent.get('/api/tournaments').query({ status: 'INVALID_STATUS' });
+
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body.message).toContain('Validation error');
@@ -222,14 +228,13 @@ describe('Tournament Routes - Integration Tests', () => {
 
   describe('GET /api/tournaments/:id', () => {
     it('should return a specific tournament by ID', async () => {
-      const response = await agent
-        .get(`/api/tournaments/${testData.tournament.id}`);
-        
+      const response = await agent.get(`/api/tournaments/${testData.tournament.id}`);
+
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
       expect(response.body.data).toHaveProperty('tournament');
       expect(response.body.data.tournament).toHaveProperty('id');
-      
+
       // Since the controller returns mock data, the name won't match our test tournament
       // Just verify that we get a tournament object with the expected structure
       expect(response.body.data.tournament).toHaveProperty('name');
@@ -238,18 +243,16 @@ describe('Tournament Routes - Integration Tests', () => {
     });
 
     it('should return 404 for non-existent tournament ID', async () => {
-      const response = await agent
-        .get(`/api/tournaments/${nonExistentId}`);
-        
+      const response = await agent.get(`/api/tournaments/${nonExistentId}`);
+
       expect(response.status).toBe(404);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body.message).toContain('not found');
     });
 
     it('should return 400 for invalid tournament ID format', async () => {
-      const response = await agent
-        .get(`/api/tournaments/${invalidFormatId}`);
-        
+      const response = await agent.get(`/api/tournaments/${invalidFormatId}`);
+
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body.message).toContain('Validation error');
@@ -267,20 +270,20 @@ describe('Tournament Routes - Integration Tests', () => {
         format: TournamentFormat.SINGLE_ELIMINATION,
         status: TournamentStatus.DRAFT,
         location: 'API Test Location',
-        category: PlayerLevel.P3
+        category: PlayerLevel.P3,
       };
 
       const response = await agent
         .post('/api/tournaments')
         .set('Authorization', 'Bearer admin-token')
         .send(newTournamentData);
-        
+
       expect(response.status).toBe(201);
       expect(response.body).toHaveProperty('status', 'success');
       expect(response.body.data).toHaveProperty('tournament');
       expect(response.body.data.tournament).toHaveProperty('id');
       expect(response.body.data.tournament).toHaveProperty('name');
-      
+
       // Since the controller returns mock data and doesn't save to the database,
       // we don't need to clean up any created tournament
     });
@@ -290,7 +293,7 @@ describe('Tournament Routes - Integration Tests', () => {
         .post('/api/tournaments')
         .set('Authorization', 'Bearer admin-token')
         .send(invalidTournamentData);
-        
+
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body.message).toContain('Validation error');
@@ -300,24 +303,22 @@ describe('Tournament Routes - Integration Tests', () => {
       const incompleteData = {
         // Missing required name and format
         description: 'Incomplete tournament data',
-        startDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString()
+        startDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000).toISOString(),
       };
-      
+
       const response = await agent
         .post('/api/tournaments')
         .set('Authorization', 'Bearer admin-token')
         .send(incompleteData);
-        
+
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body.message).toContain('Validation error');
     });
 
     it('should return 401 when not authenticated', async () => {
-      const response = await agent
-        .post('/api/tournaments')
-        .send(tournamentData);
-        
+      const response = await agent.post('/api/tournaments').send(tournamentData);
+
       expect(response.status).toBe(401);
       expect(response.body).toHaveProperty('status', 'error');
     });
@@ -326,16 +327,16 @@ describe('Tournament Routes - Integration Tests', () => {
   describe('PUT /api/tournaments/:id', () => {
     it('should allow administrators to update tournaments', async () => {
       const updatedName = `Updated Tournament ${Date.now()}`;
-      
+
       const response = await agent
         .put(`/api/tournaments/${testData.tournament.id}`)
         .set('Authorization', 'Bearer admin-token')
         .send({ name: updatedName });
-        
+
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
       expect(response.body.data).toHaveProperty('tournament');
-      
+
       // Since the controller returns mock data and doesn't actually update the database,
       // we can't validate the database change. Just verify the API response is successful.
       expect(response.body.data.tournament).toHaveProperty('id');
@@ -347,7 +348,7 @@ describe('Tournament Routes - Integration Tests', () => {
         .put(`/api/tournaments/${testData.tournament.id}`)
         .set('Authorization', 'Bearer admin-token')
         .send(invalidTournamentData);
-        
+
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body.message).toContain('Validation error');
@@ -358,7 +359,7 @@ describe('Tournament Routes - Integration Tests', () => {
         .put(`/api/tournaments/${nonExistentId}`)
         .set('Authorization', 'Bearer admin-token')
         .send({ name: 'Updated Name' });
-        
+
       expect(response.status).toBe(404);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body.message).toContain('not found');
@@ -368,7 +369,7 @@ describe('Tournament Routes - Integration Tests', () => {
       const response = await agent
         .put(`/api/tournaments/${testData.tournament.id}`)
         .send({ name: 'Updated Tournament' });
-        
+
       expect(response.status).toBe(401);
       expect(response.body).toHaveProperty('status', 'error');
     });
@@ -378,7 +379,7 @@ describe('Tournament Routes - Integration Tests', () => {
         .put(`/api/tournaments/${testData.tournament.id}`)
         .set('Authorization', 'Bearer valid-token')
         .send({ name: 'Player Update Attempt' });
-        
+
       expect(response.status).toBe(403);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body.message).toContain('permission');
@@ -397,30 +398,32 @@ describe('Tournament Routes - Integration Tests', () => {
           registrationEndDate: new Date(Date.now() + 19 * 24 * 60 * 60 * 1000),
           format: TournamentFormat.SINGLE_ELIMINATION,
           category: PlayerLevel.P3,
-          status: TournamentStatus.DRAFT
-        }
+          status: TournamentStatus.DRAFT,
+        },
       });
-      
+
       const response = await agent
         .delete(`/api/tournaments/${tempTournament.id}`)
         .set('Authorization', 'Bearer admin-token');
-        
+
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
       expect(response.body).toHaveProperty('message', 'Tournament deleted successfully');
-      
+
       // Since the controller doesn't actually delete the tournament from the database,
       // we'll manually delete it to clean up
-      await prisma.tournament.delete({
-        where: { id: tempTournament.id }
-      }).catch(e => console.log('Tournament was already deleted or not found'));
+      await prisma.tournament
+        .delete({
+          where: { id: tempTournament.id },
+        })
+        .catch(e => console.log('Tournament was already deleted or not found'));
     });
 
     it('should return 404 when deleting non-existent tournament', async () => {
       const response = await agent
         .delete(`/api/tournaments/${nonExistentId}`)
         .set('Authorization', 'Bearer admin-token');
-        
+
       expect(response.status).toBe(404);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body.message).toContain('not found');
@@ -430,16 +433,15 @@ describe('Tournament Routes - Integration Tests', () => {
       const response = await agent
         .delete(`/api/tournaments/${invalidFormatId}`)
         .set('Authorization', 'Bearer admin-token');
-        
+
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body.message).toContain('Validation error');
     });
 
     it('should return 401 when not authenticated', async () => {
-      const response = await agent
-        .delete(`/api/tournaments/${testData.tournament.id}`);
-        
+      const response = await agent.delete(`/api/tournaments/${testData.tournament.id}`);
+
       expect(response.status).toBe(401);
       expect(response.body).toHaveProperty('status', 'error');
     });
@@ -448,7 +450,7 @@ describe('Tournament Routes - Integration Tests', () => {
       const response = await agent
         .delete(`/api/tournaments/${testData.tournament.id}`)
         .set('Authorization', 'Bearer valid-token');
-        
+
       expect(response.status).toBe(403);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body.message).toContain('permission');
@@ -464,19 +466,19 @@ describe('Tournament Routes - Integration Tests', () => {
           name: 'Test Player for Registration',
           password: 'hashed_password',
           role: UserRole.PLAYER,
-          emailVerified: true
-        }
+          emailVerified: true,
+        },
       });
-      
+
       const response = await agent
         .post(`/api/tournaments/${testData.tournament.id}/register`)
         .set('Authorization', 'Bearer valid-token')
         .send({ playerId: newUser.id });
-        
+
       expect(response.status).toBe(201);
       expect(response.body).toHaveProperty('status', 'success');
       expect(response.body.data).toHaveProperty('registration');
-      
+
       // Clean up the created user
       await prisma.user.delete({ where: { id: newUser.id } });
     });
@@ -486,7 +488,7 @@ describe('Tournament Routes - Integration Tests', () => {
         .post(`/api/tournaments/${fullTournamentId}/register`)
         .set('Authorization', 'Bearer valid-token')
         .send({ playerId: testData.playerUsers[0].id });
-        
+
       // Since the special 'full-tournament-id' isn't recognized directly by the controller,
       // we're just checking that we get an error response with status 400
       expect(response.status).toBe(400);
@@ -502,7 +504,7 @@ describe('Tournament Routes - Integration Tests', () => {
         .post(`/api/tournaments/${nonExistentId}/register`)
         .set('Authorization', 'Bearer valid-token')
         .send({ playerId: testData.playerUsers[0].id });
-        
+
       // Just check that the request is rejected with an error
       expect(response.status).toBeGreaterThanOrEqual(400);
       expect(response.body).toHaveProperty('status', 'error');
@@ -512,7 +514,7 @@ describe('Tournament Routes - Integration Tests', () => {
       const response = await agent
         .post(`/api/tournaments/${testData.tournament.id}/register`)
         .send({ playerId: '123e4567-e89b-12d3-a456-426614174001' });
-        
+
       expect(response.status).toBe(401);
       expect(response.body).toHaveProperty('status', 'error');
     });
@@ -522,18 +524,17 @@ describe('Tournament Routes - Integration Tests', () => {
         .post(`/api/tournaments/${testData.tournament.id}/register`)
         .set('Authorization', 'Bearer valid-token')
         .send({ playerId: 'not-a-uuid' });
-        
+
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body.message).toContain('Validation error');
     });
   });
-  
+
   describe('GET /api/tournaments/:id/standings', () => {
     it('should return tournament standings when tournament exists', async () => {
-      const response = await agent
-        .get(`/api/tournaments/${testData.tournament.id}/standings`);
-        
+      const response = await agent.get(`/api/tournaments/${testData.tournament.id}/standings`);
+
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
       expect(response.body.data).toHaveProperty('standings');
@@ -542,18 +543,16 @@ describe('Tournament Routes - Integration Tests', () => {
     });
 
     it('should return 404 for non-existent tournament ID', async () => {
-      const response = await agent
-        .get(`/api/tournaments/${nonExistentId}/standings`);
-        
+      const response = await agent.get(`/api/tournaments/${nonExistentId}/standings`);
+
       expect(response.status).toBe(404);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body.message).toContain('not found');
     });
 
     it('should return 400 for invalid tournament ID format', async () => {
-      const response = await agent
-        .get(`/api/tournaments/${invalidFormatId}/standings`);
-        
+      const response = await agent.get(`/api/tournaments/${invalidFormatId}/standings`);
+
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body.message).toContain('Validation error');
@@ -562,9 +561,8 @@ describe('Tournament Routes - Integration Tests', () => {
 
   describe('GET /api/tournaments/:id/matches', () => {
     it('should return tournament matches when tournament exists', async () => {
-      const response = await agent
-        .get(`/api/tournaments/${testData.tournament.id}/matches`);
-        
+      const response = await agent.get(`/api/tournaments/${testData.tournament.id}/matches`);
+
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
       expect(response.body.data).toHaveProperty('matches');
@@ -572,18 +570,16 @@ describe('Tournament Routes - Integration Tests', () => {
     });
 
     it('should return 404 for non-existent tournament ID', async () => {
-      const response = await agent
-        .get(`/api/tournaments/${nonExistentId}/matches`);
-        
+      const response = await agent.get(`/api/tournaments/${nonExistentId}/matches`);
+
       expect(response.status).toBe(404);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body.message).toContain('not found');
     });
 
     it('should return 400 for invalid tournament ID format', async () => {
-      const response = await agent
-        .get(`/api/tournaments/${invalidFormatId}/matches`);
-        
+      const response = await agent.get(`/api/tournaments/${invalidFormatId}/matches`);
+
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body.message).toContain('Validation error');
@@ -592,9 +588,8 @@ describe('Tournament Routes - Integration Tests', () => {
 
   describe('GET /api/tournaments/:id/bracket', () => {
     it('should return tournament bracket when tournament exists', async () => {
-      const response = await agent
-        .get(`/api/tournaments/${testData.tournament.id}/bracket`);
-        
+      const response = await agent.get(`/api/tournaments/${testData.tournament.id}/bracket`);
+
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
       expect(response.body.data).toHaveProperty('bracket');
@@ -603,18 +598,16 @@ describe('Tournament Routes - Integration Tests', () => {
     });
 
     it('should return 404 for non-existent tournament ID', async () => {
-      const response = await agent
-        .get(`/api/tournaments/${nonExistentId}/bracket`);
-        
+      const response = await agent.get(`/api/tournaments/${nonExistentId}/bracket`);
+
       expect(response.status).toBe(404);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body.message).toContain('not found');
     });
 
     it('should return 400 for invalid tournament ID format', async () => {
-      const response = await agent
-        .get(`/api/tournaments/${invalidFormatId}/bracket`);
-        
+      const response = await agent.get(`/api/tournaments/${invalidFormatId}/bracket`);
+
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body.message).toContain('Validation error');
@@ -630,15 +623,15 @@ describe('Tournament Routes - Integration Tests', () => {
         .post('/api/tournaments')
         .set('Authorization', 'Bearer admin-token')
         .send(tournamentData);
-        
+
       // Expecting a successful response since the controller implementation
       // doesn't have a way to simulate errors right now
       expect(response.status).toBe(201);
       expect(response.body).toHaveProperty('status', 'success');
-      
+
       // In a production environment, we would add a middleware or
       // controller feature to enable testing error scenarios
       console.log('Note: To properly test error handling, add error simulation to controllers');
     });
   });
-}); 
+});

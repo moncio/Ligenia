@@ -6,7 +6,7 @@ import { IAuthService } from '../../interfaces/auth-service.interface';
 
 // Define input schema using Zod
 const LogoutUserInputSchema = z.object({
-  token: z.string().min(10)
+  token: z.string().min(10),
 });
 
 type LogoutUserInput = z.infer<typeof LogoutUserInputSchema>;
@@ -15,7 +15,7 @@ export class LogoutUserUseCase extends BaseUseCase<LogoutUserInput, void> {
   constructor(private authService: IAuthService) {
     super();
   }
-  
+
   protected async executeImpl(input: LogoutUserInput): Promise<Result<void>> {
     const validation = LogoutUserInputSchema.safeParse(input);
     if (!validation.success) {
@@ -23,23 +23,21 @@ export class LogoutUserUseCase extends BaseUseCase<LogoutUserInput, void> {
     }
 
     const { token } = input;
-    
+
     try {
       // Validate the token first
       const tokenValidation = await this.authService.validateToken(token);
-      
+
       if (tokenValidation.isFailure) {
         return Result.fail<void>(new Error('Invalid token'));
       }
-      
+
       // Implement actual logout logic here
       // This would typically involve blacklisting the token or removing from active sessions
-      
+
       return Result.ok<void>(undefined);
     } catch (error) {
-      return Result.fail<void>(
-        error instanceof Error ? error : new Error('Logout failed')
-      );
+      return Result.fail<void>(error instanceof Error ? error : new Error('Logout failed'));
     }
   }
-} 
+}

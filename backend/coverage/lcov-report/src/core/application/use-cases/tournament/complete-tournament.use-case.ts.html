@@ -160,16 +160,7 @@
 <a name='L95'></a><a href='#L95'>95</a>
 <a name='L96'></a><a href='#L96'>96</a>
 <a name='L97'></a><a href='#L97'>97</a>
-<a name='L98'></a><a href='#L98'>98</a>
-<a name='L99'></a><a href='#L99'>99</a>
-<a name='L100'></a><a href='#L100'>100</a>
-<a name='L101'></a><a href='#L101'>101</a>
-<a name='L102'></a><a href='#L102'>102</a>
-<a name='L103'></a><a href='#L103'>103</a>
-<a name='L104'></a><a href='#L104'>104</a>
-<a name='L105'></a><a href='#L105'>105</a>
-<a name='L106'></a><a href='#L106'>106</a>
-<a name='L107'></a><a href='#L107'>107</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L98'></a><a href='#L98'>98</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -218,8 +209,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -229,20 +218,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -269,7 +252,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -286,7 +268,7 @@ import { IUserRepository } from '../../interfaces/repositories/user.repository';
 // Schema for validation of complete tournament input
 const completeTournamentSchema = <span class="cstat-no" title="statement not covered" >z.object({</span>
   tournamentId: z.string().uuid({ message: 'Tournament ID must be a valid UUID' }),
-  userId: z.string().uuid({ message: 'User ID must be a valid UUID' })
+  userId: z.string().uuid({ message: 'User ID must be a valid UUID' }),
 });
 &nbsp;
 // Input type inferred from the schema
@@ -309,21 +291,19 @@ export interface CompleteTournamentOutput {
 &gt; {
 <span class="fstat-no" title="function not covered" >  constructor(</span>
     private readonly <span class="cstat-no" title="statement not covered" >tournamentRepository: ITournamentRepository,</span>
-    private readonly <span class="cstat-no" title="statement not covered" >userRepository: IUserRepository</span>
+    private readonly <span class="cstat-no" title="statement not covered" >userRepository: IUserRepository,</span>
   ) {
 <span class="cstat-no" title="statement not covered" >    super();</span>
   }
 &nbsp;
   protected async <span class="fstat-no" title="function not covered" >executeImpl(</span>
-    input: CompleteTournamentInput
+    input: CompleteTournamentInput,
   ): Promise&lt;Result&lt;CompleteTournamentOutput&gt;&gt; {
 <span class="cstat-no" title="statement not covered" >    try {</span>
       // Validate input
       const validationResult = <span class="cstat-no" title="statement not covered" >completeTournamentSchema.safeParse(input);</span>
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!validationResult.success) {</span>
-<span class="cstat-no" title="statement not covered" >        return Result.fail(</span>
-          new Error(`Invalid input: ${validationResult.error.message}`)
-        );
+<span class="cstat-no" title="statement not covered" >        return Result.fail(new Error(`Invalid input: ${validationResult.error.message}`));</span>
       }
 &nbsp;
       const { tournamentId, userId } = <span class="cstat-no" title="statement not covered" >validationResult.data;</span>
@@ -331,24 +311,18 @@ export interface CompleteTournamentOutput {
       // Check if tournament exists
       const tournament = <span class="cstat-no" title="statement not covered" >await this.tournamentRepository.findById(tournamentId);</span>
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!tournament) {</span>
-<span class="cstat-no" title="statement not covered" >        return Result.fail(</span>
-          new Error(`Tournament with ID ${tournamentId} not found`)
-        );
+<span class="cstat-no" title="statement not covered" >        return Result.fail(new Error(`Tournament with ID ${tournamentId} not found`));</span>
       }
 &nbsp;
       // Check if tournament is in a state that can be completed
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (tournament.status !== TournamentStatus.ACTIVE) {</span>
-<span class="cstat-no" title="statement not covered" >        return Result.fail(</span>
-          new Error('Only active tournaments can be completed')
-        );
+<span class="cstat-no" title="statement not covered" >        return Result.fail(new Error('Only active tournaments can be completed'));</span>
       }
 &nbsp;
       // Check if user has permission to complete the tournament
       const user = <span class="cstat-no" title="statement not covered" >await this.userRepository.findById(userId);</span>
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!user) {</span>
-<span class="cstat-no" title="statement not covered" >        return Result.fail(</span>
-          new Error(`User with ID ${userId} not found`)
-        );
+<span class="cstat-no" title="statement not covered" >        return Result.fail(new Error(`User with ID ${userId} not found`));</span>
       }
 &nbsp;
       // Only admin or creator can complete the tournament
@@ -357,7 +331,7 @@ export interface CompleteTournamentOutput {
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!isAdmin &amp;&amp; !isCreator) {</span>
 <span class="cstat-no" title="statement not covered" >        return Result.fail(</span>
-          new Error('Only admins or the tournament creator can complete a tournament')
+          new Error('Only admins or the tournament creator can complete a tournament'),
         );
       }
 &nbsp;
@@ -371,24 +345,23 @@ export interface CompleteTournamentOutput {
       // Return success result
 <span class="cstat-no" title="statement not covered" >      return Result.ok({</span>
         tournament,
-        message: 'Tournament completed successfully'
+        message: 'Tournament completed successfully',
       });
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      return Result.fail(</span>
-        error instanceof Error 
-          ? error 
-          : new Error('Failed to complete tournament')
+        error instanceof Error ? error : new Error('Failed to complete tournament'),
       );
     }
   }
-} </pre></td></tr></table></pre>
+}
+&nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-03-23T19:34:14.050Z
+                at 2025-03-23T22:37:40.856Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>

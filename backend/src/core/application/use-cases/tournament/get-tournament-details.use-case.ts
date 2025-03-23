@@ -7,7 +7,7 @@ import { ITournamentRepository } from '../../interfaces/repositories/tournament.
 // Schema for validation of tournament details input
 const getTournamentDetailsSchema = z.object({
   tournamentId: z.string().uuid({ message: 'Tournament ID must be a valid UUID' }),
-  includeParticipants: z.boolean().optional().default(false)
+  includeParticipants: z.boolean().optional().default(false),
 });
 
 // Input type inferred from the schema
@@ -32,53 +32,47 @@ export class GetTournamentDetailsUseCase extends BaseUseCase<
   }
 
   protected async executeImpl(
-    input: GetTournamentDetailsInput
+    input: GetTournamentDetailsInput,
   ): Promise<Result<GetTournamentDetailsOutput>> {
     try {
       // Validate input
       const validationResult = getTournamentDetailsSchema.safeParse(input);
       if (!validationResult.success) {
-        return Result.fail(
-          new Error(`Invalid input: ${validationResult.error.message}`)
-        );
+        return Result.fail(new Error(`Invalid input: ${validationResult.error.message}`));
       }
 
       const { tournamentId, includeParticipants } = validationResult.data;
 
       // Find the tournament
       const tournament = await this.tournamentRepository.findById(tournamentId);
-      
+
       // Check if tournament exists
       if (!tournament) {
-        return Result.fail(
-          new Error(`Tournament with ID ${tournamentId} not found`)
-        );
+        return Result.fail(new Error(`Tournament with ID ${tournamentId} not found`));
       }
 
       // Prepare response
       const response: GetTournamentDetailsOutput = {
-        tournament
+        tournament,
       };
 
       // If includeParticipants flag is set, include participant info
       if (includeParticipants) {
         // Get participant count
         response.participantCount = await this.tournamentRepository.countParticipants(tournamentId);
-        
+
         // Get a list of participant IDs (limited to 10 for performance)
         response.participants = await this.tournamentRepository.getParticipants(tournamentId, {
           skip: 0,
-          limit: 10
+          limit: 10,
         });
       }
 
       return Result.ok(response);
     } catch (error) {
       return Result.fail(
-        error instanceof Error 
-          ? error 
-          : new Error('Failed to get tournament details')
+        error instanceof Error ? error : new Error('Failed to get tournament details'),
       );
     }
   }
-} 
+}

@@ -1,17 +1,27 @@
 import { PerformanceHistory } from '@prisma/client';
-import { IPerformanceHistoryRepository, PerformanceHistoryFilter, PerformanceSummary, PerformanceTrend } from '../../../../src/core/application/interfaces/repositories/performance-history.repository';
-import { TrackPerformanceTrendsUseCase, TrackPerformanceTrendsInput } from '../../../../src/core/application/use-cases/performance-history/track-performance-trends.use-case';
+import {
+  IPerformanceHistoryRepository,
+  PerformanceHistoryFilter,
+  PerformanceSummary,
+  PerformanceTrend,
+} from '../../../../src/core/application/interfaces/repositories/performance-history.repository';
+import {
+  TrackPerformanceTrendsUseCase,
+  TrackPerformanceTrendsInput,
+} from '../../../../src/core/application/use-cases/performance-history/track-performance-trends.use-case';
 
 // Mock repository implementation
 class MockPerformanceHistoryRepository implements IPerformanceHistoryRepository {
   private mockData: PerformanceHistory[] = [];
 
-  async create(data: Omit<PerformanceHistory, 'id' | 'createdAt' | 'updatedAt'>): Promise<PerformanceHistory> {
+  async create(
+    data: Omit<PerformanceHistory, 'id' | 'createdAt' | 'updatedAt'>,
+  ): Promise<PerformanceHistory> {
     const newEntry: PerformanceHistory = {
       id: 'mock-id-' + Date.now(),
       createdAt: new Date(),
       updatedAt: new Date(),
-      ...data
+      ...data,
     };
     this.mockData.push(newEntry);
     return newEntry;
@@ -22,23 +32,26 @@ class MockPerformanceHistoryRepository implements IPerformanceHistoryRepository 
     return entry || null;
   }
 
-  async findByUserId(userId: string, filter?: PerformanceHistoryFilter): Promise<PerformanceHistory[]> {
+  async findByUserId(
+    userId: string,
+    filter?: PerformanceHistoryFilter,
+  ): Promise<PerformanceHistory[]> {
     let result = this.mockData.filter(item => item.userId === userId);
-    
+
     if (filter?.year !== undefined) {
       result = result.filter(item => item.year === filter.year);
     }
-    
+
     if (filter?.month !== undefined) {
       result = result.filter(item => item.month === filter.month);
     }
-    
+
     if (filter?.limit !== undefined || filter?.offset !== undefined) {
       const offset = filter?.offset || 0;
       const limit = filter?.limit || result.length;
       result = result.slice(offset, offset + limit);
     }
-    
+
     return result;
   }
 
@@ -47,13 +60,13 @@ class MockPerformanceHistoryRepository implements IPerformanceHistoryRepository 
     if (index === -1) {
       throw new Error('Performance history entry not found');
     }
-    
+
     const updatedEntry = {
       ...this.mockData[index],
       ...data,
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
-    
+
     this.mockData[index] = updatedEntry;
     return updatedEntry;
   }
@@ -73,7 +86,7 @@ class MockPerformanceHistoryRepository implements IPerformanceHistoryRepository 
       totalWins: 7,
       totalLosses: 3,
       winRate: 70,
-      avgPointsPerMonth: 15
+      avgPointsPerMonth: 15,
     };
   }
 
@@ -81,27 +94,25 @@ class MockPerformanceHistoryRepository implements IPerformanceHistoryRepository 
     if (userId === 'error-user-id') {
       throw new Error('Failed to fetch trends');
     }
-    
+
     // Return different results based on timeframe
     if (timeframe === 'monthly') {
       return [
         { period: 'Jan', matchesPlayed: 4, wins: 3, losses: 1, points: 9 },
         { period: 'Feb', matchesPlayed: 6, wins: 4, losses: 2, points: 12 },
-        { period: 'Mar', matchesPlayed: 5, wins: 2, losses: 3, points: 6 }
+        { period: 'Mar', matchesPlayed: 5, wins: 2, losses: 3, points: 6 },
       ];
     }
-    
+
     if (timeframe === 'yearly') {
       return [
         { period: '2022', matchesPlayed: 35, wins: 20, losses: 15, points: 60 },
-        { period: '2023', matchesPlayed: 42, wins: 28, losses: 14, points: 84 }
+        { period: '2023', matchesPlayed: 42, wins: 28, losses: 14, points: 84 },
       ];
     }
-    
+
     // Default (all)
-    return [
-      { period: 'All-time', matchesPlayed: 120, wins: 75, losses: 45, points: 225 }
-    ];
+    return [{ period: 'All-time', matchesPlayed: 120, wins: 75, losses: 45, points: 225 }];
   }
 }
 
@@ -116,17 +127,17 @@ describe('TrackPerformanceTrendsUseCase', () => {
 
   // Helper function to create a valid input
   const createValidInput = (): TrackPerformanceTrendsInput => ({
-    userId: '123e4567-e89b-12d3-a456-426614174000'
+    userId: '123e4567-e89b-12d3-a456-426614174000',
   });
 
   describe('Track performance trends', () => {
     test('should retrieve monthly performance trends by default', async () => {
       // Arrange
       const input = createValidInput();
-      
+
       // Act
       const result = await useCase.execute(input);
-      
+
       // Assert
       expect(result.isSuccess).toBe(true);
       const trends = result.getValue();
@@ -140,12 +151,12 @@ describe('TrackPerformanceTrendsUseCase', () => {
       // Arrange
       const input = {
         ...createValidInput(),
-        timeframe: 'yearly' as const
+        timeframe: 'yearly' as const,
       };
-      
+
       // Act
       const result = await useCase.execute(input);
-      
+
       // Assert
       expect(result.isSuccess).toBe(true);
       const trends = result.getValue();
@@ -158,12 +169,12 @@ describe('TrackPerformanceTrendsUseCase', () => {
       // Arrange
       const input = {
         ...createValidInput(),
-        timeframe: 'all' as const
+        timeframe: 'all' as const,
       };
-      
+
       // Act
       const result = await useCase.execute(input);
-      
+
       // Assert
       expect(result.isSuccess).toBe(true);
       const trends = result.getValue();
@@ -178,12 +189,12 @@ describe('TrackPerformanceTrendsUseCase', () => {
       // Arrange
       const input = {
         ...createValidInput(),
-        userId: 'invalid-uuid'
+        userId: 'invalid-uuid',
       };
-      
+
       // Act
       const result = await useCase.execute(input as any);
-      
+
       // Assert
       expect(result.isFailure).toBe(true);
       expect(result.getError().message).toContain('Invalid user ID format');
@@ -193,12 +204,12 @@ describe('TrackPerformanceTrendsUseCase', () => {
       // Arrange
       const input = {
         ...createValidInput(),
-        timeframe: 'invalid-timeframe'
+        timeframe: 'invalid-timeframe',
       };
-      
+
       // Act
       const result = await useCase.execute(input as any);
-      
+
       // Assert
       expect(result.isFailure).toBe(true);
     });
@@ -209,20 +220,20 @@ describe('TrackPerformanceTrendsUseCase', () => {
       // Arrange
       const input = {
         userId: '123e4567-e89b-12d3-a456-426614174000',
-        timeframe: 'monthly' as const
+        timeframe: 'monthly' as const,
       };
-      
+
       // Mock repository to throw an error
       jest.spyOn(repository, 'findPerformanceTrends').mockImplementation(() => {
         throw new Error('Database connection error');
       });
-      
+
       // Act
       const result = await useCase.execute(input);
-      
+
       // Assert
       expect(result.isFailure).toBe(true);
       expect(result.getError().message).toBe('Database connection error');
     });
   });
-}); 
+});

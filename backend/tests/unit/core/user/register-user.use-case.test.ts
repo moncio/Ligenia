@@ -52,7 +52,13 @@ describe('RegisterUserUseCase', () => {
   });
 
   it('should not register a user with an existing email', async () => {
-    const existingUser = new User('1', 'test@example.com', 'password123', 'Test User', UserRole.PLAYER);
+    const existingUser = new User(
+      '1',
+      'test@example.com',
+      'password123',
+      'Test User',
+      UserRole.PLAYER,
+    );
     await userRepository.save(existingUser);
 
     const input = {
@@ -67,4 +73,4 @@ describe('RegisterUserUseCase', () => {
     expect(result.isFailure).toBe(true);
     expect(result.getError().message).toBe('Email already in use');
   });
-}); 
+});

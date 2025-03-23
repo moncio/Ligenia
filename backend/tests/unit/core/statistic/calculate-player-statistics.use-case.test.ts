@@ -1,4 +1,7 @@
-import { CalculatePlayerStatisticsUseCase, CalculatePlayerStatisticsInput } from '../../../../src/core/application/use-cases/statistic/calculate-player-statistics.use-case';
+import {
+  CalculatePlayerStatisticsUseCase,
+  CalculatePlayerStatisticsInput,
+} from '../../../../src/core/application/use-cases/statistic/calculate-player-statistics.use-case';
 import { IStatisticRepository } from '../../../../src/core/application/interfaces/repositories/statistic.repository';
 import { IPlayerRepository } from '../../../../src/core/application/interfaces/repositories/player.repository';
 import { IMatchRepository } from '../../../../src/core/application/interfaces/repositories/match.repository';
@@ -112,9 +115,7 @@ class MockMatchRepository implements IMatchRepository {
   }
 
   async findByTournamentAndRound(tournamentId: string, round: number): Promise<Match[]> {
-    return this.matches.filter(
-      m => m.tournamentId === tournamentId && m.round === round
-    );
+    return this.matches.filter(m => m.tournamentId === tournamentId && m.round === round);
   }
 
   async findByPlayerId(playerId: string): Promise<Match[]> {
@@ -123,7 +124,7 @@ class MockMatchRepository implements IMatchRepository {
         m.homePlayerOneId === playerId ||
         m.homePlayerTwoId === playerId ||
         m.awayPlayerOneId === playerId ||
-        m.awayPlayerTwoId === playerId
+        m.awayPlayerTwoId === playerId,
     );
   }
 
@@ -154,29 +155,23 @@ describe('CalculatePlayerStatisticsUseCase', () => {
   let statisticRepository: IStatisticRepository;
   let playerRepository: IPlayerRepository;
   let matchRepository: IMatchRepository;
-  
+
   // Use case
   let useCase: CalculatePlayerStatisticsUseCase;
-  
+
   // Test data
   const playerId = '123e4567-e89b-12d3-a456-426614174000';
   const userId = '123e4567-e89b-12d3-a456-426614174001';
   const tournamentId = '123e4567-e89b-12d3-a456-426614174002';
-  
-  const testPlayer = new Player(
-    playerId,
-    userId,
-    PlayerLevel.P3,
-    30,
-    'Spain'
-  );
-  
+
+  const testPlayer = new Player(playerId, userId, PlayerLevel.P3, 30, 'Spain');
+
   // Create test matches
   const createTestMatch = (
-    id: string, 
-    playerOnHomeTeam: boolean, 
-    homeScore: number, 
-    awayScore: number
+    id: string,
+    playerOnHomeTeam: boolean,
+    homeScore: number,
+    awayScore: number,
   ): Match => {
     return new Match(
       id,
@@ -190,7 +185,7 @@ describe('CalculatePlayerStatisticsUseCase', () => {
       'Test Location',
       MatchStatus.COMPLETED,
       homeScore,
-      awayScore
+      awayScore,
     );
   };
 
@@ -199,30 +194,30 @@ describe('CalculatePlayerStatisticsUseCase', () => {
     statisticRepository = new MockStatisticRepository();
     playerRepository = new MockPlayerRepository([testPlayer]);
     matchRepository = new MockMatchRepository(); // Initialize with empty array
-    
+
     // Initialize use case
     useCase = new CalculatePlayerStatisticsUseCase(
       statisticRepository,
       playerRepository,
-      matchRepository
+      matchRepository,
     );
   });
 
   it('should calculate statistics for a player with no existing statistic', async () => {
     // Arrange
     const matches = [
-      createTestMatch('match-1', true, 10, 5),   // Player on home team, won
-      createTestMatch('match-2', false, 3, 7),   // Player on away team, won
-      createTestMatch('match-3', true, 6, 8)     // Player on home team, lost
+      createTestMatch('match-1', true, 10, 5), // Player on home team, won
+      createTestMatch('match-2', false, 3, 7), // Player on away team, won
+      createTestMatch('match-3', true, 6, 8), // Player on home team, lost
     ];
-    
+
     matchRepository = new MockMatchRepository(matches);
     useCase = new CalculatePlayerStatisticsUseCase(
       statisticRepository,
       playerRepository,
-      matchRepository
+      matchRepository,
     );
-    
+
     const input: CalculatePlayerStatisticsInput = { playerId };
 
     // Act
@@ -230,14 +225,14 @@ describe('CalculatePlayerStatisticsUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const statistic = result.getValue().statistic;
     expect(statistic.playerId).toBe(playerId);
     expect(statistic.matchesPlayed).toBe(3);
     expect(statistic.matchesWon).toBe(2);
     expect(statistic.matchesLost).toBe(1);
     expect(statistic.totalPoints).toBe(23); // 10 + 7 + 6
-    expect(statistic.winRate).toBe(2/3 * 100);
+    expect(statistic.winRate).toBe((2 / 3) * 100);
     expect(statistic.tournamentsPlayed).toBe(1);
   });
 
@@ -246,30 +241,30 @@ describe('CalculatePlayerStatisticsUseCase', () => {
     const existingStatistic = new Statistic(
       'stat-1',
       playerId,
-      3,  // matchesPlayed
-      2,  // matchesWon
-      1,  // matchesLost
+      3, // matchesPlayed
+      2, // matchesWon
+      1, // matchesLost
       20, // totalPoints
       6.67, // averageScore
-      1,  // tournamentsPlayed
-      0,  // tournamentsWon
-      66.67 // winRate
+      1, // tournamentsPlayed
+      0, // tournamentsWon
+      66.67, // winRate
     );
-    
+
     statisticRepository = new MockStatisticRepository([existingStatistic]);
-    
+
     const matches = [
-      createTestMatch('match-1', true, 10, 5),  // Player on home team, won
-      createTestMatch('match-2', false, 5, 10)  // Player on away team, won
+      createTestMatch('match-1', true, 10, 5), // Player on home team, won
+      createTestMatch('match-2', false, 5, 10), // Player on away team, won
     ];
-    
+
     matchRepository = new MockMatchRepository(matches);
     useCase = new CalculatePlayerStatisticsUseCase(
       statisticRepository,
       playerRepository,
-      matchRepository
+      matchRepository,
     );
-    
+
     const input: CalculatePlayerStatisticsInput = { playerId };
 
     // Act
@@ -277,7 +272,7 @@ describe('CalculatePlayerStatisticsUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const statistic = result.getValue().statistic;
     expect(statistic.id).toBe(existingStatistic.id);
     expect(statistic.matchesPlayed).toBe(2);
@@ -294,9 +289,9 @@ describe('CalculatePlayerStatisticsUseCase', () => {
     useCase = new CalculatePlayerStatisticsUseCase(
       statisticRepository,
       playerRepository,
-      matchRepository
+      matchRepository,
     );
-    
+
     const input: CalculatePlayerStatisticsInput = { playerId };
 
     // Act
@@ -304,7 +299,7 @@ describe('CalculatePlayerStatisticsUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const statistic = result.getValue().statistic;
     expect(statistic.playerId).toBe(playerId);
     expect(statistic.matchesPlayed).toBe(0);
@@ -330,16 +325,16 @@ describe('CalculatePlayerStatisticsUseCase', () => {
       'Test Location',
       MatchStatus.COMPLETED,
       10,
-      5
+      5,
     );
-    
+
     matchRepository = new MockMatchRepository([otherPlayerMatch]);
     useCase = new CalculatePlayerStatisticsUseCase(
       statisticRepository,
       playerRepository,
-      matchRepository
+      matchRepository,
     );
-    
+
     const input: CalculatePlayerStatisticsInput = { playerId };
 
     // Act
@@ -347,7 +342,7 @@ describe('CalculatePlayerStatisticsUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const statistic = result.getValue().statistic;
     expect(statistic.matchesPlayed).toBe(0);
   });
@@ -356,12 +351,12 @@ describe('CalculatePlayerStatisticsUseCase', () => {
     // Arrange
     const nonExistentPlayerId = '123e4567-e89b-12d3-a456-426614174999';
     const input: CalculatePlayerStatisticsInput = { playerId: nonExistentPlayerId };
-    
+
     matchRepository = new MockMatchRepository([]);
     useCase = new CalculatePlayerStatisticsUseCase(
       statisticRepository,
       playerRepository,
-      matchRepository
+      matchRepository,
     );
 
     // Act
@@ -375,12 +370,12 @@ describe('CalculatePlayerStatisticsUseCase', () => {
   it('should fail with invalid input data', async () => {
     // Arrange
     const invalidInput = { playerId: 'not-a-uuid' };
-    
+
     matchRepository = new MockMatchRepository([]);
     useCase = new CalculatePlayerStatisticsUseCase(
       statisticRepository,
       playerRepository,
-      matchRepository
+      matchRepository,
     );
 
     // Act
@@ -391,4 +386,4 @@ describe('CalculatePlayerStatisticsUseCase', () => {
     expect(result.isFailure).toBe(true);
     expect(result.getError().message).toContain('Invalid player ID format');
   });
-}); 
+});

@@ -9,11 +9,11 @@ import { TournamentStatus } from '../../../domain/tournament/tournament.entity';
 // Input validation schema for delete match
 const deleteMatchSchema = z.object({
   matchId: z.string().uuid({
-    message: 'Invalid match ID format'
+    message: 'Invalid match ID format',
   }),
   userId: z.string().uuid({
-    message: 'Invalid user ID format'
-  })
+    message: 'Invalid user ID format',
+  }),
 });
 
 // Input type inferred from schema
@@ -25,7 +25,7 @@ export type DeleteMatchInput = z.infer<typeof deleteMatchSchema>;
 export class DeleteMatchUseCase extends BaseUseCase<DeleteMatchInput, void> {
   constructor(
     private readonly matchRepository: IMatchRepository,
-    private readonly tournamentRepository: ITournamentRepository
+    private readonly tournamentRepository: ITournamentRepository,
   ) {
     super();
   }
@@ -35,9 +35,7 @@ export class DeleteMatchUseCase extends BaseUseCase<DeleteMatchInput, void> {
       // Validate input
       const validationResult = deleteMatchSchema.safeParse(input);
       if (!validationResult.success) {
-        return Result.fail(
-          new Error(`Invalid input: ${validationResult.error.errors[0].message}`)
-        );
+        return Result.fail(new Error(`Invalid input: ${validationResult.error.errors[0].message}`));
       }
 
       const { matchId, userId } = validationResult.data;
@@ -56,20 +54,29 @@ export class DeleteMatchUseCase extends BaseUseCase<DeleteMatchInput, void> {
 
       // Check if user has permission (admin or tournament creator)
       if (tournament.createdById !== userId) {
-        return Result.fail(new Error('Permission denied: only tournament creator can delete matches'));
+        return Result.fail(
+          new Error('Permission denied: only tournament creator can delete matches'),
+        );
       }
 
       // Check if match can be deleted based on its status
       if (match.status !== MatchStatus.PENDING && match.status !== MatchStatus.SCHEDULED) {
         return Result.fail(
-          new Error(`Cannot delete match in ${match.status} status. Only PENDING or SCHEDULED matches can be deleted`)
+          new Error(
+            `Cannot delete match in ${match.status} status. Only PENDING or SCHEDULED matches can be deleted`,
+          ),
         );
       }
 
       // Check if tournament status allows match deletion
-      if (tournament.status !== TournamentStatus.DRAFT && tournament.status !== TournamentStatus.OPEN) {
+      if (
+        tournament.status !== TournamentStatus.DRAFT &&
+        tournament.status !== TournamentStatus.OPEN
+      ) {
         return Result.fail(
-          new Error(`Cannot delete match in tournament with ${tournament.status} status. Tournament must be in DRAFT or OPEN status`)
+          new Error(
+            `Cannot delete match in tournament with ${tournament.status} status. Tournament must be in DRAFT or OPEN status`,
+          ),
         );
       }
 
@@ -81,11 +88,7 @@ export class DeleteMatchUseCase extends BaseUseCase<DeleteMatchInput, void> {
 
       return Result.ok(undefined);
     } catch (error) {
-      return Result.fail(
-        error instanceof Error 
-          ? error 
-          : new Error('Failed to delete match')
-      );
+      return Result.fail(error instanceof Error ? error : new Error('Failed to delete match'));
     }
   }
-} 
+}

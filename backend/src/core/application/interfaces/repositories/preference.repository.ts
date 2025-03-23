@@ -25,4 +25,4 @@ export interface IPreferenceRepository {
    * @returns Reset preferences
    */
   resetUserPreferences(userId: string): Promise<UserPreference>;
-} 
+}

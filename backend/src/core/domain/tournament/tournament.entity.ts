@@ -2,7 +2,7 @@ export enum TournamentFormat {
   SINGLE_ELIMINATION = 'SINGLE_ELIMINATION',
   DOUBLE_ELIMINATION = 'DOUBLE_ELIMINATION',
   ROUND_ROBIN = 'ROUND_ROBIN',
-  SWISS = 'SWISS'
+  SWISS = 'SWISS',
 }
 
 export enum TournamentStatus {
@@ -10,7 +10,7 @@ export enum TournamentStatus {
   OPEN = 'OPEN',
   ACTIVE = 'ACTIVE',
   COMPLETED = 'COMPLETED',
-  CANCELLED = 'CANCELLED'
+  CANCELLED = 'CANCELLED',
 }
 
 export enum PlayerLevel {
@@ -18,7 +18,7 @@ export enum PlayerLevel {
   P2 = 'P2',
   P3 = 'P3',
   P4 = 'P4',
-  P5 = 'P5'
+  P5 = 'P5',
 }
 
 export class Tournament {
@@ -36,7 +36,7 @@ export class Tournament {
     public category: PlayerLevel | null,
     public createdById: string,
     public createdAt: Date = new Date(),
-    public updatedAt: Date = new Date()
+    public updatedAt: Date = new Date(),
   ) {}
 
   // Domain methods
@@ -60,7 +60,7 @@ export class Tournament {
     if (this.status !== TournamentStatus.OPEN) {
       throw new Error('Only open tournaments can be started');
     }
-    
+
     this.status = TournamentStatus.ACTIVE;
     this.updatedAt = new Date();
   }
@@ -69,7 +69,7 @@ export class Tournament {
     if (this.status !== TournamentStatus.ACTIVE) {
       throw new Error('Only active tournaments can be completed');
     }
-    
+
     this.status = TournamentStatus.COMPLETED;
     this.updatedAt = new Date();
   }
@@ -78,7 +78,7 @@ export class Tournament {
     if (this.status === TournamentStatus.COMPLETED) {
       throw new Error('Completed tournaments cannot be cancelled');
     }
-    
+
     this.status = TournamentStatus.CANCELLED;
     this.updatedAt = new Date();
   }
@@ -93,7 +93,7 @@ export class Tournament {
     maxParticipants?: number | null,
     registrationDeadline?: Date | null,
     category?: PlayerLevel | null,
-    status?: TournamentStatus
+    status?: TournamentStatus,
   ): void {
     // Only draft or open tournaments can be updated
     if (this.status !== TournamentStatus.DRAFT && this.status !== TournamentStatus.OPEN) {
@@ -113,4 +113,4 @@ export class Tournament {
 
     this.updatedAt = new Date();
   }
-} 
+}

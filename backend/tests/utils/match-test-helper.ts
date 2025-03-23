@@ -1,9 +1,19 @@
-import { PrismaClient, Match, User, Tournament, MatchStatus, UserRole, TournamentFormat, PlayerLevel, TournamentStatus } from '@prisma/client';
+import {
+  PrismaClient,
+  Match,
+  User,
+  Tournament,
+  MatchStatus,
+  UserRole,
+  TournamentFormat,
+  PlayerLevel,
+  TournamentStatus,
+} from '@prisma/client';
 import { mockUsers } from '../mocks/auth-service.mock';
 
 /**
  * Match Test Helper
- * 
+ *
  * This file contains utility functions for creating test match data
  * in the test database. These functions are useful for testing match-related
  * endpoints that require actual data in the database.
@@ -36,8 +46,8 @@ export async function createMatchTestData(prisma: PrismaClient): Promise<MatchTe
       name: mockUsers.admin.name,
       password: 'hashed_password',
       role: UserRole.ADMIN,
-      emailVerified: true
-    }
+      emailVerified: true,
+    },
   });
 
   // Create player users if needed
@@ -50,8 +60,8 @@ export async function createMatchTestData(prisma: PrismaClient): Promise<MatchTe
       name: mockUsers.player.name,
       password: 'hashed_password',
       role: UserRole.PLAYER,
-      emailVerified: true
-    }
+      emailVerified: true,
+    },
   });
 
   const playerUser2 = await prisma.user.upsert({
@@ -62,8 +72,8 @@ export async function createMatchTestData(prisma: PrismaClient): Promise<MatchTe
       name: 'Player Two',
       password: 'hashed_password',
       role: UserRole.PLAYER,
-      emailVerified: true
-    }
+      emailVerified: true,
+    },
   });
 
   const playerUser3 = await prisma.user.upsert({
@@ -74,8 +84,8 @@ export async function createMatchTestData(prisma: PrismaClient): Promise<MatchTe
       name: 'Player Three',
       password: 'hashed_password',
       role: UserRole.PLAYER,
-      emailVerified: true
-    }
+      emailVerified: true,
+    },
   });
 
   const playerUser4 = await prisma.user.upsert({
@@ -86,8 +96,8 @@ export async function createMatchTestData(prisma: PrismaClient): Promise<MatchTe
       name: 'Player Four',
       password: 'hashed_password',
       role: UserRole.PLAYER,
-      emailVerified: true
-    }
+      emailVerified: true,
+    },
   });
 
   const playerUsers = [playerUser1, playerUser2, playerUser3, playerUser4];
@@ -95,16 +105,16 @@ export async function createMatchTestData(prisma: PrismaClient): Promise<MatchTe
   // Create tournament
   const startDate = new Date();
   startDate.setDate(startDate.getDate() + 10); // 10 days from now
-  
+
   const endDate = new Date(startDate);
   endDate.setDate(endDate.getDate() + 3); // 3 days after start
-  
+
   const registrationEndDate = new Date(startDate);
   registrationEndDate.setDate(registrationEndDate.getDate() - 1); // 1 day before start
 
   // First delete any existing tournament with the same name to avoid duplicates
   await prisma.tournament.deleteMany({
-    where: { name: 'Match Test Tournament' }
+    where: { name: 'Match Test Tournament' },
   });
 
   const tournament = await prisma.tournament.create({
@@ -119,9 +129,9 @@ export async function createMatchTestData(prisma: PrismaClient): Promise<MatchTe
       category: PlayerLevel.P3,
       status: TournamentStatus.ACTIVE,
       participants: {
-        connect: playerUsers.map(user => ({ id: user.id }))
-      }
-    }
+        connect: playerUsers.map(user => ({ id: user.id })),
+      },
+    },
   });
 
   // Create a match for the tournament - wrap in try/catch to handle potential errors
@@ -137,8 +147,8 @@ export async function createMatchTestData(prisma: PrismaClient): Promise<MatchTe
         round: 1,
         date: startDate,
         location: 'Test Court 1',
-        status: MatchStatus.PENDING
-      }
+        status: MatchStatus.PENDING,
+      },
     });
   } catch (error) {
     console.error('Error creating test match:', error);
@@ -154,13 +164,13 @@ export async function createMatchTestData(prisma: PrismaClient): Promise<MatchTe
     match,
     tournament,
     adminUser,
-    playerUsers
+    playerUsers,
   };
 }
 
 /**
  * Creates a basic match for testing with minimal relations
- * 
+ *
  * @param prisma PrismaClient instance
  * @param tournamentId ID of the tournament to create the match for
  * @param playerIds Array of player IDs to use
@@ -171,7 +181,7 @@ export async function createBasicMatch(
   prisma: PrismaClient,
   tournamentId: string,
   playerIds: string[],
-  status: MatchStatus = MatchStatus.PENDING
+  status: MatchStatus = MatchStatus.PENDING,
 ): Promise<Match | null> {
   if (playerIds.length < 4) {
     throw new Error('At least 4 player IDs are required to create a match');
@@ -182,12 +192,12 @@ export async function createBasicMatch(
     const existingPlayers = await prisma.user.findMany({
       where: {
         id: {
-          in: playerIds
-        }
+          in: playerIds,
+        },
       },
       select: {
-        id: true
-      }
+        id: true,
+      },
     });
 
     const existingPlayerIds = existingPlayers.map(player => player.id);
@@ -209,8 +219,8 @@ export async function createBasicMatch(
         round: 1,
         date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
         location: 'Test Court',
-        status
-      }
+        status,
+      },
     });
   } catch (error) {
     console.error('Error creating basic match:', error);
@@ -220,7 +230,7 @@ export async function createBasicMatch(
 
 /**
  * Cleans up all match test data
- * 
+ *
  * @param prisma PrismaClient instance
  * @param matchId Optional specific match ID to clean up
  * @param tournamentId Optional specific tournament ID to clean up
@@ -228,15 +238,15 @@ export async function createBasicMatch(
 export async function cleanupMatchTestData(
   prisma: PrismaClient,
   matchId?: string,
-  tournamentId?: string
+  tournamentId?: string,
 ): Promise<void> {
   try {
     if (matchId) {
       // Check if match exists before attempting deletion
       const match = await prisma.match.findUnique({
-        where: { id: matchId }
+        where: { id: matchId },
       });
-      
+
       if (match) {
         await prisma.match.delete({ where: { id: matchId } });
         console.log(`Cleaned up match with ID ${matchId}`);
@@ -248,24 +258,30 @@ export async function cleanupMatchTestData(
     if (tournamentId) {
       // Check if tournament exists before attempting deletion
       const tournament = await prisma.tournament.findUnique({
-        where: { id: tournamentId }
+        where: { id: tournamentId },
       });
-      
+
       if (tournament) {
         try {
           // Clean up specific tournament and related data
           await prisma.$transaction([
             prisma.statistic.deleteMany({ where: { tournamentId } }),
             prisma.match.deleteMany({ where: { tournamentId } }),
-            prisma.tournament.delete({ where: { id: tournamentId } })
+            prisma.tournament.delete({ where: { id: tournamentId } }),
           ]);
           console.log(`Cleaned up tournament with ID ${tournamentId}`);
         } catch (error) {
           console.error(`Error cleaning up tournament with ID ${tournamentId}:`, error);
           // Try to delete each entity separately to ensure maximum cleanup
-          await prisma.statistic.deleteMany({ where: { tournamentId } }).catch(e => console.error('Error deleting statistics:', e));
-          await prisma.match.deleteMany({ where: { tournamentId } }).catch(e => console.error('Error deleting matches:', e));
-          await prisma.tournament.delete({ where: { id: tournamentId } }).catch(e => console.error('Error deleting tournament:', e));
+          await prisma.statistic
+            .deleteMany({ where: { tournamentId } })
+            .catch(e => console.error('Error deleting statistics:', e));
+          await prisma.match
+            .deleteMany({ where: { tournamentId } })
+            .catch(e => console.error('Error deleting matches:', e));
+          await prisma.tournament
+            .delete({ where: { id: tournamentId } })
+            .catch(e => console.error('Error deleting tournament:', e));
         }
       } else {
         console.log(`Tournament with ID ${tournamentId} not found, skipping cleanup`);
@@ -275,23 +291,23 @@ export async function cleanupMatchTestData(
     // If no specific IDs were provided, clean up all test matches and tournaments
     if (!matchId && !tournamentId) {
       await prisma.$transaction([
-        prisma.match.deleteMany({ 
-          where: { 
+        prisma.match.deleteMany({
+          where: {
             OR: [
               { location: { contains: 'Test Court' } },
-              { tournament: { name: { contains: 'Match Test Tournament' } } }
-            ]
-          } 
+              { tournament: { name: { contains: 'Match Test Tournament' } } },
+            ],
+          },
         }),
-        prisma.tournament.deleteMany({ 
-          where: { 
-            name: { contains: 'Match Test Tournament' } 
-          } 
-        })
+        prisma.tournament.deleteMany({
+          where: {
+            name: { contains: 'Match Test Tournament' },
+          },
+        }),
       ]);
-      console.log("Cleaned up all test matches and related tournaments");
+      console.log('Cleaned up all test matches and related tournaments');
     }
   } catch (error) {
-    console.error("Unexpected error in cleanupMatchTestData:", error);
+    console.error('Unexpected error in cleanupMatchTestData:', error);
   }
-} 
+}

@@ -1,10 +1,19 @@
-import { PrismaClient, Statistic, User, Tournament, UserRole, PlayerLevel, TournamentFormat, TournamentStatus } from '@prisma/client';
+import {
+  PrismaClient,
+  Statistic,
+  User,
+  Tournament,
+  UserRole,
+  PlayerLevel,
+  TournamentFormat,
+  TournamentStatus,
+} from '@prisma/client';
 import { mockUsers } from '../mocks/auth-service.mock';
 import { createPlayerTestData } from './player-test-helper';
 
 /**
  * Statistic Test Helper
- * 
+ *
  * This file contains utility functions for creating test statistic data
  * in the test database. These functions are useful for testing statistic-related
  * endpoints that require actual data in the database.
@@ -29,43 +38,42 @@ export interface StatisticTestData {
  */
 export async function createStatisticTestData(
   prisma: PrismaClient,
-  playerCount: number = 3
+  playerCount: number = 3,
 ): Promise<StatisticTestData> {
   try {
     // Create player test data which will give us users and a tournament
     const playerTestData = await createPlayerTestData(prisma, true);
-    
+
     // Gather users to create statistics for
-    const playerUsers = [
-      playerTestData.playerUser,
-      playerTestData.secondPlayerUser
-    ].filter(Boolean) as User[];
-    
+    const playerUsers = [playerTestData.playerUser, playerTestData.secondPlayerUser].filter(
+      Boolean,
+    ) as User[];
+
     // If we need more users than we have, create them
     if (playerUsers.length < playerCount) {
       for (let i = playerUsers.length; i < playerCount; i++) {
         const extraUser = await prisma.user.create({
           data: {
-            email: `player${i+2}@example.com`,
-            name: `Player ${i+2}`,
+            email: `player${i + 2}@example.com`,
+            name: `Player ${i + 2}`,
             password: 'hashed_password',
             role: UserRole.PLAYER,
-            emailVerified: true
-          }
+            emailVerified: true,
+          },
         });
         playerUsers.push(extraUser);
       }
     }
-    
+
     // Create tournament if not created by playerTestData
     let tournament = playerTestData.tournament;
     if (!tournament) {
       const startDate = new Date();
       startDate.setDate(startDate.getDate() + 10);
-      
+
       const endDate = new Date(startDate);
       endDate.setDate(endDate.getDate() + 3);
-      
+
       const registrationEndDate = new Date(startDate);
       registrationEndDate.setDate(registrationEndDate.getDate() - 1);
 
@@ -81,15 +89,15 @@ export async function createStatisticTestData(
           category: PlayerLevel.P3,
           status: TournamentStatus.ACTIVE,
           participants: {
-            connect: playerUsers.map(user => ({ id: user.id }))
-          }
-        }
+            connect: playerUsers.map(user => ({ id: user.id })),
+          },
+        },
       });
     }
-    
+
     // Create statistics for each player
     const statistics: Statistic[] = [];
-    
+
     for (let i = 0; i < playerUsers.length; i++) {
       // Calculate statistics with different values for each player
       // First player has best stats, last player has worst stats
@@ -98,33 +106,33 @@ export async function createStatisticTestData(
       const losses = matchesPlayed - wins;
       const points = wins * 10;
       const rank = i + 1;
-      
+
       // Check if statistic already exists
       const existingStat = await prisma.statistic.findUnique({
         where: {
           userId_tournamentId: {
             userId: playerUsers[i].id,
-            tournamentId: tournament.id
-          }
-        }
+            tournamentId: tournament.id,
+          },
+        },
       });
-      
+
       if (existingStat) {
         // Update existing statistic
         const updatedStat = await prisma.statistic.update({
           where: {
             userId_tournamentId: {
               userId: playerUsers[i].id,
-              tournamentId: tournament.id
-            }
+              tournamentId: tournament.id,
+            },
           },
           data: {
             matchesPlayed,
             wins,
             losses,
             points,
-            rank
-          }
+            rank,
+          },
         });
         statistics.push(updatedStat);
       } else {
@@ -137,18 +145,18 @@ export async function createStatisticTestData(
             wins,
             losses,
             points,
-            rank
-          }
+            rank,
+          },
         });
         statistics.push(newStat);
       }
     }
-    
+
     return {
       adminUser: playerTestData.adminUser,
       playerUsers,
       tournament,
-      statistics
+      statistics,
     };
   } catch (error) {
     console.error('Error creating statistic test data:', error);
@@ -175,43 +183,43 @@ export async function createBasicStatistic(
     losses: number;
     points: number;
     rank: number;
-  }>
+  }>,
 ): Promise<Statistic> {
   const matchesPlayed = data?.matchesPlayed ?? 5;
   const wins = data?.wins ?? 3;
   const losses = data?.losses ?? 2;
   const points = data?.points ?? wins * 10;
   const rank = data?.rank ?? 1;
-  
+
   // Check if statistic already exists
   const existingStat = await prisma.statistic.findUnique({
     where: {
       userId_tournamentId: {
         userId,
-        tournamentId
-      }
-    }
+        tournamentId,
+      },
+    },
   });
-  
+
   if (existingStat) {
     // Update existing statistic
     return prisma.statistic.update({
       where: {
         userId_tournamentId: {
           userId,
-          tournamentId
-        }
+          tournamentId,
+        },
       },
       data: {
         matchesPlayed,
         wins,
         losses,
         points,
-        rank
-      }
+        rank,
+      },
     });
   }
-  
+
   // Create new statistic
   return prisma.statistic.create({
     data: {
@@ -221,14 +229,14 @@ export async function createBasicStatistic(
       wins,
       losses,
       points,
-      rank
-    }
+      rank,
+    },
   });
 }
 
 /**
  * Calculate win rate for statistical analysis
- * 
+ *
  * @param wins Number of wins
  * @param matchesPlayed Total matches played
  * @returns Win rate as a percentage
@@ -248,7 +256,7 @@ export function calculateWinRate(wins: number, matchesPlayed: number): number {
 export async function cleanupStatisticTestData(
   prisma: PrismaClient,
   userId?: string,
-  tournamentId?: string
+  tournamentId?: string,
 ): Promise<void> {
   try {
     if (userId && tournamentId) {
@@ -256,20 +264,20 @@ export async function cleanupStatisticTestData(
       await prisma.statistic.deleteMany({
         where: {
           userId,
-          tournamentId
-        }
+          tournamentId,
+        },
       });
       console.log(`Cleaned up statistic for user ${userId} in tournament ${tournamentId}`);
     } else if (userId) {
       // Delete all statistics for a specific user
       await prisma.statistic.deleteMany({
-        where: { userId }
+        where: { userId },
       });
       console.log(`Cleaned up all statistics for user ${userId}`);
     } else if (tournamentId) {
       // Delete all statistics for a specific tournament
       await prisma.statistic.deleteMany({
-        where: { tournamentId }
+        where: { tournamentId },
       });
       console.log(`Cleaned up all statistics for tournament ${tournamentId}`);
     } else {
@@ -277,13 +285,13 @@ export async function cleanupStatisticTestData(
       await prisma.statistic.deleteMany({
         where: {
           tournament: {
-            name: { contains: 'Test Tournament' }
-          }
-        }
+            name: { contains: 'Test Tournament' },
+          },
+        },
       });
-      console.log("Cleaned up all test statistics");
+      console.log('Cleaned up all test statistics');
     }
   } catch (error) {
-    console.error("Unexpected error in cleanupStatisticTestData:", error);
+    console.error('Unexpected error in cleanupStatisticTestData:', error);
   }
-} 
+}

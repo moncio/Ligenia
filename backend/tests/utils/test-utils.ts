@@ -42,4 +42,4 @@ export const createMockRepository = <T>() => {
     delete: jest.fn(),
     exists: jest.fn(),
   };
-}; 
+};

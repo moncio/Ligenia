@@ -8,18 +8,23 @@ import { IPlayerRepository } from '../../interfaces/repositories/player.reposito
 // Input validation schema
 const GetPlayerMatchesInputSchema = z.object({
   playerId: z.string().uuid({
-    message: 'Invalid player ID format'
+    message: 'Invalid player ID format',
   }),
-  status: z.nativeEnum(MatchStatus, {
-    errorMap: () => ({ message: 'Invalid match status' })
-  }).optional(),
+  status: z
+    .nativeEnum(MatchStatus, {
+      errorMap: () => ({ message: 'Invalid match status' }),
+    })
+    .optional(),
   fromDate: z.coerce.date().optional(),
   toDate: z.coerce.date().optional(),
-  tournamentId: z.string().uuid({
-    message: 'Invalid tournament ID format'
-  }).optional(),
+  tournamentId: z
+    .string()
+    .uuid({
+      message: 'Invalid tournament ID format',
+    })
+    .optional(),
   skip: z.number().int().nonnegative().default(0),
-  limit: z.number().int().positive().default(10)
+  limit: z.number().int().positive().default(10),
 });
 
 // Input type
@@ -42,12 +47,14 @@ export class GetPlayerMatchesUseCase extends BaseUseCase<
 > {
   constructor(
     private readonly matchRepository: IMatchRepository,
-    private readonly playerRepository: IPlayerRepository
+    private readonly playerRepository: IPlayerRepository,
   ) {
     super();
   }
 
-  protected async executeImpl(input: GetPlayerMatchesInput): Promise<Result<GetPlayerMatchesOutput>> {
+  protected async executeImpl(
+    input: GetPlayerMatchesInput,
+  ): Promise<Result<GetPlayerMatchesOutput>> {
     try {
       // Validate input first
       let validatedData: GetPlayerMatchesInput;
@@ -55,9 +62,7 @@ export class GetPlayerMatchesUseCase extends BaseUseCase<
         validatedData = await GetPlayerMatchesInputSchema.parseAsync(input);
       } catch (validationError) {
         if (validationError instanceof z.ZodError) {
-          return Result.fail<GetPlayerMatchesOutput>(
-            new Error(validationError.errors[0].message)
-          );
+          return Result.fail<GetPlayerMatchesOutput>(new Error(validationError.errors[0].message));
         }
         throw validationError;
       }
@@ -65,9 +70,7 @@ export class GetPlayerMatchesUseCase extends BaseUseCase<
       // Check if the player exists
       const player = await this.playerRepository.findById(validatedData.playerId);
       if (!player) {
-        return Result.fail<GetPlayerMatchesOutput>(
-          new Error('Player not found')
-        );
+        return Result.fail<GetPlayerMatchesOutput>(new Error('Player not found'));
       }
 
       // Prepare the filter
@@ -78,7 +81,7 @@ export class GetPlayerMatchesUseCase extends BaseUseCase<
         toDate: validatedData.toDate,
         tournamentId: validatedData.tournamentId,
         limit: validatedData.limit,
-        offset: validatedData.skip
+        offset: validatedData.skip,
       };
 
       // Get matches
@@ -89,12 +92,12 @@ export class GetPlayerMatchesUseCase extends BaseUseCase<
         matches,
         total,
         skip: validatedData.skip,
-        limit: validatedData.limit
+        limit: validatedData.limit,
       });
     } catch (error) {
       return Result.fail<GetPlayerMatchesOutput>(
-        error instanceof Error ? error : new Error('Failed to get player matches')
+        error instanceof Error ? error : new Error('Failed to get player matches'),
       );
     }
   }
-} 
+}

@@ -24,23 +24,17 @@ export class UnregisterFromTournamentUseCase extends BaseUseCase<
     super();
   }
 
-  protected async executeImpl(
-    input: UnregisterFromTournamentInput,
-  ): Promise<Result<void>> {
+  protected async executeImpl(input: UnregisterFromTournamentInput): Promise<Result<void>> {
     // Validate input
     const validationResult = unregisterFromTournamentSchema.safeParse(input);
     if (!validationResult.success) {
-      return Result.fail(
-        new Error(`Invalid input: ${validationResult.error.message}`),
-      );
+      return Result.fail(new Error(`Invalid input: ${validationResult.error.message}`));
     }
 
     // Check if tournament exists
     const tournament = await this.tournamentRepository.findById(input.tournamentId);
     if (!tournament) {
-      return Result.fail(
-        new Error(`Tournament with ID ${input.tournamentId} not found`),
-      );
+      return Result.fail(new Error(`Tournament with ID ${input.tournamentId} not found`));
     }
 
     // Check if user is registered for the tournament
@@ -50,12 +44,17 @@ export class UnregisterFromTournamentUseCase extends BaseUseCase<
     );
     if (!isRegistered) {
       return Result.fail(
-        new Error(`User with ID ${input.userId} is not registered for tournament ${input.tournamentId}`),
+        new Error(
+          `User with ID ${input.userId} is not registered for tournament ${input.tournamentId}`,
+        ),
       );
     }
 
     // Check if tournament status allows unregistration (OPEN or DRAFT only)
-    if (tournament.status !== TournamentStatus.OPEN && tournament.status !== TournamentStatus.DRAFT) {
+    if (
+      tournament.status !== TournamentStatus.OPEN &&
+      tournament.status !== TournamentStatus.DRAFT
+    ) {
       return Result.fail(
         new Error(`Cannot unregister from tournament with status ${tournament.status}`),
       );
@@ -64,17 +63,12 @@ export class UnregisterFromTournamentUseCase extends BaseUseCase<
     // Check if tournament has already started
     const now = new Date();
     if (tournament.startDate && tournament.startDate < now) {
-      return Result.fail(
-        new Error(`Cannot unregister after tournament has started`),
-      );
+      return Result.fail(new Error(`Cannot unregister after tournament has started`));
     }
 
     // Unregister participant
-    await this.tournamentRepository.unregisterParticipant(
-      input.tournamentId,
-      input.userId,
-    );
+    await this.tournamentRepository.unregisterParticipant(input.tournamentId, input.userId);
 
     return Result.ok<void>(null);
   }
-} 
+}

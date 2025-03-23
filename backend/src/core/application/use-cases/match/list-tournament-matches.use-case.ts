@@ -9,16 +9,16 @@ import { ITournamentRepository } from '../../interfaces/repositories/tournament.
 const listTournamentMatchesSchema = z.object({
   // Tournament ID (required)
   tournamentId: z.string().uuid({
-    message: 'Invalid tournament ID format'
+    message: 'Invalid tournament ID format',
   }),
-  
+
   // Pagination
   page: z.number().int().positive().default(1),
   limit: z.number().int().positive().min(1).max(100).default(10),
-  
+
   // Filtering
   status: z.nativeEnum(MatchStatus).optional(),
-  round: z.number().int().positive().optional()
+  round: z.number().int().positive().optional(),
 });
 
 // Input type inferred from the schema
@@ -49,21 +49,19 @@ export class ListTournamentMatchesUseCase extends BaseUseCase<
 > {
   constructor(
     private readonly matchRepository: IMatchRepository,
-    private readonly tournamentRepository: ITournamentRepository
+    private readonly tournamentRepository: ITournamentRepository,
   ) {
     super();
   }
 
   protected async executeImpl(
-    input: ListTournamentMatchesInput
+    input: ListTournamentMatchesInput,
   ): Promise<Result<ListTournamentMatchesOutput>> {
     try {
       // Validate input
       const validationResult = listTournamentMatchesSchema.safeParse(input);
       if (!validationResult.success) {
-        return Result.fail(
-          new Error(`Invalid input: ${validationResult.error.errors[0].message}`)
-        );
+        return Result.fail(new Error(`Invalid input: ${validationResult.error.errors[0].message}`));
       }
 
       const { tournamentId, page, limit, status, round } = validationResult.data;
@@ -76,13 +74,13 @@ export class ListTournamentMatchesUseCase extends BaseUseCase<
 
       // Build filter object
       const filter: MatchFilter = {
-        tournamentId
+        tournamentId,
       };
-      
+
       if (status !== undefined) {
         filter.status = status;
       }
-      
+
       if (round !== undefined) {
         filter.round = round;
       }
@@ -96,7 +94,7 @@ export class ListTournamentMatchesUseCase extends BaseUseCase<
       const matches = await this.matchRepository.findByFilter(filter);
 
       // Count total matches for pagination
-      // Since MatchRepository doesn't have a dedicated count method, 
+      // Since MatchRepository doesn't have a dedicated count method,
       // we need to get all matches without pagination and count them
       const countFilter: MatchFilter = { ...filter };
       delete countFilter.limit;
@@ -112,19 +110,17 @@ export class ListTournamentMatchesUseCase extends BaseUseCase<
         currentPage: page,
         totalPages,
         hasNextPage: page < totalPages,
-        hasPreviousPage: page > 1
+        hasPreviousPage: page > 1,
       };
 
       return Result.ok({
         matches,
-        pagination
+        pagination,
       });
     } catch (error) {
       return Result.fail(
-        error instanceof Error 
-          ? error 
-          : new Error('Failed to list tournament matches')
+        error instanceof Error ? error : new Error('Failed to list tournament matches'),
       );
     }
   }
-} 
+}

@@ -31,13 +31,10 @@ describe('CreateMatchUseCase', () => {
       unregisterParticipant: jest.fn(),
       isParticipantRegistered: jest.fn(),
       getParticipants: jest.fn(),
-      countParticipantsByTournamentId: jest.fn()
+      countParticipantsByTournamentId: jest.fn(),
     };
 
-    createMatchUseCase = new CreateMatchUseCase(
-      mockMatchRepository,
-      mockTournamentRepository
-    );
+    createMatchUseCase = new CreateMatchUseCase(mockMatchRepository, mockTournamentRepository);
   });
 
   const validInput = {
@@ -49,7 +46,7 @@ describe('CreateMatchUseCase', () => {
     round: 1,
     date: '2023-07-10T10:00:00Z',
     location: 'Court 1',
-    status: MatchStatus.PENDING
+    status: MatchStatus.PENDING,
   };
 
   // Mock active tournament
@@ -67,7 +64,7 @@ describe('CreateMatchUseCase', () => {
     mockMatchRepository.save.mockImplementation(async (match: Match) => {
       // Simulate ID generation
       Object.defineProperty(match, 'id', {
-        value: '123e4567-e89b-12d3-a456-426614174099'
+        value: '123e4567-e89b-12d3-a456-426614174099',
       });
     });
 
@@ -118,7 +115,7 @@ describe('CreateMatchUseCase', () => {
     const inputWithDuplicatePlayers = {
       ...validInput,
       // Make homePlayerTwoId the same as homePlayerOneId
-      homePlayerTwoId: validInput.homePlayerOneId
+      homePlayerTwoId: validInput.homePlayerOneId,
     };
 
     // Act
@@ -134,7 +131,7 @@ describe('CreateMatchUseCase', () => {
     // Arrange
     const invalidInput = {
       ...validInput,
-      round: -1 // Invalid round number
+      round: -1, // Invalid round number
     };
 
     // Act
@@ -145,4 +142,4 @@ describe('CreateMatchUseCase', () => {
     expect(result.getError().message).toContain('Round must be a positive integer');
     expect(mockMatchRepository.save).not.toHaveBeenCalled();
   });
-}); 
+});

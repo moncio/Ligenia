@@ -9,12 +9,12 @@ import { PrismaClient, UserRole } from '@prisma/client';
 import { mockUsers } from '../../mocks/auth-service.mock';
 import * as authMiddleware from '../../../src/api/middlewares/auth.middleware';
 import { Response, NextFunction } from 'express';
-import { 
-  createPerformanceTestData, 
-  PerformanceTestData, 
-  cleanupPerformanceTestData, 
+import {
+  createPerformanceTestData,
+  PerformanceTestData,
+  cleanupPerformanceTestData,
   createBasicPerformance,
-  calculateWinRate
+  calculateWinRate,
 } from '../../utils/performance-test-helper';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -22,7 +22,7 @@ import { v4 as uuidv4 } from 'uuid';
  * This test suite covers all endpoints for the Performance History API
  * with thorough testing of authentication, authorization, validation,
  * and business logic.
- * 
+ *
  * Routes tested:
  * - GET /api/performance
  * - GET /api/performance/:id
@@ -51,8 +51,8 @@ const prisma = new PrismaClient();
 describe('Performance Routes - Integration Tests', () => {
   let testData: PerformanceTestData;
   let testPerformanceId: string;
-  let adminToken: string = 'admin-token';
-  let playerToken: string = 'player-token';
+  const adminToken: string = 'admin-token';
+  const playerToken: string = 'player-token';
   let extraPerformanceId: string;
 
   // Setup test data and mocks before all tests
@@ -63,44 +63,46 @@ describe('Performance Routes - Integration Tests', () => {
       testPerformanceId = testData.performances[0]?.id || '';
 
       // Mock token validation
-      jest.spyOn(authMiddleware, 'authenticate').mockImplementation(async (req: any, res: any, next: any) => {
-        const authHeader = req.headers.authorization;
-        
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
-          return res.status(401).json({
-            status: 'error',
-            message: 'Authentication token is missing'
-          });
-        }
+      jest
+        .spyOn(authMiddleware, 'authenticate')
+        .mockImplementation(async (req: any, res: any, next: any) => {
+          const authHeader = req.headers.authorization;
 
-        const token = authHeader.split(' ')[1];
+          if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return res.status(401).json({
+              status: 'error',
+              message: 'Authentication token is missing',
+            });
+          }
 
-        if (token === 'invalid-token') {
-          return res.status(401).json({
-            status: 'error',
-            message: 'Invalid or expired token'
-          });
-        }
+          const token = authHeader.split(' ')[1];
 
-        // Setup user based on token
-        if (token === 'admin-token') {
-          req.user = {
-            id: testData.adminUser.id,
-            email: testData.adminUser.email,
-            name: testData.adminUser.name,
-            role: UserRole.ADMIN
-          };
-        } else if (token === 'player-token') {
-          req.user = {
-            id: testData.playerUsers[0].id,
-            email: testData.playerUsers[0].email,
-            name: testData.playerUsers[0].name,
-            role: UserRole.PLAYER
-          };
-        }
+          if (token === 'invalid-token') {
+            return res.status(401).json({
+              status: 'error',
+              message: 'Invalid or expired token',
+            });
+          }
 
-        next();
-      });
+          // Setup user based on token
+          if (token === 'admin-token') {
+            req.user = {
+              id: testData.adminUser.id,
+              email: testData.adminUser.email,
+              name: testData.adminUser.name,
+              role: UserRole.ADMIN,
+            };
+          } else if (token === 'player-token') {
+            req.user = {
+              id: testData.playerUsers[0].id,
+              email: testData.playerUsers[0].email,
+              name: testData.playerUsers[0].name,
+              role: UserRole.PLAYER,
+            };
+          }
+
+          next();
+        });
 
       // Create an extra performance record for specific tests if needed
       try {
@@ -109,7 +111,7 @@ describe('Performance Routes - Integration Tests', () => {
         });
 
         extraPerformanceId = extraPerformance?.id || '';
-        
+
         if (!extraPerformanceId) {
           const newExtraPerformance = await prisma.performanceHistory.create({
             data: {
@@ -119,8 +121,8 @@ describe('Performance Routes - Integration Tests', () => {
               matchesPlayed: 10,
               wins: 5,
               losses: 5,
-              points: 50
-            }
+              points: 50,
+            },
           });
           extraPerformanceId = newExtraPerformance.id;
         }
@@ -142,7 +144,7 @@ describe('Performance Routes - Integration Tests', () => {
   describe('Authentication Checks', () => {
     it('should return 401 when accessing protected routes without token', async () => {
       const response = await request(app).post('/api/performance');
-      
+
       expect(response.status).toBe(401);
       expect(response.body).toHaveProperty('status', 'error');
     });
@@ -151,7 +153,7 @@ describe('Performance Routes - Integration Tests', () => {
       const response = await request(app)
         .post('/api/performance')
         .set('Authorization', 'Bearer invalid-token');
-      
+
       expect(response.status).toBe(401);
       expect(response.body).toHaveProperty('status', 'error');
     });
@@ -170,9 +172,9 @@ describe('Performance Routes - Integration Tests', () => {
           matchesPlayed: 10,
           wins: 5,
           losses: 5,
-          points: 15
+          points: 15,
         });
-      
+
       expect(response.status).toBe(403);
       expect(response.body).toHaveProperty('status', 'error');
     });
@@ -185,26 +187,28 @@ describe('Performance Routes - Integration Tests', () => {
         matchesPlayed: 10,
         wins: 5,
         losses: 5,
-        points: 15
+        points: 15,
       };
-      
+
       // Mock the validation for this test since validating matches will always fail in the mock environment
-      jest.spyOn(authMiddleware, 'authenticate').mockImplementationOnce((req: any, res: any, next: any) => {
-        req.user = {
-          id: testData.adminUser.id,
-          email: testData.adminUser.email,
-          name: testData.adminUser.name,
-          role: UserRole.ADMIN
-        };
-        next();
-        return Promise.resolve(res); // Return a promise that resolves to the response
-      });
-      
+      jest
+        .spyOn(authMiddleware, 'authenticate')
+        .mockImplementationOnce((req: any, res: any, next: any) => {
+          req.user = {
+            id: testData.adminUser.id,
+            email: testData.adminUser.email,
+            name: testData.adminUser.name,
+            role: UserRole.ADMIN,
+          };
+          next();
+          return Promise.resolve(res); // Return a promise that resolves to the response
+        });
+
       const response = await request(app)
         .post('/api/performance')
         .set('Authorization', 'Bearer admin-token')
         .send(validData);
-      
+
       // In the mock/test environment, we accept multiple status codes
       const validStatusCodes = [200, 201, 400]; // Include 400 because the mock controller might validate data differently
       expect(validStatusCodes.includes(response.status)).toBeTruthy();
@@ -217,7 +221,7 @@ describe('Performance Routes - Integration Tests', () => {
       const response = await request(app)
         .get('/api/performance')
         .set('Authorization', 'Bearer admin-token');
-      
+
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
       expect(response.body.data).toHaveProperty('performance');
@@ -228,7 +232,7 @@ describe('Performance Routes - Integration Tests', () => {
       const response = await request(app)
         .get(`/api/performance/${testPerformanceId}`)
         .set('Authorization', 'Bearer admin-token');
-      
+
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
       expect(response.body.data).toHaveProperty('performance');
@@ -238,30 +242,30 @@ describe('Performance Routes - Integration Tests', () => {
       const response = await request(app)
         .get(`/api/performance/${INVALID_ID}`)
         .set('Authorization', 'Bearer admin-token');
-      
+
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
     });
-    
+
     it('should return 400 for invalid user ID format', async () => {
       const response = await request(app)
         .get(`/api/performance/user/invalid-user-id`)
         .set('Authorization', 'Bearer admin-token');
-      
+
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
     });
 
     it('should return performance records for a specific user', async () => {
       const validUserId = testData.playerUsers[0].id;
-      
+
       const response = await request(app)
         .get(`/api/performance/user/${validUserId}`)
         .set('Authorization', 'Bearer admin-token');
-      
+
       // In the mock environment, accept both 200 and 400 codes
       expect([200, 400].includes(response.status)).toBeTruthy();
-      
+
       // Only check body properties if we have a success response
       if (response.status === 200) {
         expect(response.body).toHaveProperty('status', 'success');
@@ -272,14 +276,14 @@ describe('Performance Routes - Integration Tests', () => {
 
     it('should filter user performance records by year and month', async () => {
       const validUserId = testData.playerUsers[0].id;
-      
+
       const response = await request(app)
         .get(`/api/performance/user/${validUserId}?year=${CURRENT_YEAR}&month=${CURRENT_MONTH}`)
         .set('Authorization', 'Bearer admin-token');
-      
+
       // In the mock environment, accept both 200 and 400 codes
       expect([200, 400].includes(response.status)).toBeTruthy();
-      
+
       // Only check body properties if we have a success response
       if (response.status === 200) {
         expect(response.body).toHaveProperty('status', 'success');
@@ -291,10 +295,10 @@ describe('Performance Routes - Integration Tests', () => {
       const response = await request(app)
         .get('/api/performance/summary')
         .set('Authorization', 'Bearer admin-token');
-      
+
       // In the mock environment, accept both 200 and 400 codes
       expect([200, 400].includes(response.status)).toBeTruthy();
-      
+
       // Only check body properties if we have a success response
       if (response.status === 200) {
         expect(response.body).toHaveProperty('status', 'success');
@@ -304,14 +308,14 @@ describe('Performance Routes - Integration Tests', () => {
 
     it('should return performance summary filtered by user ID', async () => {
       const validUserId = testData.playerUsers[0].id;
-      
+
       const response = await request(app)
         .get(`/api/performance/summary?userId=${validUserId}`)
         .set('Authorization', 'Bearer admin-token');
-      
+
       // In the mock environment, accept both 200 and 400 codes
       expect([200, 400].includes(response.status)).toBeTruthy();
-      
+
       // Only check body properties if we have a success response
       if (response.status === 200) {
         expect(response.body).toHaveProperty('status', 'success');
@@ -324,10 +328,10 @@ describe('Performance Routes - Integration Tests', () => {
       const response = await request(app)
         .get(`/api/performance/summary?year=${CURRENT_YEAR}`)
         .set('Authorization', 'Bearer admin-token');
-      
+
       // In the mock environment, accept both 200 and 400 codes
       expect([200, 400].includes(response.status)).toBeTruthy();
-      
+
       // Only check body properties if we have a success response
       if (response.status === 200) {
         expect(response.body).toHaveProperty('status', 'success');
@@ -347,30 +351,32 @@ describe('Performance Routes - Integration Tests', () => {
         matchesPlayed: 10,
         wins: 5,
         losses: 5,
-        points: 15
+        points: 15,
       };
-      
+
       // Mock the validation for this test since validating matches will always fail in the mock environment
-      jest.spyOn(authMiddleware, 'authenticate').mockImplementationOnce((req: any, res: any, next: any) => {
-        req.user = {
-          id: testData.adminUser.id,
-          email: testData.adminUser.email,
-          name: testData.adminUser.name,
-          role: UserRole.ADMIN
-        };
-        next();
-        return Promise.resolve(res); // Return a promise that resolves to the response
-      });
-      
+      jest
+        .spyOn(authMiddleware, 'authenticate')
+        .mockImplementationOnce((req: any, res: any, next: any) => {
+          req.user = {
+            id: testData.adminUser.id,
+            email: testData.adminUser.email,
+            name: testData.adminUser.name,
+            role: UserRole.ADMIN,
+          };
+          next();
+          return Promise.resolve(res); // Return a promise that resolves to the response
+        });
+
       const response = await request(app)
         .post('/api/performance')
         .set('Authorization', 'Bearer admin-token')
         .send(validData);
-      
+
       // In the mock/test environment, we accept multiple status codes
       const validStatusCodes = [200, 201, 400]; // Include 400 because the mock controller might validate data differently
       expect(validStatusCodes.includes(response.status)).toBeTruthy();
-      
+
       // Only check for success response properties if we got a success status
       if (response.status === 201 || response.status === 200) {
         expect(response.body).toHaveProperty('status', 'success');
@@ -386,14 +392,14 @@ describe('Performance Routes - Integration Tests', () => {
         matchesPlayed: 10,
         wins: 5,
         losses: 3, // Sum doesn't match
-        points: 15
+        points: 15,
       };
-      
+
       const response = await request(app)
         .post('/api/performance')
         .set('Authorization', 'Bearer admin-token')
         .send(invalidData);
-      
+
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
     });
@@ -405,30 +411,32 @@ describe('Performance Routes - Integration Tests', () => {
       // For mock environment, ID validation is the main issue
       // We use a valid-format UUID but skip the actual update since the controller is mocked
       const validId = testData.performances[0]?.id || uuidv4();
-      
+
       const updates = {
         wins: 5,
         losses: 3,
-        matchesPlayed: 8 // Matches the sum of wins and losses
+        matchesPlayed: 8, // Matches the sum of wins and losses
       };
-      
+
       // Mock the auth for this specific test
-      jest.spyOn(authMiddleware, 'authenticate').mockImplementationOnce((req: any, res: any, next: any) => {
-        req.user = {
-          id: testData.adminUser.id,
-          email: testData.adminUser.email,
-          name: testData.adminUser.name,
-          role: UserRole.ADMIN
-        };
-        next();
-        return Promise.resolve(res); // Return a promise that resolves to the response
-      });
-      
+      jest
+        .spyOn(authMiddleware, 'authenticate')
+        .mockImplementationOnce((req: any, res: any, next: any) => {
+          req.user = {
+            id: testData.adminUser.id,
+            email: testData.adminUser.email,
+            name: testData.adminUser.name,
+            role: UserRole.ADMIN,
+          };
+          next();
+          return Promise.resolve(res); // Return a promise that resolves to the response
+        });
+
       const response = await request(app)
         .put(`/api/performance/${validId}`)
         .set('Authorization', `Bearer ${adminToken}`)
         .send(updates);
-      
+
       // Since this is the mock controller, we expect either 200 (success) or 404 (not found)
       expect([200, 404].includes(response.status)).toBeTruthy();
       if (response.status === 200) {
@@ -442,27 +450,27 @@ describe('Performance Routes - Integration Tests', () => {
       const getResponse = await request(app)
         .get('/api/performance')
         .set('Authorization', `Bearer ${adminToken}`);
-      
+
       expect(getResponse.status).toBe(200);
-      
+
       if (!getResponse.body?.data?.performance || getResponse.body.data.performance.length === 0) {
         // If no performances exist, skip this test
         return;
       }
-      
+
       const performanceId = getResponse.body.data.performance[0].id;
-      
+
       const invalidData = {
         wins: 5,
         losses: 2,
-        matchesPlayed: 10 // Sum doesn't match
+        matchesPlayed: 10, // Sum doesn't match
       };
-      
+
       const response = await request(app)
         .put(`/api/performance/${performanceId}`)
         .set('Authorization', `Bearer ${adminToken}`)
         .send(invalidData);
-      
+
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
     });
@@ -471,14 +479,14 @@ describe('Performance Routes - Integration Tests', () => {
       const updates = {
         wins: 6,
         losses: 4,
-        matchesPlayed: 10
+        matchesPlayed: 10,
       };
-      
+
       const response = await request(app)
         .put(`/api/performance/${INVALID_ID}`)
         .set('Authorization', 'Bearer admin-token')
         .send(updates);
-      
+
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
     });
@@ -490,23 +498,25 @@ describe('Performance Routes - Integration Tests', () => {
       // For mock environment, ID validation is the main issue
       // We use a valid-format UUID that might not exist
       const validId = testData.performances[0]?.id || uuidv4();
-      
+
       // Mock the auth for this specific test
-      jest.spyOn(authMiddleware, 'authenticate').mockImplementationOnce((req: any, res: any, next: any) => {
-        req.user = {
-          id: testData.adminUser.id,
-          email: testData.adminUser.email,
-          name: testData.adminUser.name,
-          role: UserRole.ADMIN
-        };
-        next();
-        return Promise.resolve(res); // Return a promise that resolves to the response
-      });
-      
+      jest
+        .spyOn(authMiddleware, 'authenticate')
+        .mockImplementationOnce((req: any, res: any, next: any) => {
+          req.user = {
+            id: testData.adminUser.id,
+            email: testData.adminUser.email,
+            name: testData.adminUser.name,
+            role: UserRole.ADMIN,
+          };
+          next();
+          return Promise.resolve(res); // Return a promise that resolves to the response
+        });
+
       const response = await request(app)
         .delete(`/api/performance/${validId}`)
         .set('Authorization', 'Bearer admin-token');
-      
+
       // Since this is the mock controller, we expect either 200 (success) or 404 (not found)
       expect([200, 404].includes(response.status)).toBeTruthy();
       if (response.status === 200) {
@@ -519,7 +529,7 @@ describe('Performance Routes - Integration Tests', () => {
       const response = await request(app)
         .delete(`/api/performance/${NON_EXISTENT_UUID}`)
         .set('Authorization', 'Bearer admin-token');
-      
+
       // In a real environment, this would return 404. In our mocked controller it might return 200
       expect([404, 200].includes(response.status)).toBeTruthy();
     });
@@ -528,7 +538,7 @@ describe('Performance Routes - Integration Tests', () => {
       const response = await request(app)
         .delete(`/api/performance/${INVALID_ID}`)
         .set('Authorization', 'Bearer admin-token');
-      
+
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
     });
@@ -544,45 +554,47 @@ describe('Performance Routes - Integration Tests', () => {
         matchesPlayed: 10,
         wins: 8,
         losses: 2,
-        points: 24
+        points: 24,
       };
-      
+
       // Mock the validation for this test since validating matches will always fail in the mock environment
-      jest.spyOn(authMiddleware, 'authenticate').mockImplementationOnce((req: any, res: any, next: any) => {
-        req.user = {
-          id: testData.adminUser.id,
-          email: testData.adminUser.email,
-          name: testData.adminUser.name,
-          role: UserRole.ADMIN
-        };
-        next();
-        return Promise.resolve(res); // Return a promise that resolves to the response
-      });
-      
+      jest
+        .spyOn(authMiddleware, 'authenticate')
+        .mockImplementationOnce((req: any, res: any, next: any) => {
+          req.user = {
+            id: testData.adminUser.id,
+            email: testData.adminUser.email,
+            name: testData.adminUser.name,
+            role: UserRole.ADMIN,
+          };
+          next();
+          return Promise.resolve(res); // Return a promise that resolves to the response
+        });
+
       const createResponse = await request(app)
         .post('/api/performance')
         .set('Authorization', 'Bearer admin-token')
         .send(performanceData);
-      
+
       // Since this is the mock controller, we expect either 201 (created) or 400 (validation error)
       expect([201, 400].includes(createResponse.status)).toBeTruthy();
-      
+
       // Skip the rest of the test if we couldn't create the performance record
       if (createResponse.status !== 201) {
         return;
       }
-      
+
       // Win rate calculation: (wins / matchesPlayed) * 100
       const expectedWinRate = (performanceData.wins / performanceData.matchesPlayed) * 100;
-      
+
       const getResponse = await request(app)
         .get(`/api/performance/${createResponse.body.data.performance.id}`)
         .set('Authorization', 'Bearer admin-token');
-      
+
       expect(getResponse.status).toBe(200);
       if (getResponse.body.data.performance.winRate) {
         expect(getResponse.body.data.performance.winRate).toBeCloseTo(expectedWinRate);
       }
     });
   });
-}); 
+});

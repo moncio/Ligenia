@@ -7,7 +7,7 @@ export class User {
     public role: UserRole,
     public emailVerified: boolean = false,
     public createdAt: Date = new Date(),
-    public updatedAt: Date = new Date()
+    public updatedAt: Date = new Date(),
   ) {}
 
   // Add methods related to User behavior here
@@ -19,4 +19,4 @@ export class User {
 export enum UserRole {
   ADMIN = 'ADMIN',
   PLAYER = 'PLAYER',
-} 
+}

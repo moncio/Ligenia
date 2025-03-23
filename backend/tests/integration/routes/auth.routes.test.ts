@@ -17,14 +17,14 @@ const testUser = {
   email: mockUsers.player.email,
   password: mockUsers.player.password,
   name: mockUsers.player.name,
-  role: 'USER' // The controller always returns USER, not PLAYER
+  role: 'USER', // The controller always returns USER, not PLAYER
 };
 
 const testAdmin = {
   email: mockUsers.admin.email,
   password: mockUsers.admin.password,
   name: mockUsers.admin.name,
-  role: 'USER' // The controller always returns USER, not ADMIN
+  role: 'USER', // The controller always returns USER, not ADMIN
 };
 
 describe('Auth Routes Integration Tests', () => {
@@ -39,11 +39,11 @@ describe('Auth Routes Integration Tests', () => {
       await prisma.user.deleteMany({
         where: {
           email: {
-            in: [testUser.email, testAdmin.email, 'newuser@example.com']
-          }
-        }
+            in: [testUser.email, testAdmin.email, 'newuser@example.com'],
+          },
+        },
       });
-      
+
       // Crear usuarios de prueba con contraseñas hasheadas
       await prisma.user.create({
         data: {
@@ -52,8 +52,8 @@ describe('Auth Routes Integration Tests', () => {
           password: await hash(testUser.password, 10),
           name: testUser.name,
           role: mockUsers.player.role,
-          emailVerified: true
-        }
+          emailVerified: true,
+        },
       });
 
       await prisma.user.create({
@@ -63,26 +63,26 @@ describe('Auth Routes Integration Tests', () => {
           password: await hash(testAdmin.password, 10),
           name: testAdmin.name,
           role: mockUsers.admin.role,
-          emailVerified: true
-        }
+          emailVerified: true,
+        },
       });
 
       // Login para obtener tokens
       const playerLoginResult = await mockAuthService.login({
         email: testUser.email,
-        password: testUser.password
+        password: testUser.password,
       });
-      
+
       if (playerLoginResult.isSuccess) {
         playerToken = playerLoginResult.getValue().accessToken;
         refreshToken = playerLoginResult.getValue().refreshToken;
       }
-      
+
       const adminLoginResult = await mockAuthService.login({
         email: testAdmin.email,
-        password: testAdmin.password
+        password: testAdmin.password,
       });
-      
+
       if (adminLoginResult.isSuccess) {
         adminToken = adminLoginResult.getValue().accessToken;
       }
@@ -97,9 +97,9 @@ describe('Auth Routes Integration Tests', () => {
       await prisma.user.deleteMany({
         where: {
           email: {
-            in: [testUser.email, testAdmin.email, 'newuser@example.com']
-          }
-        }
+            in: [testUser.email, testAdmin.email, 'newuser@example.com'],
+          },
+        },
       });
     } catch (error) {
       console.error('Error en teardown de pruebas de auth:', error);
@@ -109,16 +109,14 @@ describe('Auth Routes Integration Tests', () => {
   describe('POST /api/auth/login', () => {
     it('should login a user with valid credentials and return tokens', async () => {
       // Verificar que el mock está configurado correctamente
-      const response = await request
-        .post('/api/auth/login')
-        .send({
-          email: testUser.email,
-          password: testUser.password
-        });
-      
+      const response = await request.post('/api/auth/login').send({
+        email: testUser.email,
+        password: testUser.password,
+      });
+
       // Imprimir respuesta para depuración
       console.log('Login response:', response.body);
-      
+
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
       expect(response.body).toHaveProperty('data');
@@ -130,39 +128,33 @@ describe('Auth Routes Integration Tests', () => {
     });
 
     it('should login admin user and return user role in response', async () => {
-      const response = await request
-        .post('/api/auth/login')
-        .send({
-          email: testAdmin.email,
-          password: testAdmin.password
-        });
-      
+      const response = await request.post('/api/auth/login').send({
+        email: testAdmin.email,
+        password: testAdmin.password,
+      });
+
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
       expect(response.body.data.user).toHaveProperty('role', testAdmin.role); // Updated to match controller
     });
 
     it('should return success even with invalid credentials in mock environment', async () => {
-      const response = await request
-        .post('/api/auth/login')
-        .send({
-          email: testUser.email,
-          password: 'WrongPassword123!'
-        });
-      
+      const response = await request.post('/api/auth/login').send({
+        email: testUser.email,
+        password: 'WrongPassword123!',
+      });
+
       // In the current mock implementation, the controller doesn't check credentials
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
     });
 
     it('should validate required fields with Zod', async () => {
-      const response = await request
-        .post('/api/auth/login')
-        .send({
-          // Campos incompletos - falta password
-          email: testUser.email
-        });
-      
+      const response = await request.post('/api/auth/login').send({
+        // Campos incompletos - falta password
+        email: testUser.email,
+      });
+
       // Current implementation returns 400 for validation errors
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
@@ -175,14 +167,12 @@ describe('Auth Routes Integration Tests', () => {
       email: 'newuser@example.com',
       password: 'NewPassword123!',
       name: 'New User',
-      role: UserRole.PLAYER
+      role: UserRole.PLAYER,
     };
 
     it('should register a new user and return tokens', async () => {
-      const response = await request
-        .post('/api/auth/register')
-        .send(newUser);
-      
+      const response = await request.post('/api/auth/register').send(newUser);
+
       expect(response.status).toBe(201);
       expect(response.body).toHaveProperty('status', 'success');
       expect(response.body).toHaveProperty('data');
@@ -192,30 +182,26 @@ describe('Auth Routes Integration Tests', () => {
     });
 
     it('should allow registering with an existing email in mock environment', async () => {
-      const response = await request
-        .post('/api/auth/register')
-        .send({
-          email: testUser.email, // Email ya existente
-          password: 'SomePassword123!',
-          name: 'Duplicate User',
-          role: UserRole.PLAYER
-        });
-      
+      const response = await request.post('/api/auth/register').send({
+        email: testUser.email, // Email ya existente
+        password: 'SomePassword123!',
+        name: 'Duplicate User',
+        role: UserRole.PLAYER,
+      });
+
       // The controller doesn't check for existing emails
       expect(response.status).toBe(201);
       expect(response.body).toHaveProperty('status', 'success');
     });
 
     it('should reject weak passwords according to validation schema', async () => {
-      const response = await request
-        .post('/api/auth/register')
-        .send({
-          email: 'valid@example.com',
-          password: 'weak', // Contraseña débil
-          name: 'Valid User',
-          role: UserRole.PLAYER
-        });
-      
+      const response = await request.post('/api/auth/register').send({
+        email: 'valid@example.com',
+        password: 'weak', // Contraseña débil
+        name: 'Valid User',
+        role: UserRole.PLAYER,
+      });
+
       // The validation middleware should reject weak passwords
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
@@ -232,7 +218,7 @@ describe('Auth Routes Integration Tests', () => {
       const response = await request
         .get('/api/auth/me')
         .set('Authorization', `Bearer ${playerToken}`);
-      
+
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
       expect(response.body).toHaveProperty('data');
@@ -242,7 +228,7 @@ describe('Auth Routes Integration Tests', () => {
 
     it('should return 401 without token', async () => {
       const response = await request.get('/api/auth/me');
-      
+
       expect(response.status).toBe(401);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body.message).toContain('Authentication token is missing');
@@ -252,7 +238,7 @@ describe('Auth Routes Integration Tests', () => {
       const response = await request
         .get('/api/auth/me')
         .set('Authorization', 'Bearer invalid-token');
-      
+
       expect(response.status).toBe(401);
       expect(response.body).toHaveProperty('status', 'error');
     });
@@ -265,10 +251,8 @@ describe('Auth Routes Integration Tests', () => {
         console.warn('Skipping test as refreshToken is not available, using fallback');
       }
 
-      const response = await request
-        .post('/api/auth/refresh-token')
-        .send({ refreshToken });
-      
+      const response = await request.post('/api/auth/refresh-token').send({ refreshToken });
+
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
       expect(response.body.data).toHaveProperty('token');
@@ -279,17 +263,15 @@ describe('Auth Routes Integration Tests', () => {
       const response = await request
         .post('/api/auth/refresh-token')
         .send({ refreshToken: 'invalid-refresh-token' });
-      
+
       // Current implementation doesn't validate refresh tokens
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
     });
 
     it('should return 400 if refresh token is missing', async () => {
-      const response = await request
-        .post('/api/auth/refresh-token')
-        .send({});
-      
+      const response = await request.post('/api/auth/refresh-token').send({});
+
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body.message).toContain('Validation error');
@@ -298,21 +280,20 @@ describe('Auth Routes Integration Tests', () => {
 
   describe('POST /api/auth/logout', () => {
     it('should return 401 when token is not provided', async () => {
-      const response = await request
-        .post('/api/auth/logout');
-      
+      const response = await request.post('/api/auth/logout');
+
       expect(response.status).toBe(401);
       expect(response.body).toHaveProperty('status', 'error');
     });
-    
+
     it('should successfully logout user when token is provided', async () => {
       const response = await request
         .post('/api/auth/logout')
         .set('Authorization', `Bearer ${playerToken}`);
-      
+
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
       expect(response.body.message).toContain('Logged out');
     });
   });
-}); 
+});

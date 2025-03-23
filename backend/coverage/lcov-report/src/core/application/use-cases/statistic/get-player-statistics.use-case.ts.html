@@ -147,7 +147,8 @@
 <a name='L82'></a><a href='#L82'>82</a>
 <a name='L83'></a><a href='#L83'>83</a>
 <a name='L84'></a><a href='#L84'>84</a>
-<a name='L85'></a><a href='#L85'>85</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L85'></a><a href='#L85'>85</a>
+<a name='L86'></a><a href='#L86'>86</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -190,29 +191,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -220,6 +204,23 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -227,6 +228,7 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -241,14 +243,14 @@ import { IPlayerRepository } from '../../interfaces/repositories/player.reposito
 // Input validation schema
 const GetPlayerStatisticsInputSchema = <span class="cstat-no" title="statement not covered" >z.object({</span>
   playerId: z.string().uuid({
-    message: 'Invalid player ID format'
+    message: 'Invalid player ID format',
   }),
   dateRange: z
     .object({
       startDate: z.string().or(z.date()).optional(),
-      endDate: z.string().or(z.date()).optional()
+      endDate: z.string().or(z.date()).optional(),
     })
-    .optional()
+    .optional(),
 });
 &nbsp;
 // Input type
@@ -268,12 +270,14 @@ export interface GetPlayerStatisticsOutput {
 &gt; {
 <span class="fstat-no" title="function not covered" >  constructor(</span>
     private readonly <span class="cstat-no" title="statement not covered" >statisticRepository: IStatisticRepository,</span>
-    private readonly <span class="cstat-no" title="statement not covered" >playerRepository: IPlayerRepository</span>
+    private readonly <span class="cstat-no" title="statement not covered" >playerRepository: IPlayerRepository,</span>
   ) {
 <span class="cstat-no" title="statement not covered" >    super();</span>
   }
 &nbsp;
-  protected async <span class="fstat-no" title="function not covered" >executeImpl(</span>input: GetPlayerStatisticsInput): Promise&lt;Result&lt;GetPlayerStatisticsOutput&gt;&gt; {
+  protected async <span class="fstat-no" title="function not covered" >executeImpl(</span>
+    input: GetPlayerStatisticsInput,
+  ): Promise&lt;Result&lt;GetPlayerStatisticsOutput&gt;&gt; {
 <span class="cstat-no" title="statement not covered" >    try {</span>
       // Validate input
       let validatedData: GetPlayerStatisticsInput;
@@ -282,7 +286,7 @@ export interface GetPlayerStatisticsOutput {
       } catch (validationError) {
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (validationError instanceof z.ZodError) {</span>
 <span class="cstat-no" title="statement not covered" >          return Result.fail&lt;GetPlayerStatisticsOutput&gt;(</span>
-            new Error(validationError.errors[0].message)
+            new Error(validationError.errors[0].message),
           );
         }
 <span class="cstat-no" title="statement not covered" >        throw validationError;</span>
@@ -291,17 +295,15 @@ export interface GetPlayerStatisticsOutput {
       // Check if player exists
       const player = <span class="cstat-no" title="statement not covered" >await this.playerRepository.findById(validatedData.playerId);</span>
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!player) {</span>
-<span class="cstat-no" title="statement not covered" >        return Result.fail&lt;GetPlayerStatisticsOutput&gt;(</span>
-          new Error('Player not found')
-        );
+<span class="cstat-no" title="statement not covered" >        return Result.fail&lt;GetPlayerStatisticsOutput&gt;(new Error('Player not found'));</span>
       }
 &nbsp;
       // Retrieve player statistics
       const statistic = <span class="cstat-no" title="statement not covered" >await this.statisticRepository.findByPlayerId(validatedData.playerId);</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!statistic) {</span>
 <span class="cstat-no" title="statement not covered" >        return Result.fail&lt;GetPlayerStatisticsOutput&gt;(</span>
-          new Error('Statistics not found for this player')
+          new Error('Statistics not found for this player'),
         );
       }
 &nbsp;
@@ -311,18 +313,19 @@ export interface GetPlayerStatisticsOutput {
 <span class="cstat-no" title="statement not covered" >      return Result.ok&lt;GetPlayerStatisticsOutput&gt;({ statistic });</span>
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      return Result.fail&lt;GetPlayerStatisticsOutput&gt;(</span>
-        error instanceof Error ? error : new Error('Failed to get player statistics')
+        error instanceof Error ? error : new Error('Failed to get player statistics'),
       );
     }
   }
-} </pre></td></tr></table></pre>
+}
+&nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-03-23T19:34:14.050Z
+                at 2025-03-23T22:37:40.856Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>

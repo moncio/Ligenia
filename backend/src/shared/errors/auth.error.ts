@@ -66,4 +66,4 @@ export class EmailNotVerifiedError extends AuthError {
     super('Email not verified');
     this.name = 'EmailNotVerifiedError';
   }
-} 
+}

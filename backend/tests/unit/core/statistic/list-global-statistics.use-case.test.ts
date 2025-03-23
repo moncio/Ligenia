@@ -1,4 +1,7 @@
-import { ListGlobalStatisticsUseCase, ListGlobalStatisticsInput } from '../../../../src/core/application/use-cases/statistic/list-global-statistics.use-case';
+import {
+  ListGlobalStatisticsUseCase,
+  ListGlobalStatisticsInput,
+} from '../../../../src/core/application/use-cases/statistic/list-global-statistics.use-case';
 import { IStatisticRepository } from '../../../../src/core/application/interfaces/repositories/statistic.repository';
 import { IPlayerRepository } from '../../../../src/core/application/interfaces/repositories/player.repository';
 import { Statistic } from '../../../../src/core/domain/statistic/statistic.entity';
@@ -98,42 +101,39 @@ describe('ListGlobalStatisticsUseCase', () => {
   // Repository mocks
   let statisticRepository: IStatisticRepository;
   let playerRepository: IPlayerRepository;
-  
+
   // Use case
   let useCase: ListGlobalStatisticsUseCase;
-  
+
   // Test data
   const player1Id = '123e4567-e89b-12d3-a456-426614174001';
   const player2Id = '123e4567-e89b-12d3-a456-426614174002';
   const player3Id = '123e4567-e89b-12d3-a456-426614174003';
   const player4Id = '123e4567-e89b-12d3-a456-426614174004';
-  
+
   // Players with different levels
   const players = [
     new Player(player1Id, 'user1', PlayerLevel.P3, 25, 'USA', 'player1.jpg'),
     new Player(player2Id, 'user2', PlayerLevel.P3, 28, 'Spain', 'player2.jpg'),
     new Player(player3Id, 'user3', PlayerLevel.P2, 30, 'France', 'player3.jpg'),
-    new Player(player4Id, 'user4', PlayerLevel.P1, 22, 'Germany', 'player4.jpg')
+    new Player(player4Id, 'user4', PlayerLevel.P1, 22, 'Germany', 'player4.jpg'),
   ];
-  
+
   // Statistics for each player
   const statistics = [
     new Statistic('stat1', player1Id, 10, 7, 3, 120, 12, 2, 1, 70),
     new Statistic('stat2', player2Id, 8, 5, 3, 80, 10, 2, 0, 62.5),
     new Statistic('stat3', player3Id, 12, 6, 6, 140, 11.6, 3, 1, 50),
-    new Statistic('stat4', player4Id, 15, 10, 5, 200, 13.3, 4, 2, 66.7)
+    new Statistic('stat4', player4Id, 15, 10, 5, 200, 13.3, 4, 2, 66.7),
   ];
 
   beforeEach(() => {
     // Initialize repositories
     statisticRepository = new MockStatisticRepository(statistics);
     playerRepository = new MockPlayerRepository(players);
-    
+
     // Initialize use case
-    useCase = new ListGlobalStatisticsUseCase(
-      statisticRepository,
-      playerRepository
-    );
+    useCase = new ListGlobalStatisticsUseCase(statisticRepository, playerRepository);
   });
 
   it('should list global statistics for all players successfully', async () => {
@@ -145,44 +145,44 @@ describe('ListGlobalStatisticsUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const output = result.getValue();
     expect(output.statistics).toHaveLength(4);
     expect(output.summary).toBeDefined();
-    
+
     // Check summary values
     expect(output.summary.topScorer?.playerId).toBe(player4Id);
     expect(output.summary.topScorer?.totalPoints).toBe(200);
     expect(output.summary.topScorer?.rank).toBe(1);
-    
+
     expect(output.summary.highestWinRate?.playerId).toBe(player1Id);
     expect(output.summary.highestWinRate?.winRate).toBe(70);
     expect(output.summary.highestWinRate?.rank).toBeTruthy();
-    
+
     expect(output.summary.mostMatchesPlayed?.playerId).toBe(player4Id);
     expect(output.summary.mostMatchesPlayed?.matchesPlayed).toBe(15);
     expect(output.summary.mostMatchesPlayed?.rank).toBeTruthy();
-    
+
     expect(output.summary.totalPlayers).toBe(4);
     expect(output.summary.totalMatchesPlayed).toBe(45);
-    
+
     // Calculate expected average win rate
     const expectedAvgWinRate = (70 + 62.5 + 50 + 66.7) / 4;
     expect(output.summary.averageWinRate).toBeCloseTo(expectedAvgWinRate, 1);
-    
+
     // Check pagination
     expect(output.pagination).toEqual({
       total: 4,
       page: 1,
       limit: 10,
-      totalPages: 1
+      totalPages: 1,
     });
   });
 
   it('should filter statistics by player level', async () => {
     // Arrange
     const input: ListGlobalStatisticsInput = {
-      playerLevel: PlayerLevel.P3
+      playerLevel: PlayerLevel.P3,
     };
 
     // Act
@@ -190,20 +190,20 @@ describe('ListGlobalStatisticsUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const output = result.getValue();
     expect(output.statistics).toHaveLength(2); // Only P3 players
-    
+
     // Verify only P3 player statistics are included
     const playerIds = output.statistics.map(s => s.playerId);
     expect(playerIds).toContain(player1Id);
     expect(playerIds).toContain(player2Id);
     expect(playerIds).not.toContain(player3Id);
     expect(playerIds).not.toContain(player4Id);
-    
+
     // Check summary
     expect(output.summary.totalPlayers).toBe(2);
-    
+
     // Check pagination
     expect(output.pagination.total).toBe(2);
     expect(output.pagination.totalPages).toBe(1);
@@ -216,8 +216,8 @@ describe('ListGlobalStatisticsUseCase', () => {
         page: 1,
         limit: 2,
         sortBy: 'matchesPlayed',
-        sortOrder: 'desc'
-      }
+        sortOrder: 'desc',
+      },
     };
 
     // Act
@@ -225,21 +225,21 @@ describe('ListGlobalStatisticsUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const output = result.getValue();
     expect(output.statistics).toHaveLength(2);
-    
+
     // Check that sorting by matchesPlayed in descending order works
     expect(output.statistics[0].playerId).toBe(player4Id); // 15 matches
     expect(output.statistics[1].playerId).toBe(player3Id); // 12 matches
-    
+
     // Verify rankings
     expect(output.statistics[0].rank).toBe(1);
     expect(output.statistics[1].rank).toBe(2);
-    
+
     // Check summary is still based on all statistics
     expect(output.summary.totalPlayers).toBe(4);
-    
+
     // Check pagination values
     expect(output.pagination.total).toBe(4);
     expect(output.pagination.page).toBe(1);
@@ -254,8 +254,8 @@ describe('ListGlobalStatisticsUseCase', () => {
         page: 2,
         limit: 2,
         sortBy: 'matchesPlayed',
-        sortOrder: 'desc'
-      }
+        sortOrder: 'desc',
+      },
     };
 
     // Act
@@ -263,18 +263,18 @@ describe('ListGlobalStatisticsUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const output = result.getValue();
     expect(output.statistics).toHaveLength(2);
-    
+
     // Second page should have the players with fewer matches
     expect(output.statistics[0].playerId).toBe(player1Id); // 10 matches
     expect(output.statistics[1].playerId).toBe(player2Id); // 8 matches
-    
+
     // Verify rankings are correct (3rd and 4th place)
     expect(output.statistics[0].rank).toBe(3);
     expect(output.statistics[1].rank).toBe(4);
-    
+
     // Pagination values should reflect the second page
     expect(output.pagination.page).toBe(2);
     expect(output.pagination.totalPages).toBe(2);
@@ -285,8 +285,8 @@ describe('ListGlobalStatisticsUseCase', () => {
     const input: ListGlobalStatisticsInput = {
       pagination: {
         sortBy: 'winRate',
-        sortOrder: 'asc'
-      }
+        sortOrder: 'asc',
+      },
     };
 
     // Act
@@ -294,14 +294,14 @@ describe('ListGlobalStatisticsUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const output = result.getValue();
     // The statistics should be sorted by win rate in ascending order
     expect(output.statistics[0].playerId).toBe(player3Id); // 50% win rate
     expect(output.statistics[1].playerId).toBe(player2Id); // 62.5% win rate
     expect(output.statistics[2].playerId).toBe(player4Id); // 66.7% win rate
     expect(output.statistics[3].playerId).toBe(player1Id); // 70% win rate
-    
+
     // Verify rankings match the sort order
     expect(output.statistics[0].rank).toBe(1);
     expect(output.statistics[1].rank).toBe(2);
@@ -312,11 +312,8 @@ describe('ListGlobalStatisticsUseCase', () => {
   it('should fail when no statistics are found', async () => {
     // Arrange
     statisticRepository = new MockStatisticRepository([]);
-    useCase = new ListGlobalStatisticsUseCase(
-      statisticRepository,
-      playerRepository
-    );
-    
+    useCase = new ListGlobalStatisticsUseCase(statisticRepository, playerRepository);
+
     const input: ListGlobalStatisticsInput = {};
 
     // Act
@@ -330,7 +327,7 @@ describe('ListGlobalStatisticsUseCase', () => {
   it('should fail when no players match the specified level', async () => {
     // Arrange
     const input: ListGlobalStatisticsInput = {
-      playerLevel: PlayerLevel.P5 // No players have this level
+      playerLevel: PlayerLevel.P5, // No players have this level
     };
 
     // Act
@@ -346,14 +343,11 @@ describe('ListGlobalStatisticsUseCase', () => {
     const player5Id = '123e4567-e89b-12d3-a456-426614174005';
     const player5 = new Player(player5Id, 'user5', PlayerLevel.P3, 35, 'Brazil', 'player5.jpg');
     const zeroMatchesStat = new Statistic('stat5', player5Id, 0, 0, 0, 0, 0, 0, 0, 0);
-    
+
     statisticRepository = new MockStatisticRepository([...statistics, zeroMatchesStat]);
     playerRepository = new MockPlayerRepository([...players, player5]);
-    useCase = new ListGlobalStatisticsUseCase(
-      statisticRepository,
-      playerRepository
-    );
-    
+    useCase = new ListGlobalStatisticsUseCase(statisticRepository, playerRepository);
+
     const input: ListGlobalStatisticsInput = {};
 
     // Act
@@ -361,15 +355,15 @@ describe('ListGlobalStatisticsUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const output = result.getValue();
     expect(output.statistics).toHaveLength(5);
-    
+
     // Total matches played should exclude the player with zero matches
     expect(output.summary.totalMatchesPlayed).toBe(45); // Same as before
-    
+
     // Average win rate should exclude players with zero matches
     const expectedAvgWinRate = (70 + 62.5 + 50 + 66.7) / 4; // Same as before
     expect(output.summary.averageWinRate).toBeCloseTo(expectedAvgWinRate, 1);
   });
-}); 
+});

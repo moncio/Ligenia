@@ -1,6 +1,14 @@
 import { PerformanceHistory } from '@prisma/client';
-import { IPerformanceHistoryRepository, PerformanceHistoryFilter, PerformanceSummary, PerformanceTrend } from '../../../../src/core/application/interfaces/repositories/performance-history.repository';
-import { GetPlayerPerformanceHistoryUseCase, GetPlayerPerformanceHistoryInput } from '../../../../src/core/application/use-cases/performance-history/get-player-performance-history.use-case';
+import {
+  IPerformanceHistoryRepository,
+  PerformanceHistoryFilter,
+  PerformanceSummary,
+  PerformanceTrend,
+} from '../../../../src/core/application/interfaces/repositories/performance-history.repository';
+import {
+  GetPlayerPerformanceHistoryUseCase,
+  GetPlayerPerformanceHistoryInput,
+} from '../../../../src/core/application/use-cases/performance-history/get-player-performance-history.use-case';
 
 // Mock repository implementation
 class MockPerformanceHistoryRepository implements IPerformanceHistoryRepository {
@@ -15,7 +23,7 @@ class MockPerformanceHistoryRepository implements IPerformanceHistoryRepository 
       losses: 3,
       points: 21,
       createdAt: new Date('2023-01-31'),
-      updatedAt: new Date('2023-01-31')
+      updatedAt: new Date('2023-01-31'),
     },
     {
       id: 'perf-2',
@@ -27,7 +35,7 @@ class MockPerformanceHistoryRepository implements IPerformanceHistoryRepository 
       losses: 3,
       points: 15,
       createdAt: new Date('2023-02-28'),
-      updatedAt: new Date('2023-02-28')
+      updatedAt: new Date('2023-02-28'),
     },
     {
       id: 'perf-3',
@@ -39,16 +47,18 @@ class MockPerformanceHistoryRepository implements IPerformanceHistoryRepository 
       losses: 3,
       points: 9,
       createdAt: new Date('2023-01-31'),
-      updatedAt: new Date('2023-01-31')
-    }
+      updatedAt: new Date('2023-01-31'),
+    },
   ];
 
-  async create(data: Omit<PerformanceHistory, 'id' | 'createdAt' | 'updatedAt'>): Promise<PerformanceHistory> {
+  async create(
+    data: Omit<PerformanceHistory, 'id' | 'createdAt' | 'updatedAt'>,
+  ): Promise<PerformanceHistory> {
     const newEntry: PerformanceHistory = {
       id: 'mock-id-' + Date.now(),
       createdAt: new Date(),
       updatedAt: new Date(),
-      ...data
+      ...data,
     };
     this.mockData.push(newEntry);
     return newEntry;
@@ -59,24 +69,27 @@ class MockPerformanceHistoryRepository implements IPerformanceHistoryRepository 
     return entry || null;
   }
 
-  async findByUserId(userId: string, filter?: PerformanceHistoryFilter): Promise<PerformanceHistory[]> {
+  async findByUserId(
+    userId: string,
+    filter?: PerformanceHistoryFilter,
+  ): Promise<PerformanceHistory[]> {
     let result = this.mockData.filter(item => item.userId === userId);
-    
+
     if (filter?.year !== undefined) {
       result = result.filter(item => item.year === filter.year);
     }
-    
+
     if (filter?.month !== undefined) {
       result = result.filter(item => item.month === filter.month);
     }
-    
+
     // Implement pagination if required
     if (filter?.limit !== undefined || filter?.offset !== undefined) {
       const offset = filter?.offset || 0;
       const limit = filter?.limit || result.length;
       result = result.slice(offset, offset + limit);
     }
-    
+
     return result;
   }
 
@@ -85,13 +98,13 @@ class MockPerformanceHistoryRepository implements IPerformanceHistoryRepository 
     if (index === -1) {
       throw new Error('Performance history entry not found');
     }
-    
+
     const updatedEntry = {
       ...this.mockData[index],
       ...data,
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
-    
+
     this.mockData[index] = updatedEntry;
     return updatedEntry;
   }
@@ -111,14 +124,12 @@ class MockPerformanceHistoryRepository implements IPerformanceHistoryRepository 
       totalWins: 7,
       totalLosses: 3,
       winRate: 70,
-      avgPointsPerMonth: 15
+      avgPointsPerMonth: 15,
     };
   }
 
   async findPerformanceTrends(userId: string, timeframe?: string): Promise<PerformanceTrend[]> {
-    return [
-      { period: 'Jan', matchesPlayed: 3, wins: 2, losses: 1, points: 6 }
-    ];
+    return [{ period: 'Jan', matchesPlayed: 3, wins: 2, losses: 1, points: 6 }];
   }
 
   // Helper method for tests to set mock data
@@ -139,19 +150,19 @@ describe('GetPlayerPerformanceHistoryUseCase', () => {
   // Helper function to create a valid input
   const createValidInput = (): GetPlayerPerformanceHistoryInput => ({
     userId: '123e4567-e89b-12d3-a456-426614174000',
-    year: 2023
+    year: 2023,
   });
 
   describe('Get player performance history', () => {
     test('should retrieve all performance history for a user', async () => {
       // Arrange
       const input = {
-        userId: '123e4567-e89b-12d3-a456-426614174000'
+        userId: '123e4567-e89b-12d3-a456-426614174000',
       } as GetPlayerPerformanceHistoryInput;
-      
+
       // Act
       const result = await useCase.execute(input);
-      
+
       // Assert
       expect(result.isSuccess).toBe(true);
       const history = result.getValue();
@@ -164,12 +175,12 @@ describe('GetPlayerPerformanceHistoryUseCase', () => {
       // Arrange
       const input = {
         userId: '123e4567-e89b-12d3-a456-426614174000',
-        year: 2023
+        year: 2023,
       } as GetPlayerPerformanceHistoryInput;
-      
+
       // Act
       const result = await useCase.execute(input);
-      
+
       // Assert
       expect(result.isSuccess).toBe(true);
       const history = result.getValue();
@@ -182,12 +193,12 @@ describe('GetPlayerPerformanceHistoryUseCase', () => {
       // Arrange
       const input = {
         userId: '123e4567-e89b-12d3-a456-426614174000',
-        month: 1
+        month: 1,
       } as GetPlayerPerformanceHistoryInput;
-      
+
       // Act
       const result = await useCase.execute(input);
-      
+
       // Assert
       expect(result.isSuccess).toBe(true);
       const history = result.getValue();
@@ -200,12 +211,12 @@ describe('GetPlayerPerformanceHistoryUseCase', () => {
       const input = {
         userId: '123e4567-e89b-12d3-a456-426614174000',
         limit: 1,
-        offset: 1
+        offset: 1,
       } as GetPlayerPerformanceHistoryInput;
-      
+
       // Act
       const result = await useCase.execute(input);
-      
+
       // Assert
       expect(result.isSuccess).toBe(true);
       const history = result.getValue();
@@ -216,12 +227,12 @@ describe('GetPlayerPerformanceHistoryUseCase', () => {
     test('should return empty array if no matching records', async () => {
       // Arrange
       const input = {
-        userId: '323e4567-e89b-12d3-a456-426614174000' // Non-existent UUID
+        userId: '323e4567-e89b-12d3-a456-426614174000', // Non-existent UUID
       } as GetPlayerPerformanceHistoryInput;
-      
+
       // Act
       const result = await useCase.execute(input);
-      
+
       // Assert
       expect(result.isSuccess).toBe(true);
       const history = result.getValue();
@@ -234,12 +245,12 @@ describe('GetPlayerPerformanceHistoryUseCase', () => {
       // Arrange
       const input = {
         ...createValidInput(),
-        userId: 'invalid-uuid'
+        userId: 'invalid-uuid',
       };
-      
+
       // Act
       const result = await useCase.execute(input as any);
-      
+
       // Assert
       expect(result.isFailure).toBe(true);
       expect(result.getError().message).toContain('Invalid user ID format');
@@ -249,12 +260,12 @@ describe('GetPlayerPerformanceHistoryUseCase', () => {
       // Arrange
       const input = {
         ...createValidInput(),
-        year: 1999 // Out of valid range
+        year: 1999, // Out of valid range
       };
-      
+
       // Act
       const result = await useCase.execute(input);
-      
+
       // Assert
       expect(result.isFailure).toBe(true);
     });
@@ -263,12 +274,12 @@ describe('GetPlayerPerformanceHistoryUseCase', () => {
       // Arrange
       const input = {
         ...createValidInput(),
-        month: 13 // Invalid month
+        month: 13, // Invalid month
       };
-      
+
       // Act
       const result = await useCase.execute(input);
-      
+
       // Assert
       expect(result.isFailure).toBe(true);
     });
@@ -277,12 +288,12 @@ describe('GetPlayerPerformanceHistoryUseCase', () => {
       // Arrange
       const input = {
         ...createValidInput(),
-        limit: -1 // Invalid limit
+        limit: -1, // Invalid limit
       };
-      
+
       // Act
       const result = await useCase.execute(input);
-      
+
       // Assert
       expect(result.isFailure).toBe(true);
     });
@@ -295,13 +306,13 @@ describe('GetPlayerPerformanceHistoryUseCase', () => {
       jest.spyOn(repository, 'findByUserId').mockImplementation(() => {
         throw new Error('Database connection error');
       });
-      
+
       // Act
       const result = await useCase.execute(input);
-      
+
       // Assert
       expect(result.isFailure).toBe(true);
       expect(result.getError().message).toBe('Database connection error');
     });
   });
-}); 
+});

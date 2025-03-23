@@ -1,9 +1,17 @@
 import 'reflect-metadata';
 import { SupabaseAuthService } from '../../../../src/infrastructure/auth/supabase';
 import { Result } from '../../../../src/shared/result';
-import { EmailAlreadyInUseError, InvalidCredentialsError, InvalidTokenError, UserNotFoundError } from '../../../../src/shared/errors/auth.error';
+import {
+  EmailAlreadyInUseError,
+  InvalidCredentialsError,
+  InvalidTokenError,
+  UserNotFoundError,
+} from '../../../../src/shared/errors/auth.error';
 import { createClient } from '@supabase/supabase-js';
-import { ILoginCredentials, IRegistrationData } from '../../../../src/core/application/interfaces/auth';
+import {
+  ILoginCredentials,
+  IRegistrationData,
+} from '../../../../src/core/application/interfaces/auth';
 
 // Mock environment variables
 process.env.SUPABASE_URL = 'https://example.supabase.co';
@@ -330,7 +338,7 @@ describe('SupabaseAuthService', () => {
         expect.any(String),
         expect.objectContaining({
           global: { headers: { Authorization: `Bearer ${token}` } },
-        })
+        }),
       );
     });
 
@@ -711,4 +719,4 @@ describe('SupabaseAuthService', () => {
       });
     });
   });
-}); 
+});

@@ -1,9 +1,20 @@
-import { StartTournamentUseCase, StartTournamentInput } from '../../../../src/core/application/use-cases/tournament/start-tournament.use-case';
+import {
+  StartTournamentUseCase,
+  StartTournamentInput,
+} from '../../../../src/core/application/use-cases/tournament/start-tournament.use-case';
 import { ITournamentRepository } from '../../../../src/core/application/interfaces/repositories/tournament.repository';
 import { IUserRepository } from '../../../../src/core/application/interfaces/repositories/user.repository';
-import { Tournament, TournamentFormat, TournamentStatus, PlayerLevel } from '../../../../src/core/domain/tournament/tournament.entity';
+import {
+  Tournament,
+  TournamentFormat,
+  TournamentStatus,
+  PlayerLevel,
+} from '../../../../src/core/domain/tournament/tournament.entity';
 import { User, UserRole } from '../../../../src/core/domain/user/user.entity';
-import { GenerateTournamentBracketUseCase, GenerateTournamentBracketOutput } from '../../../../src/core/application/use-cases/tournament/generate-tournament-bracket.use-case';
+import {
+  GenerateTournamentBracketUseCase,
+  GenerateTournamentBracketOutput,
+} from '../../../../src/core/application/use-cases/tournament/generate-tournament-bracket.use-case';
 import { Result } from '../../../../src/shared/result';
 
 // Mock Tournament Repository
@@ -77,15 +88,15 @@ class MockTournamentRepository implements ITournamentRepository {
   async getParticipants(tournamentId: string, pagination?: any): Promise<string[]> {
     const participants = this.participantRegistrations.get(tournamentId);
     if (!participants) return [];
-    
+
     let result = Array.from(participants);
-    
+
     // Apply pagination if specified
     if (pagination) {
       const { skip, limit } = pagination;
       result = result.slice(skip, skip + limit);
     }
-    
+
     return result;
   }
 
@@ -133,7 +144,7 @@ class MockGenerateTournamentBracketUseCase extends GenerateTournamentBracketUseC
     tournamentId: '',
     format: TournamentFormat.SINGLE_ELIMINATION,
     rounds: 3,
-    matchesCreated: 4
+    matchesCreated: 4,
   });
 
   execute = jest.fn().mockImplementation(() => Promise.resolve(this.executeResult));
@@ -182,7 +193,7 @@ describe('StartTournamentUseCase', () => {
       PlayerLevel.P1,
       creatorUserId,
       createDate(1, 7, 2023),
-      createDate(1, 7, 2023)
+      createDate(1, 7, 2023),
     );
 
     const openTournament = new Tournament(
@@ -199,7 +210,7 @@ describe('StartTournamentUseCase', () => {
       PlayerLevel.P1,
       creatorUserId,
       createDate(1, 8, 2023),
-      createDate(1, 8, 2023)
+      createDate(1, 8, 2023),
     );
 
     const openTournamentWithoutPlayers = new Tournament(
@@ -216,7 +227,7 @@ describe('StartTournamentUseCase', () => {
       PlayerLevel.P1,
       creatorUserId,
       createDate(1, 9, 2023),
-      createDate(1, 9, 2023)
+      createDate(1, 9, 2023),
     );
 
     const activeTournament = new Tournament(
@@ -233,7 +244,7 @@ describe('StartTournamentUseCase', () => {
       PlayerLevel.P1,
       creatorUserId,
       createDate(1, 10, 2023),
-      createDate(1, 10, 2023)
+      createDate(1, 10, 2023),
     );
 
     const completedTournament = new Tournament(
@@ -250,7 +261,7 @@ describe('StartTournamentUseCase', () => {
       PlayerLevel.P1,
       creatorUserId,
       createDate(1, 11, 2023),
-      createDate(1, 11, 2023)
+      createDate(1, 11, 2023),
     );
 
     const cancelledTournament = new Tournament(
@@ -267,7 +278,7 @@ describe('StartTournamentUseCase', () => {
       PlayerLevel.P1,
       creatorUserId,
       createDate(1, 12, 2023),
-      createDate(1, 12, 2023)
+      createDate(1, 12, 2023),
     );
 
     // Initialize repository with sample tournaments
@@ -277,7 +288,7 @@ describe('StartTournamentUseCase', () => {
       openTournamentWithoutPlayers,
       activeTournament,
       completedTournament,
-      cancelledTournament
+      cancelledTournament,
     ]);
 
     // Register players for the open tournament
@@ -287,14 +298,9 @@ describe('StartTournamentUseCase', () => {
     tournamentRepository.registerParticipant(openTournamentWithoutPlayersId, player1UserId);
 
     // Create sample users
-    const adminUser = new User(
-      adminUserId,
-      'admin@example.com',
-      'Admin',
-      'User',
-      'password',
-      [UserRole.ADMIN]
-    );
+    const adminUser = new User(adminUserId, 'admin@example.com', 'Admin', 'User', 'password', [
+      UserRole.ADMIN,
+    ]);
 
     const creatorUser = new User(
       creatorUserId,
@@ -302,7 +308,7 @@ describe('StartTournamentUseCase', () => {
       'Creator',
       'User',
       'password',
-      [UserRole.USER]
+      [UserRole.USER],
     );
 
     const regularUser = new User(
@@ -311,7 +317,7 @@ describe('StartTournamentUseCase', () => {
       'Regular',
       'User',
       'password',
-      [UserRole.USER]
+      [UserRole.USER],
     );
 
     const player1User = new User(
@@ -322,7 +328,7 @@ describe('StartTournamentUseCase', () => {
       UserRole.PLAYER,
       true,
       createDate(1, 1, 2023),
-      createDate(1, 1, 2023)
+      createDate(1, 1, 2023),
     );
 
     const player2User = new User(
@@ -333,7 +339,7 @@ describe('StartTournamentUseCase', () => {
       UserRole.PLAYER,
       true,
       createDate(1, 1, 2023),
-      createDate(1, 1, 2023)
+      createDate(1, 1, 2023),
     );
 
     // Initialize user repository with sample users
@@ -342,7 +348,7 @@ describe('StartTournamentUseCase', () => {
       creatorUser,
       regularUser,
       player1User,
-      player2User
+      player2User,
     ]);
 
     // Setup mock generate tournament bracket use case
@@ -351,27 +357,27 @@ describe('StartTournamentUseCase', () => {
       tournamentId: openTournamentId,
       format: TournamentFormat.SINGLE_ELIMINATION,
       rounds: 3,
-      matchesCreated: 4
+      matchesCreated: 4,
     });
 
     // Initialize use case
     useCase = new StartTournamentUseCase(
       tournamentRepository,
       userRepository,
-      generateTournamentBracketUseCase
+      generateTournamentBracketUseCase,
     );
   });
 
   it('should successfully start an OPEN tournament by admin', async () => {
     const input: StartTournamentInput = {
       tournamentId: openTournamentId,
-      userId: adminUserId
+      userId: adminUserId,
     };
 
     const result = await useCase.execute(input);
 
     expect(result.isSuccess).toBe(true);
-    
+
     const output = result.getValue();
     expect(output.tournament.status).toBe(TournamentStatus.ACTIVE);
     expect(output.message).toContain('successfully');
@@ -384,13 +390,13 @@ describe('StartTournamentUseCase', () => {
   it('should successfully start an OPEN tournament by creator', async () => {
     const input: StartTournamentInput = {
       tournamentId: openTournamentId,
-      userId: creatorUserId
+      userId: creatorUserId,
     };
 
     const result = await useCase.execute(input);
 
     expect(result.isSuccess).toBe(true);
-    
+
     const output = result.getValue();
     expect(output.tournament.status).toBe(TournamentStatus.ACTIVE);
     expect(output.message).toContain('successfully');
@@ -403,7 +409,7 @@ describe('StartTournamentUseCase', () => {
   it('should fail when regular user tries to start a tournament', async () => {
     const input: StartTournamentInput = {
       tournamentId: openTournamentId,
-      userId: regularUserId
+      userId: regularUserId,
     };
 
     const result = await useCase.execute(input);
@@ -415,7 +421,7 @@ describe('StartTournamentUseCase', () => {
   it('should fail when trying to start a DRAFT tournament', async () => {
     const input: StartTournamentInput = {
       tournamentId: draftTournamentId,
-      userId: adminUserId
+      userId: adminUserId,
     };
 
     const result = await useCase.execute(input);
@@ -427,7 +433,7 @@ describe('StartTournamentUseCase', () => {
   it('should fail when trying to start an already ACTIVE tournament', async () => {
     const input: StartTournamentInput = {
       tournamentId: activeTournamentId,
-      userId: adminUserId
+      userId: adminUserId,
     };
 
     const result = await useCase.execute(input);
@@ -439,7 +445,7 @@ describe('StartTournamentUseCase', () => {
   it('should fail when trying to start a COMPLETED tournament', async () => {
     const input: StartTournamentInput = {
       tournamentId: completedTournamentId,
-      userId: adminUserId
+      userId: adminUserId,
     };
 
     const result = await useCase.execute(input);
@@ -451,7 +457,7 @@ describe('StartTournamentUseCase', () => {
   it('should fail when trying to start a CANCELLED tournament', async () => {
     const input: StartTournamentInput = {
       tournamentId: cancelledTournamentId,
-      userId: adminUserId
+      userId: adminUserId,
     };
 
     const result = await useCase.execute(input);
@@ -463,7 +469,7 @@ describe('StartTournamentUseCase', () => {
   it('should fail when trying to start a tournament without enough participants', async () => {
     const input: StartTournamentInput = {
       tournamentId: openTournamentWithoutPlayersId,
-      userId: adminUserId
+      userId: adminUserId,
     };
 
     const result = await useCase.execute(input);
@@ -475,7 +481,7 @@ describe('StartTournamentUseCase', () => {
   it('should fail when tournament does not exist', async () => {
     const input: StartTournamentInput = {
       tournamentId: nonExistingTournamentId,
-      userId: adminUserId
+      userId: adminUserId,
     };
 
     const result = await useCase.execute(input);
@@ -487,7 +493,7 @@ describe('StartTournamentUseCase', () => {
   it('should fail when user does not exist', async () => {
     const input: StartTournamentInput = {
       tournamentId: openTournamentId,
-      userId: nonExistingUserId
+      userId: nonExistingUserId,
     };
 
     const result = await useCase.execute(input);
@@ -500,7 +506,7 @@ describe('StartTournamentUseCase', () => {
   it('should fail with invalid input data', async () => {
     const input = {
       tournamentId: 'invalid-uuid',
-      userId: adminUserId
+      userId: adminUserId,
     } as StartTournamentInput;
 
     const result = await useCase.execute(input);
@@ -513,7 +519,7 @@ describe('StartTournamentUseCase', () => {
     // Arrange
     const input: StartTournamentInput = {
       tournamentId: openTournamentId,
-      userId: adminUserId
+      userId: adminUserId,
     };
 
     // Act
@@ -521,16 +527,18 @@ describe('StartTournamentUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     if (result.isSuccess) {
       expect(result.getValue().tournament.status).toBe(TournamentStatus.ACTIVE);
-      expect(result.getValue().message).toContain('Tournament started successfully with 4 matches created');
+      expect(result.getValue().message).toContain(
+        'Tournament started successfully with 4 matches created',
+      );
     }
-    
+
     // Verify generateTournamentBracketUseCase was called with correct parameters
     expect(generateTournamentBracketUseCase.execute).toHaveBeenCalledWith({
       tournamentId: openTournamentId,
-      userId: adminUserId
+      userId: adminUserId,
     });
   });
 
@@ -538,12 +546,12 @@ describe('StartTournamentUseCase', () => {
     // Arrange
     const input: StartTournamentInput = {
       tournamentId: openTournamentId,
-      userId: adminUserId
+      userId: adminUserId,
     };
 
     // Mock bracket generation failure
     generateTournamentBracketUseCase.executeResult = Result.fail(
-      new Error('Failed to generate bracket')
+      new Error('Failed to generate bracket'),
     );
 
     // Act
@@ -552,9 +560,9 @@ describe('StartTournamentUseCase', () => {
     // Assert
     expect(result.isFailure).toBe(true);
     expect(result.getError().message).toContain('Tournament started but bracket generation failed');
-    
+
     // Tournament should have been reverted to OPEN status
     const tournament = await tournamentRepository.findById(openTournamentId);
     expect(tournament?.status).toBe(TournamentStatus.OPEN);
   });
-}); 
+});

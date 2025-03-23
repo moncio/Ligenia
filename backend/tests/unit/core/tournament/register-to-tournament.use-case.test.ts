@@ -1,7 +1,12 @@
 import { RegisterToTournamentUseCase } from '../../../../src/core/application/use-cases/tournament/register-to-tournament.use-case';
 import { ITournamentRepository } from '../../../../src/core/application/interfaces/repositories/tournament.repository';
 import { IUserRepository } from '../../../../src/core/application/interfaces/repositories/user.repository';
-import { Tournament, TournamentFormat, TournamentStatus, PlayerLevel } from '../../../../src/core/domain/tournament/tournament.entity';
+import {
+  Tournament,
+  TournamentFormat,
+  TournamentStatus,
+  PlayerLevel,
+} from '../../../../src/core/domain/tournament/tournament.entity';
 import { User, UserRole } from '../../../../src/core/domain/user/user.entity';
 import { Result } from '../../../../src/shared/result';
 
@@ -139,7 +144,7 @@ describe('RegisterToTournamentUseCase', () => {
       PlayerLevel.P3,
       '00000000-0000-0000-0000-000000000001',
       now,
-      now
+      now,
     );
 
     closedTournament = new Tournament(
@@ -156,7 +161,7 @@ describe('RegisterToTournamentUseCase', () => {
       PlayerLevel.P3,
       '00000000-0000-0000-0000-000000000001',
       now,
-      now
+      now,
     );
 
     fullTournament = new Tournament(
@@ -173,7 +178,7 @@ describe('RegisterToTournamentUseCase', () => {
       PlayerLevel.P3,
       '00000000-0000-0000-0000-000000000001',
       now,
-      now
+      now,
     );
 
     expiredTournament = new Tournament(
@@ -190,7 +195,7 @@ describe('RegisterToTournamentUseCase', () => {
       PlayerLevel.P3,
       '00000000-0000-0000-0000-000000000001',
       now,
-      now
+      now,
     );
 
     // Create test users
@@ -202,7 +207,7 @@ describe('RegisterToTournamentUseCase', () => {
       UserRole.PLAYER,
       true,
       now,
-      now
+      now,
     );
 
     adminUser = new User(
@@ -213,7 +218,7 @@ describe('RegisterToTournamentUseCase', () => {
       UserRole.ADMIN,
       true,
       now,
-      now
+      now,
     );
 
     // Setup repositories
@@ -221,14 +226,14 @@ describe('RegisterToTournamentUseCase', () => {
       openTournament,
       closedTournament,
       fullTournament,
-      expiredTournament
+      expiredTournament,
     ]);
     userRepository = new MockUserRepository([playerUser, adminUser]);
 
     // Pre-register a player to the full tournament
     (tournamentRepository as MockTournamentRepository).registerParticipant(
       fullTournament.id,
-      '00000000-0000-0000-0000-000000000099' // Another user ID
+      '00000000-0000-0000-0000-000000000099', // Another user ID
     );
 
     // Setup use case
@@ -239,7 +244,7 @@ describe('RegisterToTournamentUseCase', () => {
     // Arrange
     const input = {
       tournamentId: openTournament.id,
-      userId: playerUser.id
+      userId: playerUser.id,
     };
 
     // Act
@@ -247,7 +252,10 @@ describe('RegisterToTournamentUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    const isRegistered = await tournamentRepository.isParticipantRegistered(input.tournamentId, input.userId);
+    const isRegistered = await tournamentRepository.isParticipantRegistered(
+      input.tournamentId,
+      input.userId,
+    );
     expect(isRegistered).toBe(true);
   });
 
@@ -255,7 +263,7 @@ describe('RegisterToTournamentUseCase', () => {
     // Arrange
     const input = {
       tournamentId: '99999999-9999-9999-9999-999999999999', // Non-existent tournament
-      userId: playerUser.id
+      userId: playerUser.id,
     };
 
     // Act
@@ -271,7 +279,7 @@ describe('RegisterToTournamentUseCase', () => {
     // Arrange
     const input = {
       tournamentId: openTournament.id,
-      userId: '99999999-9999-9999-9999-999999999999' // Non-existent user
+      userId: '99999999-9999-9999-9999-999999999999', // Non-existent user
     };
 
     // Act
@@ -287,7 +295,7 @@ describe('RegisterToTournamentUseCase', () => {
     // Arrange
     const input = {
       tournamentId: openTournament.id,
-      userId: adminUser.id // Admin user, not a player
+      userId: adminUser.id, // Admin user, not a player
     };
 
     // Act
@@ -302,7 +310,7 @@ describe('RegisterToTournamentUseCase', () => {
     // Arrange
     const input = {
       tournamentId: openTournament.id,
-      userId: playerUser.id
+      userId: playerUser.id,
     };
 
     // Register the player first
@@ -320,7 +328,7 @@ describe('RegisterToTournamentUseCase', () => {
     // Arrange
     const input = {
       tournamentId: closedTournament.id,
-      userId: playerUser.id
+      userId: playerUser.id,
     };
 
     // Act
@@ -335,7 +343,7 @@ describe('RegisterToTournamentUseCase', () => {
     // Arrange
     const input = {
       tournamentId: expiredTournament.id,
-      userId: playerUser.id
+      userId: playerUser.id,
     };
 
     // Act
@@ -350,7 +358,7 @@ describe('RegisterToTournamentUseCase', () => {
     // Arrange
     const input = {
       tournamentId: fullTournament.id,
-      userId: playerUser.id
+      userId: playerUser.id,
     };
 
     // Act
@@ -360,4 +368,4 @@ describe('RegisterToTournamentUseCase', () => {
     expect(result.isFailure).toBe(true);
     expect(result.getError().message).toContain('maximum participants');
   });
-}); 
+});

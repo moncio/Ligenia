@@ -22,41 +22,41 @@ config({ path: path.resolve(__dirname, '../../../.env.test') });
 describe('Ranking Routes Integration Tests', () => {
   let playerToken: string;
   let adminToken: string;
-  
+
   // Set up test data before running tests
   beforeAll(async () => {
     try {
       // Login to get tokens
       const playerLoginResult = await mockAuthService.login({
         email: mockUsers.player.email,
-        password: mockUsers.player.password
+        password: mockUsers.player.password,
       });
-      
+
       if (playerLoginResult.isSuccess) {
         playerToken = playerLoginResult.getValue().accessToken;
       }
-      
+
       const adminLoginResult = await mockAuthService.login({
         email: mockUsers.admin.email,
-        password: mockUsers.admin.password
+        password: mockUsers.admin.password,
       });
-      
+
       if (adminLoginResult.isSuccess) {
         adminToken = adminLoginResult.getValue().accessToken;
       }
-      
+
       // Verify tokens were obtained correctly
       expect(playerToken).toBeDefined();
       expect(adminToken).toBeDefined();
-      
+
       // Create some test statistics data for players
       // Create or find test users with PLAYER role
       const testPlayers = [];
       for (let i = 1; i <= 5; i++) {
         const existingPlayer = await prisma.user.findFirst({
-          where: { email: `ranking-player${i}@example.com` }
+          where: { email: `ranking-player${i}@example.com` },
         });
-        
+
         if (existingPlayer) {
           testPlayers.push(existingPlayer);
         } else {
@@ -69,15 +69,15 @@ describe('Ranking Routes Integration Tests', () => {
               emailVerified: true,
               playerProfile: {
                 create: {
-                  level: i <= 2 ? PlayerLevel.P1 : i <= 4 ? PlayerLevel.P2 : PlayerLevel.P3
-                }
-              }
-            }
+                  level: i <= 2 ? PlayerLevel.P1 : i <= 4 ? PlayerLevel.P2 : PlayerLevel.P3,
+                },
+              },
+            },
           });
           testPlayers.push(player);
         }
       }
-      
+
       // Create a test tournament
       const testTournament = await prisma.tournament.create({
         data: {
@@ -86,10 +86,10 @@ describe('Ranking Routes Integration Tests', () => {
           startDate: new Date(),
           endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
           registrationEndDate: new Date(),
-          status: 'ACTIVE'
-        }
+          status: 'ACTIVE',
+        },
       });
-      
+
       // Create statistics for players with different point values
       for (let i = 0; i < testPlayers.length; i++) {
         // Check if statistic already exists
@@ -97,26 +97,26 @@ describe('Ranking Routes Integration Tests', () => {
           where: {
             userId_tournamentId: {
               userId: testPlayers[i].id,
-              tournamentId: testTournament.id
-            }
-          }
+              tournamentId: testTournament.id,
+            },
+          },
         });
-        
+
         if (existingStat) {
           await prisma.statistic.update({
             where: {
               userId_tournamentId: {
                 userId: testPlayers[i].id,
-                tournamentId: testTournament.id
-              }
+                tournamentId: testTournament.id,
+              },
             },
             data: {
               points: (5 - i) * 50, // First player has 250, second 200, etc.
               matchesPlayed: 10,
               wins: 5 - i,
               losses: i,
-              rank: i + 1
-            }
+              rank: i + 1,
+            },
           });
         } else {
           await prisma.statistic.create({
@@ -127,8 +127,8 @@ describe('Ranking Routes Integration Tests', () => {
               matchesPlayed: 10,
               wins: 5 - i,
               losses: i,
-              rank: i + 1
-            }
+              rank: i + 1,
+            },
           });
         }
       }
@@ -136,7 +136,7 @@ describe('Ranking Routes Integration Tests', () => {
       console.error('Error in ranking tests setup:', error);
     }
   });
-  
+
   afterAll(async () => {
     // Clean up test data
     try {
@@ -144,34 +144,34 @@ describe('Ranking Routes Integration Tests', () => {
         where: {
           user: {
             email: {
-              startsWith: 'ranking-player'
-            }
-          }
-        }
+              startsWith: 'ranking-player',
+            },
+          },
+        },
       });
-      
+
       await prisma.player.deleteMany({
         where: {
           user: {
             email: {
-              startsWith: 'ranking-player'
-            }
-          }
-        }
+              startsWith: 'ranking-player',
+            },
+          },
+        },
       });
-      
+
       await prisma.user.deleteMany({
         where: {
           email: {
-            startsWith: 'ranking-player'
-          }
-        }
+            startsWith: 'ranking-player',
+          },
+        },
       });
-      
+
       await prisma.tournament.deleteMany({
         where: {
-          name: 'Ranking Test Tournament'
-        }
+          name: 'Ranking Test Tournament',
+        },
       });
     } catch (error) {
       console.error('Error cleaning up ranking test data:', error);
@@ -180,55 +180,54 @@ describe('Ranking Routes Integration Tests', () => {
 
   describe('GET /api/rankings', () => {
     it('should return global rankings in descending order by points', async () => {
-      const response = await request
-        .get('/api/rankings');
-      
+      const response = await request.get('/api/rankings');
+
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
       expect(response.body.data).toHaveProperty('rankings');
       expect(Array.isArray(response.body.data.rankings)).toBe(true);
-      
+
       const rankings = response.body.data.rankings;
-      
+
       // Check that we have at least our test players
       expect(rankings.length).toBeGreaterThan(0);
-      
+
       // Verify the structure of the rankings
       expect(rankings[0]).toHaveProperty('player_id');
       expect(rankings[0]).toHaveProperty('full_name');
       expect(rankings[0]).toHaveProperty('total_points');
       expect(rankings[0]).toHaveProperty('position');
-      
+
       // Verify the order (descending by points)
       for (let i = 1; i < rankings.length; i++) {
-        expect(parseInt(rankings[i-1].total_points)).toBeGreaterThanOrEqual(parseInt(rankings[i].total_points));
+        expect(parseInt(rankings[i - 1].total_points)).toBeGreaterThanOrEqual(
+          parseInt(rankings[i].total_points),
+        );
       }
     });
 
     it('should paginate results correctly', async () => {
       const limit = 2;
-      const response = await request
-        .get('/api/rankings')
-        .query({ limit, offset: 0 });
-      
+      const response = await request.get('/api/rankings').query({ limit, offset: 0 });
+
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
       expect(response.body.data).toHaveProperty('rankings');
-      
+
       // Ensure we got the requested number of results
       expect(response.body.data.rankings.length).toBeLessThanOrEqual(limit);
-      
+
       // Get the second page
-      const secondPageResponse = await request
-        .get('/api/rankings')
-        .query({ limit, offset: limit });
-        
+      const secondPageResponse = await request.get('/api/rankings').query({ limit, offset: limit });
+
       expect(secondPageResponse.status).toBe(200);
-      
+
       // Ensure the two pages have different players
       const firstPagePlayerIds = response.body.data.rankings.map((r: any) => r.player_id);
-      const secondPagePlayerIds = secondPageResponse.body.data.rankings.map((r: any) => r.player_id);
-      
+      const secondPagePlayerIds = secondPageResponse.body.data.rankings.map(
+        (r: any) => r.player_id,
+      );
+
       // Check that the pages don't have overlapping player IDs
       const overlap = firstPagePlayerIds.filter((id: string) => secondPagePlayerIds.includes(id));
       expect(overlap.length).toBe(0);
@@ -238,7 +237,7 @@ describe('Ranking Routes Integration Tests', () => {
       const response = await request
         .get('/api/rankings')
         .query({ limit: 'invalid', offset: 'invalid' });
-      
+
       // It should still work, using default values
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
@@ -250,16 +249,15 @@ describe('Ranking Routes Integration Tests', () => {
   describe('GET /api/rankings/:categoryId', () => {
     it('should return rankings filtered by player category', async () => {
       // Test with P1 category
-      const response = await request
-        .get(`/api/rankings/${PlayerLevel.P1}`);
-      
+      const response = await request.get(`/api/rankings/${PlayerLevel.P1}`);
+
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
       expect(response.body.data).toHaveProperty('rankings');
       expect(Array.isArray(response.body.data.rankings)).toBe(true);
-      
+
       const rankings = response.body.data.rankings;
-      
+
       // Verify the structure of the rankings
       if (rankings.length > 0) {
         expect(rankings[0]).toHaveProperty('player_id');
@@ -267,16 +265,15 @@ describe('Ranking Routes Integration Tests', () => {
         expect(rankings[0]).toHaveProperty('total_points');
         expect(rankings[0]).toHaveProperty('position');
       }
-      
+
       // All players should be in the P1 category (this is verified by the SQL query)
     });
 
     it('should return 400 for invalid category', async () => {
       const invalidCategoryId = 'INVALID_CATEGORY';
-      
-      const response = await request
-        .get(`/api/rankings/${invalidCategoryId}`);
-      
+
+      const response = await request.get(`/api/rankings/${invalidCategoryId}`);
+
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body.message).toContain('Invalid player category');
@@ -287,13 +284,13 @@ describe('Ranking Routes Integration Tests', () => {
       const response = await request
         .get(`/api/rankings/${PlayerLevel.P2}`)
         .query({ limit, offset: 0 });
-      
+
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
       expect(response.body.data).toHaveProperty('rankings');
-      
+
       // Ensure we got the right number of results
       expect(response.body.data.rankings.length).toBeLessThanOrEqual(limit);
     });
   });
-}); 
+});

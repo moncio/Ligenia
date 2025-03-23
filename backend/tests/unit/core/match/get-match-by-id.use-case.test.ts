@@ -36,7 +36,7 @@ describe('GetMatchByIdUseCase', () => {
     null, // homeScore
     null, // awayScore
     new Date('2023-07-01T10:00:00Z'), // createdAt
-    new Date('2023-07-01T10:00:00Z')  // updatedAt
+    new Date('2023-07-01T10:00:00Z'), // updatedAt
   );
 
   test('should get a match successfully when ID exists', async () => {
@@ -92,4 +92,4 @@ describe('GetMatchByIdUseCase', () => {
     expect(result.getError().message).toContain(errorMessage);
     expect(mockMatchRepository.findById).toHaveBeenCalledWith(mockMatchId);
   });
-}); 
+});

@@ -1,6 +1,14 @@
-import { GetTournamentDetailsUseCase, GetTournamentDetailsInput } from '../../../../src/core/application/use-cases/tournament/get-tournament-details.use-case';
+import {
+  GetTournamentDetailsUseCase,
+  GetTournamentDetailsInput,
+} from '../../../../src/core/application/use-cases/tournament/get-tournament-details.use-case';
 import { ITournamentRepository } from '../../../../src/core/application/interfaces/repositories/tournament.repository';
-import { Tournament, TournamentFormat, TournamentStatus, PlayerLevel } from '../../../../src/core/domain/tournament/tournament.entity';
+import {
+  Tournament,
+  TournamentFormat,
+  TournamentStatus,
+  PlayerLevel,
+} from '../../../../src/core/domain/tournament/tournament.entity';
 
 // Mock for Tournament Repository
 class MockTournamentRepository implements ITournamentRepository {
@@ -75,15 +83,15 @@ class MockTournamentRepository implements ITournamentRepository {
   async getParticipants(tournamentId: string, pagination?: any): Promise<string[]> {
     const participants = this.participantRegistrations.get(tournamentId);
     if (!participants) return [];
-    
+
     let result = Array.from(participants);
-    
+
     // Apply pagination if specified
     if (pagination) {
       const { skip, limit } = pagination;
       result = result.slice(skip, skip + limit);
     }
-    
+
     return result;
   }
 
@@ -95,7 +103,7 @@ class MockTournamentRepository implements ITournamentRepository {
 describe('GetTournamentDetailsUseCase', () => {
   let useCase: GetTournamentDetailsUseCase;
   let tournamentRepository: ITournamentRepository;
-  
+
   const existingTournamentId = '123e4567-e89b-12d3-a456-426614174000';
   const nonExistingTournamentId = '123e4567-e89b-12d3-a456-426614174999';
   const invalidTournamentId = 'invalid-id';
@@ -120,17 +128,17 @@ describe('GetTournamentDetailsUseCase', () => {
       PlayerLevel.P1,
       'user1',
       createDate(1, 7, 2023),
-      createDate(1, 7, 2023)
+      createDate(1, 7, 2023),
     );
 
     // Initialize repository with sample tournament
     tournamentRepository = new MockTournamentRepository([sampleTournament]);
-    
+
     // Register some participants
     tournamentRepository.registerParticipant(existingTournamentId, 'user1');
     tournamentRepository.registerParticipant(existingTournamentId, 'user2');
     tournamentRepository.registerParticipant(existingTournamentId, 'user3');
-    
+
     // Initialize use case
     useCase = new GetTournamentDetailsUseCase(tournamentRepository);
   });
@@ -138,22 +146,22 @@ describe('GetTournamentDetailsUseCase', () => {
   it('should retrieve tournament details successfully', async () => {
     // Setup input
     const input: GetTournamentDetailsInput = {
-      tournamentId: existingTournamentId
+      tournamentId: existingTournamentId,
     };
-    
+
     // Execute use case
     const result = await useCase.execute(input);
-    
+
     // Assertions
     expect(result.isSuccess).toBe(true);
-    
+
     const output = result.getValue();
     expect(output.tournament).toBeDefined();
     expect(output.tournament.id).toBe(existingTournamentId);
     expect(output.tournament.name).toBe('Test Tournament');
     expect(output.tournament.format).toBe(TournamentFormat.SINGLE_ELIMINATION);
     expect(output.tournament.status).toBe(TournamentStatus.OPEN);
-    
+
     // Participant info should not be included by default
     expect(output.participantCount).toBeUndefined();
     expect(output.participants).toBeUndefined();
@@ -163,19 +171,19 @@ describe('GetTournamentDetailsUseCase', () => {
     // Setup input with includeParticipants flag
     const input: GetTournamentDetailsInput = {
       tournamentId: existingTournamentId,
-      includeParticipants: true
+      includeParticipants: true,
     };
-    
+
     // Execute use case
     const result = await useCase.execute(input);
-    
+
     // Assertions
     expect(result.isSuccess).toBe(true);
-    
+
     const output = result.getValue();
     expect(output.tournament).toBeDefined();
     expect(output.tournament.id).toBe(existingTournamentId);
-    
+
     // Participant info should be included
     expect(output.participantCount).toBe(3);
     expect(output.participants).toBeDefined();
@@ -188,12 +196,12 @@ describe('GetTournamentDetailsUseCase', () => {
   it('should return error when tournament is not found', async () => {
     // Setup input with non-existing tournament ID
     const input: GetTournamentDetailsInput = {
-      tournamentId: nonExistingTournamentId
+      tournamentId: nonExistingTournamentId,
     };
-    
+
     // Execute use case
     const result = await useCase.execute(input);
-    
+
     // Assertions
     expect(result.isFailure).toBe(true);
     expect(result.getError().message).toContain('not found');
@@ -202,15 +210,15 @@ describe('GetTournamentDetailsUseCase', () => {
   it('should return error for invalid tournament ID format', async () => {
     // Setup input with invalid tournament ID
     const input = {
-      tournamentId: invalidTournamentId
+      tournamentId: invalidTournamentId,
     } as GetTournamentDetailsInput;
-    
+
     // Execute use case
     const result = await useCase.execute(input);
-    
+
     // Assertions
     expect(result.isFailure).toBe(true);
     expect(result.getError().message).toContain('Invalid input');
     expect(result.getError().message).toContain('UUID');
   });
-}); 
+});

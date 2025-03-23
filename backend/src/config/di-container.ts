@@ -7,7 +7,7 @@ import { IPerformanceHistoryRepository } from '../core/application/interfaces/re
 // Symbols for dependency injection
 export const TYPES = {
   AuthService: Symbol.for('AuthService'),
-  PerformanceHistoryRepository: Symbol.for('PerformanceHistoryRepository')
+  PerformanceHistoryRepository: Symbol.for('PerformanceHistoryRepository'),
 };
 
 // Create and configure container
@@ -20,12 +20,14 @@ if (process.env.NODE_ENV === 'test') {
   // En entorno de producción o desarrollo, configuramos normalmente
   container = new Container();
   container.bind<IAuthService>(TYPES.AuthService).to(SupabaseAuthService);
-  
+
   // Register use cases
   container.bind('trackPerformanceTrendsUseCase').toDynamicValue(() => {
-    const repository = container.get<IPerformanceHistoryRepository>(TYPES.PerformanceHistoryRepository);
+    const repository = container.get<IPerformanceHistoryRepository>(
+      TYPES.PerformanceHistoryRepository,
+    );
     return new TrackPerformanceTrendsUseCase(repository);
   });
 }
 
-export { container }; 
+export { container };

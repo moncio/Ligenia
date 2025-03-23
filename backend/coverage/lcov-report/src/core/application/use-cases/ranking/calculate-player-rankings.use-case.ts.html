@@ -363,8 +363,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -383,18 +381,18 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -409,6 +407,7 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -452,9 +451,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -471,14 +467,17 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -545,6 +544,7 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -562,7 +562,7 @@ import { Player } from '../../../domain/player/player.entity';
 // Input validation schema
 const CalculatePlayerRankingsInputSchema = <span class="cstat-no" title="statement not covered" >z.object({</span>
   // Optional parameter to recalculate all rankings or a specific player's ranking
-  playerId: z.string().uuid({ message: 'Invalid player ID format' }).optional()
+  playerId: z.string().uuid({ message: 'Invalid player ID format' }).optional(),
 });
 &nbsp;
 // Input type
@@ -584,13 +584,13 @@ export interface CalculatePlayerRankingsOutput {
 <span class="fstat-no" title="function not covered" >  constructor(</span>
     private readonly <span class="cstat-no" title="statement not covered" >rankingRepository: IRankingRepository,</span>
     private readonly <span class="cstat-no" title="statement not covered" >statisticRepository: IStatisticRepository,</span>
-    private readonly <span class="cstat-no" title="statement not covered" >playerRepository: IPlayerRepository</span>
+    private readonly <span class="cstat-no" title="statement not covered" >playerRepository: IPlayerRepository,</span>
   ) {
 <span class="cstat-no" title="statement not covered" >    super();</span>
   }
 &nbsp;
   protected async <span class="fstat-no" title="function not covered" >executeImpl(</span>
-    input: CalculatePlayerRankingsInput
+    input: CalculatePlayerRankingsInput,
   ): Promise&lt;Result&lt;CalculatePlayerRankingsOutput&gt;&gt; {
 <span class="cstat-no" title="statement not covered" >    try {</span>
       // Validate input
@@ -603,67 +603,66 @@ export interface CalculatePlayerRankingsOutput {
 <span class="cstat-no" title="statement not covered" >      if (validatedData.playerId) {</span>
         const player = <span class="cstat-no" title="statement not covered" >await this.playerRepository.findById(validatedData.playerId);</span>
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (!player) {</span>
-<span class="cstat-no" title="statement not covered" >          return Result.fail&lt;CalculatePlayerRankingsOutput&gt;(</span>
-            new Error('Player not found')
-          );
+<span class="cstat-no" title="statement not covered" >          return Result.fail&lt;CalculatePlayerRankingsOutput&gt;(new Error('Player not found'));</span>
         }
 &nbsp;
         const statistic = <span class="cstat-no" title="statement not covered" >await this.statisticRepository.findByPlayerId(validatedData.playerId);</span>
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (!statistic) {</span>
 <span class="cstat-no" title="statement not covered" >          return Result.fail&lt;CalculatePlayerRankingsOutput&gt;(</span>
-            new Error('Statistics not found for this player')
+            new Error('Statistics not found for this player'),
           );
         }
 &nbsp;
         // Get all statistics to determine relative ranking
         const allStatistics = <span class="cstat-no" title="statement not covered" >await this.statisticRepository.findAll();</span>
-        
+&nbsp;
         // Calculate ranking points based on statistics
         // Formula: (winRate * 0.4) + (averageScore * 0.3) + (tournamentsWon * 15) + (matchesWon * 0.3)
-        const rankingPoints = 
-<span class="cstat-no" title="statement not covered" >          (statistic.winRate * 0.4) + </span>
-          (statistic.averageScore * 0.3) + 
-          (statistic.tournamentsWon * 15) + 
-          (statistic.matchesWon * 0.3);
+        const rankingPoints =
+<span class="cstat-no" title="statement not covered" >          statistic.winRate * 0.4 +</span>
+          statistic.averageScore * 0.3 +
+          statistic.tournamentsWon * 15 +
+          statistic.matchesWon * 0.3;
 &nbsp;
         // Sort all statistics by calculated ranking points to determine positions
-        const rankedStatistics = <span class="cstat-no" title="statement not covered" >allStatistics.map(<span class="fstat-no" title="function not covered" >s </span>=&gt; {</span>
-          const points = 
-<span class="cstat-no" title="statement not covered" >            (s.winRate * 0.4) + </span>
-            (s.averageScore * 0.3) + 
-            (s.tournamentsWon * 15) + 
-            (s.matchesWon * 0.3);
-<span class="cstat-no" title="statement not covered" >          return { </span>
-            playerId: s.playerId, 
-            points 
-          };
-        }).sort(<span class="fstat-no" title="function not covered" >(a</span>, b) =&gt; <span class="cstat-no" title="statement not covered" >b.points - a.points)</span>;
-        
+        const rankedStatistics = <span class="cstat-no" title="statement not covered" >allStatistics</span>
+          .map(<span class="fstat-no" title="function not covered" >s </span>=&gt; {
+            const points =
+<span class="cstat-no" title="statement not covered" >              s.winRate * 0.4 + s.averageScore * 0.3 + s.tournamentsWon * 15 + s.matchesWon * 0.3;</span>
+<span class="cstat-no" title="statement not covered" >            return {</span>
+              playerId: s.playerId,
+              points,
+            };
+          })
+          .sort(<span class="fstat-no" title="function not covered" >(a</span>, b) =&gt; <span class="cstat-no" title="statement not covered" >b.points - a.points)</span>;
+&nbsp;
         // Find global position
-        const globalPosition = <span class="cstat-no" title="statement not covered" >rankedStatistics.findIndex(<span class="fstat-no" title="function not covered" >s </span>=&gt; <span class="cstat-no" title="statement not covered" >s.playerId === validatedData.playerId)</span> + 1;</span>
-        
+        const globalPosition =
+<span class="cstat-no" title="statement not covered" >          rankedStatistics.findIndex(<span class="fstat-no" title="function not covered" >s </span>=&gt; <span class="cstat-no" title="statement not covered" >s.playerId === validatedData.playerId)</span> + 1;</span>
+&nbsp;
         // Get all players of the same level
         const playersInCategory = <span class="cstat-no" title="statement not covered" >await this.playerRepository.findByLevel(player.level);</span>
         const playerIdsInCategory = <span class="cstat-no" title="statement not covered" >playersInCategory.map(<span class="fstat-no" title="function not covered" >(p</span>: Player) =&gt; <span class="cstat-no" title="statement not covered" >p.id)</span>;</span>
-        
+&nbsp;
         // Filter statistics for players in the same category
         const categoryRankedStatistics = <span class="cstat-no" title="statement not covered" >rankedStatistics</span>
           .filter(<span class="fstat-no" title="function not covered" >rs </span>=&gt; <span class="cstat-no" title="statement not covered" >playerIdsInCategory.includes(rs.playerId))</span>
           .sort(<span class="fstat-no" title="function not covered" >(a</span>, b) =&gt; <span class="cstat-no" title="statement not covered" >b.points - a.points)</span>;
-        
+&nbsp;
         // Find category position
-        const categoryPosition = <span class="cstat-no" title="statement not covered" >categoryRankedStatistics.findIndex(<span class="fstat-no" title="function not covered" >s </span>=&gt; <span class="cstat-no" title="statement not covered" >s.playerId === validatedData.playerId)</span> + 1;</span>
-        
+        const categoryPosition =
+<span class="cstat-no" title="statement not covered" >          categoryRankedStatistics.findIndex(<span class="fstat-no" title="function not covered" >s </span>=&gt; <span class="cstat-no" title="statement not covered" >s.playerId === validatedData.playerId)</span> + 1;</span>
+&nbsp;
         // Check if player already has a ranking
         let playerRanking = <span class="cstat-no" title="statement not covered" >await this.rankingRepository.findByPlayerId(validatedData.playerId);</span>
-        
+&nbsp;
 <span class="cstat-no" title="statement not covered" >        if (playerRanking) {</span>
           // Update existing ranking
 <span class="cstat-no" title="statement not covered" >          playerRanking.updatePoints(rankingPoints);</span>
 <span class="cstat-no" title="statement not covered" >          playerRanking.updateGlobalPosition(globalPosition);</span>
 <span class="cstat-no" title="statement not covered" >          playerRanking.updateCategoryPosition(categoryPosition);</span>
 <span class="cstat-no" title="statement not covered" >          playerRanking.updatePlayerLevel(player.level);</span>
-          
+&nbsp;
 <span class="cstat-no" title="statement not covered" >          await this.rankingRepository.update(playerRanking);</span>
         } else {
           // Create new ranking
@@ -674,93 +673,93 @@ export interface CalculatePlayerRankingsOutput {
             globalPosition,
             categoryPosition,
             player.level,
-            null,  // No previous position
-            0,     // No position change
+            null, // No previous position
+            0, // No position change
             new Date(),
             new Date(),
-            new Date()
+            new Date(),
           );
-          
+&nbsp;
 <span class="cstat-no" title="statement not covered" >          await this.rankingRepository.save(playerRanking);</span>
         }
-        
+&nbsp;
 <span class="cstat-no" title="statement not covered" >        updatedRankings.push(playerRanking);</span>
       } else {
         // Calculate rankings for all players
-        
+&nbsp;
         // Get all player statistics
         const allStatistics = <span class="cstat-no" title="statement not covered" >await this.statisticRepository.findAll();</span>
-        
+&nbsp;
         // Calculate ranking points for each player
         const playerRankings = <span class="cstat-no" title="statement not covered" >allStatistics.map(<span class="fstat-no" title="function not covered" >s </span>=&gt; {</span>
-          const points = 
-<span class="cstat-no" title="statement not covered" >            (s.winRate * 0.4) + </span>
-            (s.averageScore * 0.3) + 
-            (s.tournamentsWon * 15) + 
-            (s.matchesWon * 0.3);
-          
+          const points =
+<span class="cstat-no" title="statement not covered" >            s.winRate * 0.4 + s.averageScore * 0.3 + s.tournamentsWon * 15 + s.matchesWon * 0.3;</span>
+&nbsp;
 <span class="cstat-no" title="statement not covered" >          return {</span>
             playerId: s.playerId,
-            points
+            points,
           };
         });
-        
+&nbsp;
         // Sort by ranking points to determine global positions
         const sortedRankings = <span class="cstat-no" title="statement not covered" >[...playerRankings].sort(<span class="fstat-no" title="function not covered" >(a</span>, b) =&gt; <span class="cstat-no" title="statement not covered" >b.points - a.points)</span>;</span>
-        
+&nbsp;
         // Get all players to determine their levels
         const allPlayers = <span class="cstat-no" title="statement not covered" >await this.playerRepository.findAll();</span>
         const playerMap = <span class="cstat-no" title="statement not covered" >new Map(allPlayers.map(<span class="fstat-no" title="function not covered" >p </span>=&gt; <span class="cstat-no" title="statement not covered" >[p.id, p])</span>);</span>
-        
+&nbsp;
         // Group players by level for category rankings
-        const playersByLevel = <span class="cstat-no" title="statement not covered" >allPlayers.reduce(<span class="fstat-no" title="function not covered" >(a</span>cc, player) =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >          <span class="missing-if-branch" title="if path not taken" >I</span>if (!acc[player.level]) {</span>
-<span class="cstat-no" title="statement not covered" >            acc[player.level] = [];</span>
-          }
-<span class="cstat-no" title="statement not covered" >          acc[player.level].push(player.id);</span>
-<span class="cstat-no" title="statement not covered" >          return acc;</span>
-        }, {} as Record&lt;string, string[]&gt;);
-        
+        const playersByLevel = <span class="cstat-no" title="statement not covered" >allPlayers.reduce(</span>
+<span class="fstat-no" title="function not covered" >          (a</span>cc, player) =&gt; {
+<span class="cstat-no" title="statement not covered" >            <span class="missing-if-branch" title="if path not taken" >I</span>if (!acc[player.level]) {</span>
+<span class="cstat-no" title="statement not covered" >              acc[player.level] = [];</span>
+            }
+<span class="cstat-no" title="statement not covered" >            acc[player.level].push(player.id);</span>
+<span class="cstat-no" title="statement not covered" >            return acc;</span>
+          },
+          {} as Record&lt;string, string[]&gt;,
+        );
+&nbsp;
         // Calculate category positions
         const categoryPositions: Record&lt;string, Record&lt;string, number&gt;&gt; = <span class="cstat-no" title="statement not covered" >{};</span>
-        
+&nbsp;
 <span class="cstat-no" title="statement not covered" >        for (const [level, playerIds] of Object.entries(playersByLevel)) {</span>
           // Filter and sort rankings for this category
           const categoryRankings = <span class="cstat-no" title="statement not covered" >sortedRankings</span>
             .filter(<span class="fstat-no" title="function not covered" >r </span>=&gt; <span class="cstat-no" title="statement not covered" >playerIds.includes(r.playerId))</span>
             .sort(<span class="fstat-no" title="function not covered" >(a</span>, b) =&gt; <span class="cstat-no" title="statement not covered" >b.points - a.points)</span>;
-          
+&nbsp;
           // Store category positions
 <span class="cstat-no" title="statement not covered" >          categoryPositions[level] = {};</span>
 <span class="cstat-no" title="statement not covered" >          categoryRankings.forEach(<span class="fstat-no" title="function not covered" >(r</span>, index) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >            categoryPositions[level][r.playerId] = index + 1;</span>
           });
         }
-        
+&nbsp;
         // Update all player rankings
 <span class="cstat-no" title="statement not covered" >        for (let i = <span class="cstat-no" title="statement not covered" >0;</span> i &lt; sortedRankings.length; i++) {</span>
           const { playerId, points } = <span class="cstat-no" title="statement not covered" >sortedRankings[i];</span>
           const globalPosition = <span class="cstat-no" title="statement not covered" >i + 1;</span>
-          
+&nbsp;
           // Get player to determine level
           const player = <span class="cstat-no" title="statement not covered" >playerMap.get(playerId);</span>
-          
+&nbsp;
 <span class="cstat-no" title="statement not covered" >          <span class="missing-if-branch" title="if path not taken" >I</span>if (!player) {</span>
 <span class="cstat-no" title="statement not covered" >            continue; </span>// Skip if player not found
           }
-          
+&nbsp;
           const categoryPosition = <span class="cstat-no" title="statement not covered" >categoryPositions[player.level][playerId];</span>
-          
+&nbsp;
           // Check if player already has a ranking
           let playerRanking = <span class="cstat-no" title="statement not covered" >await this.rankingRepository.findByPlayerId(playerId);</span>
-          
+&nbsp;
 <span class="cstat-no" title="statement not covered" >          if (playerRanking) {</span>
             // Update existing ranking
 <span class="cstat-no" title="statement not covered" >            playerRanking.updatePoints(points);</span>
 <span class="cstat-no" title="statement not covered" >            playerRanking.updateGlobalPosition(globalPosition);</span>
 <span class="cstat-no" title="statement not covered" >            playerRanking.updateCategoryPosition(categoryPosition);</span>
 <span class="cstat-no" title="statement not covered" >            playerRanking.updatePlayerLevel(player.level);</span>
-            
+&nbsp;
 <span class="cstat-no" title="statement not covered" >            await this.rankingRepository.update(playerRanking);</span>
           } else {
             // Create new ranking
@@ -771,16 +770,16 @@ export interface CalculatePlayerRankingsOutput {
               globalPosition,
               categoryPosition,
               player.level,
-              null,  // No previous position
-              0,     // No position change
+              null, // No previous position
+              0, // No position change
               new Date(),
               new Date(),
-              new Date()
+              new Date(),
             );
-            
+&nbsp;
 <span class="cstat-no" title="statement not covered" >            await this.rankingRepository.save(playerRanking);</span>
           }
-          
+&nbsp;
 <span class="cstat-no" title="statement not covered" >          updatedRankings.push(playerRanking);</span>
         }
       }
@@ -788,18 +787,19 @@ export interface CalculatePlayerRankingsOutput {
 <span class="cstat-no" title="statement not covered" >      return Result.ok&lt;CalculatePlayerRankingsOutput&gt;({ updatedRankings });</span>
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      return Result.fail&lt;CalculatePlayerRankingsOutput&gt;(</span>
-        error instanceof Error ? error : new Error('Failed to calculate player rankings')
+        error instanceof Error ? error : new Error('Failed to calculate player rankings'),
       );
     }
   }
-} </pre></td></tr></table></pre>
+}
+&nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-03-23T19:34:14.050Z
+                at 2025-03-23T22:37:40.856Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>

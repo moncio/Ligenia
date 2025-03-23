@@ -1,4 +1,7 @@
-import { GetPlayerStatisticsUseCase, GetPlayerStatisticsInput } from '../../../../src/core/application/use-cases/statistic/get-player-statistics.use-case';
+import {
+  GetPlayerStatisticsUseCase,
+  GetPlayerStatisticsInput,
+} from '../../../../src/core/application/use-cases/statistic/get-player-statistics.use-case';
 import { IStatisticRepository } from '../../../../src/core/application/interfaces/repositories/statistic.repository';
 import { IPlayerRepository } from '../../../../src/core/application/interfaces/repositories/player.repository';
 import { Statistic } from '../../../../src/core/domain/statistic/statistic.entity';
@@ -98,45 +101,36 @@ describe('GetPlayerStatisticsUseCase', () => {
   // Repository mocks
   let statisticRepository: IStatisticRepository;
   let playerRepository: IPlayerRepository;
-  
+
   // Use case
   let useCase: GetPlayerStatisticsUseCase;
-  
+
   // Test data
   const playerId = '123e4567-e89b-12d3-a456-426614174000';
   const userId = '123e4567-e89b-12d3-a456-426614174001';
-  
-  const testPlayer = new Player(
-    playerId,
-    userId,
-    PlayerLevel.P3,
-    30,
-    'Spain'
-  );
-  
+
+  const testPlayer = new Player(playerId, userId, PlayerLevel.P3, 30, 'Spain');
+
   const testStatistic = new Statistic(
     'stat-1',
     playerId,
-    10,  // matchesPlayed
-    7,   // matchesWon
-    3,   // matchesLost
+    10, // matchesPlayed
+    7, // matchesWon
+    3, // matchesLost
     120, // totalPoints
-    12,  // averageScore
-    3,   // tournamentsPlayed
-    1,   // tournamentsWon
-    70   // winRate
+    12, // averageScore
+    3, // tournamentsPlayed
+    1, // tournamentsWon
+    70, // winRate
   );
 
   beforeEach(() => {
     // Initialize repositories
     statisticRepository = new MockStatisticRepository([testStatistic]);
     playerRepository = new MockPlayerRepository([testPlayer]);
-    
+
     // Initialize use case
-    useCase = new GetPlayerStatisticsUseCase(
-      statisticRepository,
-      playerRepository
-    );
+    useCase = new GetPlayerStatisticsUseCase(statisticRepository, playerRepository);
   });
 
   it('should get player statistics successfully', async () => {
@@ -148,7 +142,7 @@ describe('GetPlayerStatisticsUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const statistic = result.getValue().statistic;
     expect(statistic.id).toBe(testStatistic.id);
     expect(statistic.playerId).toBe(playerId);
@@ -165,21 +159,12 @@ describe('GetPlayerStatisticsUseCase', () => {
   it('should fail when statistics not found for player', async () => {
     // Arrange
     const otherPlayerId = '123e4567-e89b-12d3-a456-426614174002';
-    const otherPlayer = new Player(
-      otherPlayerId,
-      'other-user-id',
-      PlayerLevel.P3,
-      25,
-      'USA'
-    );
-    
+    const otherPlayer = new Player(otherPlayerId, 'other-user-id', PlayerLevel.P3, 25, 'USA');
+
     // Add the player but no statistics
     playerRepository = new MockPlayerRepository([testPlayer, otherPlayer]);
-    useCase = new GetPlayerStatisticsUseCase(
-      statisticRepository,
-      playerRepository
-    );
-    
+    useCase = new GetPlayerStatisticsUseCase(statisticRepository, playerRepository);
+
     const input: GetPlayerStatisticsInput = { playerId: otherPlayerId };
 
     // Act
@@ -222,8 +207,8 @@ describe('GetPlayerStatisticsUseCase', () => {
       playerId,
       dateRange: {
         startDate: new Date('2023-01-01'),
-        endDate: new Date('2023-12-31')
-      }
+        endDate: new Date('2023-12-31'),
+      },
     };
 
     // Act
@@ -233,4 +218,4 @@ describe('GetPlayerStatisticsUseCase', () => {
     expect(result.isSuccess).toBe(true);
     expect(result.getValue().statistic).toBeDefined();
   });
-}); 
+});

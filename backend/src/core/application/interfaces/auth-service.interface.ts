@@ -1,4 +1,10 @@
-import { ILoginCredentials, IRegistrationData, ITokenResponse, ITokenValidationResponse, IAuthUser } from './auth.types';
+import {
+  ILoginCredentials,
+  IRegistrationData,
+  ITokenResponse,
+  ITokenValidationResponse,
+  IAuthUser,
+} from './auth.types';
 import { Result } from '../../../shared/result';
 
 export interface IAuthService {
@@ -10,4 +16,4 @@ export interface IAuthService {
   refreshToken(refreshToken: string): Promise<Result<ITokenResponse>>;
   verifyPassword(plainPassword: string, hashedPassword: string): Promise<boolean>;
   generateToken(user: IAuthUser): Promise<string>;
-} 
+}

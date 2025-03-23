@@ -18,10 +18,7 @@ export type RegisterToTournamentInput = z.infer<typeof registerToTournamentSchem
 /**
  * Use case for registering to a tournament
  */
-export class RegisterToTournamentUseCase extends BaseUseCase<
-  RegisterToTournamentInput,
-  void
-> {
+export class RegisterToTournamentUseCase extends BaseUseCase<RegisterToTournamentInput, void> {
   constructor(
     private readonly tournamentRepository: ITournamentRepository,
     private readonly userRepository: IUserRepository,
@@ -29,9 +26,7 @@ export class RegisterToTournamentUseCase extends BaseUseCase<
     super();
   }
 
-  protected async executeImpl(
-    input: RegisterToTournamentInput,
-  ): Promise<Result<void>> {
+  protected async executeImpl(input: RegisterToTournamentInput): Promise<Result<void>> {
     // Validate input
     const validationResult = registerToTournamentSchema.safeParse(input);
     if (!validationResult.success) {
@@ -91,4 +86,4 @@ export class RegisterToTournamentUseCase extends BaseUseCase<
 
     return Result.ok<void>(null);
   }
-} 
+}

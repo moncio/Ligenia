@@ -63,4 +63,4 @@ export interface IStatisticRepository {
    * Find statistics for players in a tournament
    */
   findByTournamentId(tournamentId: string): Promise<Statistic[]>;
-} 
+}

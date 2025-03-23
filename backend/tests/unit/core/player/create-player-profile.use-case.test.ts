@@ -1,4 +1,7 @@
-import { CreatePlayerProfileUseCase, CreatePlayerProfileInput } from '../../../../src/core/application/use-cases/player/create-player-profile.use-case';
+import {
+  CreatePlayerProfileUseCase,
+  CreatePlayerProfileInput,
+} from '../../../../src/core/application/use-cases/player/create-player-profile.use-case';
 import { IPlayerRepository } from '../../../../src/core/application/interfaces/repositories/player.repository';
 import { IUserRepository } from '../../../../src/core/application/interfaces/repositories/user.repository';
 import { Player } from '../../../../src/core/domain/player/player.entity';
@@ -86,7 +89,7 @@ describe('CreatePlayerProfileUseCase', () => {
       'test@example.com',
       'password',
       'Test User',
-      UserRole.PLAYER
+      UserRole.PLAYER,
     );
 
     // Initialize repositories with test data
@@ -103,7 +106,7 @@ describe('CreatePlayerProfileUseCase', () => {
       userId: testUser.id,
       level: PlayerLevel.P3,
       age: 30,
-      country: 'Spain'
+      country: 'Spain',
     };
 
     // Act
@@ -111,7 +114,7 @@ describe('CreatePlayerProfileUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const player = result.getValue().player;
     expect(player.id).toBeDefined();
     expect(player.userId).toBe(testUser.id);
@@ -124,7 +127,7 @@ describe('CreatePlayerProfileUseCase', () => {
     // Arrange
     const input: CreatePlayerProfileInput = {
       userId: '123e4567-e89b-12d3-a456-426614174001', // Different valid UUID
-      level: PlayerLevel.P3
+      level: PlayerLevel.P3,
     };
 
     // Act
@@ -137,16 +140,12 @@ describe('CreatePlayerProfileUseCase', () => {
 
   it('should fail when player profile already exists for the user', async () => {
     // Arrange
-    const existingPlayer = new Player(
-      'player-1',
-      testUser.id,
-      PlayerLevel.P3
-    );
+    const existingPlayer = new Player('player-1', testUser.id, PlayerLevel.P3);
     await playerRepository.save(existingPlayer);
 
     const input: CreatePlayerProfileInput = {
       userId: testUser.id,
-      level: PlayerLevel.P2
+      level: PlayerLevel.P2,
     };
 
     // Act
@@ -161,7 +160,7 @@ describe('CreatePlayerProfileUseCase', () => {
     // Arrange
     const input = {
       userId: 'invalid-uuid', // Not a valid UUID
-      level: 'invalid-level' // Not a valid PlayerLevel
+      level: 'invalid-level', // Not a valid PlayerLevel
     } as any;
 
     // Act
@@ -176,7 +175,7 @@ describe('CreatePlayerProfileUseCase', () => {
     // Arrange
     const input: CreatePlayerProfileInput = {
       userId: testUser.id,
-      level: PlayerLevel.P3
+      level: PlayerLevel.P3,
     };
 
     // Act
@@ -184,7 +183,7 @@ describe('CreatePlayerProfileUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const player = result.getValue().player;
     expect(player.userId).toBe(testUser.id);
     expect(player.level).toBe(PlayerLevel.P3);
@@ -192,4 +191,4 @@ describe('CreatePlayerProfileUseCase', () => {
     expect(player.country).toBeNull();
     expect(player.avatarUrl).toBeNull();
   });
-}); 
+});

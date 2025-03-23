@@ -113,36 +113,29 @@
 <a name='L48'></a><a href='#L48'>48</a>
 <a name='L49'></a><a href='#L49'>49</a>
 <a name='L50'></a><a href='#L50'>50</a>
-<a name='L51'></a><a href='#L51'>51</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">4x</span>
+<a name='L51'></a><a href='#L51'>51</a>
+<a name='L52'></a><a href='#L52'>52</a>
+<a name='L53'></a><a href='#L53'>53</a>
+<a name='L54'></a><a href='#L54'>54</a>
+<a name='L55'></a><a href='#L55'>55</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -151,7 +144,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -160,24 +155,37 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { z } from 'zod';
 &nbsp;
 // Esquema de validación para parámetros de ID
 export const idParamSchema = z.object({
-  id: z.string().uuid({ message: 'Invalid statistic ID format' })
+  id: z.string().uuid({ message: 'Invalid statistic ID format' }),
 });
 &nbsp;
 // Esquema de validación para parámetros de usuario
 export const userIdParamSchema = z.object({
-  userId: z.string().uuid({ message: 'Invalid user ID format' })
+  userId: z.string().uuid({ message: 'Invalid user ID format' }),
 });
 &nbsp;
 // Esquema de validación para parámetros de torneo
 export const tournamentIdParamSchema = z.object({
-  tournamentId: z.string().uuid({ message: 'Invalid tournament ID format' })
+  tournamentId: z.string().uuid({ message: 'Invalid tournament ID format' }),
 });
 &nbsp;
 // Esquema de validación para la creación de estadísticas
@@ -188,7 +196,7 @@ export const createStatisticSchema = z.object({
   wins: z.number().int().min(0).default(0),
   losses: z.number().int().min(0).default(0),
   points: z.number().int().min(0).default(0),
-  rank: z.number().int().min(0).default(0)
+  rank: z.number().int().min(0).default(0),
 });
 &nbsp;
 // Esquema de validación para la actualización de estadísticas
@@ -197,30 +205,34 @@ export const updateStatisticSchema = z.object({
   wins: z.number().int().min(0).optional(),
   losses: z.number().int().min(0).optional(),
   points: z.number().int().min(0).optional(),
-  rank: z.number().int().min(0).optional()
+  rank: z.number().int().min(0).optional(),
 });
 &nbsp;
 // Esquema de validación para consulta de estadísticas
 export const getStatisticsQuerySchema = z.object({
   userId: z.string().uuid({ message: 'Invalid user ID format' }).optional(),
   tournamentId: z.string().uuid({ message: 'Invalid tournament ID format' }).optional(),
-  year: z.string().regex(/^\d{4}$/, { message: 'Year must be a 4-digit number' }).optional(),
+  year: z
+    .string()
+    .regex(/^\d{4}$/, { message: 'Year must be a 4-digit number' })
+    .optional(),
   limit: z.string().regex(/^\d+$/, { message: 'Limit must be a number' }).optional(),
-  offset: z.string().regex(/^\d+$/, { message: 'Offset must be a number' }).optional()
+  offset: z.string().regex(/^\d+$/, { message: 'Offset must be a number' }).optional(),
 });
 &nbsp;
 // Esquema de validación para consulta de rankings
 export const getRankingsQuerySchema = z.object({
   limit: z.string().regex(/^\d+$/, { message: 'Limit must be a number' }).optional(),
-  offset: z.string().regex(/^\d+$/, { message: 'Offset must be a number' }).optional()
-}); </pre></td></tr></table></pre>
+  offset: z.string().regex(/^\d+$/, { message: 'Offset must be a number' }).optional(),
+});
+&nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-03-23T19:34:14.050Z
+                at 2025-03-23T22:37:40.856Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

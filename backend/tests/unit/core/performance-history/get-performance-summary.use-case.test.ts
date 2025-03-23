@@ -1,17 +1,27 @@
 import { PerformanceHistory } from '@prisma/client';
-import { IPerformanceHistoryRepository, PerformanceHistoryFilter, PerformanceSummary, PerformanceTrend } from '../../../../src/core/application/interfaces/repositories/performance-history.repository';
-import { GetPerformanceSummaryUseCase, GetPerformanceSummaryInput } from '../../../../src/core/application/use-cases/performance-history/get-performance-summary.use-case';
+import {
+  IPerformanceHistoryRepository,
+  PerformanceHistoryFilter,
+  PerformanceSummary,
+  PerformanceTrend,
+} from '../../../../src/core/application/interfaces/repositories/performance-history.repository';
+import {
+  GetPerformanceSummaryUseCase,
+  GetPerformanceSummaryInput,
+} from '../../../../src/core/application/use-cases/performance-history/get-performance-summary.use-case';
 
 // Mock repository implementation
 class MockPerformanceHistoryRepository implements IPerformanceHistoryRepository {
   private mockData: PerformanceHistory[] = [];
 
-  async create(data: Omit<PerformanceHistory, 'id' | 'createdAt' | 'updatedAt'>): Promise<PerformanceHistory> {
+  async create(
+    data: Omit<PerformanceHistory, 'id' | 'createdAt' | 'updatedAt'>,
+  ): Promise<PerformanceHistory> {
     const newEntry: PerformanceHistory = {
       id: 'mock-id-' + Date.now(),
       createdAt: new Date(),
       updatedAt: new Date(),
-      ...data
+      ...data,
     };
     this.mockData.push(newEntry);
     return newEntry;
@@ -22,23 +32,26 @@ class MockPerformanceHistoryRepository implements IPerformanceHistoryRepository 
     return entry || null;
   }
 
-  async findByUserId(userId: string, filter?: PerformanceHistoryFilter): Promise<PerformanceHistory[]> {
+  async findByUserId(
+    userId: string,
+    filter?: PerformanceHistoryFilter,
+  ): Promise<PerformanceHistory[]> {
     let result = this.mockData.filter(item => item.userId === userId);
-    
+
     if (filter?.year !== undefined) {
       result = result.filter(item => item.year === filter.year);
     }
-    
+
     if (filter?.month !== undefined) {
       result = result.filter(item => item.month === filter.month);
     }
-    
+
     if (filter?.limit !== undefined || filter?.offset !== undefined) {
       const offset = filter?.offset || 0;
       const limit = filter?.limit || result.length;
       result = result.slice(offset, offset + limit);
     }
-    
+
     return result;
   }
 
@@ -47,13 +60,13 @@ class MockPerformanceHistoryRepository implements IPerformanceHistoryRepository 
     if (index === -1) {
       throw new Error('Performance history entry not found');
     }
-    
+
     const updatedEntry = {
       ...this.mockData[index],
       ...data,
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
-    
+
     this.mockData[index] = updatedEntry;
     return updatedEntry;
   }
@@ -69,7 +82,7 @@ class MockPerformanceHistoryRepository implements IPerformanceHistoryRepository 
     if (userId === 'non-existent-uuid') {
       throw new Error('User not found');
     }
-    
+
     // Return different results based on input to test behavior
     return {
       userId,
@@ -79,18 +92,18 @@ class MockPerformanceHistoryRepository implements IPerformanceHistoryRepository 
       totalLosses: 3,
       winRate: 70,
       avgPointsPerMonth: 15,
-      bestMonth: year ? {
-        month: 3,
-        wins: 3,
-        points: 9
-      } : undefined
+      bestMonth: year
+        ? {
+            month: 3,
+            wins: 3,
+            points: 9,
+          }
+        : undefined,
     };
   }
 
   async findPerformanceTrends(userId: string, timeframe?: string): Promise<PerformanceTrend[]> {
-    return [
-      { period: 'Jan', matchesPlayed: 3, wins: 2, losses: 1, points: 6 }
-    ];
+    return [{ period: 'Jan', matchesPlayed: 3, wins: 2, losses: 1, points: 6 }];
   }
 }
 
@@ -105,17 +118,17 @@ describe('GetPerformanceSummaryUseCase', () => {
 
   // Helper function to create a valid input
   const createValidInput = (): GetPerformanceSummaryInput => ({
-    userId: '123e4567-e89b-12d3-a456-426614174000'
+    userId: '123e4567-e89b-12d3-a456-426614174000',
   });
 
   describe('Get performance summary', () => {
     test('should retrieve performance summary for a player', async () => {
       // Arrange
       const input = createValidInput();
-      
+
       // Act
       const result = await useCase.execute(input);
-      
+
       // Assert
       expect(result.isSuccess).toBe(true);
       const summary = result.getValue();
@@ -128,12 +141,12 @@ describe('GetPerformanceSummaryUseCase', () => {
       // Arrange
       const input = {
         ...createValidInput(),
-        year: 2023
+        year: 2023,
       };
-      
+
       // Act
       const result = await useCase.execute(input);
-      
+
       // Assert
       expect(result.isSuccess).toBe(true);
       const summary = result.getValue();
@@ -147,12 +160,12 @@ describe('GetPerformanceSummaryUseCase', () => {
       // Arrange
       const input = {
         ...createValidInput(),
-        year: '2023'
+        year: '2023',
       } as any; // Type cast to any since we're testing string input
-      
+
       // Act
       const result = await useCase.execute(input);
-      
+
       // Assert
       expect(result.isSuccess).toBe(true);
       const summary = result.getValue();
@@ -166,12 +179,12 @@ describe('GetPerformanceSummaryUseCase', () => {
       // Arrange
       const input = {
         ...createValidInput(),
-        userId: 'invalid-uuid'
+        userId: 'invalid-uuid',
       };
-      
+
       // Act
       const result = await useCase.execute(input as any);
-      
+
       // Assert
       expect(result.isFailure).toBe(true);
       expect(result.getError().message).toContain('Invalid user ID format');
@@ -181,12 +194,12 @@ describe('GetPerformanceSummaryUseCase', () => {
       // Arrange
       const input = {
         ...createValidInput(),
-        year: 1999 // Out of valid range
+        year: 1999, // Out of valid range
       };
-      
+
       // Act
       const result = await useCase.execute(input);
-      
+
       // Assert
       expect(result.isFailure).toBe(true);
     });
@@ -195,12 +208,12 @@ describe('GetPerformanceSummaryUseCase', () => {
       // Arrange
       const input = {
         ...createValidInput(),
-        year: 'not-a-year'
+        year: 'not-a-year',
       } as any;
-      
+
       // Act
       const result = await useCase.execute(input);
-      
+
       // Assert
       expect(result.isFailure).toBe(true);
     });
@@ -213,18 +226,18 @@ describe('GetPerformanceSummaryUseCase', () => {
       const input = {
         userId: validUserId,
       } as GetPerformanceSummaryInput;
-      
+
       // Mock the repository to throw an error
       jest.spyOn(repository, 'findPerformanceSummary').mockImplementation(() => {
         throw new Error('Database connection error');
       });
-      
+
       // Act
       const result = await useCase.execute(input);
-      
+
       // Assert
       expect(result.isFailure).toBe(true);
       expect(result.getError().message).toBe('Database connection error');
     });
   });
-}); 
+});

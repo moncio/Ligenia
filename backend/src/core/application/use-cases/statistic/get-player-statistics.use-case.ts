@@ -8,14 +8,14 @@ import { IPlayerRepository } from '../../interfaces/repositories/player.reposito
 // Input validation schema
 const GetPlayerStatisticsInputSchema = z.object({
   playerId: z.string().uuid({
-    message: 'Invalid player ID format'
+    message: 'Invalid player ID format',
   }),
   dateRange: z
     .object({
       startDate: z.string().or(z.date()).optional(),
-      endDate: z.string().or(z.date()).optional()
+      endDate: z.string().or(z.date()).optional(),
     })
-    .optional()
+    .optional(),
 });
 
 // Input type
@@ -35,12 +35,14 @@ export class GetPlayerStatisticsUseCase extends BaseUseCase<
 > {
   constructor(
     private readonly statisticRepository: IStatisticRepository,
-    private readonly playerRepository: IPlayerRepository
+    private readonly playerRepository: IPlayerRepository,
   ) {
     super();
   }
 
-  protected async executeImpl(input: GetPlayerStatisticsInput): Promise<Result<GetPlayerStatisticsOutput>> {
+  protected async executeImpl(
+    input: GetPlayerStatisticsInput,
+  ): Promise<Result<GetPlayerStatisticsOutput>> {
     try {
       // Validate input
       let validatedData: GetPlayerStatisticsInput;
@@ -49,7 +51,7 @@ export class GetPlayerStatisticsUseCase extends BaseUseCase<
       } catch (validationError) {
         if (validationError instanceof z.ZodError) {
           return Result.fail<GetPlayerStatisticsOutput>(
-            new Error(validationError.errors[0].message)
+            new Error(validationError.errors[0].message),
           );
         }
         throw validationError;
@@ -58,17 +60,15 @@ export class GetPlayerStatisticsUseCase extends BaseUseCase<
       // Check if player exists
       const player = await this.playerRepository.findById(validatedData.playerId);
       if (!player) {
-        return Result.fail<GetPlayerStatisticsOutput>(
-          new Error('Player not found')
-        );
+        return Result.fail<GetPlayerStatisticsOutput>(new Error('Player not found'));
       }
 
       // Retrieve player statistics
       const statistic = await this.statisticRepository.findByPlayerId(validatedData.playerId);
-      
+
       if (!statistic) {
         return Result.fail<GetPlayerStatisticsOutput>(
-          new Error('Statistics not found for this player')
+          new Error('Statistics not found for this player'),
         );
       }
 
@@ -78,8 +78,8 @@ export class GetPlayerStatisticsUseCase extends BaseUseCase<
       return Result.ok<GetPlayerStatisticsOutput>({ statistic });
     } catch (error) {
       return Result.fail<GetPlayerStatisticsOutput>(
-        error instanceof Error ? error : new Error('Failed to get player statistics')
+        error instanceof Error ? error : new Error('Failed to get player statistics'),
       );
     }
   }
-} 
+}

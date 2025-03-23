@@ -3,14 +3,14 @@ import { StatisticController, RankingController } from '../controllers/statistic
 import { authenticate, authorize } from '../middlewares/auth.middleware';
 import { UserRole } from '@prisma/client';
 import { validateBody, validateParams, validateQuery } from '../middlewares/validate.middleware';
-import { 
+import {
   idParamSchema,
   userIdParamSchema,
   tournamentIdParamSchema,
   createStatisticSchema,
   updateStatisticSchema,
   getStatisticsQuerySchema,
-  getRankingsQuerySchema
+  getRankingsQuerySchema,
 } from '../validations/statistic.validation';
 
 const router = Router();
@@ -22,22 +22,14 @@ const rankingController = new RankingController();
  * @desc Get all statistics
  * @access Public
  */
-router.get(
-  '/',
-  validateQuery(getStatisticsQuerySchema),
-  statisticController.getStatistics
-);
+router.get('/', validateQuery(getStatisticsQuerySchema), statisticController.getStatistics);
 
 /**
  * @route GET /api/statistics/:id
  * @desc Get statistic by ID
  * @access Public
  */
-router.get(
-  '/:id',
-  validateParams(idParamSchema),
-  statisticController.getStatisticById
-);
+router.get('/:id', validateParams(idParamSchema), statisticController.getStatisticById);
 
 /**
  * @route POST /api/statistics
@@ -49,7 +41,7 @@ router.post(
   authenticate,
   authorize([UserRole.ADMIN]),
   validateBody(createStatisticSchema),
-  statisticController.createStatistic
+  statisticController.createStatistic,
 );
 
 /**
@@ -63,7 +55,7 @@ router.put(
   authorize([UserRole.ADMIN]),
   validateParams(idParamSchema),
   validateBody(updateStatisticSchema),
-  statisticController.updateStatistic
+  statisticController.updateStatistic,
 );
 
 /**
@@ -76,7 +68,7 @@ router.delete(
   authenticate,
   authorize([UserRole.ADMIN]),
   validateParams(idParamSchema),
-  statisticController.deleteStatistic
+  statisticController.deleteStatistic,
 );
 
 /**
@@ -87,7 +79,7 @@ router.delete(
 router.get(
   '/user/:userId',
   validateParams(userIdParamSchema),
-  statisticController.getUserStatistics
+  statisticController.getUserStatistics,
 );
 
 /**
@@ -98,7 +90,7 @@ router.get(
 router.get(
   '/tournament/:tournamentId',
   validateParams(tournamentIdParamSchema),
-  statisticController.getTournamentStatistics
+  statisticController.getTournamentStatistics,
 );
 
 /**
@@ -106,10 +98,6 @@ router.get(
  * @desc Get rankings
  * @access Public
  */
-router.get(
-  '/rankings',
-  validateQuery(getRankingsQuerySchema),
-  rankingController.getRankings
-);
+router.get('/rankings', validateQuery(getRankingsQuerySchema), rankingController.getRankings);
 
-export default router; 
+export default router;

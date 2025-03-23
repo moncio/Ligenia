@@ -13,7 +13,7 @@ export class UserController {
       if (!req.user || req.user.role !== UserRole.ADMIN) {
         return res.status(403).json({
           status: 'error',
-          message: 'You do not have permission to access this resource'
+          message: 'You do not have permission to access this resource',
         });
       }
 
@@ -24,29 +24,29 @@ export class UserController {
       // En este punto solo implementamos una respuesta simulada
 
       const users = [
-        { 
-          id: '1', 
-          name: 'Admin User', 
-          email: 'admin@example.com', 
-          role: UserRole.ADMIN, 
+        {
+          id: '1',
+          name: 'Admin User',
+          email: 'admin@example.com',
+          role: UserRole.ADMIN,
           emailVerified: true,
-          createdAt: new Date().toISOString()
+          createdAt: new Date().toISOString(),
         },
-        { 
-          id: '2', 
-          name: 'Player User', 
-          email: 'player@example.com', 
-          role: UserRole.PLAYER, 
+        {
+          id: '2',
+          name: 'Player User',
+          email: 'player@example.com',
+          role: UserRole.PLAYER,
           emailVerified: true,
-          createdAt: new Date().toISOString()
-        }
+          createdAt: new Date().toISOString(),
+        },
       ];
 
       return res.status(200).json({
         status: 'success',
         data: {
-          users
-        }
+          users,
+        },
       });
     } catch (error) {
       console.error('Error getting users:', error);
@@ -67,7 +67,7 @@ export class UserController {
       if (!req.user) {
         return res.status(401).json({
           status: 'error',
-          message: 'You must be authenticated to access this resource'
+          message: 'You must be authenticated to access this resource',
         });
       }
 
@@ -75,7 +75,7 @@ export class UserController {
       if (req.user.role !== UserRole.ADMIN && req.user.id !== id) {
         return res.status(403).json({
           status: 'error',
-          message: 'You do not have permission to access this resource'
+          message: 'You do not have permission to access this resource',
         });
       }
 
@@ -89,14 +89,14 @@ export class UserController {
         email: 'user@example.com',
         role: UserRole.PLAYER,
         emailVerified: true,
-        createdAt: new Date().toISOString()
+        createdAt: new Date().toISOString(),
       };
 
       return res.status(200).json({
         status: 'success',
         data: {
-          user
-        }
+          user,
+        },
       });
     } catch (error) {
       console.error('Error getting user by ID:', error);
@@ -117,7 +117,7 @@ export class UserController {
       if (!req.user || req.user.role !== UserRole.ADMIN) {
         return res.status(403).json({
           status: 'error',
-          message: 'You do not have permission to create users'
+          message: 'You do not have permission to create users',
         });
       }
 
@@ -130,14 +130,14 @@ export class UserController {
         ...userData,
         emailVerified: false,
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       };
 
       return res.status(201).json({
         status: 'success',
         data: {
-          user
-        }
+          user,
+        },
       });
     } catch (error) {
       console.error('Error creating user:', error);
@@ -159,7 +159,7 @@ export class UserController {
       if (!req.user) {
         return res.status(401).json({
           status: 'error',
-          message: 'You must be authenticated to update a user'
+          message: 'You must be authenticated to update a user',
         });
       }
 
@@ -167,7 +167,7 @@ export class UserController {
       if (req.user.role !== UserRole.ADMIN && req.user.id !== id) {
         return res.status(403).json({
           status: 'error',
-          message: 'You do not have permission to update this user'
+          message: 'You do not have permission to update this user',
         });
       }
 
@@ -175,7 +175,7 @@ export class UserController {
       if (userData.role && req.user.role !== UserRole.ADMIN) {
         return res.status(403).json({
           status: 'error',
-          message: 'You do not have permission to change user roles'
+          message: 'You do not have permission to change user roles',
         });
       }
 
@@ -186,14 +186,14 @@ export class UserController {
       const user = {
         id,
         ...userData,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       };
 
       return res.status(200).json({
         status: 'success',
         data: {
-          user
-        }
+          user,
+        },
       });
     } catch (error) {
       console.error('Error updating user:', error);
@@ -214,7 +214,7 @@ export class UserController {
       if (!req.user) {
         return res.status(401).json({
           status: 'error',
-          message: 'You must be authenticated to delete a user'
+          message: 'You must be authenticated to delete a user',
         });
       }
 
@@ -222,7 +222,7 @@ export class UserController {
       if (req.user.role !== UserRole.ADMIN && req.user.id !== id) {
         return res.status(403).json({
           status: 'error',
-          message: 'You do not have permission to delete this user'
+          message: 'You do not have permission to delete this user',
         });
       }
 
@@ -231,7 +231,7 @@ export class UserController {
 
       return res.status(200).json({
         status: 'success',
-        message: 'User deleted successfully'
+        message: 'User deleted successfully',
       });
     } catch (error) {
       console.error('Error deleting user:', error);
@@ -253,7 +253,7 @@ export class UserController {
       if (!req.user) {
         return res.status(401).json({
           status: 'error',
-          message: 'You must be authenticated to change password'
+          message: 'You must be authenticated to change password',
         });
       }
 
@@ -261,7 +261,7 @@ export class UserController {
       if (req.user.id !== id) {
         return res.status(403).json({
           status: 'error',
-          message: 'You can only change your own password'
+          message: 'You can only change your own password',
         });
       }
 
@@ -270,7 +270,7 @@ export class UserController {
 
       return res.status(200).json({
         status: 'success',
-        message: 'Password changed successfully'
+        message: 'Password changed successfully',
       });
     } catch (error) {
       console.error('Error changing password:', error);
@@ -288,25 +288,25 @@ export class UserController {
 
       // For testing purposes, simulate different responses based on request parameters
       // but don't rely on the req.user object which is hardcoded in the middleware
-      
+
       // Mock the logic instead of using req.user for the test cases
       const authHeader = req.headers.authorization;
-      
+
       // Handle unauthorized access test case
       if (!authHeader || !authHeader.startsWith('Bearer ')) {
         return res.status(401).json({
           status: 'error',
-          message: 'Authentication token is missing'
+          message: 'Authentication token is missing',
         });
       }
-      
+
       const token = authHeader.split(' ')[1];
-      
+
       // Handle invalid token test case
       if (token === 'invalid-token') {
         return res.status(401).json({
           status: 'error',
-          message: 'Invalid or expired token'
+          message: 'Invalid or expired token',
         });
       }
 
@@ -314,17 +314,21 @@ export class UserController {
       if (id === '00000000-0000-0000-0000-000000000000') {
         return res.status(404).json({
           status: 'error',
-          message: 'User not found'
+          message: 'User not found',
         });
       }
-      
+
       // For JWT tokens, check the role from the token's payload portion
       // The token is in format: header.payload.signature
       // Extract and decode the payload (second part)
-      const isAdmin = token.includes('eyJzdWIiOiIxMjNlNDU2Ny1lODliLTEyZDMtYTQ1Ni00MjY2MTQxNzQwMDAi');
-      const isPlayerToken = token.includes('eyJzdWIiOiIxMjNlNDU2Ny1lODliLTEyZDMtYTQ1Ni00MjY2MTQxNzQwMDEi');
+      const isAdmin = token.includes(
+        'eyJzdWIiOiIxMjNlNDU2Ny1lODliLTEyZDMtYTQ1Ni00MjY2MTQxNzQwMDAi',
+      );
+      const isPlayerToken = token.includes(
+        'eyJzdWIiOiIxMjNlNDU2Ny1lODliLTEyZDMtYTQ1Ni00MjY2MTQxNzQwMDEi',
+      );
       const isPlayerRequest = id === '123e4567-e89b-12d3-a456-426614174001';
-      
+
       // Admin can access any statistics
       if (isAdmin) {
         const statistics = {
@@ -334,17 +338,17 @@ export class UserController {
           averageScore: 78.5,
           highestScore: 95,
           tournamentParticipation: 5,
-          tournamentWins: 2
+          tournamentWins: 2,
         };
 
         return res.status(200).json({
           status: 'success',
           data: {
             userId: id,
-            statistics
-          }
+            statistics,
+          },
         });
-      } 
+      }
       // Player can only access their own statistics
       else if (isPlayerToken && isPlayerRequest) {
         const statistics = {
@@ -354,28 +358,28 @@ export class UserController {
           averageScore: 78.5,
           highestScore: 95,
           tournamentParticipation: 5,
-          tournamentWins: 2
+          tournamentWins: 2,
         };
 
         return res.status(200).json({
           status: 'success',
           data: {
             userId: id,
-            statistics
-          }
+            statistics,
+          },
         });
-      } 
+      }
       // Otherwise, return forbidden
       else {
         return res.status(403).json({
           status: 'error',
-          message: 'You do not have permission to access these statistics'
+          message: 'You do not have permission to access these statistics',
         });
       }
     } catch (error) {
       return res.status(500).json({
         status: 'error',
-        message: 'An error occurred while fetching user statistics'
+        message: 'An error occurred while fetching user statistics',
       });
     }
   };
@@ -415,7 +419,9 @@ export class UserController {
   public getUserPerformance = async (req: Request, res: Response) => {
     try {
       const { id, year } = req.params;
-      return res.json({ message: `Get user performance route working correctly for ID: ${id} and year: ${year}` });
+      return res.json({
+        message: `Get user performance route working correctly for ID: ${id} and year: ${year}`,
+      });
     } catch (error) {
       console.error('Error getting user performance:', error);
       return res.status(500).json({ status: 'error', message: 'Internal server error' });
@@ -435,4 +441,4 @@ export class UserController {
       return res.status(500).json({ status: 'error', message: 'Internal server error' });
     }
   };
-} 
+}

@@ -8,7 +8,7 @@ import {
   createMatchSchema,
   updateMatchSchema,
   updateScoreSchema,
-  getMatchesQuerySchema
+  getMatchesQuerySchema,
 } from '../validations/match.validation';
 
 const router = Router();
@@ -19,22 +19,14 @@ const matchController = new MatchController();
  * @desc Get all matches
  * @access Public
  */
-router.get(
-  '/',
-  validateQuery(getMatchesQuerySchema),
-  matchController.getMatches
-);
+router.get('/', validateQuery(getMatchesQuerySchema), matchController.getMatches);
 
 /**
  * @route GET /api/matches/:id
  * @desc Get match by ID
  * @access Public
  */
-router.get(
-  '/:id',
-  validateParams(idParamSchema),
-  matchController.getMatchById
-);
+router.get('/:id', validateParams(idParamSchema), matchController.getMatchById);
 
 /**
  * @route POST /api/matches
@@ -46,7 +38,7 @@ router.post(
   authenticate,
   authorize([UserRole.ADMIN]),
   validateBody(createMatchSchema),
-  matchController.createMatch
+  matchController.createMatch,
 );
 
 /**
@@ -60,7 +52,7 @@ router.put(
   authorize([UserRole.ADMIN]),
   validateParams(idParamSchema),
   validateBody(updateMatchSchema),
-  matchController.updateMatch
+  matchController.updateMatch,
 );
 
 /**
@@ -74,7 +66,7 @@ router.patch(
   authorize([UserRole.ADMIN]),
   validateParams(idParamSchema),
   validateBody(updateScoreSchema),
-  matchController.updateScore
+  matchController.updateScore,
 );
 
 /**
@@ -87,7 +79,7 @@ router.delete(
   authenticate,
   authorize([UserRole.ADMIN]),
   validateParams(idParamSchema),
-  matchController.deleteMatch
+  matchController.deleteMatch,
 );
 
-export default router; 
+export default router;

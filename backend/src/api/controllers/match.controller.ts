@@ -17,11 +17,11 @@ export class MatchController {
 
       // TODO: Implementar la lógica para obtener todos los partidos desde el caso de uso correspondiente
       // En este punto solo implementamos una respuesta simulada
-      
+
       // Simulación de datos de partidos para la respuesta
       let matches = [
-        { 
-          id: '1', 
+        {
+          id: '1',
           tournamentId: 'tournament1-uuid',
           homePlayerOneId: 'player1-uuid',
           homePlayerTwoId: 'player2-uuid',
@@ -34,10 +34,10 @@ export class MatchController {
           homeScore: null as number | null,
           awayScore: null as number | null,
           createdAt: '2023-07-01T10:00:00Z',
-          updatedAt: '2023-07-01T10:00:00Z'
+          updatedAt: '2023-07-01T10:00:00Z',
         },
-        { 
-          id: '2', 
+        {
+          id: '2',
           tournamentId: 'tournament1-uuid',
           homePlayerOneId: 'player5-uuid',
           homePlayerTwoId: 'player6-uuid',
@@ -50,8 +50,8 @@ export class MatchController {
           homeScore: 6,
           awayScore: 4,
           createdAt: '2023-07-01T11:00:00Z',
-          updatedAt: '2023-07-10T14:00:00Z'
-        }
+          updatedAt: '2023-07-10T14:00:00Z',
+        },
       ];
 
       // Aplicar filtros si se proporcionaron
@@ -67,16 +67,16 @@ export class MatchController {
         return res.status(200).json({
           status: 'success',
           data: {
-            matches: []
-          }
+            matches: [],
+          },
         });
       }
 
       return res.status(200).json({
         status: 'success',
         data: {
-          matches
-        }
+          matches,
+        },
       });
     } catch (error) {
       console.error('Error getting matches:', error);
@@ -92,12 +92,12 @@ export class MatchController {
     try {
       // El parámetro id ya ha sido validado por el middleware
       const { id } = req.params;
-      
+
       // Verificar si el ID proporcionado es un ID ficticio para pruebas
       if (id === '00000000-0000-0000-0000-000000000000') {
         return res.status(404).json({
           status: 'error',
-          message: 'Match not found'
+          message: 'Match not found',
         });
       }
 
@@ -118,14 +118,14 @@ export class MatchController {
         awayPlayerTwoId: 'player4-uuid',
         awayPlayerTwoName: 'Player 4',
         status: 'scheduled',
-        scheduledDate: new Date().toISOString()
+        scheduledDate: new Date().toISOString(),
       };
 
       return res.status(200).json({
         status: 'success',
         data: {
-          match
-        }
+          match,
+        },
       });
     } catch (error) {
       console.error('Error getting match by ID:', error);
@@ -146,7 +146,7 @@ export class MatchController {
       if (!req.user || req.user.role !== UserRole.ADMIN) {
         return res.status(403).json({
           status: 'error',
-          message: 'You do not have permission to create matches'
+          message: 'You do not have permission to create matches',
         });
       }
 
@@ -161,15 +161,15 @@ export class MatchController {
       ) {
         return res.status(400).json({
           status: 'error',
-          message: 'Players must be unique'
+          message: 'Players must be unique',
         });
       }
 
       const match = await prisma.match.create({
         data: {
           ...matchData,
-          status: matchData.status || MatchStatus.PENDING
-        }
+          status: matchData.status || MatchStatus.PENDING,
+        },
       });
       res.status(201).json({ status: 'success', data: { match } });
     } catch (error) {
@@ -192,7 +192,7 @@ export class MatchController {
       if (!req.user || req.user.role !== UserRole.ADMIN) {
         return res.status(403).json({
           status: 'error',
-          message: 'You do not have permission to update matches'
+          message: 'You do not have permission to update matches',
         });
       }
 
@@ -200,7 +200,7 @@ export class MatchController {
       if (id === '00000000-0000-0000-0000-000000000000') {
         return res.status(404).json({
           status: 'error',
-          message: 'Match not found'
+          message: 'Match not found',
         });
       }
 
@@ -222,19 +222,19 @@ export class MatchController {
         homeScore: null as number | null,
         awayScore: null as number | null,
       };
-      
+
       // Simulación de datos de un partido actualizado para la respuesta
       const updatedMatch = {
         ...existingMatch,
         ...matchData,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       };
 
       return res.status(200).json({
         status: 'success',
         data: {
-          match: updatedMatch
-        }
+          match: updatedMatch,
+        },
       });
     } catch (error) {
       console.error('Error updating match:', error);
@@ -256,7 +256,7 @@ export class MatchController {
       if (!req.user || req.user.role !== UserRole.ADMIN) {
         return res.status(403).json({
           status: 'error',
-          message: 'You do not have permission to update match scores'
+          message: 'You do not have permission to update match scores',
         });
       }
 
@@ -264,7 +264,7 @@ export class MatchController {
       if (id === '00000000-0000-0000-0000-000000000000') {
         return res.status(404).json({
           status: 'error',
-          message: 'Match not found'
+          message: 'Match not found',
         });
       }
 
@@ -288,14 +288,14 @@ export class MatchController {
       const match = {
         ...existingMatch,
         ...scoreData,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       };
 
       return res.status(200).json({
         status: 'success',
         data: {
-          match
-        }
+          match,
+        },
       });
     } catch (error) {
       console.error('Error updating match score:', error);
@@ -316,7 +316,7 @@ export class MatchController {
       if (!req.user || req.user.role !== UserRole.ADMIN) {
         return res.status(403).json({
           status: 'error',
-          message: 'You do not have permission to delete matches'
+          message: 'You do not have permission to delete matches',
         });
       }
 
@@ -324,7 +324,7 @@ export class MatchController {
       if (id === '00000000-0000-0000-0000-000000000000') {
         return res.status(404).json({
           status: 'error',
-          message: 'Match not found'
+          message: 'Match not found',
         });
       }
 
@@ -333,11 +333,11 @@ export class MatchController {
 
       return res.status(200).json({
         status: 'success',
-        message: 'Match deleted successfully'
+        message: 'Match deleted successfully',
       });
     } catch (error) {
       console.error('Error deleting match:', error);
       return res.status(500).json({ status: 'error', message: 'Internal server error' });
     }
   };
-} 
+}

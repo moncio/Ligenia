@@ -3,7 +3,7 @@ export enum MatchStatus {
   SCHEDULED = 'SCHEDULED',
   IN_PROGRESS = 'IN_PROGRESS',
   COMPLETED = 'COMPLETED',
-  CANCELED = 'CANCELED'
+  CANCELED = 'CANCELED',
 }
 
 export class Match {
@@ -21,7 +21,7 @@ export class Match {
     public homeScore: number | null,
     public awayScore: number | null,
     public createdAt: Date = new Date(),
-    public updatedAt: Date = new Date()
+    public updatedAt: Date = new Date(),
   ) {}
 
   // Domain methods
@@ -91,11 +91,11 @@ export class Match {
     round?: number,
     date?: Date | null,
     location?: string | null,
-    status?: MatchStatus
+    status?: MatchStatus,
   ): void {
     // Only pending, scheduled or in progress matches can be updated
     if (
-      this.status !== MatchStatus.PENDING && 
+      this.status !== MatchStatus.PENDING &&
       this.status !== MatchStatus.SCHEDULED &&
       this.status !== MatchStatus.IN_PROGRESS
     ) {
@@ -125,7 +125,11 @@ export class Match {
    * Get winner team ids
    */
   public getWinnerIds(): string[] | null {
-    if (this.status !== MatchStatus.COMPLETED || this.homeScore === null || this.awayScore === null) {
+    if (
+      this.status !== MatchStatus.COMPLETED ||
+      this.homeScore === null ||
+      this.awayScore === null
+    ) {
       return null;
     }
 
@@ -137,4 +141,4 @@ export class Match {
 
     return null; // Tie
   }
-} 
+}

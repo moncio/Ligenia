@@ -11,11 +11,11 @@ export const mockAuthenticate = async (req: AuthRequest, res: Response, next: Ne
   try {
     // Get authorization header
     const authHeader = req.headers.authorization;
-    
+
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({
         status: 'error',
-        message: 'Authentication token is missing'
+        message: 'Authentication token is missing',
       });
     }
 
@@ -25,7 +25,7 @@ export const mockAuthenticate = async (req: AuthRequest, res: Response, next: Ne
     if (token === 'invalid-token') {
       return res.status(401).json({
         status: 'error',
-        message: 'Invalid or expired token'
+        message: 'Invalid or expired token',
       });
     }
 
@@ -35,7 +35,7 @@ export const mockAuthenticate = async (req: AuthRequest, res: Response, next: Ne
         id: 'user-123',
         email: 'user@example.com',
         name: 'Test User',
-        role: UserRole.PLAYER
+        role: UserRole.PLAYER,
       };
     } else if (token === 'admin-token') {
       // Admin user
@@ -43,23 +43,23 @@ export const mockAuthenticate = async (req: AuthRequest, res: Response, next: Ne
         id: 'admin-123',
         email: 'admin@example.com',
         name: 'Admin User',
-        role: UserRole.ADMIN
+        role: UserRole.ADMIN,
       };
     } else {
       // Try to decode JWT token
       try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET || 'test-secret-key') as any;
-        
+
         req.user = {
           id: decoded.sub || 'unknown-id',
           email: decoded.email || 'unknown@example.com',
           name: decoded.name || 'Unknown User',
-          role: decoded.role as UserRole || UserRole.PLAYER
+          role: (decoded.role as UserRole) || UserRole.PLAYER,
         };
       } catch (error) {
         return res.status(401).json({
           status: 'error',
-          message: 'Invalid or expired token'
+          message: 'Invalid or expired token',
         });
       }
     }
@@ -69,7 +69,7 @@ export const mockAuthenticate = async (req: AuthRequest, res: Response, next: Ne
     console.error('Authentication error:', error);
     return res.status(500).json({
       status: 'error',
-      message: 'Internal server error during authentication'
+      message: 'Internal server error during authentication',
     });
   }
 };
@@ -84,7 +84,7 @@ export const mockAuthorize = (roles: UserRole[]) => {
       if (!req.user) {
         return res.status(401).json({
           status: 'error',
-          message: 'User not authenticated'
+          message: 'User not authenticated',
         });
       }
 
@@ -92,7 +92,7 @@ export const mockAuthorize = (roles: UserRole[]) => {
       if (!roles.includes(req.user.role)) {
         return res.status(403).json({
           status: 'error',
-          message: 'You do not have permission to access this resource'
+          message: 'You do not have permission to access this resource',
         });
       }
 
@@ -101,7 +101,7 @@ export const mockAuthorize = (roles: UserRole[]) => {
       console.error('Authorization error:', error);
       return res.status(500).json({
         status: 'error',
-        message: 'Internal server error during authorization'
+        message: 'Internal server error during authorization',
       });
     }
   };
@@ -109,12 +109,12 @@ export const mockAuthorize = (roles: UserRole[]) => {
 
 /**
  * Instructions for using this mock in tests:
- * 
+ *
  * 1. Import the mocked middleware:
  * ```
  * import { mockAuthenticate, mockAuthorize } from '../../mocks/auth-middleware.mock';
  * ```
- * 
+ *
  * 2. Use jest.mock to replace the actual middleware with the mock:
  * ```
  * jest.mock('../../../src/api/middlewares/auth.middleware', () => ({
@@ -123,10 +123,10 @@ export const mockAuthorize = (roles: UserRole[]) => {
  *   AuthRequest: jest.requireActual('../../../src/api/middlewares/auth.middleware').AuthRequest
  * }));
  * ```
- * 
+ *
  * 3. In your tests, you can use predefined tokens:
  *    - 'valid-token' - Regular user with PLAYER role
  *    - 'admin-token' - User with ADMIN role
  *    - 'invalid-token' - Will cause authentication to fail
  *    - Or create your own JWT token with custom roles
- */ 
+ */

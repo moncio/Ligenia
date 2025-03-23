@@ -1,4 +1,8 @@
-import { Tournament, TournamentStatus, PlayerLevel } from '../../../domain/tournament/tournament.entity';
+import {
+  Tournament,
+  TournamentStatus,
+  PlayerLevel,
+} from '../../../domain/tournament/tournament.entity';
 
 export interface DateRangeFilter {
   from?: Date;
@@ -34,4 +38,4 @@ export interface ITournamentRepository {
   isParticipantRegistered(tournamentId: string, playerId: string): Promise<boolean>;
   getParticipants(tournamentId: string, pagination?: PaginationOptions): Promise<string[]>;
   countParticipantsByTournamentId(tournamentId: string): Promise<number>;
-} 
+}

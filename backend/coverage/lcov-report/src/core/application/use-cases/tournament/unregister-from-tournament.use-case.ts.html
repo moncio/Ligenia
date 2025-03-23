@@ -137,12 +137,7 @@
 <a name='L72'></a><a href='#L72'>72</a>
 <a name='L73'></a><a href='#L73'>73</a>
 <a name='L74'></a><a href='#L74'>74</a>
-<a name='L75'></a><a href='#L75'>75</a>
-<a name='L76'></a><a href='#L76'>76</a>
-<a name='L77'></a><a href='#L77'>77</a>
-<a name='L78'></a><a href='#L78'>78</a>
-<a name='L79'></a><a href='#L79'>79</a>
-<a name='L80'></a><a href='#L80'>80</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L75'></a><a href='#L75'>75</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -170,21 +165,15 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -199,18 +188,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -219,7 +199,17 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import { BaseUseCase } from '../../base/base.use-case';</span>
 <span class="cstat-no" title="statement not covered" >import { Result } from '../../../../shared/result';</span>
@@ -247,23 +237,17 @@ export type UnregisterFromTournamentInput = z.infer&lt;typeof unregisterFromTour
 <span class="cstat-no" title="statement not covered" >    super();</span>
   }
 &nbsp;
-  protected async <span class="fstat-no" title="function not covered" >executeImpl(</span>
-    input: UnregisterFromTournamentInput,
-  ): Promise&lt;Result&lt;void&gt;&gt; {
+  protected async <span class="fstat-no" title="function not covered" >executeImpl(</span>input: UnregisterFromTournamentInput): Promise&lt;Result&lt;void&gt;&gt; {
     // Validate input
     const validationResult = <span class="cstat-no" title="statement not covered" >unregisterFromTournamentSchema.safeParse(input);</span>
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!validationResult.success) {</span>
-<span class="cstat-no" title="statement not covered" >      return Result.fail(</span>
-        new Error(`Invalid input: ${validationResult.error.message}`),
-      );
+<span class="cstat-no" title="statement not covered" >      return Result.fail(new Error(`Invalid input: ${validationResult.error.message}`));</span>
     }
 &nbsp;
     // Check if tournament exists
     const tournament = <span class="cstat-no" title="statement not covered" >await this.tournamentRepository.findById(input.tournamentId);</span>
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!tournament) {</span>
-<span class="cstat-no" title="statement not covered" >      return Result.fail(</span>
-        new Error(`Tournament with ID ${input.tournamentId} not found`),
-      );
+<span class="cstat-no" title="statement not covered" >      return Result.fail(new Error(`Tournament with ID ${input.tournamentId} not found`));</span>
     }
 &nbsp;
     // Check if user is registered for the tournament
@@ -273,12 +257,17 @@ export type UnregisterFromTournamentInput = z.infer&lt;typeof unregisterFromTour
     );
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!isRegistered) {</span>
 <span class="cstat-no" title="statement not covered" >      return Result.fail(</span>
-        new Error(`User with ID ${input.userId} is not registered for tournament ${input.tournamentId}`),
+        new Error(
+          `User with ID ${input.userId} is not registered for tournament ${input.tournamentId}`,
+        ),
       );
     }
 &nbsp;
     // Check if tournament status allows unregistration (OPEN or DRAFT only)
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (tournament.status !== TournamentStatus.OPEN &amp;&amp; tournament.status !== TournamentStatus.DRAFT) {</span>
+<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (</span>
+      tournament.status !== TournamentStatus.OPEN &amp;&amp;
+      tournament.status !== TournamentStatus.DRAFT
+    ) {
 <span class="cstat-no" title="statement not covered" >      return Result.fail(</span>
         new Error(`Cannot unregister from tournament with status ${tournament.status}`),
       );
@@ -287,27 +276,23 @@ export type UnregisterFromTournamentInput = z.infer&lt;typeof unregisterFromTour
     // Check if tournament has already started
     const now = <span class="cstat-no" title="statement not covered" >new Date();</span>
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (tournament.startDate &amp;&amp; tournament.startDate &lt; now) {</span>
-<span class="cstat-no" title="statement not covered" >      return Result.fail(</span>
-        new Error(`Cannot unregister after tournament has started`),
-      );
+<span class="cstat-no" title="statement not covered" >      return Result.fail(new Error(`Cannot unregister after tournament has started`));</span>
     }
 &nbsp;
     // Unregister participant
-<span class="cstat-no" title="statement not covered" >    await this.tournamentRepository.unregisterParticipant(</span>
-      input.tournamentId,
-      input.userId,
-    );
+<span class="cstat-no" title="statement not covered" >    await this.tournamentRepository.unregisterParticipant(input.tournamentId, input.userId);</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    return Result.ok&lt;void&gt;(null);</span>
   }
-} </pre></td></tr></table></pre>
+}
+&nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-03-23T19:34:14.050Z
+                at 2025-03-23T22:37:40.856Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>

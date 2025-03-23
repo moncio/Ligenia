@@ -9,18 +9,28 @@ import { PlayerLevel } from '../../../domain/tournament/tournament.entity';
 // Input validation schema
 const CreatePlayerProfileInputSchema = z.object({
   userId: z.string().uuid({
-    message: 'Invalid user ID format'
+    message: 'Invalid user ID format',
   }),
-  level: z.nativeEnum(PlayerLevel, {
-    errorMap: () => ({ message: 'Level must be a valid PlayerLevel' })
-  }).default(PlayerLevel.P3),
+  level: z
+    .nativeEnum(PlayerLevel, {
+      errorMap: () => ({ message: 'Level must be a valid PlayerLevel' }),
+    })
+    .default(PlayerLevel.P3),
   age: z.number().int().positive().optional().nullable(),
-  country: z.string().min(2, {
-    message: 'Country must be at least 2 characters'
-  }).optional().nullable(),
-  avatarUrl: z.string().url({
-    message: 'Avatar URL must be a valid URL'
-  }).optional().nullable()
+  country: z
+    .string()
+    .min(2, {
+      message: 'Country must be at least 2 characters',
+    })
+    .optional()
+    .nullable(),
+  avatarUrl: z
+    .string()
+    .url({
+      message: 'Avatar URL must be a valid URL',
+    })
+    .optional()
+    .nullable(),
 });
 
 // Input type
@@ -40,12 +50,14 @@ export class CreatePlayerProfileUseCase extends BaseUseCase<
 > {
   constructor(
     private readonly playerRepository: IPlayerRepository,
-    private readonly userRepository: IUserRepository
+    private readonly userRepository: IUserRepository,
   ) {
     super();
   }
 
-  protected async executeImpl(input: CreatePlayerProfileInput): Promise<Result<CreatePlayerProfileOutput>> {
+  protected async executeImpl(
+    input: CreatePlayerProfileInput,
+  ): Promise<Result<CreatePlayerProfileOutput>> {
     try {
       // Validate input first
       let validatedData: CreatePlayerProfileInput;
@@ -54,7 +66,7 @@ export class CreatePlayerProfileUseCase extends BaseUseCase<
       } catch (validationError) {
         if (validationError instanceof z.ZodError) {
           return Result.fail<CreatePlayerProfileOutput>(
-            new Error(validationError.errors[0].message)
+            new Error(validationError.errors[0].message),
           );
         }
         throw validationError;
@@ -63,16 +75,14 @@ export class CreatePlayerProfileUseCase extends BaseUseCase<
       // Check if user exists
       const user = await this.userRepository.findById(validatedData.userId);
       if (!user) {
-        return Result.fail<CreatePlayerProfileOutput>(
-          new Error('User not found')
-        );
+        return Result.fail<CreatePlayerProfileOutput>(new Error('User not found'));
       }
 
       // Check if player already exists for this user
       const existingPlayer = await this.playerRepository.findByUserId(validatedData.userId);
       if (existingPlayer) {
         return Result.fail<CreatePlayerProfileOutput>(
-          new Error('Player profile already exists for this user')
+          new Error('Player profile already exists for this user'),
         );
       }
 
@@ -83,7 +93,7 @@ export class CreatePlayerProfileUseCase extends BaseUseCase<
         validatedData.level,
         validatedData.age,
         validatedData.country,
-        validatedData.avatarUrl
+        validatedData.avatarUrl,
       );
 
       // Save player
@@ -92,8 +102,8 @@ export class CreatePlayerProfileUseCase extends BaseUseCase<
       return Result.ok<CreatePlayerProfileOutput>({ player });
     } catch (error) {
       return Result.fail<CreatePlayerProfileOutput>(
-        error instanceof Error ? error : new Error('Failed to create player profile')
+        error instanceof Error ? error : new Error('Failed to create player profile'),
       );
     }
   }
-} 
+}

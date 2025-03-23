@@ -37,7 +37,7 @@ describe('RecordMatchResultUseCase', () => {
       null, // homeScore
       null, // awayScore
       new Date('2023-07-01T10:00:00Z'), // createdAt
-      new Date('2023-07-01T10:00:00Z')  // updatedAt
+      new Date('2023-07-01T10:00:00Z'), // updatedAt
     );
   };
 
@@ -45,11 +45,11 @@ describe('RecordMatchResultUseCase', () => {
     // Arrange
     const mockMatch = createMockMatch();
     mockMatchRepository.findById.mockResolvedValue(mockMatch);
-    
+
     const validInput = {
       id: mockMatchId,
       homeScore: 3,
-      awayScore: 1
+      awayScore: 1,
     };
 
     // Act
@@ -68,11 +68,11 @@ describe('RecordMatchResultUseCase', () => {
   test('should fail when match does not exist', async () => {
     // Arrange
     mockMatchRepository.findById.mockResolvedValue(null);
-    
+
     const validInput = {
       id: mockMatchId,
       homeScore: 3,
-      awayScore: 1
+      awayScore: 1,
     };
 
     // Act
@@ -88,11 +88,11 @@ describe('RecordMatchResultUseCase', () => {
     // Arrange
     const pendingMatch = createMockMatch(MatchStatus.PENDING);
     mockMatchRepository.findById.mockResolvedValue(pendingMatch);
-    
+
     const validInput = {
       id: mockMatchId,
       homeScore: 3,
-      awayScore: 1
+      awayScore: 1,
     };
 
     // Act
@@ -100,7 +100,9 @@ describe('RecordMatchResultUseCase', () => {
 
     // Assert
     expect(result.isFailure).toBe(true);
-    expect(result.getError().message).toContain('Only matches in IN_PROGRESS state can have results recorded');
+    expect(result.getError().message).toContain(
+      'Only matches in IN_PROGRESS state can have results recorded',
+    );
     expect(mockMatchRepository.save).not.toHaveBeenCalled();
   });
 
@@ -108,11 +110,11 @@ describe('RecordMatchResultUseCase', () => {
     // Arrange
     const scheduledMatch = createMockMatch(MatchStatus.SCHEDULED);
     mockMatchRepository.findById.mockResolvedValue(scheduledMatch);
-    
+
     const validInput = {
       id: mockMatchId,
       homeScore: 3,
-      awayScore: 1
+      awayScore: 1,
     };
 
     // Act
@@ -120,7 +122,9 @@ describe('RecordMatchResultUseCase', () => {
 
     // Assert
     expect(result.isFailure).toBe(true);
-    expect(result.getError().message).toContain('Only matches in IN_PROGRESS state can have results recorded');
+    expect(result.getError().message).toContain(
+      'Only matches in IN_PROGRESS state can have results recorded',
+    );
     expect(mockMatchRepository.save).not.toHaveBeenCalled();
   });
 
@@ -128,11 +132,11 @@ describe('RecordMatchResultUseCase', () => {
     // Arrange
     const completedMatch = createMockMatch(MatchStatus.COMPLETED);
     mockMatchRepository.findById.mockResolvedValue(completedMatch);
-    
+
     const validInput = {
       id: mockMatchId,
       homeScore: 3,
-      awayScore: 1
+      awayScore: 1,
     };
 
     // Act
@@ -140,7 +144,9 @@ describe('RecordMatchResultUseCase', () => {
 
     // Assert
     expect(result.isFailure).toBe(true);
-    expect(result.getError().message).toContain('Only matches in IN_PROGRESS state can have results recorded');
+    expect(result.getError().message).toContain(
+      'Only matches in IN_PROGRESS state can have results recorded',
+    );
     expect(mockMatchRepository.save).not.toHaveBeenCalled();
   });
 
@@ -148,11 +154,11 @@ describe('RecordMatchResultUseCase', () => {
     // Arrange
     const canceledMatch = createMockMatch(MatchStatus.CANCELED);
     mockMatchRepository.findById.mockResolvedValue(canceledMatch);
-    
+
     const validInput = {
       id: mockMatchId,
       homeScore: 3,
-      awayScore: 1
+      awayScore: 1,
     };
 
     // Act
@@ -160,7 +166,9 @@ describe('RecordMatchResultUseCase', () => {
 
     // Assert
     expect(result.isFailure).toBe(true);
-    expect(result.getError().message).toContain('Only matches in IN_PROGRESS state can have results recorded');
+    expect(result.getError().message).toContain(
+      'Only matches in IN_PROGRESS state can have results recorded',
+    );
     expect(mockMatchRepository.save).not.toHaveBeenCalled();
   });
 
@@ -169,7 +177,7 @@ describe('RecordMatchResultUseCase', () => {
     const invalidInput = {
       id: 'invalid-uuid',
       homeScore: 3,
-      awayScore: 1
+      awayScore: 1,
     };
 
     // Act
@@ -187,7 +195,7 @@ describe('RecordMatchResultUseCase', () => {
     const invalidInput = {
       id: mockMatchId,
       homeScore: -1,
-      awayScore: 1
+      awayScore: 1,
     };
 
     // Act
@@ -205,7 +213,7 @@ describe('RecordMatchResultUseCase', () => {
     const invalidInput = {
       id: mockMatchId,
       homeScore: 1,
-      awayScore: -1
+      awayScore: -1,
     };
 
     // Act
@@ -223,7 +231,7 @@ describe('RecordMatchResultUseCase', () => {
     const invalidInput = {
       id: mockMatchId,
       homeScore: 2,
-      awayScore: 2
+      awayScore: 2,
     };
 
     // Act
@@ -231,7 +239,9 @@ describe('RecordMatchResultUseCase', () => {
 
     // Assert
     expect(result.isFailure).toBe(true);
-    expect(result.getError().message).toContain('Scores cannot be equal, a winner must be determined');
+    expect(result.getError().message).toContain(
+      'Scores cannot be equal, a winner must be determined',
+    );
     expect(mockMatchRepository.findById).not.toHaveBeenCalled();
     expect(mockMatchRepository.save).not.toHaveBeenCalled();
   });
@@ -240,11 +250,11 @@ describe('RecordMatchResultUseCase', () => {
     // Arrange
     const errorMessage = 'Database error during find';
     mockMatchRepository.findById.mockRejectedValue(new Error(errorMessage));
-    
+
     const validInput = {
       id: mockMatchId,
       homeScore: 3,
-      awayScore: 1
+      awayScore: 1,
     };
 
     // Act
@@ -262,11 +272,11 @@ describe('RecordMatchResultUseCase', () => {
     const errorMessage = 'Database error during save';
     mockMatchRepository.findById.mockResolvedValue(mockMatch);
     mockMatchRepository.save.mockRejectedValue(new Error(errorMessage));
-    
+
     const validInput = {
       id: mockMatchId,
       homeScore: 3,
-      awayScore: 1
+      awayScore: 1,
     };
 
     // Act
@@ -278,4 +288,4 @@ describe('RecordMatchResultUseCase', () => {
     expect(mockMatchRepository.findById).toHaveBeenCalledWith(mockMatchId);
     expect(mockMatchRepository.save).toHaveBeenCalledWith(mockMatch);
   });
-}); 
+});

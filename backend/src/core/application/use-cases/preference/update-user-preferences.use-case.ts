@@ -7,13 +7,20 @@ import { UserPreference } from '@prisma/client';
 // Input validation schema
 export const updateUserPreferencesSchema = z.object({
   userId: z.string().uuid({ message: 'Invalid user ID format' }),
-  theme: z.enum(['light', 'dark', 'system'], {
-    errorMap: () => ({ message: 'Theme must be one of: light, dark, system' })
-  }).optional(),
-  fontSize: z.union([
-    z.number().int().min(10).max(24),
-    z.string().regex(/^\d+$/).transform(val => parseInt(val, 10))
-  ]).optional()
+  theme: z
+    .enum(['light', 'dark', 'system'], {
+      errorMap: () => ({ message: 'Theme must be one of: light, dark, system' }),
+    })
+    .optional(),
+  fontSize: z
+    .union([
+      z.number().int().min(10).max(24),
+      z
+        .string()
+        .regex(/^\d+$/)
+        .transform(val => parseInt(val, 10)),
+    ])
+    .optional(),
 });
 
 // Input type derived from schema
@@ -22,10 +29,11 @@ export type UpdateUserPreferencesInput = z.infer<typeof updateUserPreferencesSch
 /**
  * Use case for updating user preferences
  */
-export class UpdateUserPreferencesUseCase extends BaseUseCase<UpdateUserPreferencesInput, UserPreference> {
-  constructor(
-    private readonly preferenceRepository: IPreferenceRepository
-  ) {
+export class UpdateUserPreferencesUseCase extends BaseUseCase<
+  UpdateUserPreferencesInput,
+  UserPreference
+> {
+  constructor(private readonly preferenceRepository: IPreferenceRepository) {
     super();
   }
 
@@ -46,7 +54,7 @@ export class UpdateUserPreferencesUseCase extends BaseUseCase<UpdateUserPreferen
         }
 
         const { userId, ...preferencesToUpdate } = validationResult.data;
-        
+
         // Check if there are any preferences to update
         if (Object.keys(preferencesToUpdate).length === 0) {
           return Result.fail<UserPreference>(new Error('No preferences provided for update'));
@@ -55,26 +63,24 @@ export class UpdateUserPreferencesUseCase extends BaseUseCase<UpdateUserPreferen
         // Update preferences in repository
         const updatedPreferences = await this.preferenceRepository.updateUserPreferences(
           userId,
-          preferencesToUpdate
+          preferencesToUpdate,
         );
-        
+
         return Result.ok<UserPreference>(updatedPreferences);
       } else {
         // For error-user-id, just pass directly to repository to trigger the error
         const { userId, ...preferencesToUpdate } = input;
         const updatedPreferences = await this.preferenceRepository.updateUserPreferences(
           userId,
-          preferencesToUpdate
+          preferencesToUpdate,
         );
-        
+
         return Result.ok<UserPreference>(updatedPreferences);
       }
     } catch (error) {
       return Result.fail<UserPreference>(
-        error instanceof Error 
-          ? error 
-          : new Error('Failed to update user preferences')
+        error instanceof Error ? error : new Error('Failed to update user preferences'),
       );
     }
   }
-} 
+}

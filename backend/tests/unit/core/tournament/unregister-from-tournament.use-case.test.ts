@@ -1,6 +1,11 @@
 import { UnregisterFromTournamentUseCase } from '../../../../src/core/application/use-cases/tournament/unregister-from-tournament.use-case';
 import { ITournamentRepository } from '../../../../src/core/application/interfaces/repositories/tournament.repository';
-import { Tournament, TournamentFormat, TournamentStatus, PlayerLevel } from '../../../../src/core/domain/tournament/tournament.entity';
+import {
+  Tournament,
+  TournamentFormat,
+  TournamentStatus,
+  PlayerLevel,
+} from '../../../../src/core/domain/tournament/tournament.entity';
 import { Result } from '../../../../src/shared/result';
 
 // Mock for Tournament Repository
@@ -106,7 +111,7 @@ describe('UnregisterFromTournamentUseCase', () => {
       PlayerLevel.P3,
       '00000000-0000-0000-0000-000000000001',
       now,
-      now
+      now,
     );
 
     startedTournament = new Tournament(
@@ -123,7 +128,7 @@ describe('UnregisterFromTournamentUseCase', () => {
       PlayerLevel.P3,
       '00000000-0000-0000-0000-000000000001',
       now,
-      now
+      now,
     );
 
     closedTournament = new Tournament(
@@ -140,14 +145,14 @@ describe('UnregisterFromTournamentUseCase', () => {
       PlayerLevel.P3,
       '00000000-0000-0000-0000-000000000001',
       now,
-      now
+      now,
     );
 
     // Setup repository with test tournaments
     tournamentRepository = new MockTournamentRepository([
       openTournament,
       startedTournament,
-      closedTournament
+      closedTournament,
     ]);
 
     // Register user to all tournaments for testing
@@ -163,7 +168,7 @@ describe('UnregisterFromTournamentUseCase', () => {
     // Arrange
     const input = {
       tournamentId: openTournament.id,
-      userId: userId
+      userId: userId,
     };
 
     // Act
@@ -171,7 +176,10 @@ describe('UnregisterFromTournamentUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    const isRegistered = await tournamentRepository.isParticipantRegistered(input.tournamentId, input.userId);
+    const isRegistered = await tournamentRepository.isParticipantRegistered(
+      input.tournamentId,
+      input.userId,
+    );
     expect(isRegistered).toBe(false);
   });
 
@@ -179,7 +187,7 @@ describe('UnregisterFromTournamentUseCase', () => {
     // Arrange
     const input = {
       tournamentId: '99999999-9999-9999-9999-999999999999', // Non-existent tournament
-      userId: userId
+      userId: userId,
     };
 
     // Act
@@ -195,7 +203,7 @@ describe('UnregisterFromTournamentUseCase', () => {
     // Arrange
     const input = {
       tournamentId: openTournament.id,
-      userId: '99999999-9999-9999-9999-999999999999' // Non-registered user
+      userId: '99999999-9999-9999-9999-999999999999', // Non-registered user
     };
 
     // Act
@@ -210,7 +218,7 @@ describe('UnregisterFromTournamentUseCase', () => {
     // Arrange
     const input = {
       tournamentId: startedTournament.id,
-      userId: userId
+      userId: userId,
     };
 
     // Act
@@ -226,7 +234,7 @@ describe('UnregisterFromTournamentUseCase', () => {
     const now = new Date();
     const yesterday = new Date(now);
     yesterday.setDate(yesterday.getDate() - 1);
-    
+
     const pastTournament = new Tournament(
       '12345678-1234-1234-1234-123456789004',
       'Past Tournament',
@@ -241,15 +249,15 @@ describe('UnregisterFromTournamentUseCase', () => {
       PlayerLevel.P3,
       '00000000-0000-0000-0000-000000000001',
       new Date(),
-      new Date()
+      new Date(),
     );
-    
+
     await tournamentRepository.save(pastTournament);
     await tournamentRepository.registerParticipant(pastTournament.id, userId);
-    
+
     const input = {
       tournamentId: pastTournament.id,
-      userId: userId
+      userId: userId,
     };
 
     // Act
@@ -264,7 +272,7 @@ describe('UnregisterFromTournamentUseCase', () => {
     // Arrange
     const input = {
       tournamentId: closedTournament.id,
-      userId: userId
+      userId: userId,
     };
 
     // Act
@@ -272,7 +280,10 @@ describe('UnregisterFromTournamentUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    const isRegistered = await tournamentRepository.isParticipantRegistered(input.tournamentId, input.userId);
+    const isRegistered = await tournamentRepository.isParticipantRegistered(
+      input.tournamentId,
+      input.userId,
+    );
     expect(isRegistered).toBe(false);
   });
-}); 
+});

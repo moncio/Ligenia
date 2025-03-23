@@ -29,4 +29,4 @@ export interface ITokenResponse {
 export interface ITokenValidationResponse {
   valid: boolean;
   user?: IAuthUser;
-} 
+}

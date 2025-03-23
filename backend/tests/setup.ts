@@ -13,13 +13,13 @@ export const prisma = new PrismaClient();
 beforeAll(() => {
   // Mock del módulo de Supabase
   mockSupabaseModule();
-  
+
   // Configurar el entorno de prueba
   process.env.NODE_ENV = 'test';
-  
+
   // Forzar que Jest use las rutas correctas
   jest.mock('@supabase/supabase-js', () => require('./mocks/supabase.mock'));
-  
+
   // Configurar mocks de servicios externos
   setupSupabaseMock();
 });

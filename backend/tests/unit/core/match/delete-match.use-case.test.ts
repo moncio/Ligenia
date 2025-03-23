@@ -1,8 +1,16 @@
-import { DeleteMatchUseCase, DeleteMatchInput } from '../../../../src/core/application/use-cases/match/delete-match.use-case';
+import {
+  DeleteMatchUseCase,
+  DeleteMatchInput,
+} from '../../../../src/core/application/use-cases/match/delete-match.use-case';
 import { IMatchRepository } from '../../../../src/core/application/interfaces/repositories/match.repository';
 import { ITournamentRepository } from '../../../../src/core/application/interfaces/repositories/tournament.repository';
 import { Match, MatchStatus } from '../../../../src/core/domain/match/match.entity';
-import { Tournament, TournamentStatus, TournamentFormat, PlayerLevel } from '../../../../src/core/domain/tournament/tournament.entity';
+import {
+  Tournament,
+  TournamentStatus,
+  TournamentFormat,
+  PlayerLevel,
+} from '../../../../src/core/domain/tournament/tournament.entity';
 import { Result } from '../../../../src/shared/result';
 
 // Mock repositories
@@ -29,7 +37,7 @@ describe('DeleteMatchUseCase', () => {
       update: jest.fn(),
       delete: jest.fn(),
       findByFilter: jest.fn(),
-      count: jest.fn()
+      count: jest.fn(),
     } as any;
 
     tournamentRepository = {
@@ -44,7 +52,7 @@ describe('DeleteMatchUseCase', () => {
       isParticipantRegistered: jest.fn(),
       getParticipants: jest.fn(),
       countParticipantsByTournamentId: jest.fn(),
-      count: jest.fn()
+      count: jest.fn(),
     } as any;
 
     // Initialize use case
@@ -67,7 +75,7 @@ describe('DeleteMatchUseCase', () => {
       null,
       null,
       new Date(),
-      new Date()
+      new Date(),
     );
   };
 
@@ -87,7 +95,7 @@ describe('DeleteMatchUseCase', () => {
       category: PlayerLevel.P3,
       createdById: creatorId,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     } as Tournament;
   };
 
@@ -104,7 +112,7 @@ describe('DeleteMatchUseCase', () => {
     // Act
     const result = await deleteMatchUseCase.execute({
       matchId,
-      userId
+      userId,
     });
 
     // Assert
@@ -126,7 +134,7 @@ describe('DeleteMatchUseCase', () => {
     // Act
     const result = await deleteMatchUseCase.execute({
       matchId,
-      userId
+      userId,
     });
 
     // Assert
@@ -148,7 +156,7 @@ describe('DeleteMatchUseCase', () => {
     // Act
     const result = await deleteMatchUseCase.execute({
       matchId,
-      userId
+      userId,
     });
 
     // Assert
@@ -167,7 +175,7 @@ describe('DeleteMatchUseCase', () => {
     // Act
     const result = await deleteMatchUseCase.execute({
       matchId,
-      userId
+      userId,
     });
 
     // Assert
@@ -185,7 +193,7 @@ describe('DeleteMatchUseCase', () => {
     // Act
     const result = await deleteMatchUseCase.execute({
       matchId,
-      userId
+      userId,
     });
 
     // Assert
@@ -205,12 +213,14 @@ describe('DeleteMatchUseCase', () => {
     // Act
     const result = await deleteMatchUseCase.execute({
       matchId,
-      userId
+      userId,
     });
 
     // Assert
     expect(result.isFailure).toBe(true);
-    expect(result.getError().message).toBe('Permission denied: only tournament creator can delete matches');
+    expect(result.getError().message).toBe(
+      'Permission denied: only tournament creator can delete matches',
+    );
     expect(matchRepository.delete).not.toHaveBeenCalled();
   });
 
@@ -225,12 +235,14 @@ describe('DeleteMatchUseCase', () => {
     // Act
     const result = await deleteMatchUseCase.execute({
       matchId,
-      userId
+      userId,
     });
 
     // Assert
     expect(result.isFailure).toBe(true);
-    expect(result.getError().message).toBe('Cannot delete match in COMPLETED status. Only PENDING or SCHEDULED matches can be deleted');
+    expect(result.getError().message).toBe(
+      'Cannot delete match in COMPLETED status. Only PENDING or SCHEDULED matches can be deleted',
+    );
     expect(matchRepository.delete).not.toHaveBeenCalled();
   });
 
@@ -245,12 +257,14 @@ describe('DeleteMatchUseCase', () => {
     // Act
     const result = await deleteMatchUseCase.execute({
       matchId,
-      userId
+      userId,
     });
 
     // Assert
     expect(result.isFailure).toBe(true);
-    expect(result.getError().message).toBe('Cannot delete match in IN_PROGRESS status. Only PENDING or SCHEDULED matches can be deleted');
+    expect(result.getError().message).toBe(
+      'Cannot delete match in IN_PROGRESS status. Only PENDING or SCHEDULED matches can be deleted',
+    );
     expect(matchRepository.delete).not.toHaveBeenCalled();
   });
 
@@ -265,12 +279,14 @@ describe('DeleteMatchUseCase', () => {
     // Act
     const result = await deleteMatchUseCase.execute({
       matchId,
-      userId
+      userId,
     });
 
     // Assert
     expect(result.isFailure).toBe(true);
-    expect(result.getError().message).toBe('Cannot delete match in CANCELED status. Only PENDING or SCHEDULED matches can be deleted');
+    expect(result.getError().message).toBe(
+      'Cannot delete match in CANCELED status. Only PENDING or SCHEDULED matches can be deleted',
+    );
     expect(matchRepository.delete).not.toHaveBeenCalled();
   });
 
@@ -285,12 +301,14 @@ describe('DeleteMatchUseCase', () => {
     // Act
     const result = await deleteMatchUseCase.execute({
       matchId,
-      userId
+      userId,
     });
 
     // Assert
     expect(result.isFailure).toBe(true);
-    expect(result.getError().message).toBe('Cannot delete match in tournament with ACTIVE status. Tournament must be in DRAFT or OPEN status');
+    expect(result.getError().message).toBe(
+      'Cannot delete match in tournament with ACTIVE status. Tournament must be in DRAFT or OPEN status',
+    );
     expect(matchRepository.delete).not.toHaveBeenCalled();
   });
 
@@ -305,12 +323,14 @@ describe('DeleteMatchUseCase', () => {
     // Act
     const result = await deleteMatchUseCase.execute({
       matchId,
-      userId
+      userId,
     });
 
     // Assert
     expect(result.isFailure).toBe(true);
-    expect(result.getError().message).toBe('Cannot delete match in tournament with COMPLETED status. Tournament must be in DRAFT or OPEN status');
+    expect(result.getError().message).toBe(
+      'Cannot delete match in tournament with COMPLETED status. Tournament must be in DRAFT or OPEN status',
+    );
     expect(matchRepository.delete).not.toHaveBeenCalled();
   });
 
@@ -325,12 +345,14 @@ describe('DeleteMatchUseCase', () => {
     // Act
     const result = await deleteMatchUseCase.execute({
       matchId,
-      userId
+      userId,
     });
 
     // Assert
     expect(result.isFailure).toBe(true);
-    expect(result.getError().message).toBe('Cannot delete match in tournament with CANCELLED status. Tournament must be in DRAFT or OPEN status');
+    expect(result.getError().message).toBe(
+      'Cannot delete match in tournament with CANCELLED status. Tournament must be in DRAFT or OPEN status',
+    );
     expect(matchRepository.delete).not.toHaveBeenCalled();
   });
 
@@ -340,7 +362,7 @@ describe('DeleteMatchUseCase', () => {
     // Act
     const result = await deleteMatchUseCase.execute({
       matchId: 'invalid-uuid',
-      userId
+      userId,
     });
 
     // Assert
@@ -354,7 +376,7 @@ describe('DeleteMatchUseCase', () => {
     // Act
     const result = await deleteMatchUseCase.execute({
       matchId,
-      userId: 'invalid-uuid'
+      userId: 'invalid-uuid',
     });
 
     // Assert
@@ -373,7 +395,7 @@ describe('DeleteMatchUseCase', () => {
     // Act
     const result = await deleteMatchUseCase.execute({
       matchId,
-      userId
+      userId,
     });
 
     // Assert
@@ -391,7 +413,7 @@ describe('DeleteMatchUseCase', () => {
     // Act
     const result = await deleteMatchUseCase.execute({
       matchId,
-      userId
+      userId,
     });
 
     // Assert
@@ -412,7 +434,7 @@ describe('DeleteMatchUseCase', () => {
     // Act
     const result = await deleteMatchUseCase.execute({
       matchId,
-      userId
+      userId,
     });
 
     // Assert
@@ -432,11 +454,11 @@ describe('DeleteMatchUseCase', () => {
     // Act
     const result = await deleteMatchUseCase.execute({
       matchId,
-      userId
+      userId,
     });
 
     // Assert
     expect(result.isFailure).toBe(true);
     expect(result.getError().message).toBe('Failed to delete the match');
   });
-}); 
+});

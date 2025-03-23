@@ -1,6 +1,14 @@
-import { GetTournamentParticipantsUseCase, GetTournamentParticipantsInput } from '../../../../src/core/application/use-cases/tournament/get-tournament-participants.use-case';
+import {
+  GetTournamentParticipantsUseCase,
+  GetTournamentParticipantsInput,
+} from '../../../../src/core/application/use-cases/tournament/get-tournament-participants.use-case';
 import { ITournamentRepository } from '../../../../src/core/application/interfaces/repositories/tournament.repository';
-import { Tournament, TournamentFormat, TournamentStatus, PlayerLevel } from '../../../../src/core/domain/tournament/tournament.entity';
+import {
+  Tournament,
+  TournamentFormat,
+  TournamentStatus,
+  PlayerLevel,
+} from '../../../../src/core/domain/tournament/tournament.entity';
 
 // Mock for Tournament Repository
 class MockTournamentRepository implements ITournamentRepository {
@@ -75,15 +83,15 @@ class MockTournamentRepository implements ITournamentRepository {
   async getParticipants(tournamentId: string, pagination?: any): Promise<string[]> {
     const participants = this.participantRegistrations.get(tournamentId);
     if (!participants) return [];
-    
+
     let result = Array.from(participants);
-    
+
     // Apply pagination if specified
     if (pagination) {
       const { skip, limit } = pagination;
       result = result.slice(skip, skip + limit);
     }
-    
+
     return result;
   }
 
@@ -95,7 +103,7 @@ class MockTournamentRepository implements ITournamentRepository {
 describe('GetTournamentParticipantsUseCase', () => {
   let useCase: GetTournamentParticipantsUseCase;
   let tournamentRepository: ITournamentRepository;
-  
+
   const existingTournamentId = '123e4567-e89b-12d3-a456-426614174000';
   const nonExistingTournamentId = '123e4567-e89b-12d3-a456-426614174999';
   const invalidTournamentId = 'invalid-id';
@@ -120,17 +128,17 @@ describe('GetTournamentParticipantsUseCase', () => {
       PlayerLevel.P1,
       'user1',
       createDate(1, 7, 2023),
-      createDate(1, 7, 2023)
+      createDate(1, 7, 2023),
     );
 
     // Initialize repository with sample tournament
     tournamentRepository = new MockTournamentRepository([sampleTournament]);
-    
+
     // Register 25 participants for testing pagination
     for (let i = 1; i <= 25; i++) {
       tournamentRepository.registerParticipant(existingTournamentId, `user${i}`);
     }
-    
+
     // Initialize use case
     useCase = new GetTournamentParticipantsUseCase(tournamentRepository);
   });
@@ -138,19 +146,19 @@ describe('GetTournamentParticipantsUseCase', () => {
   it('should retrieve tournament participants with default pagination', async () => {
     // Setup input with only tournamentId (default page=1, limit=10)
     const input: GetTournamentParticipantsInput = {
-      tournamentId: existingTournamentId
+      tournamentId: existingTournamentId,
     };
-    
+
     // Execute use case
     const result = await useCase.execute(input);
-    
+
     // Assertions
     expect(result.isSuccess).toBe(true);
-    
+
     const output = result.getValue();
     expect(output.participants).toBeDefined();
     expect(output.participants.length).toBe(10);
-    
+
     // Check pagination metadata
     expect(output.pagination.totalItems).toBe(25);
     expect(output.pagination.itemsPerPage).toBe(10);
@@ -165,25 +173,25 @@ describe('GetTournamentParticipantsUseCase', () => {
     const input: GetTournamentParticipantsInput = {
       tournamentId: existingTournamentId,
       page: 2,
-      limit: 5
+      limit: 5,
     };
-    
+
     // Execute use case
     const result = await useCase.execute(input);
-    
+
     // Assertions
     expect(result.isSuccess).toBe(true);
-    
+
     const output = result.getValue();
     expect(output.participants).toBeDefined();
     expect(output.participants.length).toBe(5);
-    
+
     // We're expecting participants 6-10 on page 2 with limit 5
     for (let i = 0; i < output.participants.length; i++) {
       const expectedUserId = `user${i + 6}`;
       expect(output.participants).toContain(expectedUserId);
     }
-    
+
     // Check pagination metadata
     expect(output.pagination.totalItems).toBe(25);
     expect(output.pagination.itemsPerPage).toBe(5);
@@ -198,19 +206,19 @@ describe('GetTournamentParticipantsUseCase', () => {
     const input: GetTournamentParticipantsInput = {
       tournamentId: existingTournamentId,
       page: 3,
-      limit: 10
+      limit: 10,
     };
-    
+
     // Execute use case
     const result = await useCase.execute(input);
-    
+
     // Assertions
     expect(result.isSuccess).toBe(true);
-    
+
     const output = result.getValue();
     expect(output.participants).toBeDefined();
     expect(output.participants.length).toBe(5); // Last page has only 5 items
-    
+
     // Check pagination metadata
     expect(output.pagination.totalItems).toBe(25);
     expect(output.pagination.itemsPerPage).toBe(10);
@@ -237,27 +245,27 @@ describe('GetTournamentParticipantsUseCase', () => {
       PlayerLevel.P1,
       'user1',
       createDate(1, 7, 2023),
-      createDate(1, 7, 2023)
+      createDate(1, 7, 2023),
     );
-    
+
     // Add the empty tournament to the repository
     await tournamentRepository.save(emptyTournament);
-    
+
     // Setup input
     const input: GetTournamentParticipantsInput = {
-      tournamentId: emptyTournamentId
+      tournamentId: emptyTournamentId,
     };
-    
+
     // Execute use case
     const result = await useCase.execute(input);
-    
+
     // Assertions
     expect(result.isSuccess).toBe(true);
-    
+
     const output = result.getValue();
     expect(output.participants).toBeDefined();
     expect(output.participants.length).toBe(0);
-    
+
     // Check pagination metadata
     expect(output.pagination.totalItems).toBe(0);
     expect(output.pagination.itemsPerPage).toBe(10);
@@ -270,12 +278,12 @@ describe('GetTournamentParticipantsUseCase', () => {
   it('should return error when tournament is not found', async () => {
     // Setup input with non-existing tournament ID
     const input: GetTournamentParticipantsInput = {
-      tournamentId: nonExistingTournamentId
+      tournamentId: nonExistingTournamentId,
     };
-    
+
     // Execute use case
     const result = await useCase.execute(input);
-    
+
     // Assertions
     expect(result.isFailure).toBe(true);
     expect(result.getError().message).toContain('not found');
@@ -284,12 +292,12 @@ describe('GetTournamentParticipantsUseCase', () => {
   it('should return error for invalid tournament ID format', async () => {
     // Setup input with invalid tournament ID
     const input = {
-      tournamentId: invalidTournamentId
+      tournamentId: invalidTournamentId,
     } as GetTournamentParticipantsInput;
-    
+
     // Execute use case
     const result = await useCase.execute(input);
-    
+
     // Assertions
     expect(result.isFailure).toBe(true);
     expect(result.getError().message).toContain('Invalid input');
@@ -300,27 +308,27 @@ describe('GetTournamentParticipantsUseCase', () => {
     // Setup input with invalid page number
     const invalidPageInput = {
       tournamentId: existingTournamentId,
-      page: -1
+      page: -1,
     } as GetTournamentParticipantsInput;
-    
+
     // Execute use case
     const result = await useCase.execute(invalidPageInput);
-    
+
     // Assertions
     expect(result.isFailure).toBe(true);
     expect(result.getError().message).toContain('Invalid input');
-    
+
     // Setup input with invalid limit
     const invalidLimitInput = {
       tournamentId: existingTournamentId,
-      limit: 101 // Max is 100
+      limit: 101, // Max is 100
     } as GetTournamentParticipantsInput;
-    
+
     // Execute use case
     const result2 = await useCase.execute(invalidLimitInput);
-    
+
     // Assertions
     expect(result2.isFailure).toBe(true);
     expect(result2.getError().message).toContain('Invalid input');
   });
-}); 
+});

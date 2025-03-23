@@ -1,7 +1,15 @@
-import { CancelTournamentUseCase, CancelTournamentInput } from '../../../../src/core/application/use-cases/tournament/cancel-tournament.use-case';
+import {
+  CancelTournamentUseCase,
+  CancelTournamentInput,
+} from '../../../../src/core/application/use-cases/tournament/cancel-tournament.use-case';
 import { ITournamentRepository } from '../../../../src/core/application/interfaces/repositories/tournament.repository';
 import { IUserRepository } from '../../../../src/core/application/interfaces/repositories/user.repository';
-import { Tournament, TournamentFormat, TournamentStatus, PlayerLevel } from '../../../../src/core/domain/tournament/tournament.entity';
+import {
+  Tournament,
+  TournamentFormat,
+  TournamentStatus,
+  PlayerLevel,
+} from '../../../../src/core/domain/tournament/tournament.entity';
 import { User, UserRole } from '../../../../src/core/domain/user/user.entity';
 
 // Mock Tournament Repository
@@ -129,7 +137,7 @@ describe('CancelTournamentUseCase', () => {
       PlayerLevel.P1,
       organizerUserId,
       createDate(1, 7, 2023),
-      createDate(1, 7, 2023)
+      createDate(1, 7, 2023),
     );
 
     const openTournament = new Tournament(
@@ -146,7 +154,7 @@ describe('CancelTournamentUseCase', () => {
       PlayerLevel.P1,
       organizerUserId,
       createDate(1, 8, 2023),
-      createDate(1, 8, 2023)
+      createDate(1, 8, 2023),
     );
 
     const activeTournament = new Tournament(
@@ -163,7 +171,7 @@ describe('CancelTournamentUseCase', () => {
       PlayerLevel.P1,
       organizerUserId,
       createDate(1, 9, 2023),
-      createDate(1, 9, 2023)
+      createDate(1, 9, 2023),
     );
 
     const completedTournament = new Tournament(
@@ -180,7 +188,7 @@ describe('CancelTournamentUseCase', () => {
       PlayerLevel.P1,
       organizerUserId,
       createDate(1, 10, 2023),
-      createDate(1, 10, 2023)
+      createDate(1, 10, 2023),
     );
 
     const cancelledTournament = new Tournament(
@@ -197,7 +205,7 @@ describe('CancelTournamentUseCase', () => {
       PlayerLevel.P1,
       organizerUserId,
       createDate(1, 11, 2023),
-      createDate(1, 11, 2023)
+      createDate(1, 11, 2023),
     );
 
     // Initialize repository with sample tournaments
@@ -206,7 +214,7 @@ describe('CancelTournamentUseCase', () => {
       openTournament,
       activeTournament,
       completedTournament,
-      cancelledTournament
+      cancelledTournament,
     ]);
 
     // Create sample users
@@ -218,7 +226,7 @@ describe('CancelTournamentUseCase', () => {
       UserRole.ADMIN,
       true,
       createDate(1, 1, 2023),
-      createDate(1, 1, 2023)
+      createDate(1, 1, 2023),
     );
 
     const organizerUser = new User(
@@ -229,7 +237,7 @@ describe('CancelTournamentUseCase', () => {
       UserRole.PLAYER,
       true,
       createDate(1, 1, 2023),
-      createDate(1, 1, 2023)
+      createDate(1, 1, 2023),
     );
 
     const regularUser = new User(
@@ -240,15 +248,11 @@ describe('CancelTournamentUseCase', () => {
       UserRole.PLAYER,
       true,
       createDate(1, 1, 2023),
-      createDate(1, 1, 2023)
+      createDate(1, 1, 2023),
     );
 
     // Initialize user repository with sample users
-    userRepository = new MockUserRepository([
-      adminUser,
-      organizerUser,
-      regularUser
-    ]);
+    userRepository = new MockUserRepository([adminUser, organizerUser, regularUser]);
 
     // Initialize use case
     useCase = new CancelTournamentUseCase(tournamentRepository, userRepository);
@@ -257,13 +261,13 @@ describe('CancelTournamentUseCase', () => {
   it('should successfully cancel a DRAFT tournament by admin', async () => {
     const input: CancelTournamentInput = {
       tournamentId: draftTournamentId,
-      userId: adminUserId
+      userId: adminUserId,
     };
 
     const result = await useCase.execute(input);
 
     expect(result.isSuccess).toBe(true);
-    
+
     const output = result.getValue();
     expect(output.tournament.status).toBe(TournamentStatus.CANCELLED);
     expect(output.message).toContain('successfully');
@@ -276,13 +280,13 @@ describe('CancelTournamentUseCase', () => {
   it('should successfully cancel an OPEN tournament by organizer', async () => {
     const input: CancelTournamentInput = {
       tournamentId: openTournamentId,
-      userId: organizerUserId
+      userId: organizerUserId,
     };
 
     const result = await useCase.execute(input);
 
     expect(result.isSuccess).toBe(true);
-    
+
     const output = result.getValue();
     expect(output.tournament.status).toBe(TournamentStatus.CANCELLED);
     expect(output.message).toContain('successfully');
@@ -295,7 +299,7 @@ describe('CancelTournamentUseCase', () => {
   it('should fail when regular user tries to cancel a tournament', async () => {
     const input: CancelTournamentInput = {
       tournamentId: draftTournamentId,
-      userId: regularUserId
+      userId: regularUserId,
     };
 
     const result = await useCase.execute(input);
@@ -307,7 +311,7 @@ describe('CancelTournamentUseCase', () => {
   it('should fail when trying to cancel an ACTIVE tournament', async () => {
     const input: CancelTournamentInput = {
       tournamentId: activeTournamentId,
-      userId: adminUserId
+      userId: adminUserId,
     };
 
     const result = await useCase.execute(input);
@@ -319,7 +323,7 @@ describe('CancelTournamentUseCase', () => {
   it('should fail when trying to cancel a COMPLETED tournament', async () => {
     const input: CancelTournamentInput = {
       tournamentId: completedTournamentId,
-      userId: adminUserId
+      userId: adminUserId,
     };
 
     const result = await useCase.execute(input);
@@ -331,7 +335,7 @@ describe('CancelTournamentUseCase', () => {
   it('should fail when trying to cancel an already CANCELLED tournament', async () => {
     const input: CancelTournamentInput = {
       tournamentId: cancelledTournamentId,
-      userId: adminUserId
+      userId: adminUserId,
     };
 
     const result = await useCase.execute(input);
@@ -343,7 +347,7 @@ describe('CancelTournamentUseCase', () => {
   it('should fail when tournament does not exist', async () => {
     const input: CancelTournamentInput = {
       tournamentId: nonExistingTournamentId,
-      userId: adminUserId
+      userId: adminUserId,
     };
 
     const result = await useCase.execute(input);
@@ -355,7 +359,7 @@ describe('CancelTournamentUseCase', () => {
   it('should fail when user does not exist', async () => {
     const input: CancelTournamentInput = {
       tournamentId: draftTournamentId,
-      userId: nonExistingUserId
+      userId: nonExistingUserId,
     };
 
     const result = await useCase.execute(input);
@@ -368,7 +372,7 @@ describe('CancelTournamentUseCase', () => {
   it('should fail with invalid input data', async () => {
     const input = {
       tournamentId: 'invalid-uuid',
-      userId: adminUserId
+      userId: adminUserId,
     } as CancelTournamentInput;
 
     const result = await useCase.execute(input);
@@ -376,4 +380,4 @@ describe('CancelTournamentUseCase', () => {
     expect(result.isFailure).toBe(true);
     expect(result.getError().message).toContain('Invalid input');
   });
-}); 
+});

@@ -17,18 +17,18 @@ export const validateBody = (schema: AnyZodObject) => {
         return res.status(400).json({
           status: 'error',
           message: 'Validation error',
-          errors: error.errors.map((e) => ({
+          errors: error.errors.map(e => ({
             path: e.path.join('.'),
-            message: e.message
-          }))
+            message: e.message,
+          })),
         });
       }
-      
+
       // Error no esperado
       console.error('Validation error:', error);
       return res.status(500).json({
         status: 'error',
-        message: 'Internal server error during validation'
+        message: 'Internal server error during validation',
       });
     }
   };
@@ -48,23 +48,23 @@ export const validateParams = (schema: AnyZodObject) => {
       if (error instanceof ZodError) {
         // Get the first error message to include in the main message
         const firstErrorMessage = error.errors[0]?.message || '';
-        
+
         // Formatear errores de validación de Zod
         return res.status(400).json({
           status: 'error',
           message: `Invalid player category`,
-          errors: error.errors.map((e) => ({
+          errors: error.errors.map(e => ({
             path: e.path.join('.'),
-            message: e.message
-          }))
+            message: e.message,
+          })),
         });
       }
-      
+
       // Error no esperado
       console.error('Parameter validation error:', error);
       return res.status(500).json({
         status: 'error',
-        message: 'Internal server error during parameter validation'
+        message: 'Internal server error during parameter validation',
       });
     }
   };
@@ -78,7 +78,7 @@ export const validateQuery = (schema: AnyZodObject) => {
   return (req: Request, res: Response, next: NextFunction) => {
     try {
       const result = schema.safeParse(req.query);
-      
+
       if (result.success) {
         req.query = result.data;
         next();
@@ -87,15 +87,15 @@ export const validateQuery = (schema: AnyZodObject) => {
         return res.status(400).json({
           status: 'error',
           message: 'Validation error in query parameters',
-          errors: result.error.format()
+          errors: result.error.format(),
         });
       }
     } catch (error) {
       console.error('Query validation error:', error);
       return res.status(500).json({
         status: 'error',
-        message: 'Internal server error during query validation'
+        message: 'Internal server error during query validation',
       });
     }
   };
-}; 
+};

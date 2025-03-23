@@ -19,7 +19,7 @@ const mockUsers = {
     name: 'Admin User',
     role: 'admin',
     emailVerified: true,
-    password: 'password123'
+    password: 'password123',
   },
   player: {
     id: '123e4567-e89b-12d3-a456-426614174001',
@@ -27,7 +27,7 @@ const mockUsers = {
     name: 'Player User',
     role: 'player',
     emailVerified: true,
-    password: 'password123'
+    password: 'password123',
   },
   anotherPlayer: {
     id: '123e4567-e89b-12d3-a456-426614174002',
@@ -35,8 +35,8 @@ const mockUsers = {
     name: 'Another Player',
     role: 'player',
     emailVerified: true,
-    password: 'password123'
-  }
+    password: 'password123',
+  },
 };
 
 // Non-existent ID for testing
@@ -52,17 +52,15 @@ describe('User Routes - Integration Tests', () => {
   describe('Authentication Checks', () => {
     it('should return 401 when accessing protected routes without token', async () => {
       const response = await agent.get('/api/users');
-        
+
       expect(response.status).toBe(401);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body).toHaveProperty('message', 'Authentication token is missing');
     });
 
     it('should return 401 when accessing protected routes with invalid token', async () => {
-      const response = await agent
-        .get('/api/users')
-        .set('Authorization', `Bearer ${invalidToken}`);
-        
+      const response = await agent.get('/api/users').set('Authorization', `Bearer ${invalidToken}`);
+
       expect(response.status).toBe(401);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body).toHaveProperty('message', 'Invalid or expired token');
@@ -71,13 +69,14 @@ describe('User Routes - Integration Tests', () => {
 
   describe('Authorization Checks', () => {
     it('should return 403 when player tries to access admin-only routes', async () => {
-      const response = await agent
-        .get('/api/users')
-        .set('Authorization', `Bearer ${playerToken}`);
-        
+      const response = await agent.get('/api/users').set('Authorization', `Bearer ${playerToken}`);
+
       expect(response.status).toBe(403);
       expect(response.body).toHaveProperty('status', 'error');
-      expect(response.body).toHaveProperty('message', 'You do not have permission to access this resource');
+      expect(response.body).toHaveProperty(
+        'message',
+        'You do not have permission to access this resource',
+      );
     });
   });
 
@@ -86,7 +85,7 @@ describe('User Routes - Integration Tests', () => {
       const response = await agent
         .get('/api/users/invalid-id')
         .set('Authorization', `Bearer ${adminToken}`);
-        
+
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body.message).toContain('Validation error in URL parameters');
@@ -97,7 +96,7 @@ describe('User Routes - Integration Tests', () => {
         .put('/api/users/invalid-id')
         .set('Authorization', `Bearer ${adminToken}`)
         .send({ name: 'Updated Name' });
-        
+
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body.message).toContain('Validation error in URL parameters');
@@ -107,7 +106,7 @@ describe('User Routes - Integration Tests', () => {
       const response = await agent
         .delete('/api/users/invalid-id')
         .set('Authorization', `Bearer ${adminToken}`);
-        
+
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body.message).toContain('Validation error in URL parameters');
@@ -119,9 +118,9 @@ describe('User Routes - Integration Tests', () => {
         .set('Authorization', `Bearer ${playerToken}`)
         .send({
           currentPassword: 'password123',
-          newPassword: 'newpassword123'
+          newPassword: 'newpassword123',
         });
-        
+
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body.message).toContain('Validation error in URL parameters');
@@ -131,7 +130,7 @@ describe('User Routes - Integration Tests', () => {
       const response = await agent
         .get('/api/users/invalid-id/statistics')
         .set('Authorization', `Bearer ${playerToken}`);
-        
+
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body.message).toContain('Validation error in URL parameters');
@@ -141,7 +140,7 @@ describe('User Routes - Integration Tests', () => {
       const response = await agent
         .get('/api/users/invalid-id/preferences')
         .set('Authorization', `Bearer ${playerToken}`);
-        
+
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body.message).toContain('Validation error in URL parameters');
@@ -153,9 +152,9 @@ describe('User Routes - Integration Tests', () => {
         .set('Authorization', `Bearer ${playerToken}`)
         .send({
           notificationEnabled: true,
-          theme: 'dark'
+          theme: 'dark',
         });
-        
+
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body.message).toContain('Validation error in URL parameters');
@@ -164,10 +163,8 @@ describe('User Routes - Integration Tests', () => {
 
   describe('GET /api/users', () => {
     it('should allow admins to get all users', async () => {
-      const response = await agent
-        .get('/api/users')
-        .set('Authorization', `Bearer ${adminToken}`);
-        
+      const response = await agent.get('/api/users').set('Authorization', `Bearer ${adminToken}`);
+
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
       expect(response.body).toHaveProperty('data');
@@ -179,7 +176,7 @@ describe('User Routes - Integration Tests', () => {
       const response = await agent
         .get('/api/users?limit=10&offset=0&role=player')
         .set('Authorization', `Bearer ${adminToken}`);
-        
+
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
     });
@@ -190,7 +187,7 @@ describe('User Routes - Integration Tests', () => {
       const response = await agent
         .get(`/api/users/${mockUsers.player.id}`)
         .set('Authorization', `Bearer ${adminToken}`);
-        
+
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
       expect(response.body).toHaveProperty('data');
@@ -202,7 +199,7 @@ describe('User Routes - Integration Tests', () => {
       const response = await agent
         .get(`/api/users/${mockUsers.player.id}`)
         .set('Authorization', `Bearer ${playerToken}`);
-        
+
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
       expect(response.body.data.user).toHaveProperty('id', mockUsers.player.id);
@@ -212,16 +209,18 @@ describe('User Routes - Integration Tests', () => {
       const response = await agent
         .get(`/api/users/${mockUsers.anotherPlayer.id}`)
         .set('Authorization', `Bearer ${playerToken}`);
-        
+
       expect(response.status).toBe(403);
       expect(response.body).toHaveProperty('status', 'error');
-      expect(response.body).toHaveProperty('message', 'You do not have permission to access this resource');
+      expect(response.body).toHaveProperty(
+        'message',
+        'You do not have permission to access this resource',
+      );
     });
 
     it('should return 401 when accessing without token', async () => {
-      const response = await agent
-        .get(`/api/users/${mockUsers.player.id}`);
-        
+      const response = await agent.get(`/api/users/${mockUsers.player.id}`);
+
       expect(response.status).toBe(401);
       expect(response.body).toHaveProperty('status', 'error');
     });
@@ -230,12 +229,12 @@ describe('User Routes - Integration Tests', () => {
   describe('PUT /api/users/:id', () => {
     const validUpdateData = {
       name: 'Updated Name',
-      email: 'updated@example.com'
+      email: 'updated@example.com',
     };
 
     const invalidUpdateData = {
-      name: '',  // Empty name
-      email: 'not-an-email'
+      name: '', // Empty name
+      email: 'not-an-email',
     };
 
     it('should allow admins to update any user', async () => {
@@ -243,7 +242,7 @@ describe('User Routes - Integration Tests', () => {
         .put(`/api/users/${mockUsers.player.id}`)
         .set('Authorization', `Bearer ${adminToken}`)
         .send(validUpdateData);
-        
+
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
       expect(response.body).toHaveProperty('data');
@@ -257,7 +256,7 @@ describe('User Routes - Integration Tests', () => {
         .put(`/api/users/${mockUsers.player.id}`)
         .set('Authorization', `Bearer ${playerToken}`)
         .send(validUpdateData);
-        
+
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
       expect(response.body.data.user).toHaveProperty('name', validUpdateData.name);
@@ -268,10 +267,13 @@ describe('User Routes - Integration Tests', () => {
         .put(`/api/users/${mockUsers.anotherPlayer.id}`)
         .set('Authorization', `Bearer ${playerToken}`)
         .send(validUpdateData);
-        
+
       expect(response.status).toBe(403);
       expect(response.body).toHaveProperty('status', 'error');
-      expect(response.body).toHaveProperty('message', 'You do not have permission to update this user');
+      expect(response.body).toHaveProperty(
+        'message',
+        'You do not have permission to update this user',
+      );
     });
 
     it('should return 403 when a player tries to change role', async () => {
@@ -279,10 +281,13 @@ describe('User Routes - Integration Tests', () => {
         .put(`/api/users/${mockUsers.player.id}`)
         .set('Authorization', `Bearer ${playerToken}`)
         .send({ role: 'admin' });
-        
+
       expect(response.status).toBe(403);
       expect(response.body).toHaveProperty('status', 'error');
-      expect(response.body).toHaveProperty('message', 'You do not have permission to change user roles');
+      expect(response.body).toHaveProperty(
+        'message',
+        'You do not have permission to change user roles',
+      );
     });
 
     it('should allow admins to change user roles', async () => {
@@ -290,7 +295,7 @@ describe('User Routes - Integration Tests', () => {
         .put(`/api/users/${mockUsers.player.id}`)
         .set('Authorization', `Bearer ${adminToken}`)
         .send({ role: 'admin' });
-        
+
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
     });
@@ -300,17 +305,15 @@ describe('User Routes - Integration Tests', () => {
         .put(`/api/users/${mockUsers.player.id}`)
         .set('Authorization', `Bearer ${playerToken}`)
         .send(invalidUpdateData);
-        
+
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body.message).toContain('Validation error');
     });
 
     it('should return 401 when updating without token', async () => {
-      const response = await agent
-        .put(`/api/users/${mockUsers.player.id}`)
-        .send(validUpdateData);
-        
+      const response = await agent.put(`/api/users/${mockUsers.player.id}`).send(validUpdateData);
+
       expect(response.status).toBe(401);
       expect(response.body).toHaveProperty('status', 'error');
     });
@@ -319,12 +322,12 @@ describe('User Routes - Integration Tests', () => {
   describe('POST /api/users/:id/change-password', () => {
     const validPasswordData = {
       currentPassword: 'password123',
-      newPassword: 'newpassword123'
+      newPassword: 'newpassword123',
     };
 
     const invalidPasswordData = {
       currentPassword: 'password123',
-      newPassword: 'weak'  // Too short
+      newPassword: 'weak', // Too short
     };
 
     it('should allow users to change their own password', async () => {
@@ -332,7 +335,7 @@ describe('User Routes - Integration Tests', () => {
         .post(`/api/users/${mockUsers.player.id}/change-password`)
         .set('Authorization', `Bearer ${playerToken}`)
         .send(validPasswordData);
-        
+
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
       expect(response.body).toHaveProperty('message', 'Password changed successfully');
@@ -343,7 +346,7 @@ describe('User Routes - Integration Tests', () => {
         .post(`/api/users/${mockUsers.anotherPlayer.id}/change-password`)
         .set('Authorization', `Bearer ${playerToken}`)
         .send(validPasswordData);
-        
+
       expect(response.status).toBe(403);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body).toHaveProperty('message', 'You can only change your own password');
@@ -354,7 +357,7 @@ describe('User Routes - Integration Tests', () => {
         .post(`/api/users/${mockUsers.player.id}/change-password`)
         .set('Authorization', `Bearer ${playerToken}`)
         .send(invalidPasswordData);
-        
+
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body.message).toContain('Validation error');
@@ -364,7 +367,7 @@ describe('User Routes - Integration Tests', () => {
       const response = await agent
         .post(`/api/users/${mockUsers.player.id}/change-password`)
         .send(validPasswordData);
-        
+
       expect(response.status).toBe(401);
       expect(response.body).toHaveProperty('status', 'error');
     });
@@ -372,9 +375,8 @@ describe('User Routes - Integration Tests', () => {
 
   describe('User Statistics Endpoint', () => {
     it('should return 401 without token', async () => {
-      const response = await agent
-        .get(`/api/users/${mockUsers.player.id}/statistics`);
-        
+      const response = await agent.get(`/api/users/${mockUsers.player.id}/statistics`);
+
       expect(response.status).toBe(401);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body).toHaveProperty('message', 'Authentication token is missing');
@@ -384,7 +386,7 @@ describe('User Routes - Integration Tests', () => {
       const response = await agent
         .get(`/api/users/${mockUsers.player.id}/statistics`)
         .set('Authorization', `Bearer ${playerToken}`);
-        
+
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
       expect(response.body).toHaveProperty('data');
@@ -398,7 +400,7 @@ describe('User Routes - Integration Tests', () => {
       const response = await agent
         .get(`/api/users/${mockUsers.player.id}/statistics`)
         .set('Authorization', `Bearer ${adminToken}`);
-        
+
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
       expect(response.body.data).toHaveProperty('userId', mockUsers.player.id);
@@ -408,17 +410,20 @@ describe('User Routes - Integration Tests', () => {
       const response = await agent
         .get(`/api/users/${mockUsers.admin.id}/statistics`)
         .set('Authorization', `Bearer ${playerToken}`);
-        
+
       expect(response.status).toBe(403);
       expect(response.body).toHaveProperty('status', 'error');
-      expect(response.body).toHaveProperty('message', 'You do not have permission to access these statistics');
+      expect(response.body).toHaveProperty(
+        'message',
+        'You do not have permission to access these statistics',
+      );
     });
 
     it('should return 404 when the user does not exist', async () => {
       const response = await agent
         .get(`/api/users/${nonExistentId}/statistics`)
         .set('Authorization', `Bearer ${adminToken}`);
-        
+
       expect(response.status).toBe(404);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body).toHaveProperty('message', 'User not found');
@@ -430,7 +435,7 @@ describe('User Routes - Integration Tests', () => {
       const response = await agent
         .get(`/api/users/${mockUsers.player.id}/performance/2023`)
         .set('Authorization', `Bearer ${playerToken}`);
-        
+
       expect(response.status).toBe(200);
     });
 
@@ -438,8 +443,8 @@ describe('User Routes - Integration Tests', () => {
       const response = await agent
         .get(`/api/users/${mockUsers.player.id}/match-history`)
         .set('Authorization', `Bearer ${playerToken}`);
-        
+
       expect(response.status).toBe(200);
     });
   });
-}); 
+});

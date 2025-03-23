@@ -1,6 +1,9 @@
 import { UserPreference } from '@prisma/client';
 import { IPreferenceRepository } from '../../../../src/core/application/interfaces/repositories/preference.repository';
-import { UpdateUserPreferencesUseCase, UpdateUserPreferencesInput } from '../../../../src/core/application/use-cases/preference/update-user-preferences.use-case';
+import {
+  UpdateUserPreferencesUseCase,
+  UpdateUserPreferencesInput,
+} from '../../../../src/core/application/use-cases/preference/update-user-preferences.use-case';
 
 // Mock repository implementation
 class MockPreferenceRepository implements IPreferenceRepository {
@@ -15,7 +18,7 @@ class MockPreferenceRepository implements IPreferenceRepository {
       theme: 'light',
       fontSize: 16,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
     };
   }
 
@@ -23,11 +26,14 @@ class MockPreferenceRepository implements IPreferenceRepository {
     return this.mockData[userId] || null;
   }
 
-  async updateUserPreferences(userId: string, data: Partial<UserPreference>): Promise<UserPreference> {
+  async updateUserPreferences(
+    userId: string,
+    data: Partial<UserPreference>,
+  ): Promise<UserPreference> {
     if (userId === 'error-user-id') {
       throw new Error('Database connection error');
     }
-    
+
     if (!this.mockData[userId]) {
       // Create new preferences if they don't exist
       this.mockData[userId] = {
@@ -37,17 +43,17 @@ class MockPreferenceRepository implements IPreferenceRepository {
         fontSize: 16,
         createdAt: new Date(),
         updatedAt: new Date(),
-        ...data
+        ...data,
       };
     } else {
       // Update existing preferences
       this.mockData[userId] = {
         ...this.mockData[userId],
         ...data,
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
     }
-    
+
     return this.mockData[userId];
   }
 
@@ -61,7 +67,7 @@ class MockPreferenceRepository implements IPreferenceRepository {
         theme: 'system',
         fontSize: 16,
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
     } else {
       // Reset existing to defaults
@@ -69,10 +75,10 @@ class MockPreferenceRepository implements IPreferenceRepository {
         ...this.mockData[userId],
         theme: 'system',
         fontSize: 16,
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
     }
-    
+
     return this.mockData[userId];
   }
 }
@@ -90,17 +96,17 @@ describe('UpdateUserPreferencesUseCase', () => {
   const createValidInput = (): UpdateUserPreferencesInput => ({
     userId: '123e4567-e89b-12d3-a456-426614174000',
     theme: 'dark',
-    fontSize: 18
+    fontSize: 18,
   });
 
   describe('Update user preferences', () => {
     test('should update existing user preferences', async () => {
       // Arrange
       const input = createValidInput();
-      
+
       // Act
       const result = await useCase.execute(input);
-      
+
       // Assert
       expect(result.isSuccess).toBe(true);
       const preferences = result.getValue();
@@ -109,16 +115,16 @@ describe('UpdateUserPreferencesUseCase', () => {
       expect(preferences.fontSize).toBe(18);
     });
 
-    test('should create new preferences if they don\'t exist', async () => {
+    test("should create new preferences if they don't exist", async () => {
       // Arrange
       const input = {
         userId: '123e4567-e89b-12d3-a456-426614174999', // Non-existing user
-        theme: 'dark' as 'light' | 'dark' | 'system'
+        theme: 'dark' as 'light' | 'dark' | 'system',
       };
-      
+
       // Act
       const result = await useCase.execute(input);
-      
+
       // Assert
       expect(result.isSuccess).toBe(true);
       const preferences = result.getValue();
@@ -131,12 +137,12 @@ describe('UpdateUserPreferencesUseCase', () => {
       // Arrange
       const input = {
         userId: '123e4567-e89b-12d3-a456-426614174000',
-        fontSize: '20'
+        fontSize: '20',
       };
-      
+
       // Act
       const result = await useCase.execute(input as any);
-      
+
       // Assert
       expect(result.isSuccess).toBe(true);
       const preferences = result.getValue();
@@ -149,12 +155,12 @@ describe('UpdateUserPreferencesUseCase', () => {
       // Arrange
       const input = {
         userId: 'invalid-user-id',
-        theme: 'dark'
+        theme: 'dark',
       };
-      
+
       // Act
       const result = await useCase.execute(input as any);
-      
+
       // Assert
       expect(result.isFailure).toBe(true);
       expect(result.getError().message).toContain('Invalid user ID format');
@@ -164,12 +170,12 @@ describe('UpdateUserPreferencesUseCase', () => {
       // Arrange
       const input = {
         userId: '123e4567-e89b-12d3-a456-426614174000',
-        theme: 'invalid-theme'
+        theme: 'invalid-theme',
       };
-      
+
       // Act
       const result = await useCase.execute(input as any);
-      
+
       // Assert
       expect(result.isFailure).toBe(true);
       expect(result.getError().message).toContain('Theme must be one of');
@@ -179,12 +185,12 @@ describe('UpdateUserPreferencesUseCase', () => {
       // Arrange
       const input = {
         userId: '123e4567-e89b-12d3-a456-426614174000',
-        fontSize: 50 // Too large
+        fontSize: 50, // Too large
       };
-      
+
       // Act
       const result = await useCase.execute(input);
-      
+
       // Assert
       expect(result.isFailure).toBe(true);
       expect(result.getError().message).toContain('Number must be less than or equal to 24');
@@ -193,13 +199,13 @@ describe('UpdateUserPreferencesUseCase', () => {
     test('should fail when no preferences provided', async () => {
       // Arrange
       const input = {
-        userId: '123e4567-e89b-12d3-a456-426614174000'
+        userId: '123e4567-e89b-12d3-a456-426614174000',
         // No other fields
       };
-      
+
       // Act
       const result = await useCase.execute(input);
-      
+
       // Assert
       expect(result.isFailure).toBe(true);
       expect(result.getError().message).toBe('No preferences provided for update');
@@ -211,15 +217,15 @@ describe('UpdateUserPreferencesUseCase', () => {
       // Arrange
       const input = {
         userId: 'error-user-id',
-        theme: 'dark' as 'light' | 'dark' | 'system'
+        theme: 'dark' as 'light' | 'dark' | 'system',
       };
-      
+
       // Act
       const result = await useCase.execute(input);
-      
+
       // Assert
       expect(result.isFailure).toBe(true);
       expect(result.getError().message).toBe('Database connection error');
     });
   });
-}); 
+});

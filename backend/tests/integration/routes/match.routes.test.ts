@@ -7,16 +7,21 @@ import supertest from 'supertest';
 import app from '../../../src/app';
 import { UserRole, MatchStatus } from '@prisma/client';
 import { prisma } from '../setup';
-import { createMatchTestData, MatchTestData, cleanupMatchTestData, createBasicMatch } from '../../utils/match-test-helper';
+import {
+  createMatchTestData,
+  MatchTestData,
+  cleanupMatchTestData,
+  createBasicMatch,
+} from '../../utils/match-test-helper';
 
 /**
  * This test suite uses the enhanced authentication middleware
  * that supports different roles for testing purposes:
- * 
+ *
  * - 'admin-token' - Simulates user with ADMIN role
  * - 'valid-token' - Simulates user with PLAYER role
  * - 'x-test-role' header - Can override the role in test environment
- * 
+ *
  * See /docs/testing-auth.md for more details on testing auth
  */
 
@@ -37,7 +42,7 @@ const createMatchData = {
   player2Id: 'will-be-replaced',
   scheduledDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
   location: 'Test Court A',
-  status: MatchStatus.PENDING
+  status: MatchStatus.PENDING,
 };
 
 // Invalid match data for validation tests
@@ -46,14 +51,14 @@ const invalidMatchData = {
   player1Id: 'not-a-uuid',
   player2Id: 'not-a-uuid',
   scheduledDate: 'not-a-date',
-  status: 'INVALID_STATUS'
+  status: 'INVALID_STATUS',
 };
 
 // Update match data
 const updateMatchData = {
   scheduledDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString(),
   location: 'Updated Test Court',
-  status: MatchStatus.IN_PROGRESS
+  status: MatchStatus.IN_PROGRESS,
 };
 
 // Update score data
@@ -61,7 +66,7 @@ const updateScoreData = {
   player1Score: 6,
   player2Score: 4,
   status: MatchStatus.COMPLETED,
-  notes: 'Player 1 won in straight sets'
+  notes: 'Player 1 won in straight sets',
 };
 
 // Shared test data
@@ -74,32 +79,34 @@ describe('Match Routes - Integration Tests', () => {
     // Create test match with admin, tournament, players
     try {
       testData = await createMatchTestData(prisma);
-      
+
       if (testData) {
         // Update match data with actual IDs
         if (testData.tournament) {
           createMatchData.tournamentId = testData.tournament.id;
         }
-        
+
         if (testData.playerUsers && testData.playerUsers.length >= 2) {
           createMatchData.player1Id = testData.playerUsers[0].id;
           createMatchData.player2Id = testData.playerUsers[1].id;
         }
-        
+
         // Ensure valid MatchStatus
         createMatchData.status = MatchStatus.PENDING;
-        
+
         // Ensure valid scheduledDate
-        createMatchData.scheduledDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
-        
+        createMatchData.scheduledDate = new Date(
+          Date.now() + 7 * 24 * 60 * 60 * 1000,
+        ).toISOString();
+
         // Create a second match with different status for filtering tests
         if (testData.tournament && testData.playerUsers && testData.playerUsers.length >= 4) {
           try {
             secondMatch = await createBasicMatch(
-              prisma, 
+              prisma,
               testData.tournament.id,
               testData.playerUsers.map(p => p.id),
-              MatchStatus.COMPLETED
+              MatchStatus.COMPLETED,
             );
           } catch (error) {
             console.error('Error creating second match:', error);
@@ -131,7 +138,7 @@ describe('Match Routes - Integration Tests', () => {
   describe('Authentication Checks', () => {
     it('should return 401 when accessing protected routes without token', async () => {
       const response = await agent.post('/api/matches');
-        
+
       expect(response.status).toBe(401);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body).toHaveProperty('message', 'Authentication token is missing');
@@ -141,7 +148,7 @@ describe('Match Routes - Integration Tests', () => {
       const response = await agent
         .post('/api/matches')
         .set('Authorization', 'Bearer invalid-token');
-        
+
       expect(response.status).toBe(401);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body).toHaveProperty('message', 'Invalid or expired token');
@@ -151,7 +158,7 @@ describe('Match Routes - Integration Tests', () => {
       const response = await agent
         .post('/api/matches')
         .set('Authorization', 'InvalidPrefix admin-token');
-        
+
       expect(response.status).toBe(401);
       expect(response.body).toHaveProperty('status', 'error');
     });
@@ -163,10 +170,13 @@ describe('Match Routes - Integration Tests', () => {
         .post('/api/matches')
         .set('Authorization', 'Bearer valid-token')
         .send(createMatchData);
-        
+
       expect(response.status).toBe(403);
       expect(response.body).toHaveProperty('status', 'error');
-      expect(response.body).toHaveProperty('message', 'You do not have permission to access this resource');
+      expect(response.body).toHaveProperty(
+        'message',
+        'You do not have permission to access this resource',
+      );
     });
 
     it('should return 201 when admin tries to access admin-only routes', async () => {
@@ -174,7 +184,7 @@ describe('Match Routes - Integration Tests', () => {
         .post('/api/matches')
         .set('Authorization', 'Bearer admin-token')
         .send(createMatchData);
-        
+
       // The API is returning 400 because the validation schema and the controller expect
       // different fields. In a real-world situation, we would fix the controller or schema,
       // but for now, we'll just check for the specific error message.
@@ -189,7 +199,7 @@ describe('Match Routes - Integration Tests', () => {
         .set('Authorization', 'Bearer valid-token')
         .set('x-test-role', 'ADMIN')
         .send(createMatchData);
-        
+
       // The API is returning 400 because the validation schema and the controller expect
       // different fields, but we can still verify the role override worked
       // by confirming that we're not getting a 403 forbidden
@@ -202,7 +212,7 @@ describe('Match Routes - Integration Tests', () => {
   describe('GET /api/matches', () => {
     it('should return a list of matches', async () => {
       const response = await agent.get('/api/matches');
-        
+
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
       expect(response.body).toHaveProperty('data');
@@ -211,9 +221,8 @@ describe('Match Routes - Integration Tests', () => {
     });
 
     it('should filter matches by tournamentId when provided', async () => {
-      const response = await agent
-        .get(`/api/matches?tournamentId=${testData.tournament.id}`);
-        
+      const response = await agent.get(`/api/matches?tournamentId=${testData.tournament.id}`);
+
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
       expect(response.body.data).toHaveProperty('matches');
@@ -221,9 +230,8 @@ describe('Match Routes - Integration Tests', () => {
     });
 
     it('should filter matches by status when provided', async () => {
-      const response = await agent
-        .get(`/api/matches?status=${MatchStatus.PENDING}`);
-        
+      const response = await agent.get(`/api/matches?status=${MatchStatus.PENDING}`);
+
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
     });
@@ -232,7 +240,7 @@ describe('Match Routes - Integration Tests', () => {
       const response = await agent
         .get('/api/matches?status=INVALID_STATUS')
         .set('Authorization', 'Bearer admin-token');
-        
+
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
     });
@@ -240,9 +248,8 @@ describe('Match Routes - Integration Tests', () => {
 
   describe('GET /api/matches/:id', () => {
     it('should return a specific match by ID', async () => {
-      const response = await agent
-        .get(`/api/matches/${testData.match.id}`);
-        
+      const response = await agent.get(`/api/matches/${testData.match.id}`);
+
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
       expect(response.body).toHaveProperty('data');
@@ -250,18 +257,16 @@ describe('Match Routes - Integration Tests', () => {
     });
 
     it('should return 404 for non-existent match ID', async () => {
-      const response = await agent
-        .get(`/api/matches/${nonExistentId}`);
-        
+      const response = await agent.get(`/api/matches/${nonExistentId}`);
+
       expect(response.status).toBe(404);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body).toHaveProperty('message', 'Match not found');
     });
 
     it('should return 400 for invalid match ID format', async () => {
-      const response = await agent
-        .get(`/api/matches/${invalidFormatId}`);
-        
+      const response = await agent.get(`/api/matches/${invalidFormatId}`);
+
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
     });
@@ -270,12 +275,12 @@ describe('Match Routes - Integration Tests', () => {
   describe('POST /api/matches', () => {
     it('should allow administrators to create matches', async () => {
       const newMatchData = { ...createMatchData };
-      
+
       const response = await agent
         .post('/api/matches')
         .set('Authorization', 'Bearer admin-token')
         .send(newMatchData);
-        
+
       // The API is returning 400 because of validation mismatches
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
@@ -295,24 +300,22 @@ describe('Match Routes - Integration Tests', () => {
       const duplicatePlayerData = {
         ...createMatchData,
         player1Id: testData.playerUsers[0].id,
-        player2Id: testData.playerUsers[0].id // Same as player1Id
+        player2Id: testData.playerUsers[0].id, // Same as player1Id
       };
-      
+
       const response = await agent
         .post('/api/matches')
         .set('Authorization', 'Bearer admin-token')
         .send(duplicatePlayerData);
-        
+
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body.message).toContain('Validation error');
     });
 
     it('should return 401 when not authenticated', async () => {
-      const response = await agent
-        .post('/api/matches')
-        .send(createMatchData);
-        
+      const response = await agent.post('/api/matches').send(createMatchData);
+
       expect(response.status).toBe(401);
       expect(response.body).toHaveProperty('status', 'error');
     });
@@ -323,7 +326,7 @@ describe('Match Routes - Integration Tests', () => {
         player1Id: testData.playerUsers[0].id,
         player2Id: testData.playerUsers[1].id,
         tournamentId: testData.tournament.id,
-        scheduledDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString()
+        scheduledDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
       };
       console.log('Sending validMatchData:', validMatchData);
       const response = await agent
@@ -354,17 +357,15 @@ describe('Match Routes - Integration Tests', () => {
         .put(`/api/matches/${nonExistentId}`)
         .set('Authorization', 'Bearer admin-token')
         .send(updateMatchData);
-        
+
       expect(response.status).toBe(404);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body).toHaveProperty('message', 'Match not found');
     });
 
     it('should return 401 when not authenticated', async () => {
-      const response = await agent
-        .put(`/api/matches/${testData.match.id}`)
-        .send(updateMatchData);
-        
+      const response = await agent.put(`/api/matches/${testData.match.id}`).send(updateMatchData);
+
       expect(response.status).toBe(401);
       expect(response.body).toHaveProperty('status', 'error');
     });
@@ -374,7 +375,7 @@ describe('Match Routes - Integration Tests', () => {
         .put(`/api/matches/${testData.match.id}`)
         .set('Authorization', 'Bearer valid-token')
         .send(updateMatchData);
-        
+
       expect(response.status).toBe(403);
       expect(response.body).toHaveProperty('status', 'error');
     });
@@ -400,7 +401,7 @@ describe('Match Routes - Integration Tests', () => {
         .patch(`/api/matches/${testData.match.id}/score`)
         .set('Authorization', 'Bearer admin-token')
         .send(updateScoreData);
-        
+
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
       expect(response.body).toHaveProperty('data');
@@ -411,14 +412,14 @@ describe('Match Routes - Integration Tests', () => {
       const invalidScoreData = {
         player1Score: -1, // Invalid negative score
         player2Score: 'not-a-number', // Invalid type
-        status: 'INVALID_STATUS' // Invalid status
+        status: 'INVALID_STATUS', // Invalid status
       };
-      
+
       const response = await agent
         .patch(`/api/matches/${testData.match.id}/score`)
         .set('Authorization', 'Bearer admin-token')
         .send(invalidScoreData);
-        
+
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
     });
@@ -428,7 +429,7 @@ describe('Match Routes - Integration Tests', () => {
         .patch(`/api/matches/${nonExistentId}/score`)
         .set('Authorization', 'Bearer admin-token')
         .send(updateScoreData);
-        
+
       expect(response.status).toBe(404);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body).toHaveProperty('message', 'Match not found');
@@ -438,7 +439,7 @@ describe('Match Routes - Integration Tests', () => {
       const response = await agent
         .patch(`/api/matches/${testData.match.id}/score`)
         .send(updateScoreData);
-        
+
       expect(response.status).toBe(401);
       expect(response.body).toHaveProperty('status', 'error');
     });
@@ -448,7 +449,7 @@ describe('Match Routes - Integration Tests', () => {
         .patch(`/api/matches/${testData.match.id}/score`)
         .set('Authorization', 'Bearer valid-token')
         .send(updateScoreData);
-        
+
       expect(response.status).toBe(403);
       expect(response.body).toHaveProperty('status', 'error');
     });
@@ -457,17 +458,19 @@ describe('Match Routes - Integration Tests', () => {
   describe('DELETE /api/matches/:id', () => {
     it('should allow administrators to delete matches', async () => {
       // Skip test if we don't have enough test data
-      if (!testData?.tournament?.id || 
-          !testData?.playerUsers ||
-          testData.playerUsers.length < 4 ||
-          !testData.playerUsers[0]?.id ||
-          !testData.playerUsers[1]?.id ||
-          !testData.playerUsers[2]?.id ||
-          !testData.playerUsers[3]?.id) {
+      if (
+        !testData?.tournament?.id ||
+        !testData?.playerUsers ||
+        testData.playerUsers.length < 4 ||
+        !testData.playerUsers[0]?.id ||
+        !testData.playerUsers[1]?.id ||
+        !testData.playerUsers[2]?.id ||
+        !testData.playerUsers[3]?.id
+      ) {
         console.log('Skipping delete match test due to insufficient test data');
         return;
       }
-      
+
       // Create a temporary match to delete directly with prisma
       let tempMatch;
       try {
@@ -481,15 +484,15 @@ describe('Match Routes - Integration Tests', () => {
             round: 1,
             date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now
             location: 'Test Court - Delete Test',
-            status: MatchStatus.PENDING
-          }
+            status: MatchStatus.PENDING,
+          },
         });
         console.log(`Successfully created temporary match with ID ${tempMatch.id} for delete test`);
-        
+
         const response = await agent
           .delete(`/api/matches/${tempMatch.id}`)
           .set('Authorization', 'Bearer admin-token');
-          
+
         expect(response.status).toBe(200);
         expect(response.body).toHaveProperty('status', 'success');
         expect(response.body).toHaveProperty('message', 'Match deleted successfully');
@@ -504,7 +507,7 @@ describe('Match Routes - Integration Tests', () => {
       const response = await agent
         .delete(`/api/matches/${nonExistentId}`)
         .set('Authorization', 'Bearer admin-token');
-        
+
       expect(response.status).toBe(404);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body).toHaveProperty('message', 'Match not found');
@@ -514,7 +517,7 @@ describe('Match Routes - Integration Tests', () => {
       const response = await agent
         .delete(`/api/matches/${invalidFormatId}`)
         .set('Authorization', 'Bearer admin-token');
-        
+
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
     });
@@ -525,10 +528,9 @@ describe('Match Routes - Integration Tests', () => {
         console.warn('Skipping test as match data is not available');
         return;
       }
-      
-      const response = await agent
-        .delete(`/api/matches/${testData.match.id}`);
-        
+
+      const response = await agent.delete(`/api/matches/${testData.match.id}`);
+
       expect(response.status).toBe(401);
       expect(response.body).toHaveProperty('status', 'error');
     });
@@ -539,11 +541,11 @@ describe('Match Routes - Integration Tests', () => {
         console.warn('Skipping test as match data is not available');
         return;
       }
-      
+
       const response = await agent
         .delete(`/api/matches/${testData.match.id}`)
         .set('Authorization', 'Bearer valid-token');
-        
+
       expect(response.status).toBe(403);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body).toHaveProperty('message');
@@ -557,14 +559,13 @@ describe('Match Routes - Integration Tests', () => {
         console.warn('Skipping test as tournament data is not available');
         return;
       }
-      
-      const response = await agent
-        .get(`/api/tournaments/${testData.tournament.id}/matches`);
-        
+
+      const response = await agent.get(`/api/tournaments/${testData.tournament.id}/matches`);
+
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
       expect(response.body.data).toBeDefined();
-      
+
       // The response could be either an array directly or an object with a matches property
       if (Array.isArray(response.body.data)) {
         expect(Array.isArray(response.body.data)).toBe(true);
@@ -575,17 +576,15 @@ describe('Match Routes - Integration Tests', () => {
     });
 
     it('should return 404 for non-existent tournament ID', async () => {
-      const response = await agent
-        .get(`/api/tournaments/${nonExistentId}/matches`);
-        
+      const response = await agent.get(`/api/tournaments/${nonExistentId}/matches`);
+
       expect(response.status).toBe(404);
       expect(response.body).toHaveProperty('status', 'error');
     });
 
     it('should return 400 for invalid tournament ID format', async () => {
-      const response = await agent
-        .get(`/api/tournaments/${invalidFormatId}/matches`);
-        
+      const response = await agent.get(`/api/tournaments/${invalidFormatId}/matches`);
+
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
     });
@@ -598,12 +597,12 @@ describe('Match Routes - Integration Tests', () => {
       const response = await agent
         .post('/api/matches')
         .set('Authorization', 'Bearer admin-token')
-        .send({ 
+        .send({
           // Missing required fields
         });
-        
+
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
     });
   });
-}); 
+});

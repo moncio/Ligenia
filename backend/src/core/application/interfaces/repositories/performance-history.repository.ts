@@ -32,11 +32,13 @@ export interface PerformanceTrend {
 }
 
 export interface IPerformanceHistoryRepository {
-  create(data: Omit<PerformanceHistory, 'id' | 'createdAt' | 'updatedAt'>): Promise<PerformanceHistory>;
+  create(
+    data: Omit<PerformanceHistory, 'id' | 'createdAt' | 'updatedAt'>,
+  ): Promise<PerformanceHistory>;
   findById(id: string): Promise<PerformanceHistory | null>;
   findByUserId(userId: string, filter?: PerformanceHistoryFilter): Promise<PerformanceHistory[]>;
   update(id: string, data: Partial<PerformanceHistory>): Promise<PerformanceHistory>;
   delete(id: string): Promise<void>;
   findPerformanceSummary(userId: string, year?: number): Promise<PerformanceSummary>;
   findPerformanceTrends(userId: string, timeframe?: string): Promise<PerformanceTrend[]>;
-} 
+}

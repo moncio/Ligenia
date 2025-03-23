@@ -51,4 +51,4 @@ export interface IMatchRepository {
    * Count matches based on filter
    */
   count(filter: MatchFilter): Promise<number>;
-} 
+}

@@ -335,11 +335,7 @@
 <a name='L270'></a><a href='#L270'>270</a>
 <a name='L271'></a><a href='#L271'>271</a>
 <a name='L272'></a><a href='#L272'>272</a>
-<a name='L273'></a><a href='#L273'>273</a>
-<a name='L274'></a><a href='#L274'>274</a>
-<a name='L275'></a><a href='#L275'>275</a>
-<a name='L276'></a><a href='#L276'>276</a>
-<a name='L277'></a><a href='#L277'>277</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L273'></a><a href='#L273'>273</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -369,6 +365,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -388,18 +386,14 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -416,8 +410,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -433,11 +425,9 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -540,6 +530,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -614,6 +605,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import { BaseUseCase } from '../../base/base.use-case';</span>
 <span class="cstat-no" title="statement not covered" >import { Result } from '../../../../shared/result';</span>
@@ -625,11 +617,13 @@ import { IMatchRepository } from '../../interfaces/repositories/match.repository
 &nbsp;
 // Define input validation schema using Zod
 const updateTournamentMatchesAndStandingsSchema = <span class="cstat-no" title="statement not covered" >z.object({</span>
-  tournamentId: z.string().uuid({ message: 'Tournament ID must be a valid UUID' })
+  tournamentId: z.string().uuid({ message: 'Tournament ID must be a valid UUID' }),
 });
 &nbsp;
 // Define the input type using the Zod schema
-export type UpdateTournamentMatchesAndStandingsInput = z.infer&lt;typeof updateTournamentMatchesAndStandingsSchema&gt;;
+export type UpdateTournamentMatchesAndStandingsInput = z.infer&lt;
+  typeof updateTournamentMatchesAndStandingsSchema
+&gt;;
 &nbsp;
 // Define the output interface
 export interface UpdateTournamentMatchesAndStandingsOutput {
@@ -651,21 +645,19 @@ export interface UpdateTournamentMatchesAndStandingsOutput {
 &gt; {
 <span class="fstat-no" title="function not covered" >  constructor(</span>
     private readonly <span class="cstat-no" title="statement not covered" >tournamentRepository: ITournamentRepository,</span>
-    private readonly <span class="cstat-no" title="statement not covered" >matchRepository: IMatchRepository</span>
+    private readonly <span class="cstat-no" title="statement not covered" >matchRepository: IMatchRepository,</span>
   ) {
 <span class="cstat-no" title="statement not covered" >    super();</span>
   }
 &nbsp;
   protected async <span class="fstat-no" title="function not covered" >executeImpl(</span>
-    input: UpdateTournamentMatchesAndStandingsInput
+    input: UpdateTournamentMatchesAndStandingsInput,
   ): Promise&lt;Result&lt;UpdateTournamentMatchesAndStandingsOutput&gt;&gt; {
 <span class="cstat-no" title="statement not covered" >    try {</span>
       // Validate input
       const validationResult = <span class="cstat-no" title="statement not covered" >updateTournamentMatchesAndStandingsSchema.safeParse(input);</span>
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!validationResult.success) {</span>
-<span class="cstat-no" title="statement not covered" >        return Result.fail(</span>
-          new Error(`Invalid input: ${validationResult.error.message}`)
-        );
+<span class="cstat-no" title="statement not covered" >        return Result.fail(new Error(`Invalid input: ${validationResult.error.message}`));</span>
       }
 &nbsp;
       const { tournamentId } = <span class="cstat-no" title="statement not covered" >validationResult.data;</span>
@@ -673,86 +665,80 @@ export interface UpdateTournamentMatchesAndStandingsOutput {
       // Check if tournament exists
       const tournament = <span class="cstat-no" title="statement not covered" >await this.tournamentRepository.findById(tournamentId);</span>
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!tournament) {</span>
-<span class="cstat-no" title="statement not covered" >        return Result.fail(</span>
-          new Error(`Tournament with ID ${tournamentId} not found`)
-        );
+<span class="cstat-no" title="statement not covered" >        return Result.fail(new Error(`Tournament with ID ${tournamentId} not found`));</span>
       }
 &nbsp;
       // Check if tournament is in ACTIVE state
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (tournament.status !== TournamentStatus.ACTIVE) {</span>
 <span class="cstat-no" title="statement not covered" >        return Result.fail(</span>
-          new Error(`Tournament is not in ACTIVE state, current state: ${tournament.status}`)
+          new Error(`Tournament is not in ACTIVE state, current state: ${tournament.status}`),
         );
       }
 &nbsp;
       // Get all matches for the tournament
       const allMatches = <span class="cstat-no" title="statement not covered" >await this.matchRepository.findByFilter({ tournamentId });</span>
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (allMatches.length === 0) {</span>
-<span class="cstat-no" title="statement not covered" >        return Result.fail(</span>
-          new Error(`No matches found for tournament ${tournamentId}`)
-        );
+<span class="cstat-no" title="statement not covered" >        return Result.fail(new Error(`No matches found for tournament ${tournamentId}`));</span>
       }
 &nbsp;
       // Group matches by round
       const matchesByRound = <span class="cstat-no" title="statement not covered" >this.groupMatchesByRound(allMatches);</span>
-      
+&nbsp;
       // Determine the current round
       const currentRound = <span class="cstat-no" title="statement not covered" >this.determineCurrentRound(matchesByRound);</span>
-      
+&nbsp;
       // Get matches for the current round
       const currentRoundMatches = <span class="cstat-no" title="statement not covered" >matchesByRound.get(currentRound) || [];</span>
-      
+&nbsp;
       // Check if all matches in the current round are completed
       const allMatchesCompleted = <span class="cstat-no" title="statement not covered" >currentRoundMatches.every(</span>
-<span class="fstat-no" title="function not covered" >        match </span>=&gt; <span class="cstat-no" title="statement not covered" >match.status === MatchStatus.COMPLETED</span>
+<span class="fstat-no" title="function not covered" >        match </span>=&gt; <span class="cstat-no" title="statement not covered" >match.status === MatchStatus.COMPLETED,</span>
       );
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!allMatchesCompleted) {</span>
-<span class="cstat-no" title="statement not covered" >        return Result.fail(</span>
-          new Error(`Not all matches in round ${currentRound} are completed yet`)
-        );
+<span class="cstat-no" title="statement not covered" >        return Result.fail(new Error(`Not all matches in round ${currentRound} are completed yet`));</span>
       }
 &nbsp;
       // Get winners from the current round
       const winners = <span class="cstat-no" title="statement not covered" >this.getWinnersFromMatches(currentRoundMatches);</span>
-      
+&nbsp;
       // If there's only one winner and we're not in the first round, the tournament is complete
       const isComplete = <span class="cstat-no" title="statement not covered" >winners.length === 1 &amp;&amp; currentRound &gt; 1;</span>
-      
+&nbsp;
       let nextRoundMatches: Match[] = <span class="cstat-no" title="statement not covered" >[];</span>
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      if (isComplete) {</span>
         // Tournament is complete, update status
 <span class="cstat-no" title="statement not covered" >        tournament.status = TournamentStatus.COMPLETED;</span>
 <span class="cstat-no" title="statement not covered" >        await this.tournamentRepository.update(tournament);</span>
-        
+&nbsp;
 <span class="cstat-no" title="statement not covered" >        return Result.ok({</span>
           tournamentId,
           updatedStatus: TournamentStatus.COMPLETED,
           nextRoundMatches: [],
           isComplete: true,
-          winnerId: winners[0]
+          winnerId: winners[0],
         });
       } else {
         // Create matches for the next round
 <span class="cstat-no" title="statement not covered" >        nextRoundMatches = await this.createNextRoundMatches(</span>
           tournamentId,
           winners,
-          currentRound + 1
+          currentRound + 1,
         );
-        
+&nbsp;
 <span class="cstat-no" title="statement not covered" >        return Result.ok({</span>
           tournamentId,
           updatedStatus: tournament.status,
           nextRoundMatches,
-          isComplete: false
+          isComplete: false,
         });
       }
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      return Result.fail(</span>
         error instanceof Error
           ? error
-          : new Error('Failed to update tournament matches and standings')
+          : new Error('Failed to update tournament matches and standings'),
       );
     }
   }
@@ -762,14 +748,14 @@ export interface UpdateTournamentMatchesAndStandingsOutput {
    */
   private <span class="fstat-no" title="function not covered" >groupMatchesByRound(</span>matches: Match[]): Map&lt;number, Match[]&gt; {
     const matchesByRound = <span class="cstat-no" title="statement not covered" >new Map&lt;number, Match[]&gt;();</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    for (const match of matches) {</span>
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!matchesByRound.has(match.round)) {</span>
 <span class="cstat-no" title="statement not covered" >        matchesByRound.set(match.round, []);</span>
       }
 <span class="cstat-no" title="statement not covered" >      matchesByRound.get(match.round)?.push(match);</span>
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return matchesByRound;</span>
   }
 &nbsp;
@@ -778,11 +764,11 @@ export interface UpdateTournamentMatchesAndStandingsOutput {
    */
   private <span class="fstat-no" title="function not covered" >determineCurrentRound(</span>matchesByRound: Map&lt;number, Match[]&gt;): number {
     // Find the highest round where not all matches are completed
-    let currentRound = <span class="cstat-no" title="statement not covered" >1;</span>
-    
+    const currentRound = <span class="cstat-no" title="statement not covered" >1;</span>
+&nbsp;
     // Get sorted round numbers
     const rounds = <span class="cstat-no" title="statement not covered" >Array.from(matchesByRound.keys()).sort(<span class="fstat-no" title="function not covered" >(a</span>, b) =&gt; <span class="cstat-no" title="statement not covered" >a - b)</span>;</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    for (const round of rounds) {</span>
       const matches = <span class="cstat-no" title="statement not covered" >matchesByRound.get(round) || [];</span>
       // If all matches are completed, check the next round
@@ -797,7 +783,7 @@ export interface UpdateTournamentMatchesAndStandingsOutput {
       // Found a round with incomplete matches
 <span class="cstat-no" title="statement not covered" >      return round;</span>
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return currentRound;</span>
   }
 &nbsp;
@@ -806,7 +792,7 @@ export interface UpdateTournamentMatchesAndStandingsOutput {
    */
   private <span class="fstat-no" title="function not covered" >getWinnersFromMatches(</span>matches: Match[]): string[] {
     const winners: string[] = <span class="cstat-no" title="statement not covered" >[];</span>
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    for (const match of matches) {</span>
       // For completed matches, determine the winner
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (match.status === MatchStatus.COMPLETED) {</span>
@@ -814,16 +800,17 @@ export interface UpdateTournamentMatchesAndStandingsOutput {
 <span class="cstat-no" title="statement not covered" >        <span class="missing-if-branch" title="if path not taken" >I</span>if (match.homeScore === null || match.awayScore === null) {</span>
 <span class="cstat-no" title="statement not covered" >          continue;</span>
         }
-        
+&nbsp;
         // Determine winner based on scores
-        const winner = <span class="cstat-no" title="statement not covered" >match.homeScore &gt; match.awayScore</span>
-          ? match.homePlayerOneId  // Home player won
-          : match.awayPlayerOneId; // Away player won
-        
+        const winner =
+<span class="cstat-no" title="statement not covered" >          match.homeScore &gt; match.awayScore</span>
+            ? match.homePlayerOneId // Home player won
+            : match.awayPlayerOneId; // Away player won
+&nbsp;
 <span class="cstat-no" title="statement not covered" >        winners.push(winner);</span>
       }
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return winners;</span>
   }
 &nbsp;
@@ -833,16 +820,16 @@ export interface UpdateTournamentMatchesAndStandingsOutput {
   private async <span class="fstat-no" title="function not covered" >createNextRoundMatches(</span>
     tournamentId: string,
     winners: string[],
-    nextRound: number
+    nextRound: number,
   ): Promise&lt;Match[]&gt; {
     const newMatches: Match[] = <span class="cstat-no" title="statement not covered" >[];</span>
-    
+&nbsp;
     // Handle cases where there's an odd number of winners
 <span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (winners.length % 2 !== 0 &amp;&amp; winners.length &gt; 1) {</span>
       // Give a bye to the last winner
       const lastWinner = <span class="cstat-no" title="statement not covered" >winners.pop()!;</span>
 <span class="cstat-no" title="statement not covered" >      winners.push(lastWinner);</span>
-      
+&nbsp;
       // Create a "bye" match for this player
       // Note: In a real scenario, this player automatically advances
       // but for transparency we create a match
@@ -851,25 +838,25 @@ export interface UpdateTournamentMatchesAndStandingsOutput {
         tournamentId,
         lastWinner,
         lastWinner, // Same player (usually would have player details)
-        "", // No opponent - bye
-        "", // No opponent - bye
+        '', // No opponent - bye
+        '', // No opponent - bye
         nextRound,
         new Date(Date.now() + 24 * 60 * 60 * 1000), // Schedule for tomorrow
-        "", // Location to be determined
+        '', // Location to be determined
         MatchStatus.SCHEDULED,
         null,
-        null
+        null,
       );
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      await this.matchRepository.save(byeMatch);</span>
 <span class="cstat-no" title="statement not covered" >      newMatches.push(byeMatch);</span>
     }
-    
+&nbsp;
     // Create matches by pairing winners
 <span class="cstat-no" title="statement not covered" >    for (let i = <span class="cstat-no" title="statement not covered" >0;</span> i &lt; winners.length - 1; i += 2) {</span>
       const homePlayer = <span class="cstat-no" title="statement not covered" >winners[i];</span>
       const awayPlayer = <span class="cstat-no" title="statement not covered" >winners[i + 1];</span>
-      
+&nbsp;
       const match = <span class="cstat-no" title="statement not covered" >new Match(</span>
         undefined, // ID will be generated on save
         tournamentId,
@@ -879,26 +866,27 @@ export interface UpdateTournamentMatchesAndStandingsOutput {
         awayPlayer, // Same player (usually would have player details)
         nextRound,
         new Date(Date.now() + 24 * 60 * 60 * 1000), // Schedule for tomorrow
-        "", // Location to be determined
+        '', // Location to be determined
         MatchStatus.SCHEDULED,
         null,
-        null
+        null,
       );
-      
+&nbsp;
 <span class="cstat-no" title="statement not covered" >      await this.matchRepository.save(match);</span>
 <span class="cstat-no" title="statement not covered" >      newMatches.push(match);</span>
     }
-    
+&nbsp;
 <span class="cstat-no" title="statement not covered" >    return newMatches;</span>
   }
-} </pre></td></tr></table></pre>
+}
+&nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-03-23T19:34:14.050Z
+                at 2025-03-23T22:37:40.856Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>

@@ -1,6 +1,11 @@
 import { UpdateTournamentUseCase } from '../../../../src/core/application/use-cases/tournament/update-tournament.use-case';
 import { ITournamentRepository } from '../../../../src/core/application/interfaces/repositories/tournament.repository';
-import { Tournament, TournamentFormat, TournamentStatus, PlayerLevel } from '../../../../src/core/domain/tournament/tournament.entity';
+import {
+  Tournament,
+  TournamentFormat,
+  TournamentStatus,
+  PlayerLevel,
+} from '../../../../src/core/domain/tournament/tournament.entity';
 import { Result } from '../../../../src/shared/result';
 
 // Mock for Tournament Repository
@@ -80,7 +85,7 @@ describe('UpdateTournamentUseCase', () => {
       PlayerLevel.P3,
       '00000000-0000-0000-0000-000000000001',
       new Date('2023-07-01T10:00:00Z'),
-      new Date('2023-07-01T10:00:00Z')
+      new Date('2023-07-01T10:00:00Z'),
     );
 
     tournamentRepository = new MockTournamentRepository([existingTournament]);
@@ -100,7 +105,7 @@ describe('UpdateTournamentUseCase', () => {
       location: 'Barcelona',
       maxParticipants: 32,
       registrationDeadline: '2023-09-10T23:59:59Z',
-      category: PlayerLevel.P4
+      category: PlayerLevel.P4,
     };
 
     // Remember original values for comparison
@@ -111,7 +116,7 @@ describe('UpdateTournamentUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const tournament = result.getValue();
     expect(tournament.id).toBe(existingTournament.id);
     expect(tournament.name).toBe(input.name);
@@ -122,11 +127,13 @@ describe('UpdateTournamentUseCase', () => {
     expect(tournament.maxParticipants).toBe(input.maxParticipants);
     expect(tournament.category).toBe(input.category);
     expect(tournament.createdById).toBe(existingTournament.createdById);
-    
+
     // Date conversions - check date equality without time precision
     expect(tournament.startDate.toDateString()).toBe(new Date(input.startDate).toDateString());
     expect(tournament.endDate?.toDateString()).toBe(new Date(input.endDate).toDateString());
-    expect(tournament.registrationDeadline?.toDateString()).toBe(new Date(input.registrationDeadline).toDateString());
+    expect(tournament.registrationDeadline?.toDateString()).toBe(
+      new Date(input.registrationDeadline).toDateString(),
+    );
   });
 
   it('should update a tournament successfully with partial data', async () => {
@@ -134,7 +141,7 @@ describe('UpdateTournamentUseCase', () => {
     const input = {
       id: existingTournament.id,
       name: 'Partially Updated Tournament',
-      location: 'Valencia'
+      location: 'Valencia',
     };
 
     const originalStartDate = existingTournament.startDate;
@@ -146,12 +153,12 @@ describe('UpdateTournamentUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const tournament = result.getValue();
     expect(tournament.id).toBe(existingTournament.id);
     expect(tournament.name).toBe(input.name);
     expect(tournament.location).toBe(input.location);
-    
+
     // Verify unchanged fields remain the same
     expect(tournament.description).toBe(existingTournament.description);
     expect(tournament.startDate.toDateString()).toBe(originalStartDate.toDateString());
@@ -175,7 +182,7 @@ describe('UpdateTournamentUseCase', () => {
       location: null,
       maxParticipants: null,
       registrationDeadline: null,
-      category: null
+      category: null,
     };
 
     // Act
@@ -183,7 +190,7 @@ describe('UpdateTournamentUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const tournament = result.getValue();
     expect(tournament.endDate).toBeNull();
     expect(tournament.location).toBeNull();
@@ -196,7 +203,7 @@ describe('UpdateTournamentUseCase', () => {
     // Arrange
     const input = {
       id: '99999999-9999-9999-9999-999999999999',
-      name: 'Non-existent Tournament'
+      name: 'Non-existent Tournament',
     };
 
     // Act
@@ -211,11 +218,11 @@ describe('UpdateTournamentUseCase', () => {
   it('should fail when end date is before start date', async () => {
     // Override the start date of the existing tournament to ensure test consistency
     existingTournament.startDate = new Date('2023-08-15T09:00:00Z');
-    
+
     // Arrange
     const input = {
       id: existingTournament.id,
-      endDate: '2023-08-14T18:00:00Z' // Before the original start date
+      endDate: '2023-08-14T18:00:00Z', // Before the original start date
     };
 
     // Act
@@ -231,7 +238,7 @@ describe('UpdateTournamentUseCase', () => {
     const input = {
       id: existingTournament.id,
       startDate: '2023-09-15T09:00:00Z',
-      endDate: '2023-09-14T18:00:00Z' // Before the new start date
+      endDate: '2023-09-14T18:00:00Z', // Before the new start date
     };
 
     // Act
@@ -245,11 +252,11 @@ describe('UpdateTournamentUseCase', () => {
   it('should fail when registration deadline is after start date', async () => {
     // Override the start date of the existing tournament to ensure test consistency
     existingTournament.startDate = new Date('2023-08-15T09:00:00Z');
-    
+
     // Arrange
     const input = {
       id: existingTournament.id,
-      registrationDeadline: '2023-08-16T00:00:00Z' // After the original start date
+      registrationDeadline: '2023-08-16T00:00:00Z', // After the original start date
     };
 
     // Act
@@ -265,7 +272,7 @@ describe('UpdateTournamentUseCase', () => {
     const input = {
       id: existingTournament.id,
       startDate: '2023-09-15T09:00:00Z',
-      registrationDeadline: '2023-09-16T00:00:00Z' // After the new start date
+      registrationDeadline: '2023-09-16T00:00:00Z', // After the new start date
     };
 
     // Act
@@ -280,7 +287,7 @@ describe('UpdateTournamentUseCase', () => {
     // Arrange
     const input = {
       id: existingTournament.id,
-      name: 'AB' // Less than 3 characters
+      name: 'AB', // Less than 3 characters
     };
 
     // Act
@@ -290,4 +297,4 @@ describe('UpdateTournamentUseCase', () => {
     expect(result.isFailure).toBe(true);
     expect(result.getError().message).toContain('String must contain at least 3 character');
   });
-}); 
+});

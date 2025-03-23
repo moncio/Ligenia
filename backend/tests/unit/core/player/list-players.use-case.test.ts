@@ -1,5 +1,12 @@
-import { ListPlayersUseCase, ListPlayersInput } from '../../../../src/core/application/use-cases/player/list-players.use-case';
-import { IPlayerRepository, PaginationOptions, PlayerFilter } from '../../../../src/core/application/interfaces/repositories/player.repository';
+import {
+  ListPlayersUseCase,
+  ListPlayersInput,
+} from '../../../../src/core/application/use-cases/player/list-players.use-case';
+import {
+  IPlayerRepository,
+  PaginationOptions,
+  PlayerFilter,
+} from '../../../../src/core/application/interfaces/repositories/player.repository';
 import { Player } from '../../../../src/core/domain/player/player.entity';
 import { PlayerLevel } from '../../../../src/core/domain/tournament/tournament.entity';
 
@@ -35,9 +42,10 @@ class MockPlayerRepository implements IPlayerRepository {
       }
       if (filter.searchTerm !== undefined) {
         const searchTerm = filter.searchTerm.toLowerCase();
-        result = result.filter(p => 
-          p.country?.toLowerCase().includes(searchTerm) || 
-          p.id.toLowerCase().includes(searchTerm)
+        result = result.filter(
+          p =>
+            p.country?.toLowerCase().includes(searchTerm) ||
+            p.id.toLowerCase().includes(searchTerm),
         );
       }
     }
@@ -76,9 +84,10 @@ class MockPlayerRepository implements IPlayerRepository {
       }
       if (filter.searchTerm !== undefined) {
         const searchTerm = filter.searchTerm.toLowerCase();
-        result = result.filter(p => 
-          p.country?.toLowerCase().includes(searchTerm) || 
-          p.id.toLowerCase().includes(searchTerm)
+        result = result.filter(
+          p =>
+            p.country?.toLowerCase().includes(searchTerm) ||
+            p.id.toLowerCase().includes(searchTerm),
         );
       }
     }
@@ -119,35 +128,35 @@ describe('ListPlayersUseCase', () => {
         '123e4567-e89b-12d3-a456-426614174001',
         PlayerLevel.P3,
         30,
-        'Spain'
+        'Spain',
       ),
       new Player(
         '123e4567-e89b-12d3-a456-426614174002',
         '123e4567-e89b-12d3-a456-426614174003',
         PlayerLevel.P2,
         25,
-        'France'
+        'France',
       ),
       new Player(
         '123e4567-e89b-12d3-a456-426614174004',
         '123e4567-e89b-12d3-a456-426614174005',
         PlayerLevel.P1,
         28,
-        'Germany'
+        'Germany',
       ),
       new Player(
         '123e4567-e89b-12d3-a456-426614174006',
         '123e4567-e89b-12d3-a456-426614174007',
         PlayerLevel.P3,
         32,
-        'Italy'
+        'Italy',
       ),
       new Player(
         '123e4567-e89b-12d3-a456-426614174008',
         '123e4567-e89b-12d3-a456-426614174009',
         PlayerLevel.P2,
         27,
-        'Spain'
+        'Spain',
       ),
     ];
 
@@ -167,7 +176,7 @@ describe('ListPlayersUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const { players, total, skip, limit } = result.getValue();
     expect(players).toHaveLength(5);
     expect(total).toBe(5);
@@ -178,7 +187,7 @@ describe('ListPlayersUseCase', () => {
   it('should filter players by level', async () => {
     // Arrange
     const input: ListPlayersInput = {
-      level: PlayerLevel.P3
+      level: PlayerLevel.P3,
     };
 
     // Act
@@ -186,7 +195,7 @@ describe('ListPlayersUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const { players, total } = result.getValue();
     expect(players).toHaveLength(2);
     expect(total).toBe(2);
@@ -196,7 +205,7 @@ describe('ListPlayersUseCase', () => {
   it('should filter players by country', async () => {
     // Arrange
     const input: ListPlayersInput = {
-      country: 'Spain'
+      country: 'Spain',
     };
 
     // Act
@@ -204,7 +213,7 @@ describe('ListPlayersUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const { players, total } = result.getValue();
     expect(players).toHaveLength(2);
     expect(total).toBe(2);
@@ -215,7 +224,7 @@ describe('ListPlayersUseCase', () => {
     // Arrange
     const input: ListPlayersInput = {
       skip: 2,
-      limit: 2
+      limit: 2,
     };
 
     // Act
@@ -223,7 +232,7 @@ describe('ListPlayersUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const { players, total, skip, limit } = result.getValue();
     expect(players).toHaveLength(2);
     expect(total).toBe(5);
@@ -235,7 +244,7 @@ describe('ListPlayersUseCase', () => {
     // Arrange
     const input: ListPlayersInput = {
       sortField: 'age',
-      sortOrder: 'desc'
+      sortOrder: 'desc',
     };
 
     // Act
@@ -243,7 +252,7 @@ describe('ListPlayersUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const { players } = result.getValue();
     expect(players[0].age).toBe(32); // Oldest player first
     expect(players[players.length - 1].age).toBe(25); // Youngest player last
@@ -252,7 +261,7 @@ describe('ListPlayersUseCase', () => {
   it('should filter by search term', async () => {
     // Arrange
     const input: ListPlayersInput = {
-      searchTerm: 'Spain'
+      searchTerm: 'Spain',
     };
 
     // Act
@@ -260,7 +269,7 @@ describe('ListPlayersUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const { players, total } = result.getValue();
     expect(players).toHaveLength(2);
     expect(total).toBe(2);
@@ -270,7 +279,7 @@ describe('ListPlayersUseCase', () => {
   it('should fail with invalid input data', async () => {
     // Arrange
     const input = {
-      limit: -5 // Invalid negative limit
+      limit: -5, // Invalid negative limit
     };
 
     // Act
@@ -280,4 +289,4 @@ describe('ListPlayersUseCase', () => {
     // Assert
     expect(result.isFailure).toBe(true);
   });
-}); 
+});

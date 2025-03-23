@@ -6,7 +6,7 @@ import { UserPreference } from '@prisma/client';
 
 // Input validation schema
 export const getUserPreferencesSchema = z.object({
-  userId: z.string().uuid({ message: 'Invalid user ID format' })
+  userId: z.string().uuid({ message: 'Invalid user ID format' }),
 });
 
 // Input type derived from schema
@@ -15,10 +15,11 @@ export type GetUserPreferencesInput = z.infer<typeof getUserPreferencesSchema>;
 /**
  * Use case for retrieving user preferences
  */
-export class GetUserPreferencesUseCase extends BaseUseCase<GetUserPreferencesInput, UserPreference | null> {
-  constructor(
-    private readonly preferenceRepository: IPreferenceRepository
-  ) {
+export class GetUserPreferencesUseCase extends BaseUseCase<
+  GetUserPreferencesInput,
+  UserPreference | null
+> {
+  constructor(private readonly preferenceRepository: IPreferenceRepository) {
     super();
   }
 
@@ -27,7 +28,9 @@ export class GetUserPreferencesUseCase extends BaseUseCase<GetUserPreferencesInp
    * @param input Retrieval criteria
    * @returns Result with the user preferences or an error
    */
-  protected async executeImpl(input: GetUserPreferencesInput): Promise<Result<UserPreference | null>> {
+  protected async executeImpl(
+    input: GetUserPreferencesInput,
+  ): Promise<Result<UserPreference | null>> {
     try {
       // Validate input (skip validation for the error test case)
       if (input.userId !== 'error-user-id') {
@@ -40,14 +43,12 @@ export class GetUserPreferencesUseCase extends BaseUseCase<GetUserPreferencesInp
 
       // Get preferences from repository
       const preferences = await this.preferenceRepository.getUserPreferences(input.userId);
-      
+
       return Result.ok<UserPreference | null>(preferences);
     } catch (error) {
       return Result.fail<UserPreference | null>(
-        error instanceof Error 
-          ? error 
-          : new Error('Failed to get user preferences')
+        error instanceof Error ? error : new Error('Failed to get user preferences'),
       );
     }
   }
-} 
+}

@@ -309,19 +309,20 @@
 <a name='L244'></a><a href='#L244'>244</a>
 <a name='L245'></a><a href='#L245'>245</a>
 <a name='L246'></a><a href='#L246'>246</a>
-<a name='L247'></a><a href='#L247'>247</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L247'></a><a href='#L247'>247</a>
+<a name='L248'></a><a href='#L248'>248</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -360,7 +361,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -400,7 +401,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -427,7 +428,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -456,7 +457,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -494,7 +495,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -516,7 +517,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -538,7 +539,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -553,6 +554,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Request, Response } from 'express';
@@ -581,7 +583,7 @@ export class AuthController {
         name: userData.name,
         role: userData.role || 'USER',
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       };
 &nbsp;
       // Generar token simulado
@@ -593,8 +595,8 @@ export class AuthController {
         data: {
           user,
           token,
-          refreshToken
-        }
+          refreshToken,
+        },
       });
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      console.error('Error registering user:', error);</span>
@@ -621,7 +623,7 @@ export class AuthController {
         name: 'Test User',
         role: 'USER',
         createdAt: '2023-01-01T00:00:00Z',
-        updatedAt: '2023-01-01T00:00:00Z'
+        updatedAt: '2023-01-01T00:00:00Z',
       };
 &nbsp;
       // Generar token simulado
@@ -633,8 +635,8 @@ export class AuthController {
         data: {
           user,
           token,
-          refreshToken
-        }
+          refreshToken,
+        },
       });
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      console.error('Error logging in:', error);</span>
@@ -652,7 +654,7 @@ export class AuthController {
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!req.user) {</span>
 <span class="cstat-no" title="statement not covered" >        return res.status(401).json({</span>
           status: 'error',
-          message: 'You must be logged in to logout'
+          message: 'You must be logged in to logout',
         });
       }
 &nbsp;
@@ -661,7 +663,7 @@ export class AuthController {
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      return res.status(200).json({</span>
         status: 'success',
-        message: 'Logged out successfully'
+        message: 'Logged out successfully',
       });
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      console.error('Error logging out:', error);</span>
@@ -689,8 +691,8 @@ export class AuthController {
         status: 'success',
         data: {
           token: newToken,
-          refreshToken: newRefreshToken
-        }
+          refreshToken: newRefreshToken,
+        },
       });
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      console.error('Error refreshing token:', error);</span>
@@ -708,7 +710,7 @@ export class AuthController {
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!req.user) {</span>
 <span class="cstat-no" title="statement not covered" >        return res.status(401).json({</span>
           status: 'error',
-          message: 'Not authenticated'
+          message: 'Not authenticated',
         });
       }
 &nbsp;
@@ -721,14 +723,14 @@ export class AuthController {
         name: req.user.name,
         role: req.user.role,
         createdAt: '2023-01-01T00:00:00Z',
-        updatedAt: '2023-01-01T00:00:00Z'
+        updatedAt: '2023-01-01T00:00:00Z',
       };
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      return res.status(200).json({</span>
         status: 'success',
         data: {
-          user
-        }
+          user,
+        },
       });
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      console.error('Error getting user profile:', error);</span>
@@ -750,7 +752,7 @@ export class AuthController {
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      return res.status(200).json({</span>
         status: 'success',
-        message: `Password reset link sent to ${email}`
+        message: `Password reset link sent to ${email}`,
       });
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      console.error('Error requesting password reset:', error);</span>
@@ -772,7 +774,7 @@ export class AuthController {
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      return res.status(200).json({</span>
         status: 'success',
-        message: 'Password reset successfully'
+        message: 'Password reset successfully',
       });
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      console.error('Error resetting password:', error);</span>
@@ -794,21 +796,22 @@ export class AuthController {
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      return res.status(200).json({</span>
         status: 'success',
-        message: 'Email verified successfully'
+        message: 'Email verified successfully',
       });
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      console.error('Error verifying email:', error);</span>
 <span class="cstat-no" title="statement not covered" >      return res.status(500).json({ status: 'error', message: 'Internal server error' });</span>
     }
   };
-} </pre></td></tr></table></pre>
+}
+&nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-03-23T19:34:14.050Z
+                at 2025-03-23T22:37:40.856Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

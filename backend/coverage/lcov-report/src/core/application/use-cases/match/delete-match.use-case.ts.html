@@ -153,7 +153,11 @@
 <a name='L88'></a><a href='#L88'>88</a>
 <a name='L89'></a><a href='#L89'>89</a>
 <a name='L90'></a><a href='#L90'>90</a>
-<a name='L91'></a><a href='#L91'>91</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
+<a name='L91'></a><a href='#L91'>91</a>
+<a name='L92'></a><a href='#L92'>92</a>
+<a name='L93'></a><a href='#L93'>93</a>
+<a name='L94'></a><a href='#L94'>94</a>
+<a name='L95'></a><a href='#L95'>95</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -193,8 +197,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -215,11 +217,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -229,6 +226,20 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -237,9 +248,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -254,11 +262,11 @@ import { ITournamentRepository } from '../../interfaces/repositories/tournament.
 // Input validation schema for delete match
 const deleteMatchSchema = <span class="cstat-no" title="statement not covered" >z.object({</span>
   matchId: z.string().uuid({
-    message: 'Invalid match ID format'
+    message: 'Invalid match ID format',
   }),
   userId: z.string().uuid({
-    message: 'Invalid user ID format'
-  })
+    message: 'Invalid user ID format',
+  }),
 });
 &nbsp;
 // Input type inferred from schema
@@ -270,7 +278,7 @@ export type DeleteMatchInput = z.infer&lt;typeof deleteMatchSchema&gt;;
 <span class="cstat-no" title="statement not covered" >export class D</span>eleteMatchUseCase extends BaseUseCase&lt;DeleteMatchInput, void&gt; {
 <span class="fstat-no" title="function not covered" >  constructor(</span>
     private readonly <span class="cstat-no" title="statement not covered" >matchRepository: IMatchRepository,</span>
-    private readonly <span class="cstat-no" title="statement not covered" >tournamentRepository: ITournamentRepository</span>
+    private readonly <span class="cstat-no" title="statement not covered" >tournamentRepository: ITournamentRepository,</span>
   ) {
 <span class="cstat-no" title="statement not covered" >    super();</span>
   }
@@ -280,9 +288,7 @@ export type DeleteMatchInput = z.infer&lt;typeof deleteMatchSchema&gt;;
       // Validate input
       const validationResult = <span class="cstat-no" title="statement not covered" >deleteMatchSchema.safeParse(input);</span>
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!validationResult.success) {</span>
-<span class="cstat-no" title="statement not covered" >        return Result.fail(</span>
-          new Error(`Invalid input: ${validationResult.error.errors[0].message}`)
-        );
+<span class="cstat-no" title="statement not covered" >        return Result.fail(new Error(`Invalid input: ${validationResult.error.errors[0].message}`));</span>
       }
 &nbsp;
       const { matchId, userId } = <span class="cstat-no" title="statement not covered" >validationResult.data;</span>
@@ -301,20 +307,29 @@ export type DeleteMatchInput = z.infer&lt;typeof deleteMatchSchema&gt;;
 &nbsp;
       // Check if user has permission (admin or tournament creator)
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (tournament.createdById !== userId) {</span>
-<span class="cstat-no" title="statement not covered" >        return Result.fail(new Error('Permission denied: only tournament creator can delete matches'));</span>
+<span class="cstat-no" title="statement not covered" >        return Result.fail(</span>
+          new Error('Permission denied: only tournament creator can delete matches'),
+        );
       }
 &nbsp;
       // Check if match can be deleted based on its status
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (match.status !== MatchStatus.PENDING &amp;&amp; match.status !== MatchStatus.SCHEDULED) {</span>
 <span class="cstat-no" title="statement not covered" >        return Result.fail(</span>
-          new Error(`Cannot delete match in ${match.status} status. Only PENDING or SCHEDULED matches can be deleted`)
+          new Error(
+            `Cannot delete match in ${match.status} status. Only PENDING or SCHEDULED matches can be deleted`,
+          ),
         );
       }
 &nbsp;
       // Check if tournament status allows match deletion
-<span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (tournament.status !== TournamentStatus.DRAFT &amp;&amp; tournament.status !== TournamentStatus.OPEN) {</span>
+<span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (</span>
+        tournament.status !== TournamentStatus.DRAFT &amp;&amp;
+        tournament.status !== TournamentStatus.OPEN
+      ) {
 <span class="cstat-no" title="statement not covered" >        return Result.fail(</span>
-          new Error(`Cannot delete match in tournament with ${tournament.status} status. Tournament must be in DRAFT or OPEN status`)
+          new Error(
+            `Cannot delete match in tournament with ${tournament.status} status. Tournament must be in DRAFT or OPEN status`,
+          ),
         );
       }
 &nbsp;
@@ -326,21 +341,18 @@ export type DeleteMatchInput = z.infer&lt;typeof deleteMatchSchema&gt;;
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      return Result.ok(undefined);</span>
     } catch (error) {
-<span class="cstat-no" title="statement not covered" >      return Result.fail(</span>
-        error instanceof Error 
-          ? error 
-          : new Error('Failed to delete match')
-      );
+<span class="cstat-no" title="statement not covered" >      return Result.fail(error instanceof Error ? error : new Error('Failed to delete match'));</span>
     }
   }
-} </pre></td></tr></table></pre>
+}
+&nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-03-23T19:34:14.050Z
+                at 2025-03-23T22:37:40.856Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>

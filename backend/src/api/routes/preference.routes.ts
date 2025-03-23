@@ -13,11 +13,7 @@ const preferenceController = new PreferenceController();
  * @desc Get current user preferences
  * @access Private
  */
-router.get(
-  '/',
-  authenticate,
-  preferenceController.getPreferences
-);
+router.get('/', authenticate, preferenceController.getPreferences);
 
 /**
  * @route PUT /api/preferences
@@ -28,7 +24,7 @@ router.put(
   '/',
   authenticate,
   validateBody(updatePreferenceSchema),
-  preferenceController.updatePreference
+  preferenceController.updatePreference,
 );
 
 /**
@@ -36,10 +32,6 @@ router.put(
  * @desc Reset user preferences to defaults
  * @access Private
  */
-router.post(
-  '/reset',
-  authenticate,
-  preferenceController.resetPreferences
-);
+router.post('/reset', authenticate, preferenceController.resetPreferences);
 
-export default router; 
+export default router;

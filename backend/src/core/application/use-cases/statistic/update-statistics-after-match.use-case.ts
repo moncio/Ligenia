@@ -9,8 +9,8 @@ import { Match, MatchStatus } from '../../../domain/match/match.entity';
 // Input validation schema
 const UpdateStatisticsAfterMatchInputSchema = z.object({
   matchId: z.string().uuid({
-    message: 'Invalid match ID format'
-  })
+    message: 'Invalid match ID format',
+  }),
 });
 
 // Input type
@@ -33,12 +33,14 @@ export class UpdateStatisticsAfterMatchUseCase extends BaseUseCase<
 > {
   constructor(
     private readonly statisticRepository: IStatisticRepository,
-    private readonly matchRepository: IMatchRepository
+    private readonly matchRepository: IMatchRepository,
   ) {
     super();
   }
 
-  protected async executeImpl(input: UpdateStatisticsAfterMatchInput): Promise<Result<UpdateStatisticsAfterMatchOutput>> {
+  protected async executeImpl(
+    input: UpdateStatisticsAfterMatchInput,
+  ): Promise<Result<UpdateStatisticsAfterMatchOutput>> {
     try {
       // Validate input
       let validatedData: UpdateStatisticsAfterMatchInput;
@@ -47,7 +49,7 @@ export class UpdateStatisticsAfterMatchUseCase extends BaseUseCase<
       } catch (validationError) {
         if (validationError instanceof z.ZodError) {
           return Result.fail<UpdateStatisticsAfterMatchOutput>(
-            new Error(validationError.errors[0].message)
+            new Error(validationError.errors[0].message),
           );
         }
         throw validationError;
@@ -56,22 +58,20 @@ export class UpdateStatisticsAfterMatchUseCase extends BaseUseCase<
       // Find match
       const match = await this.matchRepository.findById(validatedData.matchId);
       if (!match) {
-        return Result.fail<UpdateStatisticsAfterMatchOutput>(
-          new Error('Match not found')
-        );
+        return Result.fail<UpdateStatisticsAfterMatchOutput>(new Error('Match not found'));
       }
 
       // Check if match is completed
       if (match.status !== MatchStatus.COMPLETED) {
         return Result.fail<UpdateStatisticsAfterMatchOutput>(
-          new Error('Cannot update statistics for a match that is not completed')
+          new Error('Cannot update statistics for a match that is not completed'),
         );
       }
 
       // Check if scores are recorded
       if (match.homeScore === null || match.awayScore === null) {
         return Result.fail<UpdateStatisticsAfterMatchOutput>(
-          new Error('Match scores not recorded')
+          new Error('Match scores not recorded'),
         );
       }
 
@@ -83,26 +83,26 @@ export class UpdateStatisticsAfterMatchUseCase extends BaseUseCase<
       const homePlayerOneStatistic = await this.updatePlayerStatistic(
         match.homePlayerOneId,
         homeTeamWon,
-        match.homeScore
+        match.homeScore,
       );
 
       const homePlayerTwoStatistic = await this.updatePlayerStatistic(
         match.homePlayerTwoId,
         homeTeamWon,
-        match.homeScore
+        match.homeScore,
       );
 
       // Update away team player statistics
       const awayPlayerOneStatistic = await this.updatePlayerStatistic(
         match.awayPlayerOneId,
         awayTeamWon,
-        match.awayScore
+        match.awayScore,
       );
 
       const awayPlayerTwoStatistic = await this.updatePlayerStatistic(
         match.awayPlayerTwoId,
         awayTeamWon,
-        match.awayScore
+        match.awayScore,
       );
 
       // Return statistics from each team
@@ -110,11 +110,11 @@ export class UpdateStatisticsAfterMatchUseCase extends BaseUseCase<
         homePlayerOneStatistic: homePlayerOneStatistic,
         homePlayerTwoStatistic: homePlayerTwoStatistic,
         awayPlayerOneStatistic: awayPlayerOneStatistic,
-        awayPlayerTwoStatistic: awayPlayerTwoStatistic
+        awayPlayerTwoStatistic: awayPlayerTwoStatistic,
       });
     } catch (error) {
       return Result.fail<UpdateStatisticsAfterMatchOutput>(
-        error instanceof Error ? error : new Error('Failed to update statistics after match')
+        error instanceof Error ? error : new Error('Failed to update statistics after match'),
       );
     }
   }
@@ -125,17 +125,14 @@ export class UpdateStatisticsAfterMatchUseCase extends BaseUseCase<
   private async updatePlayerStatistic(
     playerId: string,
     won: boolean,
-    score: number
+    score: number,
   ): Promise<Statistic> {
     // Find existing statistic or create a new one
     let statistic = await this.statisticRepository.findByPlayerId(playerId);
-    
+
     if (!statistic) {
       // Create new statistic
-      statistic = new Statistic(
-        `statistic-${Date.now()}-${playerId.substring(0, 8)}`,
-        playerId
-      );
+      statistic = new Statistic(`statistic-${Date.now()}-${playerId.substring(0, 8)}`, playerId);
     }
 
     // Update statistics
@@ -150,4 +147,4 @@ export class UpdateStatisticsAfterMatchUseCase extends BaseUseCase<
 
     return statistic;
   }
-} 
+}

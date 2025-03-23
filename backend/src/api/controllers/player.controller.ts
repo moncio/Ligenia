@@ -14,21 +14,21 @@ export class PlayerController {
 
       // Verificar que el usuario tenga permisos de admin
       if (!req.user || req.user.role !== UserRole.ADMIN) {
-        return res.status(403).json({ 
-          status: 'error', 
-          message: 'You do not have permission to access this resource' 
+        return res.status(403).json({
+          status: 'error',
+          message: 'You do not have permission to access this resource',
         });
       }
 
       // Simular datos de jugadores para la respuesta
       const players = [
         { id: '1', level: PlayerLevel.P3, age: 30, country: 'Spain', userId: req.user.id },
-        { id: '2', level: PlayerLevel.P2, age: 25, country: 'Portugal', userId: 'another-user-id' }
+        { id: '2', level: PlayerLevel.P2, age: 25, country: 'Portugal', userId: 'another-user-id' },
       ];
 
-      return res.status(200).json({ 
-        status: 'success', 
-        data: { players } 
+      return res.status(200).json({
+        status: 'success',
+        data: { players },
       });
     } catch (error) {
       console.error('Error getting players:', error);
@@ -44,12 +44,12 @@ export class PlayerController {
     try {
       // El parámetro id ya ha sido validado por el middleware
       const { id } = req.params;
-      
+
       // Verificar si el ID proporcionado es un ID ficticio para pruebas
       if (id === '00000000-0000-0000-0000-000000000000') {
-        return res.status(404).json({ 
-          status: 'error', 
-          message: 'Player not found' 
+        return res.status(404).json({
+          status: 'error',
+          message: 'Player not found',
         });
       }
 
@@ -57,17 +57,17 @@ export class PlayerController {
       // En este punto solo implementamos una respuesta simulada
 
       // Simular datos de un jugador para la respuesta
-      const player = { 
-        id, 
-        level: PlayerLevel.P3, 
-        age: 30, 
-        country: 'Spain', 
-        userId: req.user?.id 
+      const player = {
+        id,
+        level: PlayerLevel.P3,
+        age: 30,
+        country: 'Spain',
+        userId: req.user?.id,
       };
 
-      return res.status(200).json({ 
-        status: 'success', 
-        data: { player } 
+      return res.status(200).json({
+        status: 'success',
+        data: { player },
       });
     } catch (error) {
       console.error('Error getting player by ID:', error);
@@ -86,9 +86,9 @@ export class PlayerController {
 
       // Verificar que el usuario esté autenticado
       if (!req.user) {
-        return res.status(401).json({ 
-          status: 'error', 
-          message: 'You must be authenticated to create a player profile' 
+        return res.status(401).json({
+          status: 'error',
+          message: 'You must be authenticated to create a player profile',
         });
       }
 
@@ -96,15 +96,15 @@ export class PlayerController {
       // En este punto solo implementamos una respuesta simulada
 
       // Simular datos de un jugador para la respuesta
-      const player = { 
-        id: 'generated-uuid', 
-        ...playerData, 
-        userId: req.user.id 
+      const player = {
+        id: 'generated-uuid',
+        ...playerData,
+        userId: req.user.id,
       };
 
-      return res.status(201).json({ 
-        status: 'success', 
-        data: { player } 
+      return res.status(201).json({
+        status: 'success',
+        data: { player },
       });
     } catch (error) {
       console.error('Error creating player profile:', error);
@@ -124,20 +124,20 @@ export class PlayerController {
 
       // Verificar que el usuario esté autenticado
       if (!req.user) {
-        return res.status(401).json({ 
-          status: 'error', 
-          message: 'You must be authenticated to update a player profile' 
+        return res.status(401).json({
+          status: 'error',
+          message: 'You must be authenticated to update a player profile',
         });
       }
 
       // TODO: Implementar la lógica para verificar si el usuario tiene permisos para actualizar este perfil
       // (debe ser el dueño del perfil o un admin)
-      
+
       // Para pruebas, verificar si el token es de admin y no permitir que actualice el perfil de otro usuario
       if (req.user.role !== UserRole.ADMIN && req.user.id !== 'player-uuid') {
-        return res.status(403).json({ 
-          status: 'error', 
-          message: 'You do not have permission to update this player profile' 
+        return res.status(403).json({
+          status: 'error',
+          message: 'You do not have permission to update this player profile',
         });
       }
 
@@ -145,15 +145,15 @@ export class PlayerController {
       // En este punto solo implementamos una respuesta simulada
 
       // Simular datos de un jugador actualizado para la respuesta
-      const player = { 
-        id, 
-        ...playerData, 
-        userId: req.user.id 
+      const player = {
+        id,
+        ...playerData,
+        userId: req.user.id,
       };
 
-      return res.status(200).json({ 
-        status: 'success', 
-        data: { player } 
+      return res.status(200).json({
+        status: 'success',
+        data: { player },
       });
     } catch (error) {
       console.error('Error updating player profile:', error);
@@ -172,34 +172,34 @@ export class PlayerController {
 
       // Verificar que el usuario esté autenticado
       if (!req.user) {
-        return res.status(401).json({ 
-          status: 'error', 
-          message: 'You must be authenticated to delete a player profile' 
+        return res.status(401).json({
+          status: 'error',
+          message: 'You must be authenticated to delete a player profile',
         });
       }
 
       // Verificar que el usuario tenga permisos de admin
       if (req.user.role !== UserRole.ADMIN) {
-        return res.status(403).json({ 
-          status: 'error', 
-          message: 'You do not have permission to delete player profiles' 
+        return res.status(403).json({
+          status: 'error',
+          message: 'You do not have permission to delete player profiles',
         });
       }
 
       // Verificar si el ID proporcionado es un ID ficticio para pruebas
       if (id === '00000000-0000-0000-0000-000000000000' || id === 'undefined') {
-        return res.status(404).json({ 
-          status: 'error', 
-          message: 'Player not found' 
+        return res.status(404).json({
+          status: 'error',
+          message: 'Player not found',
         });
       }
 
       // TODO: Implementar la lógica para eliminar un perfil de jugador desde el caso de uso correspondiente
       // En este punto solo implementamos una respuesta simulada
 
-      return res.status(200).json({ 
-        status: 'success', 
-        message: 'Player profile deleted successfully' 
+      return res.status(200).json({
+        status: 'success',
+        message: 'Player profile deleted successfully',
       });
     } catch (error) {
       console.error('Error deleting player profile:', error);
@@ -215,12 +215,12 @@ export class PlayerController {
     try {
       // El parámetro id ya ha sido validado por el middleware
       const { id } = req.params;
-      
+
       // Verificar si el ID proporcionado es un ID ficticio para pruebas
       if (id === '00000000-0000-0000-0000-000000000000') {
-        return res.status(404).json({ 
-          status: 'error', 
-          message: 'Player not found' 
+        return res.status(404).json({
+          status: 'error',
+          message: 'Player not found',
         });
       }
 
@@ -228,18 +228,18 @@ export class PlayerController {
       // En este punto solo implementamos una respuesta simulada
 
       // Simular datos de estadísticas para la respuesta
-      const statistics = { 
+      const statistics = {
         playerId: id,
         gamesPlayed: 50,
         gamesWon: 30,
         winRate: 0.6,
         tournaments: 10,
-        tournamentsWon: 2
+        tournamentsWon: 2,
       };
 
-      return res.status(200).json({ 
-        status: 'success', 
-        data: { statistics } 
+      return res.status(200).json({
+        status: 'success',
+        data: { statistics },
       });
     } catch (error) {
       console.error('Error getting player statistics:', error);
@@ -255,12 +255,12 @@ export class PlayerController {
     try {
       // El parámetro id ya ha sido validado por el middleware
       const { id } = req.params;
-      
+
       // Verificar si el ID proporcionado es un ID ficticio para pruebas
       if (id === '00000000-0000-0000-0000-000000000000') {
-        return res.status(404).json({ 
-          status: 'error', 
-          message: 'Player not found' 
+        return res.status(404).json({
+          status: 'error',
+          message: 'Player not found',
         });
       }
 
@@ -269,25 +269,25 @@ export class PlayerController {
 
       // Simular datos de partidos para la respuesta
       const matches = [
-        { 
+        {
           id: 'match-1',
           tournamentId: 'tournament-1',
           date: new Date(),
           score: '6-4, 7-5',
-          result: 'WIN'
+          result: 'WIN',
         },
-        { 
+        {
           id: 'match-2',
           tournamentId: 'tournament-1',
           date: new Date(),
           score: '3-6, 4-6',
-          result: 'LOSS'
-        }
+          result: 'LOSS',
+        },
       ];
 
-      return res.status(200).json({ 
-        status: 'success', 
-        data: { matches } 
+      return res.status(200).json({
+        status: 'success',
+        data: { matches },
       });
     } catch (error) {
       console.error('Error getting player matches:', error);
@@ -303,12 +303,12 @@ export class PlayerController {
     try {
       // El parámetro id ya ha sido validado por el middleware
       const { id } = req.params;
-      
+
       // Verificar si el ID proporcionado es un ID ficticio para pruebas
       if (id === '00000000-0000-0000-0000-000000000000') {
-        return res.status(404).json({ 
-          status: 'error', 
-          message: 'Player not found' 
+        return res.status(404).json({
+          status: 'error',
+          message: 'Player not found',
         });
       }
 
@@ -317,29 +317,29 @@ export class PlayerController {
 
       // Simular datos de torneos para la respuesta
       const tournaments = [
-        { 
+        {
           id: 'tournament-1',
           name: 'Winter Championship',
           startDate: new Date(),
           endDate: new Date(),
-          category: 'A'
+          category: 'A',
         },
-        { 
+        {
           id: 'tournament-2',
           name: 'Summer Open',
           startDate: new Date(),
           endDate: new Date(),
-          category: 'B'
-        }
+          category: 'B',
+        },
       ];
 
-      return res.status(200).json({ 
-        status: 'success', 
-        data: { tournaments } 
+      return res.status(200).json({
+        status: 'success',
+        data: { tournaments },
       });
     } catch (error) {
       console.error('Error getting player tournaments:', error);
       return res.status(500).json({ status: 'error', message: 'Internal server error' });
     }
   };
-} 
+}

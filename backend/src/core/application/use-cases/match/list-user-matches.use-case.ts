@@ -8,37 +8,50 @@ import { IUserRepository } from '../../interfaces/repositories/user.repository';
 // Enum for match results
 export enum MatchResult {
   WIN = 'WIN',
-  LOSS = 'LOSS'
+  LOSS = 'LOSS',
 }
 
 // Schema for validation of list user matches input
 const listUserMatchesSchema = z.object({
   // User ID (required)
   userId: z.string().uuid({
-    message: 'Invalid user ID format'
+    message: 'Invalid user ID format',
   }),
-  
+
   // Pagination
   page: z.number().int().positive().default(1),
   limit: z.number().int().positive().min(1).max(100).default(10),
-  
+
   // Filtering
-  tournamentId: z.string().uuid({
-    message: 'Invalid tournament ID format'
-  }).optional(),
-  
-  result: z.nativeEnum(MatchResult, {
-    errorMap: () => ({ message: 'Result must be WIN or LOSS' })
-  }).optional(),
-  
-  dateRange: z.object({
-    from: z.string().refine(val => !isNaN(Date.parse(val)), {
-      message: 'Invalid from date format'
-    }).optional(),
-    to: z.string().refine(val => !isNaN(Date.parse(val)), {
-      message: 'Invalid to date format'
-    }).optional()
-  }).optional()
+  tournamentId: z
+    .string()
+    .uuid({
+      message: 'Invalid tournament ID format',
+    })
+    .optional(),
+
+  result: z
+    .nativeEnum(MatchResult, {
+      errorMap: () => ({ message: 'Result must be WIN or LOSS' }),
+    })
+    .optional(),
+
+  dateRange: z
+    .object({
+      from: z
+        .string()
+        .refine(val => !isNaN(Date.parse(val)), {
+          message: 'Invalid from date format',
+        })
+        .optional(),
+      to: z
+        .string()
+        .refine(val => !isNaN(Date.parse(val)), {
+          message: 'Invalid to date format',
+        })
+        .optional(),
+    })
+    .optional(),
 });
 
 // Input type inferred from the schema
@@ -69,21 +82,17 @@ export class ListUserMatchesUseCase extends BaseUseCase<
 > {
   constructor(
     private readonly matchRepository: IMatchRepository,
-    private readonly userRepository: IUserRepository
+    private readonly userRepository: IUserRepository,
   ) {
     super();
   }
 
-  protected async executeImpl(
-    input: ListUserMatchesInput
-  ): Promise<Result<ListUserMatchesOutput>> {
+  protected async executeImpl(input: ListUserMatchesInput): Promise<Result<ListUserMatchesOutput>> {
     try {
       // Validate input
       const validationResult = listUserMatchesSchema.safeParse(input);
       if (!validationResult.success) {
-        return Result.fail(
-          new Error(`Invalid input: ${validationResult.error.errors[0].message}`)
-        );
+        return Result.fail(new Error(`Invalid input: ${validationResult.error.errors[0].message}`));
       }
 
       const { userId, page, limit, tournamentId, result, dateRange } = validationResult.data;
@@ -96,9 +105,9 @@ export class ListUserMatchesUseCase extends BaseUseCase<
 
       // Build filter object
       const filter: MatchFilter = {
-        userId
+        userId,
       };
-      
+
       if (tournamentId) {
         filter.tournamentId = tournamentId;
       }
@@ -120,25 +129,27 @@ export class ListUserMatchesUseCase extends BaseUseCase<
 
       // Get all matches for the user to apply result filtering and for total count
       const allUserMatches = await this.matchRepository.findByPlayerId(userId);
-      
+
       // Apply result filter if specified
       let filteredMatches = allUserMatches;
-      
+
       if (result) {
         filteredMatches = allUserMatches.filter(match => {
           if (match.status !== MatchStatus.COMPLETED) {
             return false;
           }
-          
+
           const winnerIds = match.getWinnerIds();
           if (!winnerIds) {
             return false;
           }
-          
+
           const userIsWinner = winnerIds.includes(userId);
-          
-          return (result === MatchResult.WIN && userIsWinner) || 
-                 (result === MatchResult.LOSS && !userIsWinner);
+
+          return (
+            (result === MatchResult.WIN && userIsWinner) ||
+            (result === MatchResult.LOSS && !userIsWinner)
+          );
         });
       }
 
@@ -151,22 +162,22 @@ export class ListUserMatchesUseCase extends BaseUseCase<
       if (dateRange) {
         if (dateRange.from) {
           const fromDate = new Date(dateRange.from);
-          filteredMatches = filteredMatches.filter(match => 
-            match.date !== null && match.date >= fromDate
+          filteredMatches = filteredMatches.filter(
+            match => match.date !== null && match.date >= fromDate,
           );
         }
-        
+
         if (dateRange.to) {
           const toDate = new Date(dateRange.to);
-          filteredMatches = filteredMatches.filter(match => 
-            match.date !== null && match.date <= toDate
+          filteredMatches = filteredMatches.filter(
+            match => match.date !== null && match.date <= toDate,
           );
         }
       }
 
       // Get total count for pagination
       const totalItems = filteredMatches.length;
-      
+
       // Apply pagination to filtered matches
       const paginatedMatches = filteredMatches.slice(offset, offset + limit);
 
@@ -178,19 +189,15 @@ export class ListUserMatchesUseCase extends BaseUseCase<
         currentPage: page,
         totalPages,
         hasNextPage: page < totalPages,
-        hasPreviousPage: page > 1
+        hasPreviousPage: page > 1,
       };
 
       return Result.ok({
         matches: paginatedMatches,
-        pagination
+        pagination,
       });
     } catch (error) {
-      return Result.fail(
-        error instanceof Error 
-          ? error 
-          : new Error('Failed to list user matches')
-      );
+      return Result.fail(error instanceof Error ? error : new Error('Failed to list user matches'));
     }
   }
-} 
+}

@@ -1,4 +1,8 @@
-import { ListUserMatchesUseCase, ListUserMatchesInput, MatchResult } from '../../../../src/core/application/use-cases/match/list-user-matches.use-case';
+import {
+  ListUserMatchesUseCase,
+  ListUserMatchesInput,
+  MatchResult,
+} from '../../../../src/core/application/use-cases/match/list-user-matches.use-case';
 import { IMatchRepository } from '../../../../src/core/application/interfaces/repositories/match.repository';
 import { IUserRepository } from '../../../../src/core/application/interfaces/repositories/user.repository';
 import { Match, MatchStatus } from '../../../../src/core/domain/match/match.entity';
@@ -11,7 +15,7 @@ describe('ListUserMatchesUseCase', () => {
 
   const userId = '123e4567-e89b-12d3-a456-426614174000';
   const tournamentId = '123e4567-e89b-12d3-a456-426614174111';
-  
+
   beforeEach(() => {
     mockMatchRepository = {
       findById: jest.fn(),
@@ -19,20 +23,17 @@ describe('ListUserMatchesUseCase', () => {
       findByTournamentAndRound: jest.fn(),
       findByPlayerId: jest.fn(),
       save: jest.fn(),
-      delete: jest.fn()
+      delete: jest.fn(),
     };
 
     mockUserRepository = {
       findById: jest.fn(),
       findByEmail: jest.fn(),
       save: jest.fn(),
-      update: jest.fn()
+      update: jest.fn(),
     };
 
-    listUserMatchesUseCase = new ListUserMatchesUseCase(
-      mockMatchRepository,
-      mockUserRepository
-    );
+    listUserMatchesUseCase = new ListUserMatchesUseCase(mockMatchRepository, mockUserRepository);
   });
 
   // Create a mock user
@@ -43,12 +44,15 @@ describe('ListUserMatchesUseCase', () => {
       password: 'hashedPassword',
       name: 'Test User',
       createdAt: new Date('2023-01-01'),
-      updatedAt: new Date('2023-01-01')
+      updatedAt: new Date('2023-01-01'),
     } as User;
   };
 
   // Create a mock otherTournamentMatches with modified properties while maintaining prototype
-  const createMockMatchesWithDifferentTournament = (matches: Match[], differentTournamentId: string): Match[] => {
+  const createMockMatchesWithDifferentTournament = (
+    matches: Match[],
+    differentTournamentId: string,
+  ): Match[] => {
     return matches.map(match => {
       const newMatch = new Match(
         match.id,
@@ -64,7 +68,7 @@ describe('ListUserMatchesUseCase', () => {
         match.homeScore,
         match.awayScore,
         match.createdAt,
-        match.updatedAt
+        match.updatedAt,
       );
       return newMatch;
     });
@@ -73,7 +77,7 @@ describe('ListUserMatchesUseCase', () => {
   // Create mock matches for a user
   const createMockMatches = (count: number): Match[] => {
     const matches: Match[] = [];
-    
+
     for (let i = 0; i < count; i++) {
       const match = new Match(
         `match-${i}`,
@@ -84,21 +88,25 @@ describe('ListUserMatchesUseCase', () => {
         `other-player-${i}-4`,
         Math.floor(i / 4) + 1, // Group matches into rounds
         new Date(`2023-${Math.floor(i / 10) + 1}-${(i % 10) + 1}`), // Different days across months
-        `Court ${i % 5 + 1}`,
-        i % 5 === 0 ? MatchStatus.PENDING : 
-                 i % 5 === 1 ? MatchStatus.SCHEDULED : 
-                 i % 5 === 2 ? MatchStatus.IN_PROGRESS : 
-                 i % 5 === 3 ? MatchStatus.COMPLETED : 
-                 MatchStatus.CANCELED,
+        `Court ${(i % 5) + 1}`,
+        i % 5 === 0
+          ? MatchStatus.PENDING
+          : i % 5 === 1
+            ? MatchStatus.SCHEDULED
+            : i % 5 === 2
+              ? MatchStatus.IN_PROGRESS
+              : i % 5 === 3
+                ? MatchStatus.COMPLETED
+                : MatchStatus.CANCELED,
         i % 5 === 3 ? (i % 2 === 0 ? 3 : 1) : null, // Completed matches have scores, user wins when i is even
         i % 5 === 3 ? (i % 2 === 0 ? 1 : 3) : null, // User loses when i is odd
         new Date('2023-01-01'),
-        new Date('2023-01-01')
+        new Date('2023-01-01'),
       );
-      
+
       matches.push(match);
     }
-    
+
     return matches;
   };
 
@@ -107,17 +115,17 @@ describe('ListUserMatchesUseCase', () => {
     const mockUser = createMockUser();
     const mockMatches = createMockMatches(25);
     const defaultPageSize = 10;
-    
+
     mockUserRepository.findById.mockResolvedValue(mockUser);
     mockMatchRepository.findByPlayerId.mockResolvedValue(mockMatches);
-    
+
     const input: ListUserMatchesInput = {
-      userId
+      userId,
     };
-    
+
     // Act
     const result = await listUserMatchesUseCase.execute(input);
-    
+
     // Assert
     expect(result.isSuccess).toBe(true);
     if (result.isSuccess) {
@@ -139,19 +147,19 @@ describe('ListUserMatchesUseCase', () => {
     const mockMatches = createMockMatches(25);
     const pageSize = 5;
     const page = 3;
-    
+
     mockUserRepository.findById.mockResolvedValue(mockUser);
     mockMatchRepository.findByPlayerId.mockResolvedValue(mockMatches);
-    
+
     const input: ListUserMatchesInput = {
       userId,
       page,
-      limit: pageSize
+      limit: pageSize,
     };
-    
+
     // Act
     const result = await listUserMatchesUseCase.execute(input);
-    
+
     // Assert
     expect(result.isSuccess).toBe(true);
     if (result.isSuccess) {
@@ -169,24 +177,23 @@ describe('ListUserMatchesUseCase', () => {
     // Arrange
     const mockUser = createMockUser();
     const mockMatches = createMockMatches(20);
-    
+
     // Count expected winning matches (completed matches where user wins = even i values and status is COMPLETED)
-    const expectedWinCount = mockMatches.filter(m => 
-      m.status === MatchStatus.COMPLETED && 
-      m.getWinnerIds()?.includes(userId)
+    const expectedWinCount = mockMatches.filter(
+      m => m.status === MatchStatus.COMPLETED && m.getWinnerIds()?.includes(userId),
     ).length;
-    
+
     mockUserRepository.findById.mockResolvedValue(mockUser);
     mockMatchRepository.findByPlayerId.mockResolvedValue(mockMatches);
-    
+
     const input: ListUserMatchesInput = {
       userId,
-      result: MatchResult.WIN
+      result: MatchResult.WIN,
     };
-    
+
     // Act
     const result = await listUserMatchesUseCase.execute(input);
-    
+
     // Assert
     expect(result.isSuccess).toBe(true);
     if (result.isSuccess) {
@@ -204,25 +211,26 @@ describe('ListUserMatchesUseCase', () => {
     // Arrange
     const mockUser = createMockUser();
     const mockMatches = createMockMatches(20);
-    
+
     // Count expected losing matches (completed matches where user loses = odd i values and status is COMPLETED)
-    const expectedLossCount = mockMatches.filter(m => 
-      m.status === MatchStatus.COMPLETED && 
-      m.getWinnerIds() !== null && 
-      !m.getWinnerIds()!.includes(userId)
+    const expectedLossCount = mockMatches.filter(
+      m =>
+        m.status === MatchStatus.COMPLETED &&
+        m.getWinnerIds() !== null &&
+        !m.getWinnerIds()!.includes(userId),
     ).length;
-    
+
     mockUserRepository.findById.mockResolvedValue(mockUser);
     mockMatchRepository.findByPlayerId.mockResolvedValue(mockMatches);
-    
+
     const input: ListUserMatchesInput = {
       userId,
-      result: MatchResult.LOSS
+      result: MatchResult.LOSS,
     };
-    
+
     // Act
     const result = await listUserMatchesUseCase.execute(input);
-    
+
     // Assert
     expect(result.isSuccess).toBe(true);
     if (result.isSuccess) {
@@ -242,28 +250,28 @@ describe('ListUserMatchesUseCase', () => {
     // Arrange
     const mockUser = createMockUser();
     const someMatches = createMockMatches(15);
-    
+
     // Create some matches from a different tournament
     const differentTournamentId = '223e4567-e89b-12d3-a456-426614174222';
     const otherTournamentMatches = createMockMatchesWithDifferentTournament(
-      someMatches.slice(0, 5), 
-      differentTournamentId
+      someMatches.slice(0, 5),
+      differentTournamentId,
     );
-    
+
     const testTournamentMatches = someMatches.slice(5);
     const mockMatches = [...otherTournamentMatches, ...testTournamentMatches];
-    
+
     mockUserRepository.findById.mockResolvedValue(mockUser);
     mockMatchRepository.findByPlayerId.mockResolvedValue(mockMatches);
-    
+
     const input: ListUserMatchesInput = {
       userId,
-      tournamentId
+      tournamentId,
     };
-    
+
     // Act
     const result = await listUserMatchesUseCase.execute(input);
-    
+
     // Assert
     expect(result.isSuccess).toBe(true);
     if (result.isSuccess) {
@@ -280,25 +288,25 @@ describe('ListUserMatchesUseCase', () => {
     const mockUser = createMockUser();
     const mockMatches = createMockMatches(20);
     const fromDate = '2023-2-1'; // February 1, 2023
-    
+
     // Calculate expected matches after date filtering
-    const expectedMatchesCount = mockMatches.filter(m => 
-      m.date !== null && m.date >= new Date(fromDate)
+    const expectedMatchesCount = mockMatches.filter(
+      m => m.date !== null && m.date >= new Date(fromDate),
     ).length;
-    
+
     mockUserRepository.findById.mockResolvedValue(mockUser);
     mockMatchRepository.findByPlayerId.mockResolvedValue(mockMatches);
-    
+
     const input: ListUserMatchesInput = {
       userId,
       dateRange: {
-        from: fromDate
-      }
+        from: fromDate,
+      },
     };
-    
+
     // Act
     const result = await listUserMatchesUseCase.execute(input);
-    
+
     // Assert
     expect(result.isSuccess).toBe(true);
     if (result.isSuccess) {
@@ -316,25 +324,25 @@ describe('ListUserMatchesUseCase', () => {
     const mockUser = createMockUser();
     const mockMatches = createMockMatches(20);
     const toDate = '2023-2-1'; // February 1, 2023
-    
+
     // Calculate expected matches after date filtering
-    const expectedMatchesCount = mockMatches.filter(m => 
-      m.date !== null && m.date <= new Date(toDate)
+    const expectedMatchesCount = mockMatches.filter(
+      m => m.date !== null && m.date <= new Date(toDate),
     ).length;
-    
+
     mockUserRepository.findById.mockResolvedValue(mockUser);
     mockMatchRepository.findByPlayerId.mockResolvedValue(mockMatches);
-    
+
     const input: ListUserMatchesInput = {
       userId,
       dateRange: {
-        to: toDate
-      }
+        to: toDate,
+      },
     };
-    
+
     // Act
     const result = await listUserMatchesUseCase.execute(input);
-    
+
     // Assert
     expect(result.isSuccess).toBe(true);
     if (result.isSuccess) {
@@ -353,28 +361,26 @@ describe('ListUserMatchesUseCase', () => {
     const mockMatches = createMockMatches(20);
     const fromDate = '2023-1-15'; // January 15, 2023
     const toDate = '2023-2-15'; // February 15, 2023
-    
+
     // Calculate expected matches after date filtering
-    const expectedMatchesCount = mockMatches.filter(m => 
-      m.date !== null && 
-      m.date >= new Date(fromDate) && 
-      m.date <= new Date(toDate)
+    const expectedMatchesCount = mockMatches.filter(
+      m => m.date !== null && m.date >= new Date(fromDate) && m.date <= new Date(toDate),
     ).length;
-    
+
     mockUserRepository.findById.mockResolvedValue(mockUser);
     mockMatchRepository.findByPlayerId.mockResolvedValue(mockMatches);
-    
+
     const input: ListUserMatchesInput = {
       userId,
       dateRange: {
         from: fromDate,
-        to: toDate
-      }
+        to: toDate,
+      },
     };
-    
+
     // Act
     const result = await listUserMatchesUseCase.execute(input);
-    
+
     // Assert
     expect(result.isSuccess).toBe(true);
     if (result.isSuccess) {
@@ -392,43 +398,44 @@ describe('ListUserMatchesUseCase', () => {
     // Arrange
     const mockUser = createMockUser();
     const someMatches = createMockMatches(30);
-    
+
     // Create some matches from a different tournament
     const differentTournamentId = '223e4567-e89b-12d3-a456-426614174222';
     const otherTournamentMatches = createMockMatchesWithDifferentTournament(
       someMatches.slice(0, 10),
-      differentTournamentId
+      differentTournamentId,
     );
-    
+
     const testTournamentMatches = someMatches.slice(10);
     const mockMatches = [...otherTournamentMatches, ...testTournamentMatches];
-    
+
     const fromDate = '2023-2-1'; // February 1, 2023
-    
+
     // Calculate expected matches after combined filtering
-    const expectedMatchesCount = mockMatches.filter(m => 
-      m.tournamentId === tournamentId &&
-      m.status === MatchStatus.COMPLETED && 
-      m.getWinnerIds()?.includes(userId) &&
-      m.date !== null && 
-      m.date >= new Date(fromDate)
+    const expectedMatchesCount = mockMatches.filter(
+      m =>
+        m.tournamentId === tournamentId &&
+        m.status === MatchStatus.COMPLETED &&
+        m.getWinnerIds()?.includes(userId) &&
+        m.date !== null &&
+        m.date >= new Date(fromDate),
     ).length;
-    
+
     mockUserRepository.findById.mockResolvedValue(mockUser);
     mockMatchRepository.findByPlayerId.mockResolvedValue(mockMatches);
-    
+
     const input: ListUserMatchesInput = {
       userId,
       tournamentId,
       result: MatchResult.WIN,
       dateRange: {
-        from: fromDate
-      }
+        from: fromDate,
+      },
     };
-    
+
     // Act
     const result = await listUserMatchesUseCase.execute(input);
-    
+
     // Assert
     expect(result.isSuccess).toBe(true);
     if (result.isSuccess) {
@@ -447,17 +454,17 @@ describe('ListUserMatchesUseCase', () => {
   test('should return empty array when no matches are found', async () => {
     // Arrange
     const mockUser = createMockUser();
-    
+
     mockUserRepository.findById.mockResolvedValue(mockUser);
     mockMatchRepository.findByPlayerId.mockResolvedValue([]);
-    
+
     const input: ListUserMatchesInput = {
-      userId
+      userId,
     };
-    
+
     // Act
     const result = await listUserMatchesUseCase.execute(input);
-    
+
     // Assert
     expect(result.isSuccess).toBe(true);
     if (result.isSuccess) {
@@ -473,14 +480,14 @@ describe('ListUserMatchesUseCase', () => {
   test('should fail when user is not found', async () => {
     // Arrange
     mockUserRepository.findById.mockResolvedValue(null);
-    
+
     const input: ListUserMatchesInput = {
-      userId
+      userId,
     };
-    
+
     // Act
     const result = await listUserMatchesUseCase.execute(input);
-    
+
     // Assert
     expect(result.isFailure).toBe(true);
     expect(result.getError().message).toContain('User not found');
@@ -490,12 +497,12 @@ describe('ListUserMatchesUseCase', () => {
   test('should fail with invalid user ID format', async () => {
     // Arrange
     const invalidInput = {
-      userId: 'invalid-uuid'
+      userId: 'invalid-uuid',
     } as ListUserMatchesInput;
-    
+
     // Act
     const result = await listUserMatchesUseCase.execute(invalidInput);
-    
+
     // Assert
     expect(result.isFailure).toBe(true);
     expect(result.getError().message).toContain('Invalid user ID format');
@@ -508,12 +515,12 @@ describe('ListUserMatchesUseCase', () => {
     const invalidInput = {
       userId,
       page: -1, // Invalid page number
-      limit: 200 // Exceeds maximum limit
+      limit: 200, // Exceeds maximum limit
     } as ListUserMatchesInput;
-    
+
     // Act
     const result = await listUserMatchesUseCase.execute(invalidInput);
-    
+
     // Assert
     expect(result.isFailure).toBe(true);
     expect(result.getError().message).toContain('Invalid input');
@@ -526,13 +533,13 @@ describe('ListUserMatchesUseCase', () => {
     const invalidInput = {
       userId,
       dateRange: {
-        from: 'invalid-date'
-      }
+        from: 'invalid-date',
+      },
     } as ListUserMatchesInput;
-    
+
     // Act
     const result = await listUserMatchesUseCase.execute(invalidInput);
-    
+
     // Assert
     expect(result.isFailure).toBe(true);
     expect(result.getError().message).toContain('Invalid from date format');
@@ -544,17 +551,17 @@ describe('ListUserMatchesUseCase', () => {
     // Arrange
     const errorMessage = 'Database error';
     mockUserRepository.findById.mockRejectedValue(new Error(errorMessage));
-    
+
     const input: ListUserMatchesInput = {
-      userId
+      userId,
     };
-    
+
     // Act
     const result = await listUserMatchesUseCase.execute(input);
-    
+
     // Assert
     expect(result.isFailure).toBe(true);
     expect(result.getError().message).toContain(errorMessage);
     expect(mockMatchRepository.findByPlayerId).not.toHaveBeenCalled();
   });
-}); 
+});

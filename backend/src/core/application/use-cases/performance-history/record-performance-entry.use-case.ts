@@ -12,7 +12,7 @@ export const recordPerformanceEntrySchema = z.object({
   matchesPlayed: z.number().int().min(0).default(0),
   wins: z.number().int().min(0).default(0),
   losses: z.number().int().min(0).default(0),
-  points: z.number().int().min(0).default(0)
+  points: z.number().int().min(0).default(0),
 });
 
 // Input type derived from the schema
@@ -21,10 +21,11 @@ export type RecordPerformanceEntryInput = z.infer<typeof recordPerformanceEntryS
 /**
  * Use case for recording a new performance entry or updating an existing one
  */
-export class RecordPerformanceEntryUseCase extends BaseUseCase<RecordPerformanceEntryInput, PerformanceHistory> {
-  constructor(
-    private readonly performanceHistoryRepository: IPerformanceHistoryRepository
-  ) { 
+export class RecordPerformanceEntryUseCase extends BaseUseCase<
+  RecordPerformanceEntryInput,
+  PerformanceHistory
+> {
+  constructor(private readonly performanceHistoryRepository: IPerformanceHistoryRepository) {
     super();
   }
 
@@ -33,7 +34,9 @@ export class RecordPerformanceEntryUseCase extends BaseUseCase<RecordPerformance
    * @param input Performance entry data
    * @returns Result with the created/updated performance entry or an error
    */
-  protected async executeImpl(input: RecordPerformanceEntryInput): Promise<Result<PerformanceHistory>> {
+  protected async executeImpl(
+    input: RecordPerformanceEntryInput,
+  ): Promise<Result<PerformanceHistory>> {
     try {
       // Validate input
       const validationResult = recordPerformanceEntrySchema.safeParse(input);
@@ -45,22 +48,26 @@ export class RecordPerformanceEntryUseCase extends BaseUseCase<RecordPerformance
       // Find if there's an existing entry for this user/year/month
       const existingEntries = await this.performanceHistoryRepository.findByUserId(input.userId, {
         year: input.year,
-        month: input.month
+        month: input.month,
       });
-      
+
       let performanceEntry: PerformanceHistory;
 
       if (existingEntries.length > 0) {
         // Update existing entry
         const existingEntry = existingEntries[0];
         const updatedData = {
-          matchesPlayed: input.matchesPlayed !== undefined ? input.matchesPlayed : existingEntry.matchesPlayed,
+          matchesPlayed:
+            input.matchesPlayed !== undefined ? input.matchesPlayed : existingEntry.matchesPlayed,
           wins: input.wins !== undefined ? input.wins : existingEntry.wins,
           losses: input.losses !== undefined ? input.losses : existingEntry.losses,
-          points: input.points !== undefined ? input.points : existingEntry.points
+          points: input.points !== undefined ? input.points : existingEntry.points,
         };
-        
-        performanceEntry = await this.performanceHistoryRepository.update(existingEntry.id, updatedData);
+
+        performanceEntry = await this.performanceHistoryRepository.update(
+          existingEntry.id,
+          updatedData,
+        );
       } else {
         // Create new entry
         performanceEntry = await this.performanceHistoryRepository.create({
@@ -70,17 +77,15 @@ export class RecordPerformanceEntryUseCase extends BaseUseCase<RecordPerformance
           matchesPlayed: input.matchesPlayed || 0,
           wins: input.wins || 0,
           losses: input.losses || 0,
-          points: input.points || 0
+          points: input.points || 0,
         });
       }
 
       return Result.ok<PerformanceHistory>(performanceEntry);
     } catch (error) {
       return Result.fail<PerformanceHistory>(
-        error instanceof Error 
-          ? error 
-          : new Error('Failed to record performance entry')
+        error instanceof Error ? error : new Error('Failed to record performance entry'),
       );
     }
   }
-} 
+}

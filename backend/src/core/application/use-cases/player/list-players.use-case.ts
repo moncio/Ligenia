@@ -2,20 +2,26 @@ import { BaseUseCase } from '../../base/base.use-case';
 import { Result } from '../../../../shared/result';
 import { z } from 'zod';
 import { Player } from '../../../domain/player/player.entity';
-import { IPlayerRepository, PaginationOptions, PlayerFilter } from '../../interfaces/repositories/player.repository';
+import {
+  IPlayerRepository,
+  PaginationOptions,
+  PlayerFilter,
+} from '../../interfaces/repositories/player.repository';
 import { PlayerLevel } from '../../../domain/tournament/tournament.entity';
 
 // Input validation schema
 const ListPlayersInputSchema = z.object({
-  level: z.nativeEnum(PlayerLevel, {
-    errorMap: () => ({ message: 'Invalid player level' })
-  }).optional(),
+  level: z
+    .nativeEnum(PlayerLevel, {
+      errorMap: () => ({ message: 'Invalid player level' }),
+    })
+    .optional(),
   country: z.string().min(2).optional(),
   searchTerm: z.string().optional(),
   skip: z.number().int().nonnegative().default(0),
   limit: z.number().int().positive().default(10),
   sortField: z.string().optional(),
-  sortOrder: z.enum(['asc', 'desc']).optional()
+  sortOrder: z.enum(['asc', 'desc']).optional(),
 });
 
 // Input type
@@ -32,13 +38,8 @@ export interface ListPlayersOutput {
 /**
  * Use case for listing players with filters and pagination
  */
-export class ListPlayersUseCase extends BaseUseCase<
-  ListPlayersInput,
-  ListPlayersOutput
-> {
-  constructor(
-    private readonly playerRepository: IPlayerRepository
-  ) {
+export class ListPlayersUseCase extends BaseUseCase<ListPlayersInput, ListPlayersOutput> {
+  constructor(private readonly playerRepository: IPlayerRepository) {
     super();
   }
 
@@ -50,9 +51,7 @@ export class ListPlayersUseCase extends BaseUseCase<
         validatedData = await ListPlayersInputSchema.parseAsync(input);
       } catch (validationError) {
         if (validationError instanceof z.ZodError) {
-          return Result.fail<ListPlayersOutput>(
-            new Error(validationError.errors[0].message)
-          );
+          return Result.fail<ListPlayersOutput>(new Error(validationError.errors[0].message));
         }
         throw validationError;
       }
@@ -91,12 +90,12 @@ export class ListPlayersUseCase extends BaseUseCase<
         players,
         total,
         skip: validatedData.skip,
-        limit: validatedData.limit
+        limit: validatedData.limit,
       });
     } catch (error) {
       return Result.fail<ListPlayersOutput>(
-        error instanceof Error ? error : new Error('Failed to list players')
+        error instanceof Error ? error : new Error('Failed to list players'),
       );
     }
   }
-} 
+}

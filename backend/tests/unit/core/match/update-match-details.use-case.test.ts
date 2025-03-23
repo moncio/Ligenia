@@ -51,7 +51,7 @@ describe('UpdateMatchDetailsUseCase', () => {
       null, // homeScore
       null, // awayScore
       new Date('2023-07-01T10:00:00Z'), // createdAt
-      new Date('2023-07-01T10:00:00Z')  // updatedAt
+      new Date('2023-07-01T10:00:00Z'), // updatedAt
     );
   };
 
@@ -59,14 +59,14 @@ describe('UpdateMatchDetailsUseCase', () => {
     id: mockMatchId,
     round: 2,
     location: 'Court 2',
-    date: '2023-07-15T10:00:00Z'
+    date: '2023-07-15T10:00:00Z',
   };
 
   test('should update match details successfully when all inputs are valid', async () => {
     // Arrange
     const mockMatch = createMockMatch();
     mockMatchRepository.findById.mockResolvedValue(mockMatch);
-    
+
     // Act
     const result = await updateMatchDetailsUseCase.execute(validUpdateInput);
 
@@ -125,7 +125,7 @@ describe('UpdateMatchDetailsUseCase', () => {
     // Arrange
     const mockMatch = createMockMatch();
     mockMatchRepository.findById.mockResolvedValue(mockMatch);
-    
+
     const inputWithDuplicatePlayers = {
       id: mockMatchId,
       homePlayerOneId: mockMatch.homePlayerTwoId, // Duplicate player ID
@@ -144,7 +144,7 @@ describe('UpdateMatchDetailsUseCase', () => {
     // Arrange
     const invalidInput = {
       id: 'invalid-uuid',
-      round: 2
+      round: 2,
     };
 
     // Act
@@ -161,7 +161,7 @@ describe('UpdateMatchDetailsUseCase', () => {
     // Arrange
     const invalidInput = {
       id: mockMatchId,
-      round: -1
+      round: -1,
     };
 
     // Act
@@ -178,10 +178,10 @@ describe('UpdateMatchDetailsUseCase', () => {
     // Arrange
     const mockMatch = createMockMatch();
     mockMatchRepository.findById.mockResolvedValue(mockMatch);
-    
+
     const updateStatusInput = {
       id: mockMatchId,
-      status: MatchStatus.SCHEDULED
+      status: MatchStatus.SCHEDULED,
     };
 
     // Act
@@ -197,10 +197,10 @@ describe('UpdateMatchDetailsUseCase', () => {
     // Arrange
     const mockMatch = createMockMatch();
     mockMatchRepository.findById.mockResolvedValue(mockMatch);
-    
+
     const updateDateInput: UpdateMatchDetailsInput = {
       id: mockMatchId,
-      date: null
+      date: null,
     };
 
     // Act
@@ -228,4 +228,4 @@ describe('UpdateMatchDetailsUseCase', () => {
     expect(mockMatchRepository.findById).toHaveBeenCalledWith(mockMatchId);
     expect(mockMatchRepository.save).toHaveBeenCalledWith(mockMatch);
   });
-}); 
+});

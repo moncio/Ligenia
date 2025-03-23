@@ -12,7 +12,7 @@ export class PreferenceController {
       if (!req.user) {
         return res.status(401).json({
           status: 'error',
-          message: 'You must be logged in to access preferences'
+          message: 'You must be logged in to access preferences',
         });
       }
 
@@ -25,14 +25,14 @@ export class PreferenceController {
         theme: 'light',
         fontSize: 'medium',
         createdAt: '2023-01-01T00:00:00Z',
-        updatedAt: '2023-01-10T00:00:00Z'
+        updatedAt: '2023-01-10T00:00:00Z',
       };
 
       return res.status(200).json({
         status: 'success',
         data: {
-          preferences
-        }
+          preferences,
+        },
       });
     } catch (error) {
       console.error('Error getting preferences:', error);
@@ -53,7 +53,7 @@ export class PreferenceController {
       if (!req.user) {
         return res.status(401).json({
           status: 'error',
-          message: 'You must be logged in to access preferences'
+          message: 'You must be logged in to access preferences',
         });
       }
 
@@ -67,22 +67,22 @@ export class PreferenceController {
         theme: 'light',
         fontSize: 'medium',
         createdAt: '2023-01-01T00:00:00Z',
-        updatedAt: '2023-01-10T00:00:00Z'
+        updatedAt: '2023-01-10T00:00:00Z',
       };
 
       // Si la preferencia no pertenece al usuario actual, denegar acceso
       if (preference.userId !== req.user.id) {
         return res.status(403).json({
           status: 'error',
-          message: 'You do not have permission to access this preference'
+          message: 'You do not have permission to access this preference',
         });
       }
 
       return res.status(200).json({
         status: 'success',
         data: {
-          preference
-        }
+          preference,
+        },
       });
     } catch (error) {
       console.error('Error getting preference by ID:', error);
@@ -103,7 +103,7 @@ export class PreferenceController {
       if (!req.user) {
         return res.status(401).json({
           status: 'error',
-          message: 'You must be logged in to create preferences'
+          message: 'You must be logged in to create preferences',
         });
       }
 
@@ -111,7 +111,7 @@ export class PreferenceController {
       if (preferenceData.userId && preferenceData.userId !== req.user.id) {
         return res.status(403).json({
           status: 'error',
-          message: 'You can only create preferences for your own account'
+          message: 'You can only create preferences for your own account',
         });
       }
 
@@ -123,14 +123,14 @@ export class PreferenceController {
         userId: req.user.id,
         ...preferenceData,
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       };
 
       return res.status(201).json({
         status: 'success',
         data: {
-          preference
-        }
+          preference,
+        },
       });
     } catch (error) {
       console.error('Error creating preference:', error);
@@ -152,7 +152,7 @@ export class PreferenceController {
       if (!req.user) {
         return res.status(401).json({
           status: 'error',
-          message: 'You must be logged in to update preferences'
+          message: 'You must be logged in to update preferences',
         });
       }
 
@@ -162,14 +162,14 @@ export class PreferenceController {
         id,
         userId: req.user.id,
         theme: 'light',
-        fontSize: 'medium'
+        fontSize: 'medium',
       };
 
       // Si la preferencia no pertenece al usuario actual, denegar acceso
       if (existingPreference.userId !== req.user.id) {
         return res.status(403).json({
           status: 'error',
-          message: 'You do not have permission to update this preference'
+          message: 'You do not have permission to update this preference',
         });
       }
 
@@ -179,14 +179,14 @@ export class PreferenceController {
       const preference = {
         ...existingPreference,
         ...preferenceData,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       };
 
       return res.status(200).json({
         status: 'success',
         data: {
-          preference
-        }
+          preference,
+        },
       });
     } catch (error) {
       console.error('Error updating preference:', error);
@@ -207,7 +207,7 @@ export class PreferenceController {
       if (!req.user) {
         return res.status(401).json({
           status: 'error',
-          message: 'You must be logged in to reset preferences'
+          message: 'You must be logged in to reset preferences',
         });
       }
 
@@ -217,7 +217,7 @@ export class PreferenceController {
       // Opciones predeterminadas
       const defaultPreferences = {
         theme: 'light',
-        fontSize: 'medium'
+        fontSize: 'medium',
       };
 
       // Aplicar restablecer todas o solo opciones específicas
@@ -225,20 +225,23 @@ export class PreferenceController {
         id: 'pref-123',
         userId: req.user.id,
         theme: resetOptions.resetAll || resetOptions.resetTheme ? defaultPreferences.theme : 'dark',
-        fontSize: resetOptions.resetAll || resetOptions.resetFontSize ? defaultPreferences.fontSize : 'large',
-        updatedAt: new Date().toISOString()
+        fontSize:
+          resetOptions.resetAll || resetOptions.resetFontSize
+            ? defaultPreferences.fontSize
+            : 'large',
+        updatedAt: new Date().toISOString(),
       };
 
       return res.status(200).json({
         status: 'success',
         data: {
           preference,
-          message: 'Preferences reset successfully'
-        }
+          message: 'Preferences reset successfully',
+        },
       });
     } catch (error) {
       console.error('Error resetting preferences:', error);
       return res.status(500).json({ status: 'error', message: 'Internal server error' });
     }
   };
-} 
+}

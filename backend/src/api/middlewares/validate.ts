@@ -16,12 +16,12 @@ export const validateBody = (schema: AnyZodObject) => {
         return res.status(400).json({
           status: 'error',
           message: 'Validation error',
-          errors: error.format()
+          errors: error.format(),
         });
       }
       return res.status(500).json({
         status: 'error',
-        message: 'Internal server error during validation'
+        message: 'Internal server error during validation',
       });
     }
   };
@@ -42,12 +42,12 @@ export const validateParams = (schema: AnyZodObject) => {
         return res.status(400).json({
           status: 'error',
           message: 'Validation error in URL parameters',
-          errors: error.format()
+          errors: error.format(),
         });
       }
       return res.status(500).json({
         status: 'error',
-        message: 'Internal server error during parameter validation'
+        message: 'Internal server error during parameter validation',
       });
     }
   };
@@ -68,13 +68,13 @@ export const validateQuery = (schema: AnyZodObject) => {
         return res.status(400).json({
           status: 'error',
           message: 'Validation error in query parameters',
-          errors: error.format()
+          errors: error.format(),
         });
       }
       return res.status(500).json({
         status: 'error',
-        message: 'Internal server error during query validation'
+        message: 'Internal server error during query validation',
       });
     }
   };
-}; 
+};

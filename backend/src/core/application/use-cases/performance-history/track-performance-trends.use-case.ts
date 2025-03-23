@@ -1,12 +1,15 @@
 import { BaseUseCase } from '../../base/base.use-case';
 import { Result } from '../../../../shared/result';
-import { IPerformanceHistoryRepository, PerformanceTrend } from '../../interfaces/repositories/performance-history.repository';
+import {
+  IPerformanceHistoryRepository,
+  PerformanceTrend,
+} from '../../interfaces/repositories/performance-history.repository';
 import { z } from 'zod';
 
 // Input validation schema
 export const trackPerformanceTrendsSchema = z.object({
   userId: z.string().uuid({ message: 'Invalid user ID format' }),
-  timeframe: z.enum(['monthly', 'yearly', 'all']).default('monthly')
+  timeframe: z.enum(['monthly', 'yearly', 'all']).default('monthly'),
 });
 
 // Input type derived from schema
@@ -15,10 +18,11 @@ export type TrackPerformanceTrendsInput = z.infer<typeof trackPerformanceTrendsS
 /**
  * Use case for tracking performance trends over time
  */
-export class TrackPerformanceTrendsUseCase extends BaseUseCase<TrackPerformanceTrendsInput, PerformanceTrend[]> {
-  constructor(
-    private readonly performanceHistoryRepository: IPerformanceHistoryRepository
-  ) {
+export class TrackPerformanceTrendsUseCase extends BaseUseCase<
+  TrackPerformanceTrendsInput,
+  PerformanceTrend[]
+> {
+  constructor(private readonly performanceHistoryRepository: IPerformanceHistoryRepository) {
     super();
   }
 
@@ -27,7 +31,9 @@ export class TrackPerformanceTrendsUseCase extends BaseUseCase<TrackPerformanceT
    * @param input Trend tracking criteria
    * @returns Result with performance trends data or an error
    */
-  protected async executeImpl(input: TrackPerformanceTrendsInput): Promise<Result<PerformanceTrend[]>> {
+  protected async executeImpl(
+    input: TrackPerformanceTrendsInput,
+  ): Promise<Result<PerformanceTrend[]>> {
     try {
       // Validate input
       const validationResult = trackPerformanceTrendsSchema.safeParse(input);
@@ -38,20 +44,18 @@ export class TrackPerformanceTrendsUseCase extends BaseUseCase<TrackPerformanceT
 
       // Parse the validated input
       const validInput = validationResult.data;
-      
+
       // Fetch performance trends from repository
       const trends = await this.performanceHistoryRepository.findPerformanceTrends(
         validInput.userId,
-        validInput.timeframe
+        validInput.timeframe,
       );
 
       return Result.ok<PerformanceTrend[]>(trends);
     } catch (error) {
       return Result.fail<PerformanceTrend[]>(
-        error instanceof Error 
-          ? error 
-          : new Error('Failed to track performance trends')
+        error instanceof Error ? error : new Error('Failed to track performance trends'),
       );
     }
   }
-} 
+}

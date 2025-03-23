@@ -7,11 +7,11 @@ import { IPlayerRepository } from '../../interfaces/repositories/player.reposito
 // Input validation schema
 const UpdatePlayerLevelInputSchema = z.object({
   playerId: z.string().uuid({
-    message: 'Invalid player ID format'
+    message: 'Invalid player ID format',
   }),
   level: z.nativeEnum(PlayerLevel, {
-    errorMap: () => ({ message: 'Invalid player level' })
-  })
+    errorMap: () => ({ message: 'Invalid player level' }),
+  }),
 });
 
 // Input type
@@ -29,20 +29,22 @@ export class UpdatePlayerLevelUseCase extends BaseUseCase<
   UpdatePlayerLevelInput,
   UpdatePlayerLevelOutput
 > {
-  constructor(
-    private readonly playerRepository: IPlayerRepository
-  ) {
+  constructor(private readonly playerRepository: IPlayerRepository) {
     super();
   }
 
-  protected async executeImpl(input: UpdatePlayerLevelInput): Promise<Result<UpdatePlayerLevelOutput>> {
+  protected async executeImpl(
+    input: UpdatePlayerLevelInput,
+  ): Promise<Result<UpdatePlayerLevelOutput>> {
     try {
       // Validate input first
       try {
         await UpdatePlayerLevelInputSchema.parseAsync(input);
       } catch (validationError) {
         if (validationError instanceof z.ZodError) {
-          const errorMessage = validationError.errors.map(err => `${err.path}: ${err.message}`).join(', ');
+          const errorMessage = validationError.errors
+            .map(err => `${err.path}: ${err.message}`)
+            .join(', ');
           return Result.fail(new Error(`Invalid input: ${errorMessage}`));
         }
         throw validationError;
@@ -56,15 +58,17 @@ export class UpdatePlayerLevelUseCase extends BaseUseCase<
 
       // Update only the level field
       player.level = input.level;
-      
+
       // Save the updated player
       await this.playerRepository.update(player);
 
       return Result.ok({
-        message: `Player level updated to ${input.level} successfully`
+        message: `Player level updated to ${input.level} successfully`,
       });
     } catch (error) {
-      return Result.fail(error instanceof Error ? error : new Error('Failed to update player level'));
+      return Result.fail(
+        error instanceof Error ? error : new Error('Failed to update player level'),
+      );
     }
   }
-} 
+}

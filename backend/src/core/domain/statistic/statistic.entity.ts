@@ -16,13 +16,13 @@ export class Statistic {
     public winRate: number = 0,
     public lastUpdated: Date = new Date(),
     public createdAt: Date = new Date(),
-    public updatedAt: Date = new Date()
+    public updatedAt: Date = new Date(),
   ) {
     // Calculate derived statistics if not explicitly provided
     if (matchesPlayed > 0 && winRate === 0) {
       this.winRate = (matchesWon / matchesPlayed) * 100;
     }
-    
+
     if (matchesPlayed > 0 && totalPoints > 0 && averageScore === 0) {
       this.averageScore = totalPoints / matchesPlayed;
     }
@@ -35,13 +35,13 @@ export class Statistic {
    */
   updateAfterMatch(won: boolean, score: number): void {
     this.matchesPlayed += 1;
-    
+
     if (won) {
       this.matchesWon += 1;
     } else {
       this.matchesLost += 1;
     }
-    
+
     this.totalPoints += score;
     this.averageScore = this.totalPoints / this.matchesPlayed;
     this.winRate = (this.matchesWon / this.matchesPlayed) * 100;
@@ -55,11 +55,11 @@ export class Statistic {
    */
   updateAfterTournament(won: boolean): void {
     this.tournamentsPlayed += 1;
-    
+
     if (won) {
       this.tournamentsWon += 1;
     }
-    
+
     this.lastUpdated = new Date();
     this.updatedAt = new Date();
   }
@@ -79,4 +79,4 @@ export class Statistic {
     this.lastUpdated = new Date();
     this.updatedAt = new Date();
   }
-} 
+}

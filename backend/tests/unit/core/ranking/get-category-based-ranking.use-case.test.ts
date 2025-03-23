@@ -1,4 +1,7 @@
-import { GetCategoryBasedRankingUseCase, GetCategoryBasedRankingInput } from '../../../../src/core/application/use-cases/ranking/get-category-based-ranking.use-case';
+import {
+  GetCategoryBasedRankingUseCase,
+  GetCategoryBasedRankingInput,
+} from '../../../../src/core/application/use-cases/ranking/get-category-based-ranking.use-case';
 import { IRankingRepository } from '../../../../src/core/application/interfaces/repositories/ranking.repository';
 import { IPlayerRepository } from '../../../../src/core/application/interfaces/repositories/player.repository';
 import { Ranking } from '../../../../src/core/domain/ranking/ranking.entity';
@@ -36,14 +39,14 @@ class MockRankingRepository implements IRankingRepository {
 
     if (options?.sortBy === 'rankingPoints') {
       result.sort((a, b) => {
-        return options.sortOrder === 'asc' 
-          ? a.rankingPoints - b.rankingPoints 
+        return options.sortOrder === 'asc'
+          ? a.rankingPoints - b.rankingPoints
           : b.rankingPoints - a.rankingPoints;
       });
     } else if (options?.sortBy === 'globalPosition') {
       result.sort((a, b) => {
-        return options.sortOrder === 'asc' 
-          ? a.globalPosition - b.globalPosition 
+        return options.sortOrder === 'asc'
+          ? a.globalPosition - b.globalPosition
           : b.globalPosition - a.globalPosition;
       });
     }
@@ -74,7 +77,7 @@ class MockRankingRepository implements IRankingRepository {
   }
 
   async delete(id: string): Promise<boolean> {
-    const index = this.rankings.findIndex((r) => r.id === id);
+    const index = this.rankings.findIndex(r => r.id === id);
     if (index !== -1) {
       this.rankings.splice(index, 1);
       return true;
@@ -82,24 +85,27 @@ class MockRankingRepository implements IRankingRepository {
     return false;
   }
 
-  async findByPlayerLevel(playerLevel: PlayerLevel, options?: {
-    limit?: number;
-    offset?: number;
-    sortBy?: 'rankingPoints' | 'categoryPosition';
-    sortOrder?: 'asc' | 'desc';
-  }): Promise<Ranking[]> {
+  async findByPlayerLevel(
+    playerLevel: PlayerLevel,
+    options?: {
+      limit?: number;
+      offset?: number;
+      sortBy?: 'rankingPoints' | 'categoryPosition';
+      sortOrder?: 'asc' | 'desc';
+    },
+  ): Promise<Ranking[]> {
     let result = this.rankings.filter(r => r.playerLevel === playerLevel);
 
     if (options?.sortBy === 'rankingPoints') {
       result.sort((a, b) => {
-        return options.sortOrder === 'asc' 
-          ? a.rankingPoints - b.rankingPoints 
+        return options.sortOrder === 'asc'
+          ? a.rankingPoints - b.rankingPoints
           : b.rankingPoints - a.rankingPoints;
       });
     } else if (options?.sortBy === 'categoryPosition') {
       result.sort((a, b) => {
-        return options.sortOrder === 'asc' 
-          ? a.categoryPosition - b.categoryPosition 
+        return options.sortOrder === 'asc'
+          ? a.categoryPosition - b.categoryPosition
           : b.categoryPosition - a.categoryPosition;
       });
     }
@@ -166,128 +172,133 @@ describe('GetCategoryBasedRankingUseCase', () => {
   // Repository mocks
   let rankingRepository: IRankingRepository;
   let playerRepository: IPlayerRepository;
-  
+
   // Use case
   let useCase: GetCategoryBasedRankingUseCase;
-  
+
   // Test data - Players
   const p3Player1Id = '123e4567-e89b-12d3-a456-426614174001';
   const p3Player2Id = '123e4567-e89b-12d3-a456-426614174002';
   const p2Player1Id = '123e4567-e89b-12d3-a456-426614174003';
   const p2Player2Id = '123e4567-e89b-12d3-a456-426614174004';
   const p1Player1Id = '123e4567-e89b-12d3-a456-426614174005';
-  
+
   const p3Player1 = new Player(p3Player1Id, 'user1', PlayerLevel.P3, 30, 'Spain');
   const p3Player2 = new Player(p3Player2Id, 'user2', PlayerLevel.P3, 28, 'France');
   const p2Player1 = new Player(p2Player1Id, 'user3', PlayerLevel.P2, 25, 'Germany');
   const p2Player2 = new Player(p2Player2Id, 'user4', PlayerLevel.P2, 22, 'Italy');
   const p1Player1 = new Player(p1Player1Id, 'user5', PlayerLevel.P1, 35, 'USA');
-  
+
   // Test data - Rankings
   const p3Ranking1 = new Ranking(
     'rank-1',
     p3Player1Id,
-    48.7,   // rankingPoints
-    2,      // globalPosition
-    1,      // categoryPosition
+    48.7, // rankingPoints
+    2, // globalPosition
+    1, // categoryPosition
     PlayerLevel.P3,
-    3,      // previousPosition
-    1,      // positionChange
-    new Date(2023, 5, 1)
+    3, // previousPosition
+    1, // positionChange
+    new Date(2023, 5, 1),
   );
-  
+
   const p3Ranking2 = new Ranking(
     'rank-2',
     p3Player2Id,
-    35.2,   // rankingPoints
-    4,      // globalPosition
-    2,      // categoryPosition
+    35.2, // rankingPoints
+    4, // globalPosition
+    2, // categoryPosition
     PlayerLevel.P3,
-    5,      // previousPosition
-    1,      // positionChange
-    new Date(2023, 5, 1)
+    5, // previousPosition
+    1, // positionChange
+    new Date(2023, 5, 1),
   );
-  
+
   const p2Ranking1 = new Ranking(
     'rank-3',
     p2Player1Id,
-    65.3,   // rankingPoints
-    1,      // globalPosition
-    1,      // categoryPosition
+    65.3, // rankingPoints
+    1, // globalPosition
+    1, // categoryPosition
     PlayerLevel.P2,
-    1,      // previousPosition
-    0,      // positionChange
-    new Date(2023, 5, 1)
+    1, // previousPosition
+    0, // positionChange
+    new Date(2023, 5, 1),
   );
-  
+
   const p2Ranking2 = new Ranking(
     'rank-4',
     p2Player2Id,
-    40.1,   // rankingPoints
-    3,      // globalPosition
-    2,      // categoryPosition
+    40.1, // rankingPoints
+    3, // globalPosition
+    2, // categoryPosition
     PlayerLevel.P2,
-    2,      // previousPosition
-    -1,     // positionChange
-    new Date(2023, 5, 1)
+    2, // previousPosition
+    -1, // positionChange
+    new Date(2023, 5, 1),
   );
-  
+
   const p1Ranking1 = new Ranking(
     'rank-5',
     p1Player1Id,
-    25.6,   // rankingPoints
-    5,      // globalPosition
-    1,      // categoryPosition
+    25.6, // rankingPoints
+    5, // globalPosition
+    1, // categoryPosition
     PlayerLevel.P1,
-    4,      // previousPosition
-    -1,     // positionChange
-    new Date(2023, 5, 1)
+    4, // previousPosition
+    -1, // positionChange
+    new Date(2023, 5, 1),
   );
 
   beforeEach(() => {
     // Initialize repositories with test data
     rankingRepository = new MockRankingRepository([
-      p3Ranking1, p3Ranking2, p2Ranking1, p2Ranking2, p1Ranking1
+      p3Ranking1,
+      p3Ranking2,
+      p2Ranking1,
+      p2Ranking2,
+      p1Ranking1,
     ]);
-    
+
     playerRepository = new MockPlayerRepository([
-      p3Player1, p3Player2, p2Player1, p2Player2, p1Player1
+      p3Player1,
+      p3Player2,
+      p2Player1,
+      p2Player2,
+      p1Player1,
     ]);
-    
+
     // Initialize use case
-    useCase = new GetCategoryBasedRankingUseCase(
-      rankingRepository,
-      playerRepository
-    );
+    useCase = new GetCategoryBasedRankingUseCase(rankingRepository, playerRepository);
   });
 
   it('should get P3 category rankings correctly', async () => {
     // Arrange
     const input: GetCategoryBasedRankingInput = {
-      playerLevel: PlayerLevel.P3
+      playerLevel: PlayerLevel.P3,
     };
-    
+
     // Act
     const result = await useCase.execute(input);
-    
+
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const output = result.getValue();
     expect(output.rankings.length).toBe(2); // Two P3 players
     expect(output.pagination.total).toBe(2);
     expect(output.pagination.hasMore).toBe(false);
     expect(output.playerLevel).toBe(PlayerLevel.P3);
-    
+
     // All rankings should be P3
     output.rankings.forEach(ranking => {
       expect(ranking.playerLevel).toBe(PlayerLevel.P3);
     });
-    
+
     // First should be the one with category position 1
     expect(output.rankings[0].categoryPosition).toBe(1);
     expect(output.rankings[0].playerId).toBe(p3Player1Id);
-    
+
     // Players should be attached
     expect(output.rankings[0].player).toBeDefined();
     expect(output.rankings[0].player?.id).toBe(p3Player1Id);
@@ -298,34 +309,34 @@ describe('GetCategoryBasedRankingUseCase', () => {
     const input: GetCategoryBasedRankingInput = {
       playerLevel: PlayerLevel.P2,
       limit: 1,
-      offset: 0
+      offset: 0,
     };
-    
+
     // Act
     const result = await useCase.execute(input);
-    
+
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const output = result.getValue();
     expect(output.rankings.length).toBe(1); // Only one due to limit
     expect(output.pagination.total).toBe(2); // But there are 2 total
     expect(output.pagination.hasMore).toBe(true);
     expect(output.playerLevel).toBe(PlayerLevel.P2);
-    
+
     // Should be the first ranked P2 player
     expect(output.rankings[0].playerId).toBe(p2Player1Id);
-    
+
     // Try getting the second page
     const page2Input: GetCategoryBasedRankingInput = {
       playerLevel: PlayerLevel.P2,
       limit: 1,
-      offset: 1
+      offset: 1,
     };
-    
+
     const page2Result = await useCase.execute(page2Input);
     expect(page2Result.isSuccess).toBe(true);
-    
+
     const page2Output = page2Result.getValue();
     expect(page2Output.rankings.length).toBe(1);
     expect(page2Output.rankings[0].playerId).toBe(p2Player2Id);
@@ -337,18 +348,18 @@ describe('GetCategoryBasedRankingUseCase', () => {
     const input: GetCategoryBasedRankingInput = {
       playerLevel: PlayerLevel.P3,
       sortBy: 'rankingPoints',
-      sortOrder: 'desc'
+      sortOrder: 'desc',
     };
-    
+
     // Act
     const result = await useCase.execute(input);
-    
+
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const output = result.getValue();
     expect(output.rankings.length).toBe(2);
-    
+
     // Should be sorted by ranking points (highest first)
     expect(output.rankings[0].rankingPoints).toBeGreaterThan(output.rankings[1].rankingPoints);
     expect(output.rankings[0].playerId).toBe(p3Player1Id); // Higher points
@@ -359,18 +370,18 @@ describe('GetCategoryBasedRankingUseCase', () => {
     const input: GetCategoryBasedRankingInput = {
       playerLevel: PlayerLevel.P3,
       sortBy: 'categoryPosition',
-      sortOrder: 'asc'
+      sortOrder: 'asc',
     };
-    
+
     // Act
     const result = await useCase.execute(input);
-    
+
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const output = result.getValue();
     expect(output.rankings.length).toBe(2);
-    
+
     // Should be sorted by category position (lowest first)
     expect(output.rankings[0].categoryPosition).toBeLessThan(output.rankings[1].categoryPosition);
     expect(output.rankings[0].playerId).toBe(p3Player1Id); // Position 1
@@ -381,24 +392,25 @@ describe('GetCategoryBasedRankingUseCase', () => {
     // Arrange
     // Create repository with no P4 rankings
     rankingRepository = new MockRankingRepository([
-      p3Ranking1, p3Ranking2, p2Ranking1, p2Ranking2, p1Ranking1
+      p3Ranking1,
+      p3Ranking2,
+      p2Ranking1,
+      p2Ranking2,
+      p1Ranking1,
     ]);
-    
-    useCase = new GetCategoryBasedRankingUseCase(
-      rankingRepository,
-      playerRepository
-    );
-    
+
+    useCase = new GetCategoryBasedRankingUseCase(rankingRepository, playerRepository);
+
     const input: GetCategoryBasedRankingInput = {
-      playerLevel: PlayerLevel.P4 // No players in this level
+      playerLevel: PlayerLevel.P4, // No players in this level
     };
-    
+
     // Act
     const result = await useCase.execute(input);
-    
+
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const output = result.getValue();
     expect(output.rankings.length).toBe(0);
     expect(output.pagination.total).toBe(0);
@@ -407,14 +419,14 @@ describe('GetCategoryBasedRankingUseCase', () => {
 
   it('should fail with invalid player level', async () => {
     // Arrange
-    const invalidInput = { 
-      playerLevel: 'INVALID_LEVEL' // Not a valid enum value
+    const invalidInput = {
+      playerLevel: 'INVALID_LEVEL', // Not a valid enum value
     };
-    
+
     // Act
     // @ts-ignore - deliberately passing invalid input
     const result = await useCase.execute(invalidInput);
-    
+
     // Assert
     expect(result.isFailure).toBe(true);
     expect(result.getError().message).toContain('Invalid player level');
@@ -422,17 +434,17 @@ describe('GetCategoryBasedRankingUseCase', () => {
 
   it('should fail with invalid pagination parameters', async () => {
     // Arrange
-    const invalidInput = { 
+    const invalidInput = {
       playerLevel: PlayerLevel.P3,
       limit: -5, // Invalid: must be positive
-      offset: -1 // Invalid: must be non-negative
+      offset: -1, // Invalid: must be non-negative
     };
-    
+
     // Act
     // @ts-ignore - deliberately passing invalid input
     const result = await useCase.execute(invalidInput);
-    
+
     // Assert
     expect(result.isFailure).toBe(true);
   });
-}); 
+});

@@ -1,8 +1,20 @@
-import { GetPlayerTournamentsUseCase, GetPlayerTournamentsInput } from '../../../../src/core/application/use-cases/player/get-player-tournaments.use-case';
+import {
+  GetPlayerTournamentsUseCase,
+  GetPlayerTournamentsInput,
+} from '../../../../src/core/application/use-cases/player/get-player-tournaments.use-case';
 import { IPlayerRepository } from '../../../../src/core/application/interfaces/repositories/player.repository';
-import { ITournamentRepository, PaginationOptions, TournamentFilter } from '../../../../src/core/application/interfaces/repositories/tournament.repository';
+import {
+  ITournamentRepository,
+  PaginationOptions,
+  TournamentFilter,
+} from '../../../../src/core/application/interfaces/repositories/tournament.repository';
 import { Player } from '../../../../src/core/domain/player/player.entity';
-import { Tournament, TournamentStatus, TournamentFormat, PlayerLevel } from '../../../../src/core/domain/tournament/tournament.entity';
+import {
+  Tournament,
+  TournamentStatus,
+  TournamentFormat,
+  PlayerLevel,
+} from '../../../../src/core/domain/tournament/tournament.entity';
 
 // Mock Player Repository
 class MockPlayerRepository implements IPlayerRepository {
@@ -53,9 +65,12 @@ class MockTournamentRepository implements ITournamentRepository {
   private tournaments: Tournament[] = [];
   private participantRegistrations: Map<string, Set<string>> = new Map(); // tournamentId -> Set of playerIds
 
-  constructor(initialTournaments: Tournament[] = [], initialRegistrations: Record<string, string[]> = {}) {
+  constructor(
+    initialTournaments: Tournament[] = [],
+    initialRegistrations: Record<string, string[]> = {},
+  ) {
     this.tournaments = initialTournaments;
-    
+
     // Initialize participant registrations
     Object.entries(initialRegistrations).forEach(([tournamentId, playerIds]) => {
       const playerSet = new Set<string>(playerIds);
@@ -84,7 +99,7 @@ class MockTournamentRepository implements ITournamentRepository {
         t.category,
         t.createdById,
         new Date(t.createdAt),
-        t.updatedAt ? new Date(t.updatedAt) : new Date()
+        t.updatedAt ? new Date(t.updatedAt) : new Date(),
       );
     });
 
@@ -106,9 +121,10 @@ class MockTournamentRepository implements ITournamentRepository {
       }
       if (filter.searchTerm !== undefined) {
         const searchTerm = filter.searchTerm.toLowerCase();
-        result = result.filter(t => 
-          t.name.toLowerCase().includes(searchTerm) || 
-          t.description.toLowerCase().includes(searchTerm)
+        result = result.filter(
+          t =>
+            t.name.toLowerCase().includes(searchTerm) ||
+            t.description.toLowerCase().includes(searchTerm),
         );
       }
     }
@@ -154,9 +170,10 @@ class MockTournamentRepository implements ITournamentRepository {
       }
       if (filter.searchTerm !== undefined) {
         const searchTerm = filter.searchTerm.toLowerCase();
-        result = result.filter(t => 
-          t.name.toLowerCase().includes(searchTerm) || 
-          t.description.toLowerCase().includes(searchTerm)
+        result = result.filter(
+          t =>
+            t.name.toLowerCase().includes(searchTerm) ||
+            t.description.toLowerCase().includes(searchTerm),
         );
       }
     }
@@ -210,7 +227,10 @@ class MockTournamentRepository implements ITournamentRepository {
 
   async isParticipantRegistered(tournamentId: string, playerId: string): Promise<boolean> {
     console.log(`Checking if player ${playerId} is registered for tournament ${tournamentId}`);
-    console.log(`Participants for tournament ${tournamentId}:`, this.participantRegistrations.get(tournamentId));
+    console.log(
+      `Participants for tournament ${tournamentId}:`,
+      this.participantRegistrations.get(tournamentId),
+    );
     const participants = this.participantRegistrations.get(tournamentId);
     return !!participants && participants.has(playerId);
   }
@@ -220,13 +240,13 @@ class MockTournamentRepository implements ITournamentRepository {
     if (!participants) {
       return [];
     }
-    
+
     const participantArray = Array.from(participants);
-    
+
     if (pagination) {
       return participantArray.slice(pagination.skip, pagination.skip + pagination.limit);
     }
-    
+
     return participantArray;
   }
 
@@ -250,7 +270,7 @@ describe('GetPlayerTournamentsUseCase', () => {
       '123e4567-e89b-12d3-a456-426614174001',
       PlayerLevel.P3,
       30,
-      'Spain'
+      'Spain',
     );
 
     // Create test tournaments
@@ -267,7 +287,7 @@ describe('GetPlayerTournamentsUseCase', () => {
         32,
         new Date('2023-05-25'),
         PlayerLevel.P3,
-        'admin-user-id'
+        'admin-user-id',
       ),
       new Tournament(
         '123e4567-e89b-12d3-a456-426614174101',
@@ -281,7 +301,7 @@ describe('GetPlayerTournamentsUseCase', () => {
         64,
         new Date('2023-06-30'),
         null, // No specific category
-        'admin-user-id'
+        'admin-user-id',
       ),
       new Tournament(
         '123e4567-e89b-12d3-a456-426614174102',
@@ -295,7 +315,7 @@ describe('GetPlayerTournamentsUseCase', () => {
         16,
         new Date('2023-11-30'),
         PlayerLevel.P2,
-        'admin-user-id'
+        'admin-user-id',
       ),
       new Tournament(
         '123e4567-e89b-12d3-a456-426614174103',
@@ -309,7 +329,7 @@ describe('GetPlayerTournamentsUseCase', () => {
         24,
         new Date('2023-08-01'),
         PlayerLevel.P3,
-        'admin-user-id'
+        'admin-user-id',
       ),
       new Tournament(
         '123e4567-e89b-12d3-a456-426614174104',
@@ -323,15 +343,15 @@ describe('GetPlayerTournamentsUseCase', () => {
         32,
         new Date('2023-09-25'),
         PlayerLevel.P4,
-        'admin-user-id'
-      )
+        'admin-user-id',
+      ),
     ];
 
     // Setup player registrations - player is registered for tournaments 0, 1, and 3
     playerRegistrations = {
       '123e4567-e89b-12d3-a456-426614174100': [testPlayer.id], // Tennis Open
       '123e4567-e89b-12d3-a456-426614174101': [testPlayer.id], // Summer Championship
-      '123e4567-e89b-12d3-a456-426614174103': [testPlayer.id]  // Beach Volleyball Cup
+      '123e4567-e89b-12d3-a456-426614174103': [testPlayer.id], // Beach Volleyball Cup
     };
 
     console.log('Player ID:', testPlayer.id);
@@ -342,10 +362,10 @@ describe('GetPlayerTournamentsUseCase', () => {
     tournamentRepository = new MockTournamentRepository(testTournaments, playerRegistrations);
 
     // Test to verify registrations were set up correctly
-    Object.keys(playerRegistrations).forEach(async (tournamentId) => {
+    Object.keys(playerRegistrations).forEach(async tournamentId => {
       const isRegistered = await tournamentRepository.isParticipantRegistered(
         tournamentId,
-        testPlayer.id
+        testPlayer.id,
       );
       console.log(`Is player registered for tournament ${tournamentId}:`, isRegistered);
     });
@@ -357,7 +377,7 @@ describe('GetPlayerTournamentsUseCase', () => {
   it('should get all tournaments for a player with default pagination', async () => {
     // Arrange
     const input: GetPlayerTournamentsInput = {
-      playerId: testPlayer.id
+      playerId: testPlayer.id,
     };
 
     // Act
@@ -366,7 +386,7 @@ describe('GetPlayerTournamentsUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const { tournaments, total, skip, limit } = result.getValue();
     console.log('Tournaments in default pagination test:', JSON.stringify(tournaments));
     expect(tournaments).toHaveLength(3); // Player is registered for 3 tournaments
@@ -379,7 +399,7 @@ describe('GetPlayerTournamentsUseCase', () => {
     // Arrange
     const input: GetPlayerTournamentsInput = {
       playerId: testPlayer.id,
-      status: TournamentStatus.ACTIVE
+      status: TournamentStatus.ACTIVE,
     };
 
     // Act
@@ -388,7 +408,7 @@ describe('GetPlayerTournamentsUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const { tournaments, total } = result.getValue();
     console.log('Status filtered tournaments:', JSON.stringify(tournaments));
     expect(tournaments).toHaveLength(1);
@@ -401,7 +421,7 @@ describe('GetPlayerTournamentsUseCase', () => {
     const input: GetPlayerTournamentsInput = {
       playerId: testPlayer.id,
       fromDate: new Date('2023-07-01'),
-      toDate: new Date('2023-09-01')
+      toDate: new Date('2023-09-01'),
     };
 
     // Act
@@ -410,23 +430,24 @@ describe('GetPlayerTournamentsUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const { tournaments, total } = result.getValue();
     console.log('Date range filtered tournaments:', JSON.stringify(tournaments));
     expect(tournaments).toHaveLength(2); // Summer Championship and Beach Volleyball Cup
     expect(total).toBe(2);
     // Check that all tournaments are within the date range
-    expect(tournaments.every(t => 
-      t.startDate >= new Date('2023-07-01') && 
-      t.startDate <= new Date('2023-09-01')
-    )).toBe(true);
+    expect(
+      tournaments.every(
+        t => t.startDate >= new Date('2023-07-01') && t.startDate <= new Date('2023-09-01'),
+      ),
+    ).toBe(true);
   });
 
   it('should filter tournaments by category', async () => {
     // Arrange
     const input: GetPlayerTournamentsInput = {
       playerId: testPlayer.id,
-      category: PlayerLevel.P3
+      category: PlayerLevel.P3,
     };
 
     // Act
@@ -435,7 +456,7 @@ describe('GetPlayerTournamentsUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const { tournaments, total } = result.getValue();
     console.log('Category filtered tournaments:', JSON.stringify(tournaments));
     expect(tournaments).toHaveLength(2); // Tennis Open and Beach Volleyball Cup
@@ -448,7 +469,7 @@ describe('GetPlayerTournamentsUseCase', () => {
     const input: GetPlayerTournamentsInput = {
       playerId: testPlayer.id,
       skip: 1,
-      limit: 1
+      limit: 1,
     };
 
     // Act
@@ -456,7 +477,7 @@ describe('GetPlayerTournamentsUseCase', () => {
 
     // Assert
     expect(result.isSuccess).toBe(true);
-    
+
     const { tournaments, total, skip, limit } = result.getValue();
     expect(tournaments).toHaveLength(1);
     expect(total).toBe(3); // Total should still be 3, even though we're only returning 1
@@ -467,7 +488,7 @@ describe('GetPlayerTournamentsUseCase', () => {
   it('should fail when player does not exist', async () => {
     // Arrange
     const input: GetPlayerTournamentsInput = {
-      playerId: '123e4567-e89b-12d3-a456-426614174999' // non-existent player ID
+      playerId: '123e4567-e89b-12d3-a456-426614174999', // non-existent player ID
     };
 
     // Act
@@ -482,7 +503,7 @@ describe('GetPlayerTournamentsUseCase', () => {
     // Arrange
     const input = {
       playerId: 'not-a-uuid',
-      status: 'INVALID_STATUS'
+      status: 'INVALID_STATUS',
     };
 
     // Act
@@ -493,4 +514,4 @@ describe('GetPlayerTournamentsUseCase', () => {
     expect(result.isFailure).toBe(true);
     expect(result.getError().message).toContain('Invalid player ID format');
   });
-}); 
+});

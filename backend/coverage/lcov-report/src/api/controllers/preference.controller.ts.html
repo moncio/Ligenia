@@ -306,15 +306,19 @@
 <a name='L241'></a><a href='#L241'>241</a>
 <a name='L242'></a><a href='#L242'>242</a>
 <a name='L243'></a><a href='#L243'>243</a>
-<a name='L244'></a><a href='#L244'>244</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L244'></a><a href='#L244'>244</a>
+<a name='L245'></a><a href='#L245'>245</a>
+<a name='L246'></a><a href='#L246'>246</a>
+<a name='L247'></a><a href='#L247'>247</a>
+<a name='L248'></a><a href='#L248'>248</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -352,7 +356,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -402,7 +406,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -450,7 +454,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -506,7 +510,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">4x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -537,16 +541,20 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Request, Response } from 'express';
@@ -563,7 +571,7 @@ export class PreferenceController {
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!req.user) {</span>
 <span class="cstat-no" title="statement not covered" >        return res.status(401).json({</span>
           status: 'error',
-          message: 'You must be logged in to access preferences'
+          message: 'You must be logged in to access preferences',
         });
       }
 &nbsp;
@@ -576,14 +584,14 @@ export class PreferenceController {
         theme: 'light',
         fontSize: 'medium',
         createdAt: '2023-01-01T00:00:00Z',
-        updatedAt: '2023-01-10T00:00:00Z'
+        updatedAt: '2023-01-10T00:00:00Z',
       };
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      return res.status(200).json({</span>
         status: 'success',
         data: {
-          preferences
-        }
+          preferences,
+        },
       });
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      console.error('Error getting preferences:', error);</span>
@@ -604,7 +612,7 @@ export class PreferenceController {
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!req.user) {</span>
 <span class="cstat-no" title="statement not covered" >        return res.status(401).json({</span>
           status: 'error',
-          message: 'You must be logged in to access preferences'
+          message: 'You must be logged in to access preferences',
         });
       }
 &nbsp;
@@ -618,22 +626,22 @@ export class PreferenceController {
         theme: 'light',
         fontSize: 'medium',
         createdAt: '2023-01-01T00:00:00Z',
-        updatedAt: '2023-01-10T00:00:00Z'
+        updatedAt: '2023-01-10T00:00:00Z',
       };
 &nbsp;
       // Si la preferencia no pertenece al usuario actual, denegar acceso
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (preference.userId !== req.user.id) {</span>
 <span class="cstat-no" title="statement not covered" >        return res.status(403).json({</span>
           status: 'error',
-          message: 'You do not have permission to access this preference'
+          message: 'You do not have permission to access this preference',
         });
       }
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      return res.status(200).json({</span>
         status: 'success',
         data: {
-          preference
-        }
+          preference,
+        },
       });
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      console.error('Error getting preference by ID:', error);</span>
@@ -654,7 +662,7 @@ export class PreferenceController {
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!req.user) {</span>
 <span class="cstat-no" title="statement not covered" >        return res.status(401).json({</span>
           status: 'error',
-          message: 'You must be logged in to create preferences'
+          message: 'You must be logged in to create preferences',
         });
       }
 &nbsp;
@@ -662,7 +670,7 @@ export class PreferenceController {
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (preferenceData.userId &amp;&amp; preferenceData.userId !== req.user.id) {</span>
 <span class="cstat-no" title="statement not covered" >        return res.status(403).json({</span>
           status: 'error',
-          message: 'You can only create preferences for your own account'
+          message: 'You can only create preferences for your own account',
         });
       }
 &nbsp;
@@ -674,14 +682,14 @@ export class PreferenceController {
         userId: req.user.id,
         ...preferenceData,
         createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       };
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      return res.status(201).json({</span>
         status: 'success',
         data: {
-          preference
-        }
+          preference,
+        },
       });
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      console.error('Error creating preference:', error);</span>
@@ -703,7 +711,7 @@ export class PreferenceController {
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!req.user) {</span>
 <span class="cstat-no" title="statement not covered" >        return res.status(401).json({</span>
           status: 'error',
-          message: 'You must be logged in to update preferences'
+          message: 'You must be logged in to update preferences',
         });
       }
 &nbsp;
@@ -713,14 +721,14 @@ export class PreferenceController {
         id,
         userId: req.user.id,
         theme: 'light',
-        fontSize: 'medium'
+        fontSize: 'medium',
       };
 &nbsp;
       // Si la preferencia no pertenece al usuario actual, denegar acceso
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (existingPreference.userId !== req.user.id) {</span>
 <span class="cstat-no" title="statement not covered" >        return res.status(403).json({</span>
           status: 'error',
-          message: 'You do not have permission to update this preference'
+          message: 'You do not have permission to update this preference',
         });
       }
 &nbsp;
@@ -730,14 +738,14 @@ export class PreferenceController {
       const preference<span class="cstat-no" title="statement not covered" > = {</span>
         ...existingPreference,
         ...preferenceData,
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
       };
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      return res.status(200).json({</span>
         status: 'success',
         data: {
-          preference
-        }
+          preference,
+        },
       });
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      console.error('Error updating preference:', error);</span>
@@ -758,7 +766,7 @@ export class PreferenceController {
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!req.user) {</span>
 <span class="cstat-no" title="statement not covered" >        return res.status(401).json({</span>
           status: 'error',
-          message: 'You must be logged in to reset preferences'
+          message: 'You must be logged in to reset preferences',
         });
       }
 &nbsp;
@@ -768,7 +776,7 @@ export class PreferenceController {
       // Opciones predeterminadas
       const defaultPreferences = <span class="cstat-no" title="statement not covered" >{</span>
         theme: 'light',
-        fontSize: 'medium'
+        fontSize: 'medium',
       };
 &nbsp;
       // Aplicar restablecer todas o solo opciones específicas
@@ -776,30 +784,34 @@ export class PreferenceController {
         id: 'pref-123',
         userId: req.user.id,
         theme: resetOptions.resetAll || resetOptions.resetTheme ? defaultPreferences.theme : 'dark',
-        fontSize: resetOptions.resetAll || resetOptions.resetFontSize ? defaultPreferences.fontSize : 'large',
-        updatedAt: new Date().toISOString()
+        fontSize:
+          resetOptions.resetAll || resetOptions.resetFontSize
+            ? defaultPreferences.fontSize
+            : 'large',
+        updatedAt: new Date().toISOString(),
       };
 &nbsp;
 <span class="cstat-no" title="statement not covered" >      return res.status(200).json({</span>
         status: 'success',
         data: {
           preference,
-          message: 'Preferences reset successfully'
-        }
+          message: 'Preferences reset successfully',
+        },
       });
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      console.error('Error resetting preferences:', error);</span>
 <span class="cstat-no" title="statement not covered" >      return res.status(500).json({ status: 'error', message: 'Internal server error' });</span>
     }
   };
-} </pre></td></tr></table></pre>
+}
+&nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-03-23T19:34:14.050Z
+                at 2025-03-23T22:37:40.856Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>
