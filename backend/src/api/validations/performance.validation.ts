@@ -10,9 +10,24 @@ export const userIdParamSchema = z.object({
   userId: z.string().uuid({ message: 'Invalid user ID format' }),
 });
 
+// Esquema de validación para parámetros de jugador
+export const playerIdParamSchema = z.object({
+  playerId: z.string().uuid({ message: 'Invalid player ID format' }),
+});
+
 // Esquema de validación para la creación de un registro de historial de rendimiento
 export const createPerformanceSchema = z.object({
   userId: z.string().uuid({ message: 'Invalid user ID format' }),
+  year: z.number().int().min(2000).max(2100),
+  month: z.number().int().min(1).max(12).optional(),
+  matchesPlayed: z.number().int().min(0).default(0),
+  wins: z.number().int().min(0).default(0),
+  losses: z.number().int().min(0).default(0),
+  points: z.number().int().min(0).default(0),
+});
+
+// Esquema para registrar el rendimiento de un jugador
+export const recordPerformanceSchema = z.object({
   year: z.number().int().min(2000).max(2100),
   month: z.number().int().min(1).max(12).optional(),
   matchesPlayed: z.number().int().min(0).default(0),
@@ -44,9 +59,32 @@ export const getPerformanceQuerySchema = z.object({
   offset: z.string().regex(/^\d+$/, { message: 'Offset must be a number' }).optional(),
 });
 
+// Esquema de validación para consulta de historial de rendimiento de un jugador
+export const playerPerformanceQuerySchema = z.object({
+  year: z
+    .string()
+    .regex(/^\d{4}$/, { message: 'Year must be a 4-digit number' })
+    .optional(),
+  month: z
+    .string()
+    .regex(/^([1-9]|1[0-2])$/, { message: 'Month must be a number between 1 and 12' })
+    .optional(),
+  limit: z.string().regex(/^\d+$/, { message: 'Limit must be a number' }).optional(),
+  offset: z.string().regex(/^\d+$/, { message: 'Offset must be a number' }).optional(),
+});
+
 // Esquema de validación para consulta de tendencias de rendimiento
 export const performanceTrendsQuerySchema = z.object({
   userId: z.string().uuid({ message: 'Invalid user ID format' }),
+  timeframe: z
+    .enum(['monthly', 'yearly', 'all'], {
+      errorMap: () => ({ message: 'Timeframe must be monthly, yearly, or all' }),
+    })
+    .optional(),
+});
+
+// Esquema de validación para consulta de tendencias de rendimiento de un jugador
+export const playerPerformanceTrendsQuerySchema = z.object({
   timeframe: z
     .enum(['monthly', 'yearly', 'all'], {
       errorMap: () => ({ message: 'Timeframe must be monthly, yearly, or all' }),

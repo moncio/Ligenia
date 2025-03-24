@@ -20,7 +20,7 @@ const PaginationSchema = z.object({
 // Input validation schema
 const ListGlobalStatisticsInputSchema = z.object({
   playerLevel: z
-    .enum([PlayerLevel.P1, PlayerLevel.P2, PlayerLevel.P3, PlayerLevel.P4, PlayerLevel.P5])
+    .enum([PlayerLevel.P1, PlayerLevel.P2, PlayerLevel.P3])
     .optional(),
   pagination: PaginationSchema.optional(),
 });

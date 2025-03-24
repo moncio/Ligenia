@@ -28,7 +28,7 @@ export class LogoutUserUseCase extends BaseUseCase<LogoutUserInput, void> {
       // Validate the token first
       const tokenValidation = await this.authService.validateToken(token);
 
-      if (tokenValidation.isFailure) {
+      if (tokenValidation.isFailure()) {
         return Result.fail<void>(new Error('Invalid token'));
       }
 

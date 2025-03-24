@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { MatchController } from '../controllers/match.controller';
 import { authenticate, authorize } from '../middlewares/auth.middleware';
-import { UserRole } from '@prisma/client';
+import { UserRole } from '../../core/domain/user/user.entity';
 import { validateBody, validateParams, validateQuery } from '../middlewares/validate.middleware';
 import {
   idParamSchema,
@@ -10,6 +10,7 @@ import {
   updateScoreSchema,
   getMatchesQuerySchema,
 } from '../validations/match.validation';
+import { diMiddleware } from '../middlewares/di.middleware';
 
 const router = Router();
 const matchController = new MatchController();
@@ -19,14 +20,24 @@ const matchController = new MatchController();
  * @desc Get all matches
  * @access Public
  */
-router.get('/', validateQuery(getMatchesQuerySchema), matchController.getMatches);
+router.get(
+  '/', 
+  diMiddleware,
+  validateQuery(getMatchesQuerySchema), 
+  matchController.getMatches
+);
 
 /**
  * @route GET /api/matches/:id
  * @desc Get match by ID
  * @access Public
  */
-router.get('/:id', validateParams(idParamSchema), matchController.getMatchById);
+router.get(
+  '/:id', 
+  diMiddleware,
+  validateParams(idParamSchema), 
+  matchController.getMatchById
+);
 
 /**
  * @route POST /api/matches
@@ -36,6 +47,7 @@ router.get('/:id', validateParams(idParamSchema), matchController.getMatchById);
 router.post(
   '/',
   authenticate,
+  diMiddleware,
   authorize([UserRole.ADMIN]),
   validateBody(createMatchSchema),
   matchController.createMatch,
@@ -49,6 +61,7 @@ router.post(
 router.put(
   '/:id',
   authenticate,
+  diMiddleware,
   authorize([UserRole.ADMIN]),
   validateParams(idParamSchema),
   validateBody(updateMatchSchema),
@@ -63,6 +76,7 @@ router.put(
 router.patch(
   '/:id/score',
   authenticate,
+  diMiddleware,
   authorize([UserRole.ADMIN]),
   validateParams(idParamSchema),
   validateBody(updateScoreSchema),
@@ -77,6 +91,7 @@ router.patch(
 router.delete(
   '/:id',
   authenticate,
+  diMiddleware,
   authorize([UserRole.ADMIN]),
   validateParams(idParamSchema),
   matchController.deleteMatch,

@@ -1,83 +1,74 @@
 import { Request, Response } from 'express';
-import { AuthRequest } from '../middlewares/auth.middleware';
-import { MatchStatus, UserRole } from '@prisma/client';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { AuthRequest, AuthContainerRequest } from '../middlewares/auth.middleware';
+import { MatchStatus } from '@prisma/client';
+import { UserRole } from '../../core/domain/user/user.entity';
+import { ContainerRequest } from '../middlewares/di.middleware';
+import { isValidUUID } from '../utils/uuid-validator';
+import { GetMatchByIdUseCase } from '../../core/application/use-cases/match/get-match-by-id.use-case';
+import { CreateMatchUseCase } from '../../core/application/use-cases/match/create-match.use-case';
+import { UpdateMatchDetailsUseCase } from '../../core/application/use-cases/match/update-match-details.use-case';
+import { RecordMatchResultUseCase } from '../../core/application/use-cases/match/record-match-result.use-case';
+import { DeleteMatchUseCase } from '../../core/application/use-cases/match/delete-match.use-case';
+import { ListUserMatchesUseCase } from '../../core/application/use-cases/match/list-user-matches.use-case';
+import { Match } from '../../core/domain/match/match.entity';
 
 export class MatchController {
   /**
    * Get all matches
    * @route GET /api/matches
    */
-  public getMatches = async (req: Request, res: Response) => {
+  public getMatches = async (req: ContainerRequest, res: Response) => {
     try {
+      console.log('Received request: getMatches');
+      console.log('Query params:', req.query);
+      
       // Obtener parámetros de filtrado (ya validados por el middleware)
-      const { tournamentId, status } = req.query;
-
-      // TODO: Implementar la lógica para obtener todos los partidos desde el caso de uso correspondiente
-      // En este punto solo implementamos una respuesta simulada
-
-      // Simulación de datos de partidos para la respuesta
-      let matches = [
-        {
-          id: '1',
-          tournamentId: 'tournament1-uuid',
-          homePlayerOneId: 'player1-uuid',
-          homePlayerTwoId: 'player2-uuid',
-          awayPlayerOneId: 'player3-uuid',
-          awayPlayerTwoId: 'player4-uuid',
-          round: 1,
-          date: '2023-07-10T10:00:00Z',
-          location: 'Court 1',
-          status: MatchStatus.PENDING,
-          homeScore: null as number | null,
-          awayScore: null as number | null,
-          createdAt: '2023-07-01T10:00:00Z',
-          updatedAt: '2023-07-01T10:00:00Z',
-        },
-        {
-          id: '2',
-          tournamentId: 'tournament1-uuid',
-          homePlayerOneId: 'player5-uuid',
-          homePlayerTwoId: 'player6-uuid',
-          awayPlayerOneId: 'player7-uuid',
-          awayPlayerTwoId: 'player8-uuid',
-          round: 1,
-          date: '2023-07-10T12:00:00Z',
-          location: 'Court 2',
-          status: MatchStatus.COMPLETED,
-          homeScore: 6,
-          awayScore: 4,
-          createdAt: '2023-07-01T11:00:00Z',
-          updatedAt: '2023-07-10T14:00:00Z',
-        },
-      ];
-
-      // Aplicar filtros si se proporcionaron
-      if (tournamentId) {
-        matches = matches.filter(m => m.tournamentId === tournamentId);
+      const { tournamentId, status, player1Id, player2Id, fromDate, toDate, limit = '10', page = '1' } = req.query;
+      
+      // Convert query parameters
+      const limitNum = parseInt(limit as string, 10) || 10;
+      const pageNum = parseInt(page as string, 10) || 1;
+      
+      const listUserMatchesUseCase = req.container?.get(ListUserMatchesUseCase);
+      
+      if (!listUserMatchesUseCase) {
+        console.error('listUserMatchesUseCase is undefined or null');
+        return res.status(500).json({ 
+          status: 'error', 
+          message: 'Internal server error - Use case not available' 
+        });
       }
-
-      if (status) {
-        matches = matches.filter(m => m.status === status);
-      }
-
-      if (!matches.length) {
+      
+      // Prepare input for use case
+      const input = {
+        page: pageNum,
+        limit: limitNum,
+        tournamentId: tournamentId ? String(tournamentId) : undefined,
+        status: status ? status as string : undefined,
+        playerId: player1Id ? String(player1Id) : player2Id ? String(player2Id) : undefined,
+        fromDate: fromDate ? String(fromDate) : undefined,
+        toDate: toDate ? String(toDate) : undefined,
+      };
+      
+      console.log('Executing listUserMatchesUseCase with input:', input);
+      const result = await listUserMatchesUseCase.execute(input);
+      
+      if (result.isSuccess()) {
+        const { matches, pagination } = result.getValue();
         return res.status(200).json({
           status: 'success',
           data: {
-            matches: [],
+            matches,
+            pagination,
           },
         });
+      } else {
+        console.error('Error from listUserMatchesUseCase:', result.getError());
+        return res.status(400).json({
+          status: 'error',
+          message: result.getError().message,
+        });
       }
-
-      return res.status(200).json({
-        status: 'success',
-        data: {
-          matches,
-        },
-      });
     } catch (error) {
       console.error('Error getting matches:', error);
       return res.status(500).json({ status: 'error', message: 'Internal server error' });
@@ -88,154 +79,158 @@ export class MatchController {
    * Get match by ID
    * @route GET /api/matches/:id
    */
-  public getMatchById = async (req: Request, res: Response) => {
+  public getMatchById = async (req: ContainerRequest, res: Response) => {
     try {
+      console.log('Received request: getMatchById');
+      
       // El parámetro id ya ha sido validado por el middleware
       const { id } = req.params;
-
-      // Verificar si el ID proporcionado es un ID ficticio para pruebas
-      if (id === '00000000-0000-0000-0000-000000000000') {
-        return res.status(404).json({
-          status: 'error',
-          message: 'Match not found',
+      console.log('Match ID:', id);
+      
+      const getMatchByIdUseCase = req.container?.get(GetMatchByIdUseCase);
+      
+      if (!getMatchByIdUseCase) {
+        console.error('getMatchByIdUseCase is undefined or null');
+        return res.status(500).json({ 
+          status: 'error', 
+          message: 'Internal server error - Use case not available' 
         });
       }
-
-      // TODO: Implementar la lógica para obtener un partido por ID desde el caso de uso correspondiente
-      // En este punto solo implementamos una respuesta simulada
-
-      // Simulación de datos de un partido para la respuesta
-      const match = {
-        id,
-        tournamentId: 'tournament-uuid',
-        tournamentName: 'Tournament Example',
-        homePlayerOneId: 'player1-uuid',
-        homePlayerOneName: 'Player 1',
-        homePlayerTwoId: 'player2-uuid',
-        homePlayerTwoName: 'Player 2',
-        awayPlayerOneId: 'player3-uuid',
-        awayPlayerOneName: 'Player 3',
-        awayPlayerTwoId: 'player4-uuid',
-        awayPlayerTwoName: 'Player 4',
-        status: 'scheduled',
-        scheduledDate: new Date().toISOString(),
-      };
-
-      return res.status(200).json({
-        status: 'success',
-        data: {
-          match,
-        },
-      });
+      
+      const result = await getMatchByIdUseCase.execute({ id });
+      
+      if (result.isSuccess()) {
+        return res.status(200).json({
+          status: 'success',
+          data: {
+            match: result.getValue(),
+          },
+        });
+      } else {
+        const errorMessage = result.getError().message;
+        if (errorMessage === 'Match not found') {
+          return res.status(404).json({
+            status: 'error',
+            message: errorMessage,
+          });
+        }
+        return res.status(400).json({
+          status: 'error',
+          message: errorMessage,
+        });
+      }
     } catch (error) {
-      console.error('Error getting match by ID:', error);
+      console.error('Error getting match:', error);
       return res.status(500).json({ status: 'error', message: 'Internal server error' });
     }
   };
 
   /**
-   * Create match
+   * Create a new match
    * @route POST /api/matches
    */
-  public createMatch = async (req: AuthRequest, res: Response) => {
+  public createMatch = async (req: AuthContainerRequest, res: Response) => {
     try {
-      // Los datos ya han sido validados por el middleware
-      const matchData = req.body;
-
-      // Verificar que el usuario esté autenticado y tenga rol de administrador
-      if (!req.user || req.user.role !== UserRole.ADMIN) {
+      console.log('Received request: createMatch');
+      console.log('Request body:', req.body);
+      
+      // Only admins can create matches directly
+      if (req.user?.role !== UserRole.ADMIN) {
         return res.status(403).json({
           status: 'error',
-          message: 'You do not have permission to create matches',
+          message: 'You do not have permission to access this resource',
         });
       }
-
-      // Verificaciones adicionales de lógica de negocio
-      if (
-        matchData.homePlayerOneId === matchData.homePlayerTwoId ||
-        matchData.homePlayerOneId === matchData.awayPlayerOneId ||
-        matchData.homePlayerOneId === matchData.awayPlayerTwoId ||
-        matchData.homePlayerTwoId === matchData.awayPlayerOneId ||
-        matchData.homePlayerTwoId === matchData.awayPlayerTwoId ||
-        matchData.awayPlayerOneId === matchData.awayPlayerTwoId
-      ) {
+      
+      const createMatchUseCase = req.container?.get(CreateMatchUseCase);
+      
+      if (!createMatchUseCase) {
+        console.error('createMatchUseCase is undefined or null');
+        return res.status(500).json({ 
+          status: 'error', 
+          message: 'Internal server error - Use case not available' 
+        });
+      }
+      
+      const result = await createMatchUseCase.execute(req.body);
+      
+      if (result.isSuccess()) {
+        return res.status(201).json({
+          status: 'success',
+          data: {
+            match: result.getValue(),
+          },
+        });
+      } else {
         return res.status(400).json({
           status: 'error',
-          message: 'Players must be unique',
+          message: result.getError().message,
         });
       }
-
-      const match = await prisma.match.create({
-        data: {
-          ...matchData,
-          status: matchData.status || MatchStatus.PENDING,
-        },
-      });
-      res.status(201).json({ status: 'success', data: { match } });
     } catch (error) {
       console.error('Error creating match:', error);
-      res.status(500).json({ status: 'error', message: 'Internal server error' });
+      return res.status(500).json({ status: 'error', message: 'Internal server error' });
     }
   };
 
   /**
-   * Update match
+   * Update match details
    * @route PUT /api/matches/:id
    */
-  public updateMatch = async (req: AuthRequest, res: Response) => {
+  public updateMatch = async (req: AuthContainerRequest, res: Response) => {
     try {
-      // El parámetro id y el body ya han sido validados por el middleware
+      console.log('Received request: updateMatch');
+      
       const { id } = req.params;
-      const matchData = req.body;
-
-      // Verificar que el usuario esté autenticado y tenga rol de administrador
-      if (!req.user || req.user.role !== UserRole.ADMIN) {
+      console.log('Match ID:', id);
+      console.log('Request body:', req.body);
+      
+      // Only admins can update matches
+      if (req.user?.role !== UserRole.ADMIN) {
         return res.status(403).json({
           status: 'error',
-          message: 'You do not have permission to update matches',
+          message: 'You do not have permission to access this resource',
         });
       }
-
-      // Verificar si el ID proporcionado es un ID ficticio para pruebas
-      if (id === '00000000-0000-0000-0000-000000000000') {
-        return res.status(404).json({
-          status: 'error',
-          message: 'Match not found',
+      
+      const updateMatchDetailsUseCase = req.container?.get(UpdateMatchDetailsUseCase);
+      
+      if (!updateMatchDetailsUseCase) {
+        console.error('updateMatchDetailsUseCase is undefined or null');
+        return res.status(500).json({ 
+          status: 'error', 
+          message: 'Internal server error - Use case not available' 
         });
       }
-
-      // TODO: Implementar la lógica para actualizar un partido desde el caso de uso correspondiente
-      // En este punto solo implementamos una respuesta simulada
-
-      // Simulación de datos de un partido existente
-      const existingMatch = {
+      
+      // Combine ID from URL with body data
+      const input = {
         id,
-        tournamentId: 'tournament-uuid',
-        homePlayerOneId: 'player1-uuid',
-        homePlayerTwoId: 'player2-uuid',
-        awayPlayerOneId: 'player3-uuid',
-        awayPlayerTwoId: 'player4-uuid',
-        round: 1,
-        date: '2023-07-10T10:00:00Z',
-        location: 'Court 1',
-        status: MatchStatus.PENDING,
-        homeScore: null as number | null,
-        awayScore: null as number | null,
+        ...req.body,
       };
-
-      // Simulación de datos de un partido actualizado para la respuesta
-      const updatedMatch = {
-        ...existingMatch,
-        ...matchData,
-        updatedAt: new Date().toISOString(),
-      };
-
-      return res.status(200).json({
-        status: 'success',
-        data: {
-          match: updatedMatch,
-        },
-      });
+      
+      const result = await updateMatchDetailsUseCase.execute(input);
+      
+      if (result.isSuccess()) {
+        return res.status(200).json({
+          status: 'success',
+          data: {
+            match: result.getValue(),
+          },
+        });
+      } else {
+        const errorMessage = result.getError().message;
+        if (errorMessage === 'Match not found') {
+          return res.status(404).json({
+            status: 'error',
+            message: errorMessage,
+          });
+        }
+        return res.status(400).json({
+          status: 'error',
+          message: errorMessage,
+        });
+      }
     } catch (error) {
       console.error('Error updating match:', error);
       return res.status(500).json({ status: 'error', message: 'Internal server error' });
@@ -246,57 +241,60 @@ export class MatchController {
    * Update match score
    * @route PATCH /api/matches/:id/score
    */
-  public updateScore = async (req: AuthRequest, res: Response) => {
+  public updateScore = async (req: AuthContainerRequest, res: Response) => {
     try {
-      // El parámetro id y el body ya han sido validados por el middleware
+      console.log('Received request: updateScore');
+      
       const { id } = req.params;
-      const scoreData = req.body;
-
-      // Verificar que el usuario esté autenticado y tenga rol de administrador
-      if (!req.user || req.user.role !== UserRole.ADMIN) {
+      console.log('Match ID:', id);
+      console.log('Request body:', req.body);
+      
+      // Only admins can update match scores
+      if (req.user?.role !== UserRole.ADMIN) {
         return res.status(403).json({
           status: 'error',
-          message: 'You do not have permission to update match scores',
+          message: 'You do not have permission to access this resource',
         });
       }
-
-      // Verificar si el ID proporcionado es un ID ficticio para pruebas
-      if (id === '00000000-0000-0000-0000-000000000000') {
-        return res.status(404).json({
+      
+      const recordMatchResultUseCase = req.container?.get(RecordMatchResultUseCase);
+      
+      if (!recordMatchResultUseCase) {
+        console.error('recordMatchResultUseCase is undefined or null');
+        return res.status(500).json({ 
+          status: 'error', 
+          message: 'Internal server error - Use case not available' 
+        });
+      }
+      
+      // Combine ID from URL with body data
+      const input = {
+        matchId: id,
+        ...req.body,
+      };
+      
+      const result = await recordMatchResultUseCase.execute(input);
+      
+      if (result.isSuccess()) {
+        return res.status(200).json({
+          status: 'success',
+          data: {
+            match: result.getValue(),
+          },
+        });
+      } else {
+        const errorMessage = result.getError().message;
+        if (errorMessage === 'Match not found') {
+          return res.status(404).json({
+            status: 'error',
+            message: errorMessage,
+          });
+        }
+        return res.status(400).json({
           status: 'error',
-          message: 'Match not found',
+          message: errorMessage,
         });
       }
-
-      // TODO: Implementar la lógica para actualizar el resultado de un partido desde el caso de uso correspondiente
-      // En este punto solo implementamos una respuesta simulada
-
-      // Simulación de datos de un partido existente
-      const existingMatch = {
-        id,
-        tournamentId: 'tournament-uuid',
-        homePlayerOneId: 'player1-uuid',
-        homePlayerTwoId: 'player2-uuid',
-        awayPlayerOneId: 'player3-uuid',
-        awayPlayerTwoId: 'player4-uuid',
-        round: 1,
-        date: '2023-07-10T10:00:00Z',
-        location: 'Court 1',
-      };
-
-      // Simulación de datos de un partido con resultado actualizado para la respuesta
-      const match = {
-        ...existingMatch,
-        ...scoreData,
-        updatedAt: new Date().toISOString(),
-      };
-
-      return res.status(200).json({
-        status: 'success',
-        data: {
-          match,
-        },
-      });
     } catch (error) {
       console.error('Error updating match score:', error);
       return res.status(500).json({ status: 'error', message: 'Internal server error' });
@@ -304,37 +302,63 @@ export class MatchController {
   };
 
   /**
-   * Delete match
+   * Delete a match
    * @route DELETE /api/matches/:id
    */
-  public deleteMatch = async (req: AuthRequest, res: Response) => {
+  public deleteMatch = async (req: AuthContainerRequest, res: Response) => {
     try {
-      // El parámetro id ya ha sido validado por el middleware
+      console.log('Received request: deleteMatch');
+      
       const { id } = req.params;
-
-      // Verificar que el usuario esté autenticado y tenga rol de administrador
-      if (!req.user || req.user.role !== UserRole.ADMIN) {
+      console.log('Match ID:', id);
+      
+      // Only admins can delete matches
+      if (req.user?.role !== UserRole.ADMIN) {
         return res.status(403).json({
           status: 'error',
-          message: 'You do not have permission to delete matches',
+          message: 'You do not have permission to access this resource',
         });
       }
-
-      // Verificar si el ID proporcionado es un ID ficticio para pruebas
-      if (id === '00000000-0000-0000-0000-000000000000') {
-        return res.status(404).json({
-          status: 'error',
-          message: 'Match not found',
+      
+      const deleteMatchUseCase = req.container?.get(DeleteMatchUseCase);
+      
+      if (!deleteMatchUseCase) {
+        console.error('deleteMatchUseCase is undefined or null');
+        return res.status(500).json({ 
+          status: 'error', 
+          message: 'Internal server error - Use case not available' 
         });
       }
-
-      // TODO: Implementar la lógica para eliminar un partido desde el caso de uso correspondiente
-      // En este punto solo implementamos una respuesta simulada
-
-      return res.status(200).json({
-        status: 'success',
-        message: 'Match deleted successfully',
+      
+      const result = await deleteMatchUseCase.execute({ 
+        matchId: id,
+        userId: req.user.id 
       });
+      
+      if (result.isSuccess()) {
+        return res.status(200).json({
+          status: 'success',
+          data: null,
+        });
+      } else {
+        const errorMessage = result.getError().message;
+        if (errorMessage === 'Match not found') {
+          return res.status(404).json({
+            status: 'error',
+            message: errorMessage,
+          });
+        } 
+        if (errorMessage.includes('Permission denied')) {
+          return res.status(403).json({
+            status: 'error',
+            message: errorMessage,
+          });
+        }
+        return res.status(400).json({
+          status: 'error',
+          message: errorMessage,
+        });
+      }
     } catch (error) {
       console.error('Error deleting match:', error);
       return res.status(500).json({ status: 'error', message: 'Internal server error' });

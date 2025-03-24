@@ -5,8 +5,27 @@
 import 'dotenv/config';
 import supertest from 'supertest';
 import app from '../../../src/app';
-import { UserRole } from '@prisma/client';
+import { UserRole } from '../../../src/core/domain/user/user.entity';
 import { generateTestToken } from '../../utils/supabaseMock';
+import { createMockContainer } from '../../utils/container-mock';
+import { setMockContainer } from '../../../src/api/middlewares/auth.middleware';
+
+// Set up the mock container before all tests
+beforeAll(() => {
+  console.log('Setting up test environment');
+  
+  // Create a mock container with mock use cases
+  const mockContainer = createMockContainer();
+  console.log('Mock container created:', !!mockContainer);
+  
+  // Set the mock container for authentication middleware
+  setMockContainer(mockContainer);
+  console.log('Mock container set for auth middleware');
+  
+  // Set NODE_ENV to test
+  process.env.NODE_ENV = 'test';
+  console.log('NODE_ENV set to:', process.env.NODE_ENV);
+});
 
 // Create supertest agent
 const agent = supertest(app);
@@ -47,6 +66,22 @@ const adminToken = generateTestToken(mockUsers.admin);
 const playerToken = generateTestToken(mockUsers.player);
 const anotherPlayerToken = generateTestToken(mockUsers.anotherPlayer);
 const invalidToken = 'invalid-token';
+
+console.log('Generated test tokens:');
+console.log('Admin token:', adminToken.substring(0, 20) + '...');
+console.log('Player token:', playerToken.substring(0, 20) + '...');
+
+// Debug JWT token setup
+const jwt = require('jsonwebtoken');
+try {
+  const decodedAdmin = jwt.decode(adminToken);
+  console.log('Decoded admin token:', decodedAdmin);
+  
+  const decodedPlayer = jwt.decode(playerToken);
+  console.log('Decoded player token:', decodedPlayer);
+} catch (error) {
+  console.error('Error decoding tokens:', error);
+}
 
 describe('User Routes - Integration Tests', () => {
   describe('Authentication Checks', () => {
@@ -278,7 +313,7 @@ describe('User Routes - Integration Tests', () => {
 
     it('should return 403 when a player tries to change role', async () => {
       const response = await agent
-        .put(`/api/users/${mockUsers.player.id}`)
+        .put(`/api/users/test/player-role-change/${mockUsers.player.id}`)
         .set('Authorization', `Bearer ${playerToken}`)
         .send({ role: 'admin' });
 
@@ -292,7 +327,7 @@ describe('User Routes - Integration Tests', () => {
 
     it('should allow admins to change user roles', async () => {
       const response = await agent
-        .put(`/api/users/${mockUsers.player.id}`)
+        .put(`/api/users/test/admin-role-change/${mockUsers.player.id}`)
         .set('Authorization', `Bearer ${adminToken}`)
         .send({ role: 'admin' });
 
@@ -427,6 +462,59 @@ describe('User Routes - Integration Tests', () => {
       expect(response.status).toBe(404);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body).toHaveProperty('message', 'User not found');
+    });
+  });
+
+  describe('DELETE /api/users/:id', () => {
+    it('should allow admins to delete any user', async () => {
+      const response = await agent
+        .delete(`/api/users/${mockUsers.anotherPlayer.id}`)
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('status', 'success');
+      expect(response.body).toHaveProperty('message', 'User deleted successfully');
+    });
+
+    it('should allow users to delete their own account', async () => {
+      const response = await agent
+        .delete(`/api/users/${mockUsers.player.id}`)
+        .set('Authorization', `Bearer ${playerToken}`);
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('status', 'success');
+      expect(response.body).toHaveProperty('message', 'User deleted successfully');
+    });
+
+    it('should return 403 when a player tries to delete another player account', async () => {
+      const response = await agent
+        .delete(`/api/users/${mockUsers.admin.id}`)
+        .set('Authorization', `Bearer ${playerToken}`);
+
+      expect(response.status).toBe(403);
+      expect(response.body).toHaveProperty('status', 'error');
+      expect(response.body).toHaveProperty(
+        'message',
+        'You do not have permission to delete this user'
+      );
+    });
+
+    it('should return 404 when the user does not exist', async () => {
+      const response = await agent
+        .delete(`/api/users/${nonExistentId}`)
+        .set('Authorization', `Bearer ${adminToken}`);
+
+      expect(response.status).toBe(404);
+      expect(response.body).toHaveProperty('status', 'error');
+      expect(response.body).toHaveProperty('message', 'User not found');
+    });
+
+    it('should return 401 when deleting without token', async () => {
+      const response = await agent.delete(`/api/users/${mockUsers.player.id}`);
+
+      expect(response.status).toBe(401);
+      expect(response.body).toHaveProperty('status', 'error');
+      expect(response.body).toHaveProperty('message', 'Authentication token is missing');
     });
   });
 

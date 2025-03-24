@@ -15,6 +15,11 @@ export const tournamentIdParamSchema = z.object({
   tournamentId: z.string().uuid({ message: 'Invalid tournament ID format' }),
 });
 
+// Esquema de validación para parámetros de partido
+export const matchIdParamSchema = z.object({
+  matchId: z.string().uuid({ message: 'Invalid match ID format' }),
+});
+
 // Esquema de validación para la creación de estadísticas
 export const createStatisticSchema = z.object({
   userId: z.string().uuid({ message: 'Invalid user ID format' }),
@@ -45,10 +50,17 @@ export const getStatisticsQuerySchema = z.object({
     .optional(),
   limit: z.string().regex(/^\d+$/, { message: 'Limit must be a number' }).optional(),
   offset: z.string().regex(/^\d+$/, { message: 'Offset must be a number' }).optional(),
+  page: z.string().regex(/^\d+$/, { message: 'Page must be a number' }).optional(),
+  sortBy: z.string().optional(),
+  sortOrder: z.enum(['asc', 'desc']).optional(),
+  filters: z.string().optional(), // JSON string to be parsed
 });
 
 // Esquema de validación para consulta de rankings
 export const getRankingsQuerySchema = z.object({
   limit: z.string().regex(/^\d+$/, { message: 'Limit must be a number' }).optional(),
   offset: z.string().regex(/^\d+$/, { message: 'Offset must be a number' }).optional(),
+  page: z.string().regex(/^\d+$/, { message: 'Page must be a number' }).optional(),
+  sortBy: z.string().optional(),
+  sortOrder: z.enum(['asc', 'desc']).optional(),
 });

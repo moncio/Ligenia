@@ -1,12 +1,15 @@
 import { Router } from 'express';
 import { PreferenceController } from '../controllers/preference.controller';
 import { authenticate } from '../middlewares/auth.middleware';
-import { validateBody, validateParams } from '../middlewares/validate.middleware';
-import { idParamSchema } from '../validations/user.validation';
-import { updatePreferenceSchema } from '../validations/preference.validation';
+import { validateBody } from '../middlewares/validate.middleware';
+import { updatePreferenceSchema, resetPreferenceSchema } from '../validations/preference.validation';
+import { diMiddleware } from '../middlewares/di.middleware';
 
 const router = Router();
 const preferenceController = new PreferenceController();
+
+// Apply DI middleware to all routes
+router.use(diMiddleware);
 
 /**
  * @route GET /api/preferences
@@ -28,10 +31,10 @@ router.put(
 );
 
 /**
- * @route POST /api/preferences/reset
+ * @route DELETE /api/preferences/reset
  * @desc Reset user preferences to defaults
  * @access Private
  */
-router.post('/reset', authenticate, preferenceController.resetPreferences);
+router.delete('/reset', authenticate, preferenceController.resetPreferences);
 
 export default router;

@@ -15,6 +15,21 @@ class MockUserRepository implements IUserRepository {
     return this.users.find(user => user.email === email) || null;
   }
 
+  async findAll(limit?: number, offset?: number): Promise<User[]> {
+    let result = [...this.users];
+    if (offset !== undefined) {
+      result = result.slice(offset);
+    }
+    if (limit !== undefined) {
+      result = result.slice(0, limit);
+    }
+    return result;
+  }
+
+  async count(): Promise<number> {
+    return this.users.length;
+  }
+
   async save(user: User): Promise<void> {
     this.users.push(user);
   }
@@ -23,6 +38,13 @@ class MockUserRepository implements IUserRepository {
     const index = this.users.findIndex(u => u.id === user.id);
     if (index !== -1) {
       this.users[index] = user;
+    }
+  }
+
+  async delete(id: string): Promise<void> {
+    const index = this.users.findIndex(u => u.id === id);
+    if (index !== -1) {
+      this.users.splice(index, 1);
     }
   }
 }
@@ -47,7 +69,7 @@ describe('RegisterUserUseCase', () => {
 
     const result = await registerUserUseCase.execute(input);
 
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
     expect(result.getValue().email).toBe('test@example.com');
   });
 
@@ -70,7 +92,7 @@ describe('RegisterUserUseCase', () => {
 
     const result = await registerUserUseCase.execute(input);
 
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toBe('Email already in use');
   });
 });

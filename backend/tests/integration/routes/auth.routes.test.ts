@@ -296,4 +296,64 @@ describe('Auth Routes Integration Tests', () => {
       expect(response.body.message).toContain('Logged out');
     });
   });
+
+  describe('POST /api/auth/forgot-password', () => {
+    it('should return success when requesting password reset', async () => {
+      const response = await request.post('/api/auth/forgot-password').send({
+        email: 'user@example.com',
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('status', 'success');
+      expect(response.body.message).toContain('Password reset link sent');
+    });
+
+    it('should validate required fields', async () => {
+      const response = await request.post('/api/auth/forgot-password').send({});
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('status', 'error');
+    });
+  });
+
+  describe('POST /api/auth/reset-password', () => {
+    it('should return success when resetting password', async () => {
+      const response = await request.post('/api/auth/reset-password').send({
+        token: 'valid-reset-token',
+        password: 'NewPassword123!',
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('status', 'success');
+      expect(response.body.message).toContain('Password reset successfully');
+    });
+
+    it('should validate required fields', async () => {
+      const response = await request.post('/api/auth/reset-password').send({
+        token: 'valid-reset-token',
+      });
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('status', 'error');
+    });
+  });
+
+  describe('POST /api/auth/verify-email', () => {
+    it('should return success when verifying email', async () => {
+      const response = await request.post('/api/auth/verify-email').send({
+        token: 'valid-verification-token',
+      });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('status', 'success');
+      expect(response.body.message).toContain('Email verified successfully');
+    });
+
+    it('should validate required fields', async () => {
+      const response = await request.post('/api/auth/verify-email').send({});
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('status', 'error');
+    });
+  });
 });

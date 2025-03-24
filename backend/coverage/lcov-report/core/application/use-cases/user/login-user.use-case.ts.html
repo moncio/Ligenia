@@ -107,17 +107,13 @@
 <a name='L42'></a><a href='#L42'>42</a>
 <a name='L43'></a><a href='#L43'>43</a>
 <a name='L44'></a><a href='#L44'>44</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -130,42 +126,42 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" >import { BaseUseCase } from '../../base/base.use-case';</span>
-import { IUseCase } from '../../interfaces/use-case.interface';
 <span class="cstat-no" title="statement not covered" >import { Result } from '../../../../shared/result';</span>
 <span class="cstat-no" title="statement not covered" >import { z } from 'zod';</span>
 import { IAuthService } from '../../interfaces/auth-service.interface';
-import { IUserRepository } from '../../interfaces/repositories/user.repository';
 import { ILoginCredentials, ITokenResponse } from '../../interfaces/auth.types';
 &nbsp;
 // Define input schema using Zod
 const LoginUserInputSchema = <span class="cstat-no" title="statement not covered" >z.object({</span>
   email: z.string().email(),
-  password: z.string().min(6)
+  password: z.string().min(6),
 });
 &nbsp;
 type LoginUserInput = z.infer&lt;typeof LoginUserInputSchema&gt;;
-&nbsp;
-type LoginUserOutput = Result&lt;{ token: string }&gt;;
 &nbsp;
 <span class="cstat-no" title="statement not covered" >export class L</span>oginUserUseCase extends BaseUseCase&lt;LoginUserInput, ITokenResponse&gt; {
 <span class="fstat-no" title="function not covered" >  constructor(private <span class="cstat-no" title="statement not covered" >a</span>uthService: IAuthService)</span> {
@@ -173,33 +169,37 @@ type LoginUserOutput = Result&lt;{ token: string }&gt;;
   }
 &nbsp;
   protected async <span class="fstat-no" title="function not covered" >executeImpl(</span>input: LoginUserInput): Promise&lt;Result&lt;ITokenResponse&gt;&gt; {
-    const loginSchema = <span class="cstat-no" title="statement not covered" >z.object({</span>
-      email: z.string().email(),
-      password: z.string().min(6),
-    });
+    // Validate input
+    const validation = <span class="cstat-no" title="statement not covered" >LoginUserInputSchema.safeParse(input);</span>
+<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (!validation.success) {</span>
+<span class="cstat-no" title="statement not covered" >      return Result.fail&lt;ITokenResponse&gt;(new Error(validation.error.errors[0].message));</span>
+    }
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
-      const validatedInput = <span class="cstat-no" title="statement not covered" >loginSchema.parse(input) as ILoginCredentials;</span>
+      // Use validated data as ILoginCredentials
+      const credentials: ILoginCredentials = <span class="cstat-no" title="statement not covered" >{</span>
+        email: input.email,
+        password: input.password,
+      };
+&nbsp;
       // Delegate login process to authService
-      const result = <span class="cstat-no" title="statement not covered" >await this.authService.login(validatedInput);</span>
+      const result = <span class="cstat-no" title="statement not covered" >await this.authService.login(credentials);</span>
 <span class="cstat-no" title="statement not covered" >      return result;</span>
     } catch (error) {
-<span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (error instanceof z.ZodError) {</span>
-<span class="cstat-no" title="statement not covered" >        return Result.fail&lt;ITokenResponse&gt;(new Error(error.errors[0].message));</span>
-      }
 <span class="cstat-no" title="statement not covered" >      return Result.fail&lt;ITokenResponse&gt;(</span>
-        error instanceof Error ? error : new Error('Internal server error')
+        error instanceof Error ? error : new Error('Authentication failed'),
       );
     }
   }
-} </pre></td></tr></table></pre>
+}
+&nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-03-23T11:54:22.579Z
+                at 2025-03-23T23:31:48.453Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>

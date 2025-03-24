@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { PlayerController } from '../controllers/player.controller';
 import { authenticate, authorize } from '../middlewares/auth.middleware';
-import { UserRole } from '@prisma/client';
+import { UserRole } from '../../core/domain/user/user.entity';
 import { validateBody, validateParams, validateQuery } from '../middlewares/validate.middleware';
 import {
   idParamSchema,
@@ -9,6 +9,7 @@ import {
   updatePlayerSchema,
   getPlayersQuerySchema,
 } from '../validations/player.validation';
+import { diMiddleware } from '../middlewares/di.middleware';
 
 const router = Router();
 const playerController = new PlayerController();
@@ -18,23 +19,36 @@ const playerController = new PlayerController();
  * @desc Get all players (admin only)
  * @access Private - Admin
  */
-router.get('/', validateQuery(getPlayersQuerySchema), playerController.getPlayers);
+router.get(
+  '/', 
+  authenticate,
+  diMiddleware,
+  authorize([UserRole.ADMIN]),
+  validateQuery(getPlayersQuerySchema), 
+  playerController.getPlayers
+);
 
 /**
  * @route GET /api/players/:id
  * @desc Get player by ID
- * @access Private - Any authenticated user
+ * @access Public
  */
-router.get('/:id', validateParams(idParamSchema), playerController.getPlayerById);
+router.get(
+  '/:id', 
+  diMiddleware,
+  validateParams(idParamSchema), 
+  playerController.getPlayerById
+);
 
 /**
  * @route POST /api/players
  * @desc Create player profile
- * @access Private - Any authenticated user
+ * @access Private - Admin
  */
 router.post(
   '/',
   authenticate,
+  diMiddleware,
   authorize([UserRole.ADMIN]),
   validateBody(createPlayerSchema),
   playerController.createPlayer,
@@ -48,6 +62,7 @@ router.post(
 router.put(
   '/:id',
   authenticate,
+  diMiddleware,
   validateParams(idParamSchema),
   validateBody(updatePlayerSchema),
   playerController.updatePlayer,
@@ -61,6 +76,7 @@ router.put(
 router.delete(
   '/:id',
   authenticate,
+  diMiddleware,
   authorize([UserRole.ADMIN]),
   validateParams(idParamSchema),
   playerController.deletePlayer,
@@ -69,24 +85,35 @@ router.delete(
 /**
  * @route GET /api/players/:id/statistics
  * @desc Get player statistics
- * @access Private - Any authenticated user
+ * @access Public
  */
-router.get('/:id/statistics', validateParams(idParamSchema), playerController.getPlayerStatistics);
+router.get(
+  '/:id/statistics', 
+  diMiddleware,
+  validateParams(idParamSchema), 
+  playerController.getPlayerStatistics
+);
 
 /**
  * @route GET /api/players/:id/matches
  * @desc Get player matches
- * @access Private - Any authenticated user
+ * @access Public
  */
-router.get('/:id/matches', validateParams(idParamSchema), playerController.getPlayerMatches);
+router.get(
+  '/:id/matches', 
+  diMiddleware,
+  validateParams(idParamSchema), 
+  playerController.getPlayerMatches
+);
 
 /**
  * @route GET /api/players/:id/tournaments
  * @desc Get player tournaments
- * @access Private - Any authenticated user
+ * @access Public
  */
 router.get(
   '/:id/tournaments',
+  diMiddleware,
   validateParams(idParamSchema),
   playerController.getPlayerTournaments,
 );

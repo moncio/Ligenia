@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">66.66% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/11</span>
+                <span class='fraction'>6/9</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">25% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/7</span>
+                <span class='fraction'>1/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">50% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/4</span>
+                <span class='fraction'>2/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">66.66% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/11</span>
+                <span class='fraction'>6/9</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line medium'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -128,17 +128,11 @@
 <a name='L63'></a><a href='#L63'>63</a>
 <a name='L64'></a><a href='#L64'>64</a>
 <a name='L65'></a><a href='#L65'>65</a>
-<a name='L66'></a><a href='#L66'>66</a>
-<a name='L67'></a><a href='#L67'>67</a>
-<a name='L68'></a><a href='#L68'>68</a>
-<a name='L69'></a><a href='#L69'>69</a>
-<a name='L70'></a><a href='#L70'>70</a>
-<a name='L71'></a><a href='#L71'>71</a>
-<a name='L72'></a><a href='#L72'>72</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<a name='L66'></a><a href='#L66'>66</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">44x</span>
+<span class="cline-any cline-yes">44x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">44x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -159,7 +153,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -190,26 +184,20 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">26x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Player as PrismaPlayer } from '@prisma/client';
-<span class="cstat-no" title="statement not covered" >import { Player } from '../../../../core/domain/player/player.entity';</span>
-<span class="cstat-no" title="statement not covered" >import { PlayerLevel } from '../../../../core/domain/tournament/tournament.entity';</span>
+import { Player } from '../../../../core/domain/player/player.entity';
+import { PlayerLevel } from '../../../../core/domain/tournament/tournament.entity';
 &nbsp;
-<span class="cstat-no" title="statement not covered" >export class P</span>layerMapper {
+export class PlayerMapper {
   /**
    * Maps a Prisma Player model to a domain Player entity
    */
@@ -229,8 +217,8 @@
   /**
    * Maps a domain Player entity to a Prisma Player object for create/update
    */
-  public <span class="fstat-no" title="function not covered" >static </span>toPrisma(player: Player): Partial&lt;PrismaPlayer&gt; {
-<span class="cstat-no" title="statement not covered" >    return {</span>
+  public static toPrisma(player: Player): Partial&lt;PrismaPlayer&gt; {
+    return {
       id: player.id,
       userId: player.userId,
       level: this.mapDomainLevelToPrisma(player.level),
@@ -258,22 +246,16 @@
   /**
    * Maps a domain PlayerLevel enum to a Prisma player level
    */
-  public <span class="fstat-no" title="function not covered" >static </span>mapDomainLevelToPrisma(level: PlayerLevel): PrismaPlayer['level'] {
-    // Handle potential mapping to supported values in Prisma
-    // If P4 or P5 are encountered, map them to P3 (default)
-<span class="cstat-no" title="statement not covered" >    <span class="missing-if-branch" title="if path not taken" >I</span>if (level === PlayerLevel.P4 || level === PlayerLevel.P5) {</span>
-<span class="cstat-no" title="statement not covered" >      return 'P3';</span>
-    }
-    
+  public static mapDomainLevelToPrisma(level: PlayerLevel): PrismaPlayer['level'] {
     // Only include the valid Prisma levels (P1, P2, P3)
     // Type assertion is used because we're only mapping the available enum values
-    const levelMap = <span class="cstat-no" title="statement not covered" >{</span>
+    const levelMap = {
       [PlayerLevel.P1]: 'P1',
       [PlayerLevel.P2]: 'P2',
       [PlayerLevel.P3]: 'P3',
     } as const;
 &nbsp;
-<span class="cstat-no" title="statement not covered" >    return levelMap[level] || 'P3';</span>
+    return levelMap[level] || <span class="branch-1 cbranch-no" title="branch not covered" >'P3';</span>
   }
 }
 &nbsp;</pre></td></tr></table></pre>
@@ -283,7 +265,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-03-23T22:37:40.856Z
+                at 2025-03-24T16:35:30.648Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>

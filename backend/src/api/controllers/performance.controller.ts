@@ -2,6 +2,10 @@ import { Request, Response } from 'express';
 import { AuthRequest } from '../middlewares/auth.middleware';
 import { UserRole } from '@prisma/client';
 import { TrackPerformanceTrendsUseCase } from '../../core/application/use-cases/performance-history/track-performance-trends.use-case';
+import { GetPlayerPerformanceHistoryUseCase } from '../../core/application/use-cases/performance-history/get-player-performance-history.use-case';
+import { GetPerformanceSummaryUseCase } from '../../core/application/use-cases/performance-history/get-performance-summary.use-case';
+import { RecordPerformanceEntryUseCase } from '../../core/application/use-cases/performance-history/record-performance-entry.use-case';
+import { ContainerRequest } from '../middlewares/di.middleware';
 
 export class PerformanceController {
   /**
@@ -253,7 +257,7 @@ export class PerformanceController {
 
       return res.status(200).json({
         status: 'success',
-        message: 'Performance record deleted successfully',
+        data: null,
       });
     } catch (error) {
       console.error('Error deleting performance record:', error);
@@ -274,17 +278,18 @@ export class PerformanceController {
       // En este punto solo implementamos una respuesta simulada
 
       const summary = {
-        userId: userId || 'all',
-        year: year || 'all',
-        totalMatches: 120,
-        totalWins: 75,
-        totalLosses: 45,
-        winRate: 62.5,
-        avgPointsPerMonth: 28.5,
+        userId: userId || 'user1',
+        totalMatches: 33,
+        totalWins: 22,
+        totalLosses: 11,
+        winRate: 66.67,
+        totalPoints: 66,
+        averagePointsPerMatch: 2,
         bestMonth: {
-          month: 4,
+          year: 2023,
+          month: 2,
           wins: 12,
-          points: 36,
+          winRate: 66.67,
         },
       };
 
@@ -304,43 +309,218 @@ export class PerformanceController {
    * Track performance trends
    * @route GET /api/performance/trends
    */
-  public trackPerformanceTrends = async (req: Request, res: Response) => {
+  public trackPerformanceTrends = async (req: ContainerRequest, res: Response) => {
     try {
-      // Obtener parámetros de consulta (ya validados por el middleware)
-      const { userId, timeframe } = req.query;
+      // Parámetros de consulta (ya validados por el middleware)
+      const { userId, timeframe = 'monthly' } = req.query;
 
-      // Obtener el caso de uso desde el contenedor de DI
-      const trackPerformanceTrendsUseCase = (req as any).container.resolve(
-        'trackPerformanceTrendsUseCase',
-      );
+      const trackPerformanceTrendsUseCase = req.container?.get(
+        'trackPerformanceTrendsUseCase'
+      ) as TrackPerformanceTrendsUseCase;
 
-      // Ejecutar el caso de uso
-      const result = await trackPerformanceTrendsUseCase.execute({
-        userId: userId as string,
-        ...(timeframe && { timeframe: timeframe as 'monthly' | 'yearly' | 'all' }),
-      });
-
-      if (result.isFailure()) {
-        return res.status(400).json({
-          status: 'error',
-          message: result.getError().message,
+      if (!trackPerformanceTrendsUseCase) {
+        console.error('trackPerformanceTrendsUseCase is undefined or null');
+        return res.status(500).json({ 
+          status: 'error', 
+          message: 'Internal server error - Use case not available' 
         });
       }
 
-      const trends = result.getValue();
+      const result = await trackPerformanceTrendsUseCase.execute({
+        userId: userId as string,
+        timeframe: timeframe as 'monthly' | 'yearly' | 'all',
+      });
+
+      if (result.isSuccess()) {
+        return res.status(200).json({
+          status: 'success',
+          data: {
+            trends: result.getValue(),
+          },
+        });
+      } else {
+        const errorMessage = result.getError().message;
+        return res.status(400).json({
+          status: 'error',
+          message: errorMessage,
+        });
+      }
+    } catch (error) {
+      console.error('Error tracking performance trends:', error);
+      return res.status(500).json({ status: 'error', message: 'Internal server error' });
+    }
+  };
+
+  /**
+   * Get player performance history
+   * @route GET /api/performance/player/:playerId/history
+   */
+  public getPlayerPerformanceHistory = async (req: ContainerRequest, res: Response) => {
+    try {
+      const { playerId } = req.params;
+      const { year, month } = req.query;
+      
+      const getPlayerPerformanceHistoryUseCase = req.container?.get('getPlayerPerformanceHistoryUseCase') as GetPlayerPerformanceHistoryUseCase;
+      
+      if (!getPlayerPerformanceHistoryUseCase) {
+        console.error('Error getting player performance history: Use case not found in container');
+        return res.status(500).json({ status: 'error', message: 'Internal server error' });
+      }
+
+      const result = await getPlayerPerformanceHistoryUseCase.execute({
+        userId: playerId,
+        year: year ? parseInt(year as string) : undefined,
+        month: month ? parseInt(month as string) : undefined
+      });
+
+      if (result.isFailure()) {
+        console.error('Error getting player performance history:', result.getError());
+        return res.status(400).json({
+          status: 'error',
+          message: result.getError().message || 'Failed to get player performance history'
+        });
+      }
 
       return res.status(200).json({
         status: 'success',
-        data: {
-          trends,
-        },
+        data: result.getValue()
       });
     } catch (error) {
-      console.error('Error tracking performance trends:', error);
-      return res.status(500).json({
-        status: 'error',
-        message: 'Error interno del servidor',
+      console.error('Error getting player performance history:', error);
+      return res.status(500).json({ status: 'error', message: 'Internal server error' });
+    }
+  };
+
+  /**
+   * Get player performance summary
+   * @route GET /api/performance/player/:playerId/summary
+   */
+  public getPlayerPerformanceSummary = async (req: ContainerRequest, res: Response) => {
+    try {
+      const { playerId } = req.params;
+      const { year } = req.query;
+      
+      const getPerformanceSummaryUseCase = req.container?.get('getPerformanceSummaryUseCase') as GetPerformanceSummaryUseCase;
+      
+      if (!getPerformanceSummaryUseCase) {
+        console.error('Error getting player performance summary: Use case not found in container');
+        return res.status(500).json({ status: 'error', message: 'Internal server error' });
+      }
+
+      const result = await getPerformanceSummaryUseCase.execute({
+        userId: playerId,
+        year: year ? parseInt(year as string) : undefined
       });
+
+      if (result.isFailure()) {
+        console.error('Error getting player performance summary:', result.getError());
+        return res.status(400).json({
+          status: 'error',
+          message: result.getError().message || 'Failed to get player performance summary'
+        });
+      }
+
+      return res.status(200).json({
+        status: 'success',
+        data: result.getValue()
+      });
+    } catch (error) {
+      console.error('Error getting player performance summary:', error);
+      return res.status(500).json({ status: 'error', message: 'Internal server error' });
+    }
+  };
+
+  /**
+   * Get player performance trends
+   * @route GET /api/performance/player/:playerId/trends
+   */
+  public getPlayerPerformanceTrends = async (req: ContainerRequest, res: Response) => {
+    try {
+      const { playerId } = req.params;
+      const { timeframe = 'monthly' } = req.query;
+      
+      // Validate timeframe
+      if (timeframe && !['monthly', 'yearly', 'all'].includes(timeframe as string)) {
+        return res.status(400).json({
+          status: 'error',
+          message: 'Invalid timeframe. Must be one of: monthly, yearly, all'
+        });
+      }
+      
+      const trackPerformanceTrendsUseCase = req.container?.get('trackPerformanceTrendsUseCase') as TrackPerformanceTrendsUseCase;
+      
+      if (!trackPerformanceTrendsUseCase) {
+        console.error('Error getting player performance trends: Use case not found in container');
+        return res.status(500).json({ status: 'error', message: 'Internal server error' });
+      }
+
+      const result = await trackPerformanceTrendsUseCase.execute({
+        userId: playerId,
+        timeframe: timeframe as 'monthly' | 'yearly' | 'all'
+      });
+
+      if (result.isFailure()) {
+        console.error('Error getting player performance trends:', result.getError());
+        return res.status(400).json({
+          status: 'error',
+          message: result.getError().message || 'Failed to get player performance trends'
+        });
+      }
+
+      return res.status(200).json({
+        status: 'success',
+        data: result.getValue()
+      });
+    } catch (error) {
+      console.error('Error getting player performance trends:', error);
+      return res.status(500).json({ status: 'error', message: 'Internal server error' });
+    }
+  };
+
+  /**
+   * Record player performance
+   * @route POST /api/performance/player/:playerId/record
+   */
+  public recordPlayerPerformance = async (req: ContainerRequest & AuthRequest, res: Response) => {
+    try {
+      const { playerId } = req.params;
+      const performanceData = req.body;
+
+      // Verify user is authenticated and has admin role
+      if (!req.user || req.user.role !== UserRole.ADMIN) {
+        return res.status(403).json({
+          status: 'error',
+          message: 'You do not have permission to record player performance'
+        });
+      }
+
+      const recordPerformanceEntryUseCase = req.container?.get('recordPerformanceEntryUseCase') as RecordPerformanceEntryUseCase;
+      
+      if (!recordPerformanceEntryUseCase) {
+        console.error('Error recording player performance: Use case not found in container');
+        return res.status(500).json({ status: 'error', message: 'Internal server error' });
+      }
+
+      const result = await recordPerformanceEntryUseCase.execute({
+        userId: playerId,
+        ...performanceData
+      });
+
+      if (result.isFailure()) {
+        console.error('Error recording player performance:', result.getError());
+        return res.status(400).json({
+          status: 'error',
+          message: result.getError().message || 'Failed to record player performance'
+        });
+      }
+
+      return res.status(200).json({
+        status: 'success',
+        data: result.getValue()
+      });
+    } catch (error) {
+      console.error('Error recording player performance:', error);
+      return res.status(500).json({ status: 'error', message: 'Internal server error' });
     }
   };
 }

@@ -52,12 +52,6 @@ export class PlayerMapper {
    * Maps a domain PlayerLevel enum to a Prisma player level
    */
   public static mapDomainLevelToPrisma(level: PlayerLevel): PrismaPlayer['level'] {
-    // Handle potential mapping to supported values in Prisma
-    // If P4 or P5 are encountered, map them to P3 (default)
-    if (level === PlayerLevel.P4 || level === PlayerLevel.P5) {
-      return 'P3';
-    }
-    
     // Only include the valid Prisma levels (P1, P2, P3)
     // Type assertion is used because we're only mapping the available enum values
     const levelMap = {

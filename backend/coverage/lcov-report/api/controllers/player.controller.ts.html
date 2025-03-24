@@ -407,7 +407,8 @@
 <a name='L342'></a><a href='#L342'>342</a>
 <a name='L343'></a><a href='#L343'>343</a>
 <a name='L344'></a><a href='#L344'>344</a>
-<a name='L345'></a><a href='#L345'>345</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L345'></a><a href='#L345'>345</a>
+<a name='L346'></a><a href='#L346'>346</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -749,6 +750,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Request, Response } from 'express';
@@ -767,21 +769,21 @@ import { AuthRequest } from '../middlewares/auth.middleware';
 &nbsp;
       // Verificar que el usuario tenga permisos de admin
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!req.user || req.user.role !== UserRole.ADMIN) {</span>
-<span class="cstat-no" title="statement not covered" >        return res.status(403).json({ </span>
-          status: 'error', 
-          message: 'You do not have permission to access this resource' 
+<span class="cstat-no" title="statement not covered" >        return res.status(403).json({</span>
+          status: 'error',
+          message: 'You do not have permission to access this resource',
         });
       }
 &nbsp;
       // Simular datos de jugadores para la respuesta
       const players = <span class="cstat-no" title="statement not covered" >[</span>
         { id: '1', level: PlayerLevel.P3, age: 30, country: 'Spain', userId: req.user.id },
-        { id: '2', level: PlayerLevel.P2, age: 25, country: 'Portugal', userId: 'another-user-id' }
+        { id: '2', level: PlayerLevel.P2, age: 25, country: 'Portugal', userId: 'another-user-id' },
       ];
 &nbsp;
-<span class="cstat-no" title="statement not covered" >      return res.status(200).json({ </span>
-        status: 'success', 
-        data: { players } 
+<span class="cstat-no" title="statement not covered" >      return res.status(200).json({</span>
+        status: 'success',
+        data: { players },
       });
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      console.error('Error getting players:', error);</span>
@@ -797,12 +799,12 @@ import { AuthRequest } from '../middlewares/auth.middleware';
 <span class="cstat-no" title="statement not covered" >    try {</span>
       // El parámetro id ya ha sido validado por el middleware
       const { id } = <span class="cstat-no" title="statement not covered" >req.params;</span>
-      
+&nbsp;
       // Verificar si el ID proporcionado es un ID ficticio para pruebas
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (id === '00000000-0000-0000-0000-000000000000') {</span>
-<span class="cstat-no" title="statement not covered" >        return res.status(404).json({ </span>
-          status: 'error', 
-          message: 'Player not found' 
+<span class="cstat-no" title="statement not covered" >        return res.status(404).json({</span>
+          status: 'error',
+          message: 'Player not found',
         });
       }
 &nbsp;
@@ -810,17 +812,17 @@ import { AuthRequest } from '../middlewares/auth.middleware';
       // En este punto solo implementamos una respuesta simulada
 &nbsp;
       // Simular datos de un jugador para la respuesta
-      const player = <span class="cstat-no" title="statement not covered" >{ </span>
-        id, 
-        level: PlayerLevel.P3, 
-        age: 30, 
-        country: 'Spain', 
-        userId: req.user?.id 
+      const player = <span class="cstat-no" title="statement not covered" >{</span>
+        id,
+        level: PlayerLevel.P3,
+        age: 30,
+        country: 'Spain',
+        userId: req.user?.id,
       };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >      return res.status(200).json({ </span>
-        status: 'success', 
-        data: { player } 
+<span class="cstat-no" title="statement not covered" >      return res.status(200).json({</span>
+        status: 'success',
+        data: { player },
       });
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      console.error('Error getting player by ID:', error);</span>
@@ -839,9 +841,9 @@ import { AuthRequest } from '../middlewares/auth.middleware';
 &nbsp;
       // Verificar que el usuario esté autenticado
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!req.user) {</span>
-<span class="cstat-no" title="statement not covered" >        return res.status(401).json({ </span>
-          status: 'error', 
-          message: 'You must be authenticated to create a player profile' 
+<span class="cstat-no" title="statement not covered" >        return res.status(401).json({</span>
+          status: 'error',
+          message: 'You must be authenticated to create a player profile',
         });
       }
 &nbsp;
@@ -849,15 +851,15 @@ import { AuthRequest } from '../middlewares/auth.middleware';
       // En este punto solo implementamos una respuesta simulada
 &nbsp;
       // Simular datos de un jugador para la respuesta
-      const player<span class="cstat-no" title="statement not covered" > = { </span>
-        id: 'generated-uuid', 
-        ...playerData, 
-        userId: req.user.id 
+      const player<span class="cstat-no" title="statement not covered" > = {</span>
+        id: 'generated-uuid',
+        ...playerData,
+        userId: req.user.id,
       };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >      return res.status(201).json({ </span>
-        status: 'success', 
-        data: { player } 
+<span class="cstat-no" title="statement not covered" >      return res.status(201).json({</span>
+        status: 'success',
+        data: { player },
       });
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      console.error('Error creating player profile:', error);</span>
@@ -877,20 +879,20 @@ import { AuthRequest } from '../middlewares/auth.middleware';
 &nbsp;
       // Verificar que el usuario esté autenticado
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!req.user) {</span>
-<span class="cstat-no" title="statement not covered" >        return res.status(401).json({ </span>
-          status: 'error', 
-          message: 'You must be authenticated to update a player profile' 
+<span class="cstat-no" title="statement not covered" >        return res.status(401).json({</span>
+          status: 'error',
+          message: 'You must be authenticated to update a player profile',
         });
       }
 &nbsp;
       // TODO: Implementar la lógica para verificar si el usuario tiene permisos para actualizar este perfil
       // (debe ser el dueño del perfil o un admin)
-      
+&nbsp;
       // Para pruebas, verificar si el token es de admin y no permitir que actualice el perfil de otro usuario
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (req.user.role !== UserRole.ADMIN &amp;&amp; req.user.id !== 'player-uuid') {</span>
-<span class="cstat-no" title="statement not covered" >        return res.status(403).json({ </span>
-          status: 'error', 
-          message: 'You do not have permission to update this player profile' 
+<span class="cstat-no" title="statement not covered" >        return res.status(403).json({</span>
+          status: 'error',
+          message: 'You do not have permission to update this player profile',
         });
       }
 &nbsp;
@@ -898,15 +900,15 @@ import { AuthRequest } from '../middlewares/auth.middleware';
       // En este punto solo implementamos una respuesta simulada
 &nbsp;
       // Simular datos de un jugador actualizado para la respuesta
-      const player<span class="cstat-no" title="statement not covered" > = { </span>
-        id, 
-        ...playerData, 
-        userId: req.user.id 
+      const player<span class="cstat-no" title="statement not covered" > = {</span>
+        id,
+        ...playerData,
+        userId: req.user.id,
       };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >      return res.status(200).json({ </span>
-        status: 'success', 
-        data: { player } 
+<span class="cstat-no" title="statement not covered" >      return res.status(200).json({</span>
+        status: 'success',
+        data: { player },
       });
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      console.error('Error updating player profile:', error);</span>
@@ -925,34 +927,34 @@ import { AuthRequest } from '../middlewares/auth.middleware';
 &nbsp;
       // Verificar que el usuario esté autenticado
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (!req.user) {</span>
-<span class="cstat-no" title="statement not covered" >        return res.status(401).json({ </span>
-          status: 'error', 
-          message: 'You must be authenticated to delete a player profile' 
+<span class="cstat-no" title="statement not covered" >        return res.status(401).json({</span>
+          status: 'error',
+          message: 'You must be authenticated to delete a player profile',
         });
       }
 &nbsp;
       // Verificar que el usuario tenga permisos de admin
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (req.user.role !== UserRole.ADMIN) {</span>
-<span class="cstat-no" title="statement not covered" >        return res.status(403).json({ </span>
-          status: 'error', 
-          message: 'You do not have permission to delete player profiles' 
+<span class="cstat-no" title="statement not covered" >        return res.status(403).json({</span>
+          status: 'error',
+          message: 'You do not have permission to delete player profiles',
         });
       }
 &nbsp;
       // Verificar si el ID proporcionado es un ID ficticio para pruebas
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (id === '00000000-0000-0000-0000-000000000000' || id === 'undefined') {</span>
-<span class="cstat-no" title="statement not covered" >        return res.status(404).json({ </span>
-          status: 'error', 
-          message: 'Player not found' 
+<span class="cstat-no" title="statement not covered" >        return res.status(404).json({</span>
+          status: 'error',
+          message: 'Player not found',
         });
       }
 &nbsp;
       // TODO: Implementar la lógica para eliminar un perfil de jugador desde el caso de uso correspondiente
       // En este punto solo implementamos una respuesta simulada
 &nbsp;
-<span class="cstat-no" title="statement not covered" >      return res.status(200).json({ </span>
-        status: 'success', 
-        message: 'Player profile deleted successfully' 
+<span class="cstat-no" title="statement not covered" >      return res.status(200).json({</span>
+        status: 'success',
+        message: 'Player profile deleted successfully',
       });
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      console.error('Error deleting player profile:', error);</span>
@@ -968,12 +970,12 @@ import { AuthRequest } from '../middlewares/auth.middleware';
 <span class="cstat-no" title="statement not covered" >    try {</span>
       // El parámetro id ya ha sido validado por el middleware
       const { id } = <span class="cstat-no" title="statement not covered" >req.params;</span>
-      
+&nbsp;
       // Verificar si el ID proporcionado es un ID ficticio para pruebas
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (id === '00000000-0000-0000-0000-000000000000') {</span>
-<span class="cstat-no" title="statement not covered" >        return res.status(404).json({ </span>
-          status: 'error', 
-          message: 'Player not found' 
+<span class="cstat-no" title="statement not covered" >        return res.status(404).json({</span>
+          status: 'error',
+          message: 'Player not found',
         });
       }
 &nbsp;
@@ -981,18 +983,18 @@ import { AuthRequest } from '../middlewares/auth.middleware';
       // En este punto solo implementamos una respuesta simulada
 &nbsp;
       // Simular datos de estadísticas para la respuesta
-      const statistics = <span class="cstat-no" title="statement not covered" >{ </span>
+      const statistics = <span class="cstat-no" title="statement not covered" >{</span>
         playerId: id,
         gamesPlayed: 50,
         gamesWon: 30,
         winRate: 0.6,
         tournaments: 10,
-        tournamentsWon: 2
+        tournamentsWon: 2,
       };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >      return res.status(200).json({ </span>
-        status: 'success', 
-        data: { statistics } 
+<span class="cstat-no" title="statement not covered" >      return res.status(200).json({</span>
+        status: 'success',
+        data: { statistics },
       });
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      console.error('Error getting player statistics:', error);</span>
@@ -1008,12 +1010,12 @@ import { AuthRequest } from '../middlewares/auth.middleware';
 <span class="cstat-no" title="statement not covered" >    try {</span>
       // El parámetro id ya ha sido validado por el middleware
       const { id } = <span class="cstat-no" title="statement not covered" >req.params;</span>
-      
+&nbsp;
       // Verificar si el ID proporcionado es un ID ficticio para pruebas
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (id === '00000000-0000-0000-0000-000000000000') {</span>
-<span class="cstat-no" title="statement not covered" >        return res.status(404).json({ </span>
-          status: 'error', 
-          message: 'Player not found' 
+<span class="cstat-no" title="statement not covered" >        return res.status(404).json({</span>
+          status: 'error',
+          message: 'Player not found',
         });
       }
 &nbsp;
@@ -1022,25 +1024,25 @@ import { AuthRequest } from '../middlewares/auth.middleware';
 &nbsp;
       // Simular datos de partidos para la respuesta
       const matches = <span class="cstat-no" title="statement not covered" >[</span>
-        { 
+        {
           id: 'match-1',
           tournamentId: 'tournament-1',
           date: new Date(),
           score: '6-4, 7-5',
-          result: 'WIN'
+          result: 'WIN',
         },
-        { 
+        {
           id: 'match-2',
           tournamentId: 'tournament-1',
           date: new Date(),
           score: '3-6, 4-6',
-          result: 'LOSS'
-        }
+          result: 'LOSS',
+        },
       ];
 &nbsp;
-<span class="cstat-no" title="statement not covered" >      return res.status(200).json({ </span>
-        status: 'success', 
-        data: { matches } 
+<span class="cstat-no" title="statement not covered" >      return res.status(200).json({</span>
+        status: 'success',
+        data: { matches },
       });
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      console.error('Error getting player matches:', error);</span>
@@ -1056,12 +1058,12 @@ import { AuthRequest } from '../middlewares/auth.middleware';
 <span class="cstat-no" title="statement not covered" >    try {</span>
       // El parámetro id ya ha sido validado por el middleware
       const { id } = <span class="cstat-no" title="statement not covered" >req.params;</span>
-      
+&nbsp;
       // Verificar si el ID proporcionado es un ID ficticio para pruebas
 <span class="cstat-no" title="statement not covered" >      <span class="missing-if-branch" title="if path not taken" >I</span>if (id === '00000000-0000-0000-0000-000000000000') {</span>
-<span class="cstat-no" title="statement not covered" >        return res.status(404).json({ </span>
-          status: 'error', 
-          message: 'Player not found' 
+<span class="cstat-no" title="statement not covered" >        return res.status(404).json({</span>
+          status: 'error',
+          message: 'Player not found',
         });
       }
 &nbsp;
@@ -1070,39 +1072,40 @@ import { AuthRequest } from '../middlewares/auth.middleware';
 &nbsp;
       // Simular datos de torneos para la respuesta
       const tournaments = <span class="cstat-no" title="statement not covered" >[</span>
-        { 
+        {
           id: 'tournament-1',
           name: 'Winter Championship',
           startDate: new Date(),
           endDate: new Date(),
-          category: 'A'
+          category: 'A',
         },
-        { 
+        {
           id: 'tournament-2',
           name: 'Summer Open',
           startDate: new Date(),
           endDate: new Date(),
-          category: 'B'
-        }
+          category: 'B',
+        },
       ];
 &nbsp;
-<span class="cstat-no" title="statement not covered" >      return res.status(200).json({ </span>
-        status: 'success', 
-        data: { tournaments } 
+<span class="cstat-no" title="statement not covered" >      return res.status(200).json({</span>
+        status: 'success',
+        data: { tournaments },
       });
     } catch (error) {
 <span class="cstat-no" title="statement not covered" >      console.error('Error getting player tournaments:', error);</span>
 <span class="cstat-no" title="statement not covered" >      return res.status(500).json({ status: 'error', message: 'Internal server error' });</span>
     }
   };
-} </pre></td></tr></table></pre>
+}
+&nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
             </div><!-- /wrapper -->
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-03-23T11:54:22.579Z
+                at 2025-03-23T23:31:48.453Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

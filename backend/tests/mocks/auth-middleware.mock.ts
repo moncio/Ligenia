@@ -1,5 +1,5 @@
 import { Response, NextFunction } from 'express';
-import { UserRole } from '@prisma/client';
+import { UserRole } from '../../src/core/domain/user/user.entity';
 import { AuthRequest } from '../../src/api/middlewares/auth.middleware';
 import jwt from 'jsonwebtoken';
 

@@ -1,5 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
 import jwt from 'jsonwebtoken';
+import { UserRole } from '../../src/core/domain/user/user.entity';
 
 // Mock data
 export const mockUsers = {
@@ -39,23 +40,55 @@ export const mockSessions = {
   },
 };
 
-// Helper to generate test tokens for users with specific roles
-export const generateTestToken = (
-  user: { id: string; email: string; role: string },
-  expiresIn = '1h',
-): string => {
-  const secret = process.env.JWT_SECRET || 'test-secret-key';
-  return jwt.sign(
-    {
-      sub: user.id,
-      email: user.email,
-      role: user.role,
-      aud: 'authenticated',
-      exp: Math.floor(Date.now() / 1000) + 60 * 60, // 1 hour from now
-    },
-    secret,
-  );
-};
+/**
+ * Generate a test token for a user
+ * @param user User data to include in the token
+ * @returns JWT token string
+ */
+export function generateTestToken(user: {
+  id: string;
+  email: string;
+  name: string;
+  role: string;
+}) {
+  // Map the role string to UserRole enum
+  const userRole = user.role.toUpperCase() === 'ADMIN' 
+    ? UserRole.ADMIN 
+    : UserRole.PLAYER;
+
+  // Create a payload with the user data
+  const payload = {
+    sub: user.id,
+    email: user.email,
+    name: user.name,
+    role: userRole,
+    // Add any other fields needed for testing
+    iat: Math.floor(Date.now() / 1000),
+    exp: Math.floor(Date.now() / 1000) + 3600 // 1 hour expiration
+  };
+
+  // Use a fixed secret for testing
+  const secret = 'test-secret';
+
+  // Generate and return the token
+  return jwt.sign(payload, secret);
+}
+
+/**
+ * Parse a token and return the user data
+ * @param token JWT token string
+ * @returns User data from the token
+ */
+export function parseTestToken(token: string) {
+  try {
+    // Use the same fixed secret used for generation
+    const secret = 'test-secret';
+    const decoded = jwt.verify(token, secret);
+    return decoded;
+  } catch (error) {
+    return null;
+  }
+}
 
 // Create mock Supabase client
 export const createMockSupabaseClient = () => {
@@ -128,6 +161,7 @@ export const createMockSupabaseClient = () => {
               access_token: generateTestToken({
                 id: newUser.id,
                 email: newUser.email,
+                name: newUser.user_metadata.name || 'New User',
                 role: newUser.user_metadata.role || 'player',
               }),
               refresh_token: 'new-refresh-token',

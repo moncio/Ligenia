@@ -1,14 +1,18 @@
 import { Request, Response } from 'express';
 import { AuthRequest } from '../middlewares/auth.middleware';
+import { ContainerRequest } from '../middlewares/di.middleware';
+import { GetUserPreferencesUseCase } from '../../core/application/use-cases/preference/get-user-preferences.use-case';
+import { UpdateUserPreferencesUseCase } from '../../core/application/use-cases/preference/update-user-preferences.use-case';
+import { ResetPreferencesUseCase } from '../../core/application/use-cases/preference/reset-preferences.use-case';
 
 export class PreferenceController {
   /**
    * Get user preferences
    * @route GET /api/preferences
    */
-  public getPreferences = async (req: AuthRequest, res: Response) => {
+  public getPreferences = async (req: AuthRequest & ContainerRequest, res: Response) => {
     try {
-      // Verificar que el usuario esté autenticado
+      // Verify user is authenticated
       if (!req.user) {
         return res.status(401).json({
           status: 'error',
@@ -16,22 +20,38 @@ export class PreferenceController {
         });
       }
 
-      // TODO: Implementar la lógica para obtener preferencias desde el caso de uso correspondiente
-      // En este punto solo implementamos una respuesta simulada
+      const getUserPreferencesUseCase = req.container?.get(
+        'getUserPreferencesUseCase'
+      ) as GetUserPreferencesUseCase;
 
-      const preferences = {
-        id: 'pref-123',
-        userId: req.user.id,
-        theme: 'light',
-        fontSize: 'medium',
-        createdAt: '2023-01-01T00:00:00Z',
-        updatedAt: '2023-01-10T00:00:00Z',
-      };
+      if (!getUserPreferencesUseCase) {
+        console.error('Error getting user preferences: Use case not found in container');
+        return res.status(500).json({ status: 'error', message: 'Internal server error' });
+      }
 
+      const result = await getUserPreferencesUseCase.execute({
+        userId: req.user.id
+      });
+
+      if (result.isFailure()) {
+        console.error('Error getting user preferences:', result.getError());
+        return res.status(400).json({
+          status: 'error',
+          message: result.getError().message || 'Failed to get user preferences'
+        });
+      }
+
+      // Return preferences (can be null for new users)
+      const preferences = result.getValue();
+      
       return res.status(200).json({
         status: 'success',
         data: {
-          preferences,
+          preferences: preferences || {
+            userId: req.user.id,
+            theme: 'system', // Default theme
+            fontSize: 16,    // Default font size
+          }
         },
       });
     } catch (error) {
@@ -140,15 +160,14 @@ export class PreferenceController {
 
   /**
    * Update preference
-   * @route PUT /api/preferences/:id
+   * @route PUT /api/preferences
    */
-  public updatePreference = async (req: AuthRequest, res: Response) => {
+  public updatePreference = async (req: AuthRequest & ContainerRequest, res: Response) => {
     try {
-      // El parámetro id y el body ya han sido validados por el middleware
-      const { id } = req.params;
+      // Preference data validated by middleware
       const preferenceData = req.body;
 
-      // Verificar que el usuario esté autenticado
+      // Verify user is authenticated
       if (!req.user) {
         return res.status(401).json({
           status: 'error',
@@ -156,36 +175,32 @@ export class PreferenceController {
         });
       }
 
-      // TODO: Verificar que la preferencia pertenece al usuario actual
-      // En este punto solo simulamos esta verificación
-      const existingPreference = {
-        id,
-        userId: req.user.id,
-        theme: 'light',
-        fontSize: 'medium',
-      };
+      const updateUserPreferencesUseCase = req.container?.get(
+        'updateUserPreferencesUseCase'
+      ) as UpdateUserPreferencesUseCase;
 
-      // Si la preferencia no pertenece al usuario actual, denegar acceso
-      if (existingPreference.userId !== req.user.id) {
-        return res.status(403).json({
-          status: 'error',
-          message: 'You do not have permission to update this preference',
-        });
+      if (!updateUserPreferencesUseCase) {
+        console.error('Error updating user preferences: Use case not found in container');
+        return res.status(500).json({ status: 'error', message: 'Internal server error' });
       }
 
-      // TODO: Implementar la lógica para actualizar una preferencia desde el caso de uso correspondiente
-      // En este punto solo implementamos una respuesta simulada
+      const result = await updateUserPreferencesUseCase.execute({
+        userId: req.user.id,
+        ...preferenceData
+      });
 
-      const preference = {
-        ...existingPreference,
-        ...preferenceData,
-        updatedAt: new Date().toISOString(),
-      };
+      if (result.isFailure()) {
+        console.error('Error updating user preferences:', result.getError());
+        return res.status(400).json({
+          status: 'error',
+          message: result.getError().message || 'Failed to update user preferences'
+        });
+      }
 
       return res.status(200).json({
         status: 'success',
         data: {
-          preference,
+          preference: result.getValue(),
         },
       });
     } catch (error) {
@@ -196,14 +211,11 @@ export class PreferenceController {
 
   /**
    * Reset preferences
-   * @route POST /api/preferences/reset
+   * @route DELETE /api/preferences/reset
    */
-  public resetPreferences = async (req: AuthRequest, res: Response) => {
+  public resetPreferences = async (req: AuthRequest & ContainerRequest, res: Response) => {
     try {
-      // Los datos ya han sido validados por el middleware
-      const resetOptions = req.body;
-
-      // Verificar que el usuario esté autenticado
+      // Verify user is authenticated
       if (!req.user) {
         return res.status(401).json({
           status: 'error',
@@ -211,31 +223,31 @@ export class PreferenceController {
         });
       }
 
-      // TODO: Implementar la lógica para restablecer preferencias desde el caso de uso correspondiente
-      // En este punto solo implementamos una respuesta simulada
+      const resetPreferencesUseCase = req.container?.get(
+        'resetPreferencesUseCase'
+      ) as ResetPreferencesUseCase;
 
-      // Opciones predeterminadas
-      const defaultPreferences = {
-        theme: 'light',
-        fontSize: 'medium',
-      };
+      if (!resetPreferencesUseCase) {
+        console.error('Error resetting user preferences: Use case not found in container');
+        return res.status(500).json({ status: 'error', message: 'Internal server error' });
+      }
 
-      // Aplicar restablecer todas o solo opciones específicas
-      const preference = {
-        id: 'pref-123',
-        userId: req.user.id,
-        theme: resetOptions.resetAll || resetOptions.resetTheme ? defaultPreferences.theme : 'dark',
-        fontSize:
-          resetOptions.resetAll || resetOptions.resetFontSize
-            ? defaultPreferences.fontSize
-            : 'large',
-        updatedAt: new Date().toISOString(),
-      };
+      const result = await resetPreferencesUseCase.execute({
+        userId: req.user.id
+      });
+
+      if (result.isFailure()) {
+        console.error('Error resetting user preferences:', result.getError());
+        return res.status(400).json({
+          status: 'error',
+          message: result.getError().message || 'Failed to reset user preferences'
+        });
+      }
 
       return res.status(200).json({
         status: 'success',
         data: {
-          preference,
+          preference: result.getValue(),
           message: 'Preferences reset successfully',
         },
       });

@@ -15,6 +15,10 @@
 | Forgot Password           | ✅                    | ⚡️                       | ⚡️                     | ⬜️                          | Handled by Supabase Auth, minimal integration code |
 | Token Refresh             | ✅                    | ⚡️                       | ⚡️                     | ⬜️                          | Handled by Supabase SDK automatically |
 | User Preferences          | ✅                    | ✅                       | ✅                     | ⬜️                          | Links to Preference entity (theme, notifications, etc.) |
+| Get User By ID            | ✅                    | ✅                       | ✅                     | ⬜️                          | Retrieve user profile data by ID |
+| List Users                | ✅                    | ✅                       | ✅                     | ✅ (role, pagination)        | List users with filtering and pagination |
+| Update User               | ✅                    | ✅                       | ✅                     | ⬜️                          | Update user profile information |
+| Delete User               | ✅                    | ✅                       | ✅                     | ⬜️                          | Delete user account |
 
 > **Note:** 
 > - ⚡️ marks functionality primarily handled by Supabase Auth. These features require minimal domain logic implementation as they are managed by the external service.

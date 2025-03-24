@@ -3,23 +3,29 @@
  * that can be successful or failed
  */
 export class Result<T> {
+  public readonly value: T | null;
+  public readonly error: Error | null;
+
   private constructor(
     private readonly isSuccessful: boolean,
-    private readonly error: Error | null = null,
-    private readonly value: T | null = null,
-  ) {}
+    error: Error | null = null,
+    value: T | null = null,
+  ) {
+    this.error = error;
+    this.value = value;
+  }
 
   /**
    * Indicates if the result is successful
    */
-  get isSuccess(): boolean {
+  public isSuccess(): boolean {
     return this.isSuccessful;
   }
 
   /**
    * Indicates if the result is failed
    */
-  get isFailure(): boolean {
+  public isFailure(): boolean {
     return !this.isSuccessful;
   }
 
@@ -28,7 +34,7 @@ export class Result<T> {
    * @throws Error if the result is failed
    */
   getValue(): T {
-    if (!this.isSuccess) {
+    if (!this.isSuccess()) {
       throw new Error('Cannot get value from a failed result');
     }
     return this.value as T;

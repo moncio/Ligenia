@@ -44,6 +44,30 @@ export class UserRepository extends BaseRepository implements IUserRepository {
     return result.isSuccess ? result.getValue() : null;
   }
 
+  async findAll(limit: number = 10, offset: number = 0): Promise<User[]> {
+    const result = await this.executeOperation<User[]>(async () => {
+      const users = await this.prisma.user.findMany({
+        take: limit,
+        skip: offset,
+        orderBy: {
+          createdAt: 'desc',
+        },
+      });
+
+      return users.map(user => UserMapper.toDomain(user));
+    });
+
+    return result.isSuccess ? result.getValue() : [];
+  }
+
+  async count(): Promise<number> {
+    const result = await this.executeOperation<number>(async () => {
+      return await this.prisma.user.count();
+    });
+
+    return result.isSuccess ? result.getValue() : 0;
+  }
+
   async save(user: User): Promise<void> {
     const result = await this.executeOperation<void>(async () => {
       const userData = UserMapper.toPrisma(user);

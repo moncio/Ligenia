@@ -134,8 +134,6 @@ export class TournamentMapper {
       [PlayerLevel.P1]: 'P1',
       [PlayerLevel.P2]: 'P2',
       [PlayerLevel.P3]: 'P3',
-      [PlayerLevel.P4]: 'P3', // Fallback to P3 for unsupported types
-      [PlayerLevel.P5]: 'P3', // Fallback to P3 for unsupported types
     };
 
     return categoryMap[category];

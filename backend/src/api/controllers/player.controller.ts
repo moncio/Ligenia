@@ -1,35 +1,80 @@
 import { Request, Response } from 'express';
-import { AuthRequest } from '../middlewares/auth.middleware';
-import { PlayerLevel, UserRole } from '@prisma/client';
+import { AuthRequest, AuthContainerRequest } from '../middlewares/auth.middleware';
+import { UserRole } from '@prisma/client';
+import { ContainerRequest } from '../middlewares/di.middleware';
+import { isValidUUID } from '../utils/uuid-validator';
+import { ListPlayersUseCase } from '../../core/application/use-cases/player/list-players.use-case';
+import { GetPlayerByIdUseCase } from '../../core/application/use-cases/player/get-player-by-id.use-case';
+import { CreatePlayerProfileUseCase } from '../../core/application/use-cases/player/create-player-profile.use-case';
+import { UpdatePlayerProfileUseCase } from '../../core/application/use-cases/player/update-player-profile.use-case';
+import { GetPlayerMatchesUseCase } from '../../core/application/use-cases/player/get-player-matches.use-case';
+import { GetPlayerTournamentsUseCase } from '../../core/application/use-cases/player/get-player-tournaments.use-case';
+import { GetPlayerStatisticsUseCase } from '../../core/application/use-cases/statistic/get-player-statistics.use-case';
+import { PlayerLevel } from '../../core/domain/tournament/tournament.entity';
+import { MatchStatus } from '../../core/domain/match/match.entity';
+import { TournamentStatus } from '../../core/domain/tournament/tournament.entity';
 
 export class PlayerController {
   /**
    * Get all players
    * @route GET /api/players
    */
-  public getPlayers = async (req: AuthRequest, res: Response) => {
+  public getPlayers = async (req: ContainerRequest, res: Response) => {
     try {
-      // TODO: Implementar la lógica para obtener todos los jugadores desde el caso de uso correspondiente
-      // En este punto solo implementamos una respuesta simulada
-
-      // Verificar que el usuario tenga permisos de admin
-      if (!req.user || req.user.role !== UserRole.ADMIN) {
-        return res.status(403).json({
-          status: 'error',
-          message: 'You do not have permission to access this resource',
+      console.log('Received request: getPlayers');
+      console.log('Query params:', req.query);
+      
+      // Get query parameters (already validated by the middleware)
+      const { level, country, searchTerm, limit = '10', page = '1' } = req.query;
+      
+      // Convert query parameters
+      const limitNum = parseInt(limit as string, 10) || 10;
+      const pageNum = parseInt(page as string, 10) || 1;
+      const skip = (pageNum - 1) * limitNum;
+      
+      const listPlayersUseCase = req.container?.get(ListPlayersUseCase);
+      
+      if (!listPlayersUseCase) {
+        console.error('listPlayersUseCase is undefined or null');
+        return res.status(500).json({ 
+          status: 'error', 
+          message: 'Internal server error - Use case not available' 
         });
       }
-
-      // Simular datos de jugadores para la respuesta
-      const players = [
-        { id: '1', level: PlayerLevel.P3, age: 30, country: 'Spain', userId: req.user.id },
-        { id: '2', level: PlayerLevel.P2, age: 25, country: 'Portugal', userId: 'another-user-id' },
-      ];
-
-      return res.status(200).json({
-        status: 'success',
-        data: { players },
-      });
+      
+      // Prepare input for use case
+      const input = {
+        level: level ? level as PlayerLevel : undefined,
+        country: country ? String(country) : undefined,
+        searchTerm: searchTerm ? String(searchTerm) : undefined,
+        skip,
+        limit: limitNum,
+      };
+      
+      console.log('Executing listPlayersUseCase with input:', input);
+      const result = await listPlayersUseCase.execute(input);
+      
+      if (result.isSuccess()) {
+        const { players, total, skip, limit } = result.getValue();
+        return res.status(200).json({
+          status: 'success',
+          data: {
+            players,
+            pagination: {
+              total,
+              page: pageNum,
+              limit,
+              totalPages: Math.ceil(total / limit),
+            },
+          },
+        });
+      } else {
+        console.error('Error from listPlayersUseCase:', result.getError());
+        return res.status(400).json({
+          status: 'error',
+          message: result.getError().message,
+        });
+      }
     } catch (error) {
       console.error('Error getting players:', error);
       return res.status(500).json({ status: 'error', message: 'Internal server error' });
@@ -40,35 +85,46 @@ export class PlayerController {
    * Get player by ID
    * @route GET /api/players/:id
    */
-  public getPlayerById = async (req: AuthRequest, res: Response) => {
+  public getPlayerById = async (req: ContainerRequest, res: Response) => {
     try {
-      // El parámetro id ya ha sido validado por el middleware
+      console.log('Received request: getPlayerById');
+      
+      // The ID parameter has already been validated by the middleware
       const { id } = req.params;
-
-      // Verificar si el ID proporcionado es un ID ficticio para pruebas
-      if (id === '00000000-0000-0000-0000-000000000000') {
-        return res.status(404).json({
-          status: 'error',
-          message: 'Player not found',
+      console.log('Player ID:', id);
+      
+      const getPlayerByIdUseCase = req.container?.get(GetPlayerByIdUseCase);
+      
+      if (!getPlayerByIdUseCase) {
+        console.error('getPlayerByIdUseCase is undefined or null');
+        return res.status(500).json({ 
+          status: 'error', 
+          message: 'Internal server error - Use case not available' 
         });
       }
-
-      // TODO: Implementar la lógica para obtener un jugador por ID desde el caso de uso correspondiente
-      // En este punto solo implementamos una respuesta simulada
-
-      // Simular datos de un jugador para la respuesta
-      const player = {
-        id,
-        level: PlayerLevel.P3,
-        age: 30,
-        country: 'Spain',
-        userId: req.user?.id,
-      };
-
-      return res.status(200).json({
-        status: 'success',
-        data: { player },
-      });
+      
+      const result = await getPlayerByIdUseCase.execute({ id });
+      
+      if (result.isSuccess()) {
+        return res.status(200).json({
+          status: 'success',
+          data: {
+            player: result.getValue().player,
+          },
+        });
+      } else {
+        const errorMessage = result.getError().message;
+        if (errorMessage === 'Player not found') {
+          return res.status(404).json({
+            status: 'error',
+            message: errorMessage,
+          });
+        }
+        return res.status(400).json({
+          status: 'error',
+          message: errorMessage,
+        });
+      }
     } catch (error) {
       console.error('Error getting player by ID:', error);
       return res.status(500).json({ status: 'error', message: 'Internal server error' });
@@ -79,33 +135,44 @@ export class PlayerController {
    * Create player profile
    * @route POST /api/players
    */
-  public createPlayer = async (req: AuthRequest, res: Response) => {
+  public createPlayer = async (req: AuthContainerRequest, res: Response) => {
     try {
-      // Los datos ya han sido validados por el middleware
-      const playerData = req.body;
-
-      // Verificar que el usuario esté autenticado
-      if (!req.user) {
-        return res.status(401).json({
+      console.log('Received request: createPlayer');
+      console.log('Request body:', req.body);
+      
+      // Only admins can create players directly
+      if (req.user?.role !== UserRole.ADMIN) {
+        return res.status(403).json({
           status: 'error',
-          message: 'You must be authenticated to create a player profile',
+          message: 'You do not have permission to access this resource',
         });
       }
-
-      // TODO: Implementar la lógica para crear un perfil de jugador desde el caso de uso correspondiente
-      // En este punto solo implementamos una respuesta simulada
-
-      // Simular datos de un jugador para la respuesta
-      const player = {
-        id: 'generated-uuid',
-        ...playerData,
-        userId: req.user.id,
-      };
-
-      return res.status(201).json({
-        status: 'success',
-        data: { player },
-      });
+      
+      const createPlayerProfileUseCase = req.container?.get(CreatePlayerProfileUseCase);
+      
+      if (!createPlayerProfileUseCase) {
+        console.error('createPlayerProfileUseCase is undefined or null');
+        return res.status(500).json({ 
+          status: 'error', 
+          message: 'Internal server error - Use case not available' 
+        });
+      }
+      
+      const result = await createPlayerProfileUseCase.execute(req.body);
+      
+      if (result.isSuccess()) {
+        return res.status(201).json({
+          status: 'success',
+          data: {
+            player: result.getValue().player,
+          },
+        });
+      } else {
+        return res.status(400).json({
+          status: 'error',
+          message: result.getError().message,
+        });
+      }
     } catch (error) {
       console.error('Error creating player profile:', error);
       return res.status(500).json({ status: 'error', message: 'Internal server error' });
@@ -116,45 +183,70 @@ export class PlayerController {
    * Update player profile
    * @route PUT /api/players/:id
    */
-  public updatePlayer = async (req: AuthRequest, res: Response) => {
+  public updatePlayer = async (req: AuthContainerRequest, res: Response) => {
     try {
-      // El parámetro id y el body ya han sido validados por el middleware
+      console.log('Received request: updatePlayer');
+      
       const { id } = req.params;
-      const playerData = req.body;
-
-      // Verificar que el usuario esté autenticado
+      console.log('Player ID:', id);
+      console.log('Request body:', req.body);
+      
+      // Verify user is authenticated
       if (!req.user) {
         return res.status(401).json({
           status: 'error',
           message: 'You must be authenticated to update a player profile',
         });
       }
-
-      // TODO: Implementar la lógica para verificar si el usuario tiene permisos para actualizar este perfil
-      // (debe ser el dueño del perfil o un admin)
-
-      // Para pruebas, verificar si el token es de admin y no permitir que actualice el perfil de otro usuario
-      if (req.user.role !== UserRole.ADMIN && req.user.id !== 'player-uuid') {
-        return res.status(403).json({
-          status: 'error',
-          message: 'You do not have permission to update this player profile',
+      
+      const updatePlayerProfileUseCase = req.container?.get(UpdatePlayerProfileUseCase);
+      
+      if (!updatePlayerProfileUseCase) {
+        console.error('updatePlayerProfileUseCase is undefined or null');
+        return res.status(500).json({ 
+          status: 'error', 
+          message: 'Internal server error - Use case not available' 
         });
       }
-
-      // TODO: Implementar la lógica para actualizar un perfil de jugador desde el caso de uso correspondiente
-      // En este punto solo implementamos una respuesta simulada
-
-      // Simular datos de un jugador actualizado para la respuesta
-      const player = {
+      
+      // Combine ID from URL with body data and add requesting user ID
+      const input = {
         id,
-        ...playerData,
-        userId: req.user.id,
+        requestingUserId: req.user.id,
+        ...req.body,
       };
-
-      return res.status(200).json({
-        status: 'success',
-        data: { player },
-      });
+      
+      const result = await updatePlayerProfileUseCase.execute(input);
+      
+      if (result.isSuccess()) {
+        return res.status(200).json({
+          status: 'success',
+          data: {
+            success: result.getValue().success,
+          },
+        });
+      } else {
+        const errorMessage = result.getError().message;
+        
+        if (errorMessage === 'Player not found') {
+          return res.status(404).json({
+            status: 'error',
+            message: errorMessage,
+          });
+        }
+        
+        if (errorMessage === 'Not authorized to update this player profile') {
+          return res.status(403).json({
+            status: 'error',
+            message: errorMessage,
+          });
+        }
+        
+        return res.status(400).json({
+          status: 'error',
+          message: errorMessage,
+        });
+      }
     } catch (error) {
       console.error('Error updating player profile:', error);
       return res.status(500).json({ status: 'error', message: 'Internal server error' });
@@ -165,38 +257,32 @@ export class PlayerController {
    * Delete player profile
    * @route DELETE /api/players/:id
    */
-  public deletePlayer = async (req: AuthRequest, res: Response) => {
+  public deletePlayer = async (req: AuthContainerRequest, res: Response) => {
     try {
-      // El parámetro id ya ha sido validado por el middleware
+      console.log('Received request: deletePlayer');
+      
       const { id } = req.params;
-
-      // Verificar que el usuario esté autenticado
-      if (!req.user) {
-        return res.status(401).json({
-          status: 'error',
-          message: 'You must be authenticated to delete a player profile',
-        });
-      }
-
-      // Verificar que el usuario tenga permisos de admin
-      if (req.user.role !== UserRole.ADMIN) {
+      console.log('Player ID:', id);
+      
+      // Only admins can delete player profiles
+      if (req.user?.role !== UserRole.ADMIN) {
         return res.status(403).json({
           status: 'error',
           message: 'You do not have permission to delete player profiles',
         });
       }
-
-      // Verificar si el ID proporcionado es un ID ficticio para pruebas
+      
+      // This use case doesn't actually exist according to our search
+      // For now, keep the mock implementation to avoid breaking existing functionality
+      // TODO: Implement proper DeletePlayerProfileUseCase
+      
       if (id === '00000000-0000-0000-0000-000000000000' || id === 'undefined') {
         return res.status(404).json({
           status: 'error',
           message: 'Player not found',
         });
       }
-
-      // TODO: Implementar la lógica para eliminar un perfil de jugador desde el caso de uso correspondiente
-      // En este punto solo implementamos una respuesta simulada
-
+      
       return res.status(200).json({
         status: 'success',
         message: 'Player profile deleted successfully',
@@ -211,36 +297,45 @@ export class PlayerController {
    * Get player statistics
    * @route GET /api/players/:id/statistics
    */
-  public getPlayerStatistics = async (req: AuthRequest, res: Response) => {
+  public getPlayerStatistics = async (req: ContainerRequest, res: Response) => {
     try {
-      // El parámetro id ya ha sido validado por el middleware
+      console.log('Received request: getPlayerStatistics');
+      
       const { id } = req.params;
-
-      // Verificar si el ID proporcionado es un ID ficticio para pruebas
-      if (id === '00000000-0000-0000-0000-000000000000') {
-        return res.status(404).json({
-          status: 'error',
-          message: 'Player not found',
+      console.log('Player ID:', id);
+      
+      const getPlayerStatisticsUseCase = req.container?.get(GetPlayerStatisticsUseCase);
+      
+      if (!getPlayerStatisticsUseCase) {
+        console.error('getPlayerStatisticsUseCase is undefined or null');
+        return res.status(500).json({ 
+          status: 'error', 
+          message: 'Internal server error - Use case not available' 
         });
       }
-
-      // TODO: Implementar la lógica para obtener estadísticas de un jugador desde el caso de uso correspondiente
-      // En este punto solo implementamos una respuesta simulada
-
-      // Simular datos de estadísticas para la respuesta
-      const statistics = {
-        playerId: id,
-        gamesPlayed: 50,
-        gamesWon: 30,
-        winRate: 0.6,
-        tournaments: 10,
-        tournamentsWon: 2,
-      };
-
-      return res.status(200).json({
-        status: 'success',
-        data: { statistics },
-      });
+      
+      const result = await getPlayerStatisticsUseCase.execute({ playerId: id });
+      
+      if (result.isSuccess()) {
+        return res.status(200).json({
+          status: 'success',
+          data: {
+            statistics: result.getValue().statistic,
+          },
+        });
+      } else {
+        const errorMessage = result.getError().message;
+        if (errorMessage === 'Player not found') {
+          return res.status(404).json({
+            status: 'error',
+            message: errorMessage,
+          });
+        }
+        return res.status(400).json({
+          status: 'error',
+          message: errorMessage,
+        });
+      }
     } catch (error) {
       console.error('Error getting player statistics:', error);
       return res.status(500).json({ status: 'error', message: 'Internal server error' });
@@ -251,44 +346,74 @@ export class PlayerController {
    * Get player matches
    * @route GET /api/players/:id/matches
    */
-  public getPlayerMatches = async (req: AuthRequest, res: Response) => {
+  public getPlayerMatches = async (req: ContainerRequest, res: Response) => {
     try {
-      // El parámetro id ya ha sido validado por el middleware
+      console.log('Received request: getPlayerMatches');
+      
       const { id } = req.params;
-
-      // Verificar si el ID proporcionado es un ID ficticio para pruebas
-      if (id === '00000000-0000-0000-0000-000000000000') {
-        return res.status(404).json({
-          status: 'error',
-          message: 'Player not found',
+      console.log('Player ID:', id);
+      console.log('Query params:', req.query);
+      
+      // Get query parameters
+      const { status, fromDate, toDate, tournamentId, limit = '10', page = '1' } = req.query;
+      
+      // Convert query parameters
+      const limitNum = parseInt(limit as string, 10) || 10;
+      const pageNum = parseInt(page as string, 10) || 1;
+      const skip = (pageNum - 1) * limitNum;
+      
+      const getPlayerMatchesUseCase = req.container?.get(GetPlayerMatchesUseCase);
+      
+      if (!getPlayerMatchesUseCase) {
+        console.error('getPlayerMatchesUseCase is undefined or null');
+        return res.status(500).json({ 
+          status: 'error', 
+          message: 'Internal server error - Use case not available' 
         });
       }
-
-      // TODO: Implementar la lógica para obtener los partidos de un jugador desde el caso de uso correspondiente
-      // En este punto solo implementamos una respuesta simulada
-
-      // Simular datos de partidos para la respuesta
-      const matches = [
-        {
-          id: 'match-1',
-          tournamentId: 'tournament-1',
-          date: new Date(),
-          score: '6-4, 7-5',
-          result: 'WIN',
-        },
-        {
-          id: 'match-2',
-          tournamentId: 'tournament-1',
-          date: new Date(),
-          score: '3-6, 4-6',
-          result: 'LOSS',
-        },
-      ];
-
-      return res.status(200).json({
-        status: 'success',
-        data: { matches },
-      });
+      
+      // Prepare input for use case
+      const input = {
+        playerId: id,
+        status: status ? status as MatchStatus : undefined,
+        fromDate: fromDate ? new Date(String(fromDate)) : undefined,
+        toDate: toDate ? new Date(String(toDate)) : undefined,
+        tournamentId: tournamentId ? String(tournamentId) : undefined,
+        skip,
+        limit: limitNum,
+      };
+      
+      console.log('Executing getPlayerMatchesUseCase with input:', input);
+      const result = await getPlayerMatchesUseCase.execute(input);
+      
+      if (result.isSuccess()) {
+        const { matches, total, skip, limit } = result.getValue();
+        return res.status(200).json({
+          status: 'success',
+          data: {
+            matches,
+            pagination: {
+              total,
+              page: pageNum,
+              limit,
+              totalPages: Math.ceil(total / limit),
+            },
+          },
+        });
+      } else {
+        console.error('Error from getPlayerMatchesUseCase:', result.getError());
+        const errorMessage = result.getError().message;
+        if (errorMessage === 'Player not found') {
+          return res.status(404).json({
+            status: 'error',
+            message: errorMessage,
+          });
+        }
+        return res.status(400).json({
+          status: 'error',
+          message: errorMessage,
+        });
+      }
     } catch (error) {
       console.error('Error getting player matches:', error);
       return res.status(500).json({ status: 'error', message: 'Internal server error' });
@@ -299,44 +424,74 @@ export class PlayerController {
    * Get player tournaments
    * @route GET /api/players/:id/tournaments
    */
-  public getPlayerTournaments = async (req: AuthRequest, res: Response) => {
+  public getPlayerTournaments = async (req: ContainerRequest, res: Response) => {
     try {
-      // El parámetro id ya ha sido validado por el middleware
+      console.log('Received request: getPlayerTournaments');
+      
       const { id } = req.params;
-
-      // Verificar si el ID proporcionado es un ID ficticio para pruebas
-      if (id === '00000000-0000-0000-0000-000000000000') {
-        return res.status(404).json({
-          status: 'error',
-          message: 'Player not found',
+      console.log('Player ID:', id);
+      console.log('Query params:', req.query);
+      
+      // Get query parameters
+      const { status, fromDate, toDate, category, limit = '10', page = '1' } = req.query;
+      
+      // Convert query parameters
+      const limitNum = parseInt(limit as string, 10) || 10;
+      const pageNum = parseInt(page as string, 10) || 1;
+      const skip = (pageNum - 1) * limitNum;
+      
+      const getPlayerTournamentsUseCase = req.container?.get(GetPlayerTournamentsUseCase);
+      
+      if (!getPlayerTournamentsUseCase) {
+        console.error('getPlayerTournamentsUseCase is undefined or null');
+        return res.status(500).json({ 
+          status: 'error', 
+          message: 'Internal server error - Use case not available' 
         });
       }
-
-      // TODO: Implementar la lógica para obtener los torneos de un jugador desde el caso de uso correspondiente
-      // En este punto solo implementamos una respuesta simulada
-
-      // Simular datos de torneos para la respuesta
-      const tournaments = [
-        {
-          id: 'tournament-1',
-          name: 'Winter Championship',
-          startDate: new Date(),
-          endDate: new Date(),
-          category: 'A',
-        },
-        {
-          id: 'tournament-2',
-          name: 'Summer Open',
-          startDate: new Date(),
-          endDate: new Date(),
-          category: 'B',
-        },
-      ];
-
-      return res.status(200).json({
-        status: 'success',
-        data: { tournaments },
-      });
+      
+      // Prepare input for use case
+      const input = {
+        playerId: id,
+        status: status ? status as TournamentStatus : undefined,
+        fromDate: fromDate ? new Date(String(fromDate)) : undefined,
+        toDate: toDate ? new Date(String(toDate)) : undefined,
+        category: category ? category as PlayerLevel : undefined,
+        skip,
+        limit: limitNum,
+      };
+      
+      console.log('Executing getPlayerTournamentsUseCase with input:', input);
+      const result = await getPlayerTournamentsUseCase.execute(input);
+      
+      if (result.isSuccess()) {
+        const { tournaments, total, skip, limit } = result.getValue();
+        return res.status(200).json({
+          status: 'success',
+          data: {
+            tournaments,
+            pagination: {
+              total,
+              page: pageNum,
+              limit,
+              totalPages: Math.ceil(total / limit),
+            },
+          },
+        });
+      } else {
+        console.error('Error from getPlayerTournamentsUseCase:', result.getError());
+        const errorMessage = result.getError().message;
+        if (errorMessage === 'Player not found') {
+          return res.status(404).json({
+            status: 'error',
+            message: errorMessage,
+          });
+        }
+        return res.status(400).json({
+          status: 'error',
+          message: errorMessage,
+        });
+      }
     } catch (error) {
       console.error('Error getting player tournaments:', error);
       return res.status(500).json({ status: 'error', message: 'Internal server error' });

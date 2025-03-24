@@ -9,7 +9,7 @@ import {
   idParamSchema,
   getTournamentsQuerySchema,
 } from '../validations/tournament.validation';
-import { UserRole } from '@prisma/client';
+import { UserRole } from '../../core/domain/user/user.entity';
 
 const router = Router();
 const tournamentController = new TournamentController();

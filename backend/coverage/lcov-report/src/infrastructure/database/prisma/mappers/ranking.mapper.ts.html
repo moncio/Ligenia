@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">60% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/5</span>
+                <span class='fraction'>3/5</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">53.84% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/26</span>
+                <span class='fraction'>14/26</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">50% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/2</span>
+                <span class='fraction'>1/2</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">60% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/5</span>
+                <span class='fraction'>3/5</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line medium'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -131,7 +131,7 @@
 <a name='L66'></a><a href='#L66'>66</a>
 <a name='L67'></a><a href='#L67'>67</a>
 <a name='L68'></a><a href='#L68'>68</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">44x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -151,12 +151,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">44x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">22x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -198,7 +198,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Player, Statistic, User } from '@prisma/client';
-<span class="cstat-no" title="statement not covered" >import { Ranking } from '../../../../core/domain/ranking/ranking.entity';</span>
+import { Ranking } from '../../../../core/domain/ranking/ranking.entity';
 import { PlayerLevel } from '../../../../core/domain/tournament/tournament.entity';
 &nbsp;
 /**
@@ -218,23 +218,23 @@ export type RankingData = {
   updatedAt?: Date;
 };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >export class R</span>ankingMapper {
+export class RankingMapper {
   /**
    * Maps data from Prisma to a domain Ranking entity
    */
-  public <span class="fstat-no" title="function not covered" >static </span>toDomain(data: RankingData): Ranking {
-<span class="cstat-no" title="statement not covered" >    return new Ranking(</span>
+  public static toDomain(data: RankingData): Ranking {
+    return new Ranking(
       data.id,
       data.playerId,
       data.rankingPoints,
       data.globalPosition,
       data.categoryPosition,
       data.playerLevel,
-      data.previousPosition ?? null,
-      data.positionChange ?? 0,
-      data.lastCalculated ?? new Date(),
-      data.createdAt ?? new Date(),
-      data.updatedAt ?? new Date()
+      data.previousPosition<span class="branch-1 cbranch-no" title="branch not covered" ><span class="branch-0 cbranch-no" title="branch not covered" > ?? n</span></span>ull,
+      data.positionChange ?? <span class="branch-1 cbranch-no" title="branch not covered" >0,</span>
+      data.lastCalculated ?? <span class="branch-1 cbranch-no" title="branch not covered" >new Date(),</span>
+      data.createdAt ?? <span class="branch-1 cbranch-no" title="branch not covered" >new Date(),</span>
+      data.updatedAt ?? <span class="branch-1 cbranch-no" title="branch not covered" >new Date()</span>
     );
   }
 &nbsp;
@@ -271,7 +271,7 @@ export type RankingData = {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-03-23T22:37:40.856Z
+                at 2025-03-24T16:35:30.648Z
             </div>
         <script src="../../../../../prettify.js"></script>
         <script>

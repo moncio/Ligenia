@@ -375,7 +375,7 @@ export class MatchRepository extends BaseRepository implements IMatchRepository 
         return true;
       });
 
-      return result.isSuccess;
+      return result.isSuccess() ? result.value as boolean : false;
     } catch (error) {
       console.error(`Error deleting match: ${error}`);
       return false;
@@ -503,5 +503,25 @@ export class MatchRepository extends BaseRepository implements IMatchRepository 
     }
 
     return whereClause;
+  }
+
+  async update(match: Match): Promise<boolean> {
+    try {
+      // Convert match to Prisma model
+      const prismaMatch = MatchMapper.toPrisma(match);
+
+      // Update match in database
+      await this.prisma.match.update({
+        where: { id: prismaMatch.id },
+        data: prismaMatch,
+      });
+
+      // Return success
+      const result = Result.ok(true);
+      return result.isSuccess() ? result.value as boolean : false;
+    } catch (error) {
+      console.error('Error updating match:', error);
+      return false;
+    }
   }
 }
