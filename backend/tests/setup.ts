@@ -44,11 +44,26 @@ beforeAll(async () => {
 
 // Global teardown
 afterAll(async () => {
-  // Clean the database at the end of the test run
-  await cleanupAllData(prisma);
+  console.log('Running global teardown...');
   
-  // Disconnect Prisma
-  await disconnectPrisma();
+  try {
+    // Clean the database at the end of the test run
+    console.log('Cleaning up test data...');
+    await cleanupAllData(prisma);
+    console.log('Test data cleanup completed');
+    
+    // Disconnect Prisma - this is crucial to avoid open handles
+    console.log('Disconnecting from database...');
+    await disconnectPrisma();
+    console.log('Database disconnection completed');
+    
+    // Allow some time for any remaining connections to close
+    await new Promise(resolve => setTimeout(resolve, 500));
+  } catch (error) {
+    console.error('Error during test teardown:', error);
+    // Even if there's an error, still try to disconnect
+    await disconnectPrisma().catch(e => console.error('Final disconnect attempt failed:', e));
+  }
 });
 
 // Global configuration for tests

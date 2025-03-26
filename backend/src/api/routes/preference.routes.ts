@@ -12,16 +12,114 @@ const preferenceController = new PreferenceController();
 router.use(diMiddleware);
 
 /**
- * @route GET /api/preferences
- * @desc Get current user preferences
- * @access Private
+ * @swagger
+ * tags:
+ *   name: Preferences
+ *   description: User preferences endpoints
+ */
+
+/**
+ * @swagger
+ * /api/preferences:
+ *   get:
+ *     summary: Get user preferences
+ *     description: Retrieve current user preferences
+ *     tags: [Preferences]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User preferences
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     preferences:
+ *                       type: object
+ *                       properties:
+ *                         theme:
+ *                           type: string
+ *                           enum: [light, dark, system]
+ *                         language:
+ *                           type: string
+ *                         notifications:
+ *                           type: object
+ *                           properties:
+ *                             email:
+ *                               type: boolean
+ *                             push:
+ *                               type: boolean
+ *                         displaySettings:
+ *                           type: object
+ *       401:
+ *         description: Unauthorized
  */
 router.get('/', authenticate, preferenceController.getPreferences);
 
 /**
- * @route PUT /api/preferences
- * @desc Update current user preferences
- * @access Private
+ * @swagger
+ * /api/preferences:
+ *   put:
+ *     summary: Update user preferences
+ *     description: Update current user preferences
+ *     tags: [Preferences]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               theme:
+ *                 type: string
+ *                 enum: [light, dark, system]
+ *               language:
+ *                 type: string
+ *               notifications:
+ *                 type: object
+ *                 properties:
+ *                   email:
+ *                     type: boolean
+ *                   push:
+ *                     type: boolean
+ *               displaySettings:
+ *                 type: object
+ *                 properties:
+ *                   showRankings:
+ *                     type: boolean
+ *                   matchesPerPage:
+ *                     type: integer
+ *                     minimum: 5
+ *                     maximum: 50
+ *     responses:
+ *       200:
+ *         description: Preferences updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     preferences:
+ *                       type: object
+ *       400:
+ *         description: Invalid preference data
+ *       401:
+ *         description: Unauthorized
  */
 router.put(
   '/',
@@ -31,9 +129,32 @@ router.put(
 );
 
 /**
- * @route DELETE /api/preferences/reset
- * @desc Reset user preferences to defaults
- * @access Private
+ * @swagger
+ * /api/preferences/reset:
+ *   delete:
+ *     summary: Reset user preferences
+ *     description: Reset user preferences to default values
+ *     tags: [Preferences]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Preferences reset successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     preferences:
+ *                       type: object
+ *       401:
+ *         description: Unauthorized
  */
 router.delete('/reset', authenticate, preferenceController.resetPreferences);
 

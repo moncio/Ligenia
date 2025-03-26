@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { Statistic } from '../../../domain/statistic/statistic.entity';
 import { IStatisticRepository } from '../../interfaces/repositories/statistic.repository';
 import { IPlayerRepository } from '../../interfaces/repositories/player.repository';
+import { injectable, inject } from 'inversify';
 
 // Input validation schema
 const GetPlayerStatisticsInputSchema = z.object({
@@ -29,13 +30,14 @@ export interface GetPlayerStatisticsOutput {
 /**
  * Use case for getting player statistics
  */
+@injectable()
 export class GetPlayerStatisticsUseCase extends BaseUseCase<
   GetPlayerStatisticsInput,
   GetPlayerStatisticsOutput
 > {
   constructor(
-    private readonly statisticRepository: IStatisticRepository,
-    private readonly playerRepository: IPlayerRepository,
+    @inject('StatisticRepository') private readonly statisticRepository: IStatisticRepository,
+    @inject('PlayerRepository') private readonly playerRepository: IPlayerRepository,
   ) {
     super();
   }

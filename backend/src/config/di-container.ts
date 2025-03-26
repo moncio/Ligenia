@@ -20,6 +20,8 @@ import { UpdateTournamentUseCase } from '../core/application/use-cases/tournamen
 import { CancelTournamentUseCase } from '../core/application/use-cases/tournament/cancel-tournament.use-case';
 import { RegisterToTournamentUseCase } from '../core/application/use-cases/tournament/register-to-tournament.use-case';
 import { GetTournamentBracketUseCase } from '../core/application/use-cases/tournament/get-tournament-bracket.use-case';
+import { GetTournamentStandingsUseCase } from '../core/application/use-cases/tournament/get-tournament-standings.use-case';
+import { UpdateTournamentMatchesAndStandingsUseCase } from '../core/application/use-cases/tournament/update-tournament-matches-and-standings.use-case';
 // Import match repository
 import { IMatchRepository } from '../core/application/interfaces/repositories/match.repository';
 import { MatchRepository } from '../infrastructure/database/prisma/repositories/match.repository';
@@ -203,6 +205,18 @@ if (process.env.NODE_ENV === 'test') {
     return new GetTournamentBracketUseCase(repository, matchRepository);
   });
   
+  container.bind('getTournamentStandingsUseCase').toDynamicValue(() => {
+    const repository = container.get<ITournamentRepository>(TYPES.TournamentRepository);
+    const matchRepository = container.get<IMatchRepository>(TYPES.MatchRepository);
+    return new GetTournamentStandingsUseCase(repository, matchRepository);
+  });
+  
+  container.bind('updateTournamentMatchesAndStandingsUseCase').toDynamicValue(() => {
+    const repository = container.get<ITournamentRepository>(TYPES.TournamentRepository);
+    const matchRepository = container.get<IMatchRepository>(TYPES.MatchRepository);
+    return new UpdateTournamentMatchesAndStandingsUseCase(repository, matchRepository);
+  });
+  
   container.bind('listTournamentMatchesUseCase').toDynamicValue(() => {
     const matchRepository = container.get<IMatchRepository>(TYPES.MatchRepository);
     const tournamentRepository = container.get<ITournamentRepository>(TYPES.TournamentRepository);
@@ -244,11 +258,37 @@ if (process.env.NODE_ENV === 'test') {
   });
 
   // Statistic use cases
-  container.bind<GetPlayerStatisticsUseCase>(GetPlayerStatisticsUseCase).toSelf();
-  container.bind<GetTournamentStatisticsUseCase>(GetTournamentStatisticsUseCase).toSelf();
-  container.bind<ListGlobalStatisticsUseCase>(ListGlobalStatisticsUseCase).toSelf();
-  container.bind<UpdateStatisticsAfterMatchUseCase>(UpdateStatisticsAfterMatchUseCase).toSelf();
-  container.bind<CalculatePlayerStatisticsUseCase>(CalculatePlayerStatisticsUseCase).toSelf();
+  container.bind('getPlayerStatisticsUseCase').toDynamicValue(() => {
+    const statisticRepository = container.get<IStatisticRepository>(TYPES.StatisticRepository);
+    const playerRepository = container.get<IPlayerRepository>(TYPES.PlayerRepository);
+    return new GetPlayerStatisticsUseCase(statisticRepository, playerRepository);
+  });
+
+  container.bind('getTournamentStatisticsUseCase').toDynamicValue(() => {
+    const statisticRepository = container.get<IStatisticRepository>(TYPES.StatisticRepository);
+    const tournamentRepository = container.get<ITournamentRepository>(TYPES.TournamentRepository);
+    const playerRepository = container.get<IPlayerRepository>(TYPES.PlayerRepository);
+    return new GetTournamentStatisticsUseCase(statisticRepository, tournamentRepository, playerRepository);
+  });
+
+  container.bind('listGlobalStatisticsUseCase').toDynamicValue(() => {
+    const statisticRepository = container.get<IStatisticRepository>(TYPES.StatisticRepository);
+    const playerRepository = container.get<IPlayerRepository>(TYPES.PlayerRepository);
+    return new ListGlobalStatisticsUseCase(statisticRepository, playerRepository);
+  });
+
+  container.bind('updateStatisticsAfterMatchUseCase').toDynamicValue(() => {
+    const statisticRepository = container.get<IStatisticRepository>(TYPES.StatisticRepository);
+    const matchRepository = container.get<IMatchRepository>(TYPES.MatchRepository);
+    return new UpdateStatisticsAfterMatchUseCase(statisticRepository, matchRepository);
+  });
+
+  container.bind('calculatePlayerStatisticsUseCase').toDynamicValue(() => {
+    const statisticRepository = container.get<IStatisticRepository>(TYPES.StatisticRepository);
+    const playerRepository = container.get<IPlayerRepository>(TYPES.PlayerRepository);
+    const matchRepository = container.get<IMatchRepository>(TYPES.MatchRepository);
+    return new CalculatePlayerStatisticsUseCase(statisticRepository, playerRepository, matchRepository);
+  });
 
   // Ranking use cases
   container.bind('calculatePlayerRankingsUseCase').toDynamicValue(() => {

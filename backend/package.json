@@ -5,8 +5,12 @@
   "main": "dist/app.js",
   "scripts": {
     "build": "tsc",
+    "prestart": "node scripts/ensure-logs-dir.js",
     "start": "node dist/app.js",
+    "predev": "node scripts/ensure-logs-dir.js",
     "dev": "ts-node-dev --respawn --transpile-only src/app.ts",
+    "dev:clean": "fuser -k 3000/tcp || true && npm run predev && ts-node-dev --respawn --transpile-only src/app.ts",
+    "restart": "npm run dev:clean",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
@@ -18,21 +22,16 @@
     "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\"",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
+    "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:studio": "prisma studio",
     "prisma:seed": "prisma db seed",
     "prepare": "husky install",
-    "test:infrastructure": "NODE_ENV=test npx dotenv-cli -e .env.test -- jest --config=jest.config.js --runInBand --testMatch='**/tests/integration/infrastructure/**/*.test.ts' --forceExit",
+    "test:infrastructure": "NODE_ENV=test npx dotenv-cli -e .env.test -- jest --config=jest.config.js --runInBand --testMatch='**/tests/integration/infrastructure/**/*.test.ts' --detectOpenHandles --forceExit",
     "test:infrastructure:watch": "NODE_ENV=test npx dotenv-cli -e .env.test -- jest --config=jest.config.js --runInBand --testMatch='**/tests/integration/infrastructure/**/*.test.ts' --watch",
-    "test:routes": "NODE_ENV=test npx dotenv-cli -e .env.test -- jest --config=jest.config.js --runInBand --testMatch='**/tests/integration/routes/**/*.test.ts' --forceExit",
+    "test:routes": "NODE_ENV=test npx dotenv-cli -e .env.test -- jest --config=jest.config.js --runInBand --testMatch='**/tests/integration/routes/**/*.test.ts' --detectOpenHandles --forceExit",
     "test:routes:watch": "NODE_ENV=test npx dotenv-cli -e .env.test -- jest --config=jest.config.js --runInBand --testMatch='**/tests/integration/routes/**/*.test.ts' --watch",
     "test:unit": "jest --config=jest.config.js --testMatch='**/tests/unit/**/*.test.ts'",
-    "test:unit:watch": "jest --config=jest.config.js --testMatch='**/tests/unit/**/*.test.ts' --watch",
-    "test:routes:tournament": "NODE_ENV=test npx dotenv-cli -e .env.test -- jest --config=jest.config.js --runInBand --testPathPattern='tests/integration/routes/tournament' --forceExit",
-    "test:routes:user": "NODE_ENV=test npx dotenv-cli -e .env.test -- jest --config=jest.config.js --runInBand --testPathPattern='tests/integration/routes/user' --forceExit",
-    "test:routes:match": "NODE_ENV=test npx dotenv-cli -e .env.test -- jest --config=jest.config.js --runInBand --testPathPattern='tests/integration/routes/match' --forceExit",
-    "test:routes:preference": "NODE_ENV=test npx dotenv-cli -e .env.test -- jest --config=jest.config.js --runInBand --testPathPattern='tests/integration/routes/preference' --forceExit",
-    "test:routes:performance": "NODE_ENV=test npx dotenv-cli -e .env.test -- jest --config=jest.config.js --runInBand --testPathPattern='tests/integration/routes/performance' --forceExit",
-    "test:routes:entity": "node -e \"const entity = process.env.ENTITY; if (!entity) { console.error('Please provide an entity using: npm run test:routes:entity -- --env.ENTITY=tournament'); process.exit(1); } else { require('child_process').execSync(`NODE_ENV=test npx dotenv-cli -e .env.test -- jest --config=jest.config.js --runInBand --testPathPattern='tests/integration/routes/${entity}' --forceExit`, {stdio: 'inherit'}); }\""
+    "test:unit:watch": "jest --config=jest.config.js --testMatch='**/tests/unit/**/*.test.ts' --watch"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
@@ -62,6 +61,7 @@
     "swagger-ui-express": "^5.0.1",
     "uuid": "^11.1.0",
     "winston": "^3.11.0",
+    "winston-daily-rotate-file": "^4.7.1",
     "zod": "^3.22.4"
   },
   "devDependencies": {

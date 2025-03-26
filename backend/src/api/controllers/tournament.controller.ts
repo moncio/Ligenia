@@ -14,6 +14,7 @@ import { isValidUUID } from '../utils/uuid-validator';
 import { MatchStatus } from '../../core/domain/match/match.entity';
 import { TournamentStatus as DomainTournamentStatus, PlayerLevel as DomainPlayerLevel, TournamentFormat as DomainTournamentFormat } from '../../core/domain/tournament/tournament.entity';
 import { IUserRepository } from '../../core/application/interfaces/repositories/user.repository';
+import { GetTournamentStandingsUseCase } from '../../core/application/use-cases/tournament/get-tournament-standings.use-case';
 
 // Special UUID that is always considered non-existent for tests
 const NON_EXISTENT_ID = '00000000-0000-0000-0000-000000000000';
@@ -650,6 +651,7 @@ export class TournamentController {
 
     try {
       const { id } = req.params;
+      const { page = '1', limit = '10' } = req.query;
 
       // Validate UUID format
       if (!isValidUUID(id)) {
@@ -668,7 +670,7 @@ export class TournamentController {
       }
 
       // Get the use case from the container
-      const getTournamentStandingsUseCase = req.container?.get<any>('getTournamentStandingsUseCase');
+      const getTournamentStandingsUseCase = req.container?.get<GetTournamentStandingsUseCase>('getTournamentStandingsUseCase');
       
       // If we don't have the use case (e.g., in test environment)
       if (!getTournamentStandingsUseCase) {
@@ -706,31 +708,37 @@ export class TournamentController {
       }
 
       // Prepare the input for the use case
-      const input = { tournamentId: id };
+      const input = { 
+        tournamentId: id,
+        page: parseInt(page as string, 10),
+        limit: parseInt(limit as string, 10)
+      };
       console.log('Use case input:', JSON.stringify(input));
       
       // Execute the use case
       const result = await getTournamentStandingsUseCase.execute(input);
       
-      if (result.isSuccess) {
+      if (result.isSuccess()) {
+        const data = result.getValue();
         return res.status(200).json({
           status: 'success',
-          data: result.value,
+          data,
         });
       } else {
-        const errorMessage = result.error.message;
+        const error = result.getError();
+        console.error('Error in getTournamentStandingsUseCase:', error);
         
         // Handle specific error cases
-        if (errorMessage.includes('not found')) {
+        if (error.message.includes('not found')) {
           return res.status(404).json({
             status: 'error',
-            message: errorMessage,
+            message: error.message,
           });
         }
         
         return res.status(400).json({
           status: 'error',
-          message: errorMessage,
+          message: error.message,
         });
       }
     } catch (error) {

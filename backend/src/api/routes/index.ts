@@ -8,6 +8,7 @@ import statisticRoutes from './statistic.routes';
 import rankingRoutes from './ranking.routes';
 import preferenceRoutes from './preference.routes';
 import performanceRoutes from './performance.routes';
+import metricsRoutes from './metrics.routes';
 
 // Create main router
 const router = Router();
@@ -27,5 +28,6 @@ router.use('/statistics', statisticRoutes);
 router.use('/rankings', rankingRoutes);
 router.use('/preferences', preferenceRoutes);
 router.use('/performance', performanceRoutes);
+router.use('/metrics', metricsRoutes);
 
 export default router;

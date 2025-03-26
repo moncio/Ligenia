@@ -427,3 +427,68 @@ To improve future testing capabilities, a mock version of the auth middleware ha
 
 ## Coverage
 
+## Logging System
+
+LIGENIA features a robust logging system based on Winston that provides:
+
+- **Structured JSON Logging**: Machine-readable logs for easy parsing and analysis
+- **Log Rotation**: Daily log files with automatic rotation and compression
+- **Request ID Tracking**: Correlation IDs to trace requests through the system
+- **Environment-Specific Logging**: Different log levels for development, test, and production
+- **Sensitive Data Redaction**: Automatic redaction of passwords, tokens, and other sensitive information
+
+### Configuration
+
+The logging system is configured through environment variables in `.env`:
+
+```bash
+# Logging Configuration
+LOG_LEVEL=info               # Log levels: error, warn, info, http, verbose, debug, silly
+LOG_FORMAT=json              # Log formats: json, simple, colorized
+LOG_REDACT_SENSITIVE=true    # Redact sensitive data in logs
+LOG_TO_FILE=true             # Enable logging to files
+LOG_ROTATION=true            # Enable log rotation
+LOG_RETENTION_DAYS=14        # Number of days to keep log files
+LOG_MAX_SIZE=20              # Maximum size of log files in MB
+```
+
+### Usage
+
+In controllers and request handlers:
+
+```typescript
+import { logWithRequestId } from '../../config/logger';
+
+export class ExampleController {
+  public getSomething = async (req: Request, res: Response) => {
+    const log = logWithRequestId(req);
+    
+    try {
+      log.info('Processing request', { params: req.params });
+      // ... business logic ...
+      return res.status(200).json({ success: true });
+    } catch (error) {
+      log.error('Error processing request', { 
+        error: error instanceof Error ? error.message : 'Unknown error' 
+      });
+      return res.status(500).json({ error: 'Internal server error' });
+    }
+  };
+}
+```
+
+In services and repositories:
+
+```typescript
+import { logger } from '../../config/logger';
+
+export class ExampleService {
+  public doSomething() {
+    logger.info('Starting background process');
+    // ... implementation ...
+  }
+}
+```
+
+For more details on logging best practices and usage, see [Logging System Guide](./docs/logging-system.md).
+

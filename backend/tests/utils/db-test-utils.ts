@@ -62,8 +62,24 @@ export function getPrismaClient(): PrismaClient {
  */
 export async function disconnectPrisma(): Promise<void> {
   if (prismaInstance) {
-    await prismaInstance.$disconnect();
-    prismaInstance = null;
+    try {
+      console.log('Disconnecting Prisma client...');
+      
+      // Try to close any open connections gracefully
+      await prismaInstance.$disconnect();
+      
+      // Important: Set to null to allow garbage collection
+      prismaInstance = null;
+      
+      console.log('Prisma client disconnected successfully');
+    } catch (error) {
+      console.error('Error disconnecting Prisma client:', error);
+      // Even if there's an error, still set to null
+      prismaInstance = null;
+      throw error;
+    }
+  } else {
+    console.log('No Prisma client to disconnect');
   }
 }
 

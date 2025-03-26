@@ -15,9 +15,79 @@ const router = Router();
 const playerController = new PlayerController();
 
 /**
- * @route GET /api/players
- * @desc Get all players (admin only)
- * @access Private - Admin
+ * @swagger
+ * tags:
+ *   name: Players
+ *   description: Player management endpoints
+ */
+
+/**
+ * @swagger
+ * /api/players:
+ *   get:
+ *     summary: Get all players
+ *     description: Retrieve a list of all players with pagination and filters (admin only)
+ *     tags: [Players]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 10
+ *         description: Number of items per page
+ *       - in: query
+ *         name: name
+ *         schema:
+ *           type: string
+ *         description: Filter by player name
+ *       - in: query
+ *         name: userId
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: Filter by user ID
+ *     responses:
+ *       200:
+ *         description: A list of players
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     players:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                     pagination:
+ *                       type: object
+ *                       properties:
+ *                         total:
+ *                           type: integer
+ *                         page:
+ *                           type: integer
+ *                         limit:
+ *                           type: integer
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Not an admin
  */
 router.get(
   '/', 
@@ -29,9 +99,40 @@ router.get(
 );
 
 /**
- * @route GET /api/players/:id
- * @desc Get player by ID
- * @access Public
+ * @swagger
+ * /api/players/{id}:
+ *   get:
+ *     summary: Get player by ID
+ *     description: Retrieve detailed information about a player by their ID
+ *     tags: [Players]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         required: true
+ *         description: Player ID
+ *     responses:
+ *       200:
+ *         description: Player details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     player:
+ *                       type: object
+ *       400:
+ *         description: Invalid player ID format
+ *       404:
+ *         description: Player not found
  */
 router.get(
   '/:id', 
@@ -41,9 +142,45 @@ router.get(
 );
 
 /**
- * @route POST /api/players
- * @desc Create player profile
- * @access Private - Admin
+ * @swagger
+ * /api/players:
+ *   post:
+ *     summary: Create new player
+ *     description: Create a new player profile (admin only)
+ *     tags: [Players]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - name
+ *               - userId
+ *             properties:
+ *               name:
+ *                 type: string
+ *               userId:
+ *                 type: string
+ *                 format: uuid
+ *               bio:
+ *                 type: string
+ *               avatarUrl:
+ *                 type: string
+ *                 format: uri
+ *     responses:
+ *       201:
+ *         description: Player created successfully
+ *       400:
+ *         description: Invalid input data
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Not an admin
+ *       409:
+ *         description: Player with that user ID already exists
  */
 router.post(
   '/',
@@ -55,9 +192,47 @@ router.post(
 );
 
 /**
- * @route PUT /api/players/:id
- * @desc Update player profile
- * @access Private - Self or Admin
+ * @swagger
+ * /api/players/{id}:
+ *   put:
+ *     summary: Update player
+ *     description: Update a player's profile (admin or self only)
+ *     tags: [Players]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         required: true
+ *         description: Player ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *               bio:
+ *                 type: string
+ *               avatarUrl:
+ *                 type: string
+ *                 format: uri
+ *     responses:
+ *       200:
+ *         description: Player updated successfully
+ *       400:
+ *         description: Invalid input data
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Neither admin nor player owner
+ *       404:
+ *         description: Player not found
  */
 router.put(
   '/:id',
@@ -69,9 +244,33 @@ router.put(
 );
 
 /**
- * @route DELETE /api/players/:id
- * @desc Delete player profile
- * @access Private - Admin only
+ * @swagger
+ * /api/players/{id}:
+ *   delete:
+ *     summary: Delete player
+ *     description: Delete a player profile (admin only)
+ *     tags: [Players]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         required: true
+ *         description: Player ID
+ *     responses:
+ *       200:
+ *         description: Player deleted successfully
+ *       400:
+ *         description: Invalid player ID format
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Not an admin
+ *       404:
+ *         description: Player not found
  */
 router.delete(
   '/:id',
@@ -83,9 +282,40 @@ router.delete(
 );
 
 /**
- * @route GET /api/players/:id/statistics
- * @desc Get player statistics
- * @access Public
+ * @swagger
+ * /api/players/{id}/statistics:
+ *   get:
+ *     summary: Get player statistics
+ *     description: Retrieve comprehensive statistics for a player
+ *     tags: [Players]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         required: true
+ *         description: Player ID
+ *     responses:
+ *       200:
+ *         description: Player statistics
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     statistics:
+ *                       type: object
+ *       400:
+ *         description: Invalid player ID format
+ *       404:
+ *         description: Player not found
  */
 router.get(
   '/:id/statistics', 
@@ -95,9 +325,66 @@ router.get(
 );
 
 /**
- * @route GET /api/players/:id/matches
- * @desc Get player matches
- * @access Public
+ * @swagger
+ * /api/players/{id}/matches:
+ *   get:
+ *     summary: Get player matches
+ *     description: Retrieve all matches a player has participated in
+ *     tags: [Players]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         required: true
+ *         description: Player ID
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 10
+ *         description: Number of items per page
+ *     responses:
+ *       200:
+ *         description: Player matches
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     matches:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                     pagination:
+ *                       type: object
+ *                       properties:
+ *                         total:
+ *                           type: integer
+ *                         page:
+ *                           type: integer
+ *                         limit:
+ *                           type: integer
+ *       400:
+ *         description: Invalid player ID format
+ *       404:
+ *         description: Player not found
  */
 router.get(
   '/:id/matches', 
@@ -107,9 +394,66 @@ router.get(
 );
 
 /**
- * @route GET /api/players/:id/tournaments
- * @desc Get player tournaments
- * @access Public
+ * @swagger
+ * /api/players/{id}/tournaments:
+ *   get:
+ *     summary: Get player tournaments
+ *     description: Retrieve all tournaments a player has participated in
+ *     tags: [Players]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         required: true
+ *         description: Player ID
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 10
+ *         description: Number of items per page
+ *     responses:
+ *       200:
+ *         description: Player tournaments
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     tournaments:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                     pagination:
+ *                       type: object
+ *                       properties:
+ *                         total:
+ *                           type: integer
+ *                         page:
+ *                           type: integer
+ *                         limit:
+ *                           type: integer
+ *       400:
+ *         description: Invalid player ID format
+ *       404:
+ *         description: Player not found
  */
 router.get(
   '/:id/tournaments',

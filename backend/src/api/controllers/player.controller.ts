@@ -304,7 +304,7 @@ export class PlayerController {
       const { id } = req.params;
       console.log('Player ID:', id);
       
-      const getPlayerStatisticsUseCase = req.container?.get(GetPlayerStatisticsUseCase);
+      const getPlayerStatisticsUseCase = req.container?.get('getPlayerStatisticsUseCase');
       
       if (!getPlayerStatisticsUseCase) {
         console.error('getPlayerStatisticsUseCase is undefined or null');

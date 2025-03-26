@@ -12,9 +12,76 @@ const router = Router();
 const rankingController = new RankingController();
 
 /**
- * @route GET /api/rankings
- * @desc Get global rankings
- * @access Public
+ * @swagger
+ * tags:
+ *   name: Rankings
+ *   description: Player ranking endpoints
+ */
+
+/**
+ * @swagger
+ * /api/rankings:
+ *   get:
+ *     summary: Get global rankings
+ *     description: Retrieve global player rankings with pagination and filters
+ *     tags: [Rankings]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 10
+ *         description: Number of items per page
+ *       - in: query
+ *         name: name
+ *         schema:
+ *           type: string
+ *         description: Filter by player name
+ *     responses:
+ *       200:
+ *         description: List of player rankings
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     rankings:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                           playerId:
+ *                             type: string
+ *                           points:
+ *                             type: number
+ *                           player:
+ *                             type: object
+ *                     pagination:
+ *                       type: object
+ *                       properties:
+ *                         total:
+ *                           type: integer
+ *                         page:
+ *                           type: integer
+ *                         limit:
+ *                           type: integer
  */
 router.get(
   '/',
@@ -24,9 +91,64 @@ router.get(
 );
 
 /**
- * @route GET /api/rankings/category/:categoryId
- * @desc Get rankings by category
- * @access Public
+ * @swagger
+ * /api/rankings/category/{categoryId}:
+ *   get:
+ *     summary: Get rankings by category
+ *     description: Retrieve player rankings for a specific category/level
+ *     tags: [Rankings]
+ *     parameters:
+ *       - in: path
+ *         name: categoryId
+ *         schema:
+ *           type: string
+ *           enum: [BEGINNER, INTERMEDIATE, ADVANCED, PROFESSIONAL]
+ *         required: true
+ *         description: Player category/level
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 10
+ *         description: Number of items per page
+ *     responses:
+ *       200:
+ *         description: List of category-specific player rankings
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     rankings:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                     pagination:
+ *                       type: object
+ *                       properties:
+ *                         total:
+ *                           type: integer
+ *                         page:
+ *                           type: integer
+ *                         limit:
+ *                           type: integer
+ *       400:
+ *         description: Invalid category ID
  */
 router.get(
   '/category/:categoryId',
@@ -42,9 +164,50 @@ router.get(
 );
 
 /**
- * @route POST /api/rankings/match/:matchId/update
- * @desc Update rankings after a match has been completed
- * @access Private - Admin
+ * @swagger
+ * /api/rankings/match/{matchId}/update:
+ *   post:
+ *     summary: Update rankings after match
+ *     description: Update player rankings after a match has been completed (admin only)
+ *     tags: [Rankings]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: matchId
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         required: true
+ *         description: Match ID
+ *     responses:
+ *       200:
+ *         description: Rankings updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     player1Ranking:
+ *                       type: object
+ *                     player2Ranking:
+ *                       type: object
+ *       400:
+ *         description: Invalid match ID format or match is not completed
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Not an admin
+ *       404:
+ *         description: Match not found
+ *       409:
+ *         description: Rankings already updated for this match
  */
 router.post(
   '/match/:matchId/update',
@@ -60,9 +223,35 @@ router.post(
 );
 
 /**
- * @route POST /api/rankings/calculate
- * @desc Calculate or recalculate player rankings
- * @access Private - Admin
+ * @swagger
+ * /api/rankings/calculate:
+ *   post:
+ *     summary: Calculate player rankings
+ *     description: Calculate or recalculate rankings for all players or a specific player (admin only)
+ *     tags: [Rankings]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               playerId:
+ *                 type: string
+ *                 format: uuid
+ *                 description: Optional player ID to calculate rankings for a specific player
+ *     responses:
+ *       200:
+ *         description: Rankings calculated successfully
+ *       400:
+ *         description: Invalid player ID format
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - Not an admin
+ *       404:
+ *         description: Player not found
  */
 router.post(
   '/calculate',
@@ -77,7 +266,43 @@ router.post(
   rankingController.calculatePlayerRankings
 );
 
-// For backward compatibility with existing implementations
+/**
+ * @swagger
+ * /api/rankings/{categoryId}:
+ *   get:
+ *     summary: Get rankings by category (legacy)
+ *     description: Retrieve player rankings for a specific category/level (backward compatibility)
+ *     tags: [Rankings]
+ *     parameters:
+ *       - in: path
+ *         name: categoryId
+ *         schema:
+ *           type: string
+ *           enum: [BEGINNER, INTERMEDIATE, ADVANCED, PROFESSIONAL]
+ *         required: true
+ *         description: Player category/level
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 10
+ *         description: Number of items per page
+ *     responses:
+ *       200:
+ *         description: List of category-specific player rankings
+ *       400:
+ *         description: Invalid category ID
+ *     deprecated: true
+ */
 router.get(
   '/:categoryId',
   diMiddleware,

@@ -545,8 +545,8 @@ describe('Tournament Routes - Integration Tests', () => {
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
-      expect(response.body.data).toBeTruthy();
-      // The actual structure of the data may vary depending on implementation
+      expect(response.body.data).toHaveProperty('standings');
+      expect(Array.isArray(response.body.data.standings)).toBe(true);
     });
 
     it('should return 404 for non-existent tournament ID', async () => {
@@ -563,6 +563,15 @@ describe('Tournament Routes - Integration Tests', () => {
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
       expect(response.body.message).toContain('Invalid tournament ID format');
+    });
+
+    it('should handle pagination parameters', async () => {
+      const response = await agent
+        .get(`/api/tournaments/${testData.tournament.id}/standings`)
+        .query({ page: 1, limit: 5 });
+
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('status', 'success');
     });
   });
 

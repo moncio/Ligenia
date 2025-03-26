@@ -20,7 +20,7 @@ export class StatisticController {
   public getPlayerStatistics = async (req: ContainerRequest, res: Response): Promise<void> => {
     try {
       const playerId = req.params.playerId;
-      const getPlayerStatisticsUseCase = req.container?.get(GetPlayerStatisticsUseCase);
+      const getPlayerStatisticsUseCase = req.container?.get('getPlayerStatisticsUseCase');
       
       if (!getPlayerStatisticsUseCase) {
         res.status(500).json({ error: 'Use case not available' });
@@ -59,7 +59,7 @@ export class StatisticController {
   public getTournamentStatistics = async (req: ContainerRequest, res: Response): Promise<void> => {
     try {
       const tournamentId = req.params.tournamentId;
-      const getTournamentStatisticsUseCase = req.container?.get(GetTournamentStatisticsUseCase);
+      const getTournamentStatisticsUseCase = req.container?.get('getTournamentStatisticsUseCase');
       
       if (!getTournamentStatisticsUseCase) {
         res.status(500).json({ message: 'Use case not available' });
@@ -100,7 +100,7 @@ export class StatisticController {
       const sortOrder = req.query.sortOrder === 'desc' ? 'desc' : 'asc';
       const playerLevel = req.query.playerLevel ? String(req.query.playerLevel) : undefined;
       
-      const listGlobalStatisticsUseCase = req.container?.get(ListGlobalStatisticsUseCase);
+      const listGlobalStatisticsUseCase = req.container?.get('listGlobalStatisticsUseCase');
       
       if (!listGlobalStatisticsUseCase) {
         res.status(500).json({ error: 'Use case not available' });
@@ -135,7 +135,7 @@ export class StatisticController {
   public updateStatisticsAfterMatch = async (req: ContainerRequest, res: Response): Promise<void> => {
     try {
       const matchId = req.params.matchId;
-      const updateStatisticsAfterMatchUseCase = req.container?.get(UpdateStatisticsAfterMatchUseCase);
+      const updateStatisticsAfterMatchUseCase = req.container?.get('updateStatisticsAfterMatchUseCase');
       
       if (!updateStatisticsAfterMatchUseCase) {
         res.status(500).json({ error: 'Use case not available' });

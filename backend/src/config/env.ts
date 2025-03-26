@@ -35,6 +35,12 @@ const envSchema = z.object({
 
   // Logging
   LOG_LEVEL: z.enum(['error', 'warn', 'info', 'http', 'verbose', 'debug', 'silly']).default('info'),
+  LOG_FORMAT: z.enum(['json', 'simple', 'colorized']).default('json'),
+  LOG_REDACT_SENSITIVE: z.string().transform(val => val === 'true').default('true'),
+  LOG_TO_FILE: z.string().transform(val => val === 'true').default('true'),
+  LOG_ROTATION: z.string().transform(val => val === 'true').default('true'),
+  LOG_RETENTION_DAYS: z.string().transform(val => parseInt(val, 10)).default('14'),
+  LOG_MAX_SIZE: z.string().transform(val => parseInt(val, 10)).default('20'),
 
   // Cors
   CORS_ORIGIN: z.string().default('http://localhost:3000'),
@@ -62,5 +68,11 @@ export const env = _env.success
       SUPABASE_URL: 'https://example.supabase.co',
       SUPABASE_KEY: 'your-supabase-key',
       LOG_LEVEL: 'info',
+      LOG_FORMAT: 'json',
+      LOG_REDACT_SENSITIVE: true,
+      LOG_TO_FILE: true,
+      LOG_ROTATION: true,
+      LOG_RETENTION_DAYS: 14,
+      LOG_MAX_SIZE: 20,
       CORS_ORIGIN: 'http://localhost:3000',
     };

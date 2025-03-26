@@ -12,12 +12,26 @@ const options = {
     },
     servers: [
       {
-        url: 'http://localhost:3000/api/v1',
+        url: 'http://localhost:3000',
         description: 'Development server',
       },
     ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+      },
+    },
+    security: [
+      {
+        bearerAuth: [],
+      },
+    ],
   },
-  apis: ['./src/api/routes/*.ts'], // Files where endpoints are documented
+  apis: ['./src/api/routes/*.ts', './src/api/controllers/*.ts', './src/api/validations/*.ts', './src/core/domain/**/*.ts'],
 };
 
 const swaggerSpec = swaggerJSDoc(options);
