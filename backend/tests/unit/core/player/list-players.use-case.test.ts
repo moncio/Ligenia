@@ -95,6 +95,10 @@ class MockPlayerRepository implements IPlayerRepository {
     return result.length;
   }
 
+  async findByLevel(level: PlayerLevel): Promise<Player[]> {
+    return this.players.filter(p => p.level === level);
+  }
+
   async save(player: Player): Promise<void> {
     player.id = `player-${this.players.length + 1}`;
     this.players.push(player);
@@ -175,7 +179,7 @@ describe('ListPlayersUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const { players, total, skip, limit } = result.getValue();
     expect(players).toHaveLength(5);
@@ -194,7 +198,7 @@ describe('ListPlayersUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const { players, total } = result.getValue();
     expect(players).toHaveLength(2);
@@ -212,7 +216,7 @@ describe('ListPlayersUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const { players, total } = result.getValue();
     expect(players).toHaveLength(2);
@@ -231,7 +235,7 @@ describe('ListPlayersUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const { players, total, skip, limit } = result.getValue();
     expect(players).toHaveLength(2);
@@ -251,7 +255,7 @@ describe('ListPlayersUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const { players } = result.getValue();
     expect(players[0].age).toBe(32); // Oldest player first
@@ -268,7 +272,7 @@ describe('ListPlayersUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const { players, total } = result.getValue();
     expect(players).toHaveLength(2);
@@ -287,6 +291,6 @@ describe('ListPlayersUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
   });
 });

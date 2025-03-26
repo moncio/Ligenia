@@ -252,21 +252,22 @@ describe('GetCategoryBasedRankingUseCase', () => {
 
   beforeEach(() => {
     // Initialize repositories with test data
-    rankingRepository = new MockRankingRepository([
-      p3Ranking1,
-      p3Ranking2,
-      p2Ranking1,
-      p2Ranking2,
-      p1Ranking1,
-    ]);
+    const rankings = [
+      new Ranking('ranking1', p3Player1Id, 100, 1, 1, PlayerLevel.P3.toString()),
+      new Ranking('ranking2', p3Player2Id, 48.7, 2, 2, PlayerLevel.P3.toString()),
+      new Ranking('ranking3', p2Player1Id, 1000, 1, 1, PlayerLevel.P2.toString()),
+      new Ranking('ranking4', p2Player2Id, 900, 2, 2, PlayerLevel.P2.toString()),
+    ];
 
-    playerRepository = new MockPlayerRepository([
-      p3Player1,
-      p3Player2,
-      p2Player1,
-      p2Player2,
-      p1Player1,
-    ]);
+    const players = [
+      new Player(p3Player1Id, 'user1', PlayerLevel.P3, 30, 'Spain', 'player1.jpg'),
+      new Player(p3Player2Id, 'user2', PlayerLevel.P3, 28, 'France', 'player2.jpg'),
+      new Player(p2Player1Id, 'user3', PlayerLevel.P2, 25, 'Germany', 'player3.jpg'),
+      new Player(p2Player2Id, 'user4', PlayerLevel.P2, 22, 'Italy', 'player4.jpg'),
+    ];
+
+    rankingRepository = new MockRankingRepository(rankings);
+    playerRepository = new MockPlayerRepository(players);
 
     // Initialize use case
     useCase = new GetCategoryBasedRankingUseCase(rankingRepository, playerRepository);
@@ -282,7 +283,7 @@ describe('GetCategoryBasedRankingUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const output = result.getValue();
     expect(output.rankings.length).toBe(2); // Two P3 players
@@ -316,7 +317,7 @@ describe('GetCategoryBasedRankingUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const output = result.getValue();
     expect(output.rankings.length).toBe(1); // Only one due to limit
@@ -335,7 +336,7 @@ describe('GetCategoryBasedRankingUseCase', () => {
     };
 
     const page2Result = await useCase.execute(page2Input);
-    expect(page2Result.isSuccess).toBe(true);
+    expect(page2Result.isSuccess()).toBe(true);
 
     const page2Output = page2Result.getValue();
     expect(page2Output.rankings.length).toBe(1);
@@ -355,7 +356,7 @@ describe('GetCategoryBasedRankingUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const output = result.getValue();
     expect(output.rankings.length).toBe(2);
@@ -363,6 +364,7 @@ describe('GetCategoryBasedRankingUseCase', () => {
     // Should be sorted by ranking points (highest first)
     expect(output.rankings[0].rankingPoints).toBeGreaterThan(output.rankings[1].rankingPoints);
     expect(output.rankings[0].playerId).toBe(p3Player1Id); // Higher points
+    expect(output.rankings[1].playerId).toBe(p3Player2Id); // Lower points
   });
 
   it('should sort by category position in ascending order', async () => {
@@ -377,7 +379,7 @@ describe('GetCategoryBasedRankingUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const output = result.getValue();
     expect(output.rankings.length).toBe(2);
@@ -390,26 +392,33 @@ describe('GetCategoryBasedRankingUseCase', () => {
 
   it('should return empty array for a category with no rankings', async () => {
     // Arrange
-    // Create repository with no P4 rankings
-    rankingRepository = new MockRankingRepository([
-      p3Ranking1,
-      p3Ranking2,
-      p2Ranking1,
-      p2Ranking2,
-      p1Ranking1,
-    ]);
+    // Create repository with no P3 rankings
+    const rankings = [
+      new Ranking('ranking1', p2Player1Id, 1000, 1, 1, PlayerLevel.P2.toString()),
+      new Ranking('ranking2', p2Player2Id, 900, 2, 2, PlayerLevel.P2.toString()),
+      new Ranking('ranking3', p1Player1Id, 800, 3, 1, PlayerLevel.P1.toString()),
+    ];
+
+    const players = [
+      new Player(p2Player1Id, 'user3', PlayerLevel.P2, 25, 'Germany', 'player3.jpg'),
+      new Player(p2Player2Id, 'user4', PlayerLevel.P2, 22, 'Italy', 'player4.jpg'),
+      new Player(p1Player1Id, 'user5', PlayerLevel.P1, 35, 'USA', 'player5.jpg'),
+    ];
+
+    rankingRepository = new MockRankingRepository(rankings);
+    playerRepository = new MockPlayerRepository(players);
 
     useCase = new GetCategoryBasedRankingUseCase(rankingRepository, playerRepository);
 
     const input: GetCategoryBasedRankingInput = {
-      playerLevel: PlayerLevel.P4, // No players in this level
+      playerLevel: PlayerLevel.P3, // No players in this level
     };
 
     // Act
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const output = result.getValue();
     expect(output.rankings.length).toBe(0);
@@ -428,7 +437,7 @@ describe('GetCategoryBasedRankingUseCase', () => {
     const result = await useCase.execute(invalidInput);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Invalid player level');
   });
 
@@ -445,6 +454,6 @@ describe('GetCategoryBasedRankingUseCase', () => {
     const result = await useCase.execute(invalidInput);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
   });
 });

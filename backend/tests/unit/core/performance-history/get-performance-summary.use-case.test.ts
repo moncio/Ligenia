@@ -130,7 +130,7 @@ describe('GetPerformanceSummaryUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isSuccess).toBe(true);
+      expect(result.isSuccess()).toBe(true);
       const summary = result.getValue();
       expect(summary.userId).toBe(input.userId);
       expect(summary.totalMatches).toBe(10);
@@ -148,7 +148,7 @@ describe('GetPerformanceSummaryUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isSuccess).toBe(true);
+      expect(result.isSuccess()).toBe(true);
       const summary = result.getValue();
       expect(summary.userId).toBe(input.userId);
       expect(summary.year).toBe(input.year);
@@ -167,7 +167,7 @@ describe('GetPerformanceSummaryUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isSuccess).toBe(true);
+      expect(result.isSuccess()).toBe(true);
       const summary = result.getValue();
       expect(summary.year).toBe(2023); // Should be parsed to number
       expect(summary.bestMonth).toBeDefined();
@@ -186,7 +186,7 @@ describe('GetPerformanceSummaryUseCase', () => {
       const result = await useCase.execute(input as any);
 
       // Assert
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
       expect(result.getError().message).toContain('Invalid user ID format');
     });
 
@@ -201,7 +201,7 @@ describe('GetPerformanceSummaryUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
     });
 
     test('should fail with invalid year format', async () => {
@@ -215,7 +215,7 @@ describe('GetPerformanceSummaryUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
     });
   });
 
@@ -236,7 +236,7 @@ describe('GetPerformanceSummaryUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
       expect(result.getError().message).toBe('Database connection error');
     });
   });

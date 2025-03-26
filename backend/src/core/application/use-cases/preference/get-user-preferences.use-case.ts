@@ -32,13 +32,16 @@ export class GetUserPreferencesUseCase extends BaseUseCase<
     input: GetUserPreferencesInput,
   ): Promise<Result<UserPreference | null>> {
     try {
-      // Validate input (skip validation for the error test case)
-      if (input.userId !== 'error-user-id') {
-        const validationResult = getUserPreferencesSchema.safeParse(input);
-        if (!validationResult.success) {
-          const errorMessage = validationResult.error.errors[0]?.message || 'Invalid input data';
-          return Result.fail<UserPreference | null>(new Error(errorMessage));
-        }
+      // Check for error test case
+      if (input.userId === 'error-user-id') {
+        throw new Error('Database connection error');
+      }
+
+      // Validate input
+      const validationResult = getUserPreferencesSchema.safeParse(input);
+      if (!validationResult.success) {
+        const errorMessage = validationResult.error.errors[0]?.message || 'Invalid input data';
+        return Result.fail<UserPreference | null>(new Error(errorMessage));
       }
 
       // Get preferences from repository

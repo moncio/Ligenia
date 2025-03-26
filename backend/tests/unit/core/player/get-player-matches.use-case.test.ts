@@ -35,6 +35,10 @@ class MockPlayerRepository implements IPlayerRepository {
     return this.players.length;
   }
 
+  async findByLevel(level: PlayerLevel): Promise<Player[]> {
+    return this.players.filter(p => p.level === level);
+  }
+
   async save(player: Player): Promise<void> {
     player.id = `player-${this.players.length + 1}`;
     this.players.push(player);
@@ -290,7 +294,7 @@ describe('GetPlayerMatchesUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const { matches, total, skip, limit } = result.getValue();
     expect(matches).toHaveLength(4); // All matches where the player is playing
@@ -310,7 +314,7 @@ describe('GetPlayerMatchesUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const { matches, total } = result.getValue();
     expect(matches).toHaveLength(1);
@@ -329,7 +333,7 @@ describe('GetPlayerMatchesUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const { matches, total } = result.getValue();
     expect(matches).toHaveLength(2);
@@ -351,7 +355,7 @@ describe('GetPlayerMatchesUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const { matches, total } = result.getValue();
     expect(matches).toHaveLength(2);
@@ -376,7 +380,7 @@ describe('GetPlayerMatchesUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const { matches, total, skip, limit } = result.getValue();
     expect(matches).toHaveLength(2);
@@ -395,7 +399,7 @@ describe('GetPlayerMatchesUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toBe('Player not found');
   });
 
@@ -411,7 +415,7 @@ describe('GetPlayerMatchesUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Invalid player ID format');
   });
 });

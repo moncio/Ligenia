@@ -8,7 +8,7 @@ import { injectable } from 'inversify';
 @injectable()
 export class StatisticRepository extends BaseRepository implements IStatisticRepository {
   constructor(protected readonly prisma: PrismaClient) {
-    super();
+    super(prisma);
   }
 
   async findById(id: string): Promise<Statistic | null> {
@@ -24,7 +24,7 @@ export class StatisticRepository extends BaseRepository implements IStatisticRep
       return StatisticMapper.toDomain(statistic);
     });
 
-    return result.isSuccess ? result.getValue() as Statistic | null : null;
+    return result.isSuccess() ? result.getValue() as Statistic | null : null;
   }
 
   async findByPlayerId(playerId: string): Promise<Statistic | null> {
@@ -40,7 +40,7 @@ export class StatisticRepository extends BaseRepository implements IStatisticRep
       return StatisticMapper.toDomain(statistic);
     });
 
-    return result.isSuccess ? result.getValue() as Statistic | null : null;
+    return result.isSuccess() ? result.getValue() as Statistic | null : null;
   }
 
   async findAll(filter?: StatisticFilter, pagination?: PaginationOptions): Promise<Statistic[]> {
@@ -90,7 +90,7 @@ export class StatisticRepository extends BaseRepository implements IStatisticRep
       return statistics.map(StatisticMapper.toDomain);
     });
 
-    return result.isSuccess ? result.getValue() as Statistic[] : [];
+    return result.isSuccess() ? result.getValue() as Statistic[] : [];
   }
 
   async count(filter?: StatisticFilter): Promise<number> {
@@ -117,7 +117,7 @@ export class StatisticRepository extends BaseRepository implements IStatisticRep
       return await this.prisma.statistic.count({ where });
     });
 
-    return result.isSuccess ? result.getValue() as number : 0;
+    return result.isSuccess() ? result.getValue() as number : 0;
   }
 
   async save(statistic: Statistic, tournamentId?: string): Promise<void> {
@@ -181,7 +181,7 @@ export class StatisticRepository extends BaseRepository implements IStatisticRep
       }
     });
 
-    if (result.isFailure) {
+    if (result.isFailure()) {
       throw result.getError();
     }
   }
@@ -205,7 +205,7 @@ export class StatisticRepository extends BaseRepository implements IStatisticRep
       });
     });
 
-    if (result.isFailure) {
+    if (result.isFailure()) {
       throw result.getError();
     }
   }
@@ -217,7 +217,7 @@ export class StatisticRepository extends BaseRepository implements IStatisticRep
       });
     });
 
-    if (result.isFailure) {
+    if (result.isFailure()) {
       throw result.getError();
     }
   }
@@ -232,6 +232,6 @@ export class StatisticRepository extends BaseRepository implements IStatisticRep
       return statistics.map(StatisticMapper.toDomain);
     });
 
-    return result.isSuccess ? result.getValue() as Statistic[] : [];
+    return result.isSuccess() ? result.getValue() as Statistic[] : [];
   }
 } 

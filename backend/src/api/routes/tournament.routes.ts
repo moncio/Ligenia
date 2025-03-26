@@ -65,7 +65,7 @@ router.delete(
   authenticate,
   authorize([UserRole.ADMIN]),
   validateParams(idParamSchema),
-  tournamentController.deleteTournament,
+  tournamentController.cancelTournament,
 );
 
 /**

@@ -16,6 +16,7 @@ import {
 } from '../../../../src/core/domain/tournament/tournament.entity';
 import { User, UserRole } from '../../../../src/core/domain/user/user.entity';
 import { Match } from '../../../../src/core/domain/match/match.entity';
+import { PaginationOptions } from '../../../../src/core/application/interfaces/repositories/tournament.repository';
 
 // Mock repositories
 const mockTournamentRepository: jest.Mocked<ITournamentRepository> = {
@@ -44,12 +45,45 @@ const mockMatchRepository: jest.Mocked<IMatchRepository> = {
   count: jest.fn(),
 };
 
-const mockUserRepository: jest.Mocked<IUserRepository> = {
-  findById: jest.fn(),
-  findByEmail: jest.fn(),
-  save: jest.fn(),
-  update: jest.fn(),
-};
+class MockUserRepository implements IUserRepository {
+  private users: Map<string, User>;
+
+  constructor(users: User[]) {
+    this.users = new Map(users.map(user => [user.id, user]));
+  }
+
+  async findById(id: string): Promise<User | null> {
+    return this.users.get(id) || null;
+  }
+
+  async findByEmail(email: string): Promise<User | null> {
+    return Array.from(this.users.values()).find(user => user.email === email) || null;
+  }
+
+  async findAll(limit?: number, offset?: number): Promise<User[]> {
+    const users = Array.from(this.users.values());
+    if (offset !== undefined && limit !== undefined) {
+      return users.slice(offset, offset + limit);
+    }
+    return users;
+  }
+
+  async count(): Promise<number> {
+    return this.users.size;
+  }
+
+  async save(user: User): Promise<void> {
+    this.users.set(user.id, user);
+  }
+
+  async update(user: User): Promise<void> {
+    this.users.set(user.id, user);
+  }
+
+  async delete(id: string): Promise<void> {
+    this.users.delete(id);
+  }
+}
 
 describe('GenerateTournamentBracketUseCase', () => {
   let useCase: GenerateTournamentBracketUseCase;
@@ -76,7 +110,11 @@ describe('GenerateTournamentBracketUseCase', () => {
     useCase = new GenerateTournamentBracketUseCase(
       mockTournamentRepository,
       mockMatchRepository,
-      mockUserRepository,
+      new MockUserRepository([
+        createAdminUser(adminId),
+        createRegularUser(regularUserId),
+        createRegularUser(creatorId),
+      ]),
     );
 
     // Reset all mocks
@@ -86,7 +124,6 @@ describe('GenerateTournamentBracketUseCase', () => {
     mockTournamentRepository.findById.mockResolvedValue(
       createTournament(creatorId, TournamentStatus.OPEN),
     );
-    mockUserRepository.findById.mockResolvedValue(createRegularUser(regularUserId));
     mockMatchRepository.tournamentHasMatches.mockResolvedValue(false);
     mockTournamentRepository.getParticipants.mockResolvedValue(participants);
     mockMatchRepository.save.mockResolvedValue(undefined);
@@ -133,15 +170,13 @@ describe('GenerateTournamentBracketUseCase', () => {
         userId: adminId,
       };
 
-      mockUserRepository.findById.mockResolvedValue(createAdminUser(adminId));
-
       // Act
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isSuccess).toBe(true);
+      expect(result.isSuccess()).toBe(true);
 
-      if (result.isSuccess) {
+      if (result.isSuccess()) {
         expect(result.getValue().tournamentId).toBe(tournamentId);
         expect(result.getValue().format).toBe(TournamentFormat.SINGLE_ELIMINATION);
         expect(result.getValue().matchesCreated).toBe(4); // For 8 participants, should be 4 first-round matches
@@ -159,15 +194,14 @@ describe('GenerateTournamentBracketUseCase', () => {
       mockTournamentRepository.findById.mockResolvedValue(
         createTournament(creatorId, TournamentStatus.DRAFT),
       );
-      mockUserRepository.findById.mockResolvedValue(createRegularUser(creatorId));
 
       // Act
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isSuccess).toBe(true);
+      expect(result.isSuccess()).toBe(true);
 
-      if (result.isSuccess) {
+      if (result.isSuccess()) {
         expect(result.getValue().tournamentId).toBe(tournamentId);
         expect(result.getValue().format).toBe(TournamentFormat.SINGLE_ELIMINATION);
         expect(result.getValue().rounds).toBe(3); // For 8 participants, should be 3 rounds
@@ -183,15 +217,14 @@ describe('GenerateTournamentBracketUseCase', () => {
 
       const oddParticipants = participants.slice(0, 7); // Just take 7 participants
       mockTournamentRepository.getParticipants.mockResolvedValue(oddParticipants);
-      mockUserRepository.findById.mockResolvedValue(createAdminUser(adminId));
 
       // Act
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isSuccess).toBe(true);
+      expect(result.isSuccess()).toBe(true);
 
-      if (result.isSuccess) {
+      if (result.isSuccess()) {
         expect(result.getValue().matchesCreated).toBe(3); // For 7 participants, should be 3 first-round matches (with 1 bye)
       }
     });
@@ -205,15 +238,14 @@ describe('GenerateTournamentBracketUseCase', () => {
 
       const minParticipants = participants.slice(0, 2); // Just take 2 participants
       mockTournamentRepository.getParticipants.mockResolvedValue(minParticipants);
-      mockUserRepository.findById.mockResolvedValue(createAdminUser(adminId));
 
       // Act
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isSuccess).toBe(true);
+      expect(result.isSuccess()).toBe(true);
 
-      if (result.isSuccess) {
+      if (result.isSuccess()) {
         expect(result.getValue().matchesCreated).toBe(1); // For 2 participants, should be 1 match
         expect(result.getValue().rounds).toBe(1); // Only 1 round needed
       }
@@ -234,25 +266,24 @@ describe('GenerateTournamentBracketUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
       expect(result.getError().message).toContain('Tournament with ID');
       expect(result.getError().message).toContain('not found');
     });
 
     it('should fail if user does not exist', async () => {
       // Arrange
+      const nonExistentUserId = 'f8c3de3d-1fea-4d7c-a8b0-29f63c4c3454';
       const input: GenerateTournamentBracketInput = {
         tournamentId,
-        userId: adminId,
+        userId: nonExistentUserId,
       };
-
-      mockUserRepository.findById.mockResolvedValue(null);
 
       // Act
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
       expect(result.getError().message).toContain('User with ID');
       expect(result.getError().message).toContain('not found');
     });
@@ -268,7 +299,7 @@ describe('GenerateTournamentBracketUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
       expect(result.getError().message).toContain('Only admins or the tournament creator');
     });
 
@@ -279,7 +310,6 @@ describe('GenerateTournamentBracketUseCase', () => {
         userId: adminId,
       };
 
-      mockUserRepository.findById.mockResolvedValue(createAdminUser(adminId));
       mockTournamentRepository.findById.mockResolvedValue(
         createTournament(creatorId, TournamentStatus.ACTIVE),
       );
@@ -288,7 +318,7 @@ describe('GenerateTournamentBracketUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
       expect(result.getError().message).toContain(
         'Cannot generate bracket for a tournament in ACTIVE state',
       );
@@ -301,14 +331,13 @@ describe('GenerateTournamentBracketUseCase', () => {
         userId: adminId,
       };
 
-      mockUserRepository.findById.mockResolvedValue(createAdminUser(adminId));
       mockMatchRepository.tournamentHasMatches.mockResolvedValue(true);
 
       // Act
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
       expect(result.getError().message).toContain('Tournament already has matches');
     });
 
@@ -319,14 +348,13 @@ describe('GenerateTournamentBracketUseCase', () => {
         userId: adminId,
       };
 
-      mockUserRepository.findById.mockResolvedValue(createAdminUser(adminId));
       mockTournamentRepository.getParticipants.mockResolvedValue([participants[0]]);
 
       // Act
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
       expect(result.getError().message).toContain('Tournament needs at least 2 participants');
     });
 
@@ -341,7 +369,7 @@ describe('GenerateTournamentBracketUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
       expect(result.getError().message).toContain('Invalid input');
     });
 
@@ -352,14 +380,13 @@ describe('GenerateTournamentBracketUseCase', () => {
         userId: adminId,
       };
 
-      mockUserRepository.findById.mockResolvedValue(createAdminUser(adminId));
       mockMatchRepository.save.mockRejectedValue(new Error('Database error during match save'));
 
       // Act
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
       expect(result.getError().message).toContain('Database error during match save');
     });
   });
@@ -377,16 +404,14 @@ describe('GenerateTournamentBracketUseCase', () => {
         userId: adminId,
       };
 
-      mockUserRepository.findById.mockResolvedValue(createAdminUser(adminId));
-
       // Act
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isSuccess).toBe(true);
+      expect(result.isSuccess()).toBe(true);
 
       // Verify that we generate the correct structure expected by the tournament start process
-      if (result.isSuccess) {
+      if (result.isSuccess()) {
         expect(result.getValue()).toHaveProperty('tournamentId');
         expect(result.getValue()).toHaveProperty('format');
         expect(result.getValue()).toHaveProperty('rounds');

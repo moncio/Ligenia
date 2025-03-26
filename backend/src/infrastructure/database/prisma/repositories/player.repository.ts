@@ -14,7 +14,7 @@ import { injectable } from 'inversify';
 @injectable()
 export class PlayerRepository extends BaseRepository implements IPlayerRepository {
   constructor(protected readonly prisma: PrismaClient) {
-    super();
+    super(prisma);
   }
 
   async findById(id: string): Promise<Player | null> {
@@ -109,7 +109,7 @@ export class PlayerRepository extends BaseRepository implements IPlayerRepositor
       return undefined;
     });
     
-    if (result.isFailure) {
+    if (result.isFailure()) {
       throw result.getError();
     }
   }
@@ -126,7 +126,7 @@ export class PlayerRepository extends BaseRepository implements IPlayerRepositor
       return undefined;
     });
     
-    if (result.isFailure) {
+    if (result.isFailure()) {
       throw result.getError();
     }
   }
@@ -140,7 +140,7 @@ export class PlayerRepository extends BaseRepository implements IPlayerRepositor
       return undefined;
     });
     
-    if (result.isFailure) {
+    if (result.isFailure()) {
       throw result.getError();
     }
   }

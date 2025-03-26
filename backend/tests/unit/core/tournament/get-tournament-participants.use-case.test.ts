@@ -153,7 +153,7 @@ describe('GetTournamentParticipantsUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assertions
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const output = result.getValue();
     expect(output.participants).toBeDefined();
@@ -180,7 +180,7 @@ describe('GetTournamentParticipantsUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assertions
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const output = result.getValue();
     expect(output.participants).toBeDefined();
@@ -213,7 +213,7 @@ describe('GetTournamentParticipantsUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assertions
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const output = result.getValue();
     expect(output.participants).toBeDefined();
@@ -260,7 +260,7 @@ describe('GetTournamentParticipantsUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assertions
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const output = result.getValue();
     expect(output.participants).toBeDefined();
@@ -285,7 +285,7 @@ describe('GetTournamentParticipantsUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assertions
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('not found');
   });
 
@@ -299,7 +299,7 @@ describe('GetTournamentParticipantsUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assertions
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Invalid input');
     expect(result.getError().message).toContain('UUID');
   });
@@ -315,7 +315,7 @@ describe('GetTournamentParticipantsUseCase', () => {
     const result = await useCase.execute(invalidPageInput);
 
     // Assertions
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Invalid input');
 
     // Setup input with invalid limit
@@ -328,7 +328,7 @@ describe('GetTournamentParticipantsUseCase', () => {
     const result2 = await useCase.execute(invalidLimitInput);
 
     // Assertions
-    expect(result2.isFailure).toBe(true);
+    expect(result2.isFailure()).toBe(true);
     expect(result2.getError().message).toContain('Invalid input');
   });
 });

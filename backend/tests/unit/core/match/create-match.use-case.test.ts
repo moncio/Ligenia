@@ -15,8 +15,10 @@ describe('CreateMatchUseCase', () => {
       findByFilter: jest.fn(),
       findByTournamentAndRound: jest.fn(),
       findByPlayerId: jest.fn(),
+      tournamentHasMatches: jest.fn(),
       save: jest.fn(),
       delete: jest.fn(),
+      count: jest.fn()
     };
 
     mockTournamentRepository = {
@@ -72,7 +74,7 @@ describe('CreateMatchUseCase', () => {
     const result = await createMatchUseCase.execute(validInput);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
     expect(result.getValue()).toBeInstanceOf(Match);
     expect(result.getValue().tournamentId).toBe(validInput.tournamentId);
     expect(result.getValue().homePlayerOneId).toBe(validInput.homePlayerOneId);
@@ -90,7 +92,7 @@ describe('CreateMatchUseCase', () => {
     const result = await createMatchUseCase.execute(validInput);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Tournament not found');
     expect(mockMatchRepository.save).not.toHaveBeenCalled();
   });
@@ -104,7 +106,7 @@ describe('CreateMatchUseCase', () => {
     const result = await createMatchUseCase.execute(validInput);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Cannot create matches for tournaments');
     expect(mockMatchRepository.save).not.toHaveBeenCalled();
   });
@@ -122,7 +124,7 @@ describe('CreateMatchUseCase', () => {
     const result = await createMatchUseCase.execute(inputWithDuplicatePlayers);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Duplicate players are not allowed');
     expect(mockMatchRepository.save).not.toHaveBeenCalled();
   });
@@ -138,7 +140,7 @@ describe('CreateMatchUseCase', () => {
     const result = await createMatchUseCase.execute(invalidInput);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Round must be a positive integer');
     expect(mockMatchRepository.save).not.toHaveBeenCalled();
   });

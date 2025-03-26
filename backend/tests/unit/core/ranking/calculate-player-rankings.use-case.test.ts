@@ -314,7 +314,7 @@ describe('CalculatePlayerRankingsUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
     expect(result.getValue().updatedRankings.length).toBe(1);
 
     const updatedRanking = result.getValue().updatedRankings[0];
@@ -333,7 +333,7 @@ describe('CalculatePlayerRankingsUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
     expect(result.getValue().updatedRankings.length).toBe(3); // All players should have rankings
 
     // Get the ranking for player3 who should be #1 globally
@@ -368,7 +368,7 @@ describe('CalculatePlayerRankingsUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
     expect(result.getValue().updatedRankings.length).toBe(1);
 
     // Ranking should be newly created with proper ID
@@ -386,7 +386,7 @@ describe('CalculatePlayerRankingsUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toBe('Player not found');
   });
 
@@ -409,7 +409,7 @@ describe('CalculatePlayerRankingsUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toBe('Statistics not found for this player');
   });
 
@@ -422,7 +422,7 @@ describe('CalculatePlayerRankingsUseCase', () => {
     const result = await useCase.execute(invalidInput);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Invalid player ID format');
   });
 
@@ -454,7 +454,7 @@ describe('CalculatePlayerRankingsUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
     const updatedRanking = result.getValue().updatedRankings[0];
 
     // Player1 should move from position 3 to position 2

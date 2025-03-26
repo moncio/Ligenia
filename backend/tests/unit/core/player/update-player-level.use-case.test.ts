@@ -30,6 +30,10 @@ class MockPlayerRepository implements IPlayerRepository {
     return this.players.length;
   }
 
+  async findByLevel(level: PlayerLevel): Promise<Player[]> {
+    return this.players.filter(p => p.level === level);
+  }
+
   async save(player: Player): Promise<void> {
     player.id = `player-${this.players.length + 1}`;
     this.players.push(player);
@@ -83,7 +87,7 @@ describe('UpdatePlayerLevelUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const { message } = result.getValue();
     expect(message).toContain('Player level updated to P2 successfully');
@@ -104,7 +108,7 @@ describe('UpdatePlayerLevelUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toBe('Player not found');
   });
 
@@ -120,7 +124,7 @@ describe('UpdatePlayerLevelUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Invalid player ID format');
   });
 
@@ -136,7 +140,7 @@ describe('UpdatePlayerLevelUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Invalid player level');
   });
 });

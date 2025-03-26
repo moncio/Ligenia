@@ -1,5 +1,19 @@
 import { PlayerLevel } from '../tournament/tournament.entity';
 
+export interface PlayerFilter {
+  level?: PlayerLevel;
+  userId?: string;
+}
+
+export interface PaginationOptions {
+  skip: number;
+  limit: number;
+  sort?: {
+    field: string;
+    order: 'asc' | 'desc';
+  };
+}
+
 /**
  * Player entity class
  * Represents a player in the system

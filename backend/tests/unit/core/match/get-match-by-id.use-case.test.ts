@@ -12,8 +12,10 @@ describe('GetMatchByIdUseCase', () => {
       findByFilter: jest.fn(),
       findByTournamentAndRound: jest.fn(),
       findByPlayerId: jest.fn(),
+      tournamentHasMatches: jest.fn(),
       save: jest.fn(),
       delete: jest.fn(),
+      count: jest.fn()
     };
 
     getMatchByIdUseCase = new GetMatchByIdUseCase(mockMatchRepository);
@@ -47,7 +49,7 @@ describe('GetMatchByIdUseCase', () => {
     const result = await getMatchByIdUseCase.execute({ id: mockMatchId });
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
     expect(result.getValue()).toBeInstanceOf(Match);
     expect(result.getValue().id).toBe(mockMatchId);
     expect(mockMatchRepository.findById).toHaveBeenCalledWith(mockMatchId);
@@ -61,7 +63,7 @@ describe('GetMatchByIdUseCase', () => {
     const result = await getMatchByIdUseCase.execute({ id: mockMatchId });
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Match not found');
     expect(mockMatchRepository.findById).toHaveBeenCalledWith(mockMatchId);
   });
@@ -74,7 +76,7 @@ describe('GetMatchByIdUseCase', () => {
     const result = await getMatchByIdUseCase.execute({ id: invalidId });
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Invalid match ID format');
     expect(mockMatchRepository.findById).not.toHaveBeenCalled();
   });
@@ -88,7 +90,7 @@ describe('GetMatchByIdUseCase', () => {
     const result = await getMatchByIdUseCase.execute({ id: mockMatchId });
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain(errorMessage);
     expect(mockMatchRepository.findById).toHaveBeenCalledWith(mockMatchId);
   });

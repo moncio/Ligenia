@@ -159,9 +159,9 @@ describe('UpdateTournamentMatchesAndStandingsUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isSuccess).toBe(true);
+      expect(result.isSuccess()).toBe(true);
 
-      if (result.isSuccess) {
+      if (result.isSuccess()) {
         const output = result.getValue();
         expect(output.tournamentId).toBe(tournamentId);
         expect(output.updatedStatus).toBe(TournamentStatus.ACTIVE);
@@ -227,9 +227,9 @@ describe('UpdateTournamentMatchesAndStandingsUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isSuccess).toBe(true);
+      expect(result.isSuccess()).toBe(true);
 
-      if (result.isSuccess) {
+      if (result.isSuccess()) {
         const output = result.getValue();
 
         // Should create 2 matches for round 2 (including 1 bye)
@@ -294,9 +294,9 @@ describe('UpdateTournamentMatchesAndStandingsUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isSuccess).toBe(true);
+      expect(result.isSuccess()).toBe(true);
 
-      if (result.isSuccess) {
+      if (result.isSuccess()) {
         const output = result.getValue();
         expect(output.isComplete).toBe(true);
         expect(output.updatedStatus).toBe(TournamentStatus.COMPLETED);
@@ -324,7 +324,7 @@ describe('UpdateTournamentMatchesAndStandingsUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
       expect(result.getError().message).toContain('Tournament with ID');
       expect(result.getError().message).toContain('not found');
     });
@@ -344,7 +344,7 @@ describe('UpdateTournamentMatchesAndStandingsUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
       expect(result.getError().message).toContain('not in ACTIVE state');
     });
 
@@ -360,7 +360,7 @@ describe('UpdateTournamentMatchesAndStandingsUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
       expect(result.getError().message).toContain('No matches found');
     });
 
@@ -398,7 +398,7 @@ describe('UpdateTournamentMatchesAndStandingsUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
       expect(result.getError().message).toContain('Not all matches in round');
       expect(result.getError().message).toContain('are completed yet');
     });
@@ -413,7 +413,7 @@ describe('UpdateTournamentMatchesAndStandingsUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
       expect(result.getError().message).toContain('Invalid input');
     });
 
@@ -452,7 +452,7 @@ describe('UpdateTournamentMatchesAndStandingsUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
       expect(result.getError().message).toContain('Database error during match save');
     });
   });

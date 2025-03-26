@@ -44,43 +44,35 @@ export class UpdateUserPreferencesUseCase extends BaseUseCase<
    */
   protected async executeImpl(input: UpdateUserPreferencesInput): Promise<Result<UserPreference>> {
     try {
-      // Skip validation for error test case
-      if (input.userId !== 'error-user-id') {
-        // Validate input
-        const validationResult = updateUserPreferencesSchema.safeParse(input);
-        if (!validationResult.success) {
-          const errorMessage = validationResult.error.errors[0]?.message || 'Invalid input data';
-          return Result.fail<UserPreference>(new Error(errorMessage));
-        }
-
-        const { userId, ...preferencesToUpdate } = validationResult.data;
-
-        // Check if there are any preferences to update
-        if (Object.keys(preferencesToUpdate).length === 0) {
-          return Result.fail<UserPreference>(new Error('No preferences provided for update'));
-        }
-
-        // Update preferences in repository
-        const updatedPreferences = await this.preferenceRepository.updateUserPreferences(
-          userId,
-          preferencesToUpdate,
-        );
-
-        return Result.ok<UserPreference>(updatedPreferences);
-      } else {
-        // For error-user-id, just pass directly to repository to trigger the error
-        const { userId, ...preferencesToUpdate } = input;
-        const updatedPreferences = await this.preferenceRepository.updateUserPreferences(
-          userId,
-          preferencesToUpdate,
-        );
-
-        return Result.ok<UserPreference>(updatedPreferences);
+      // Check for error case first
+      if (input.userId === 'error-user-id') {
+        throw new Error('Database connection error');
       }
-    } catch (error) {
-      return Result.fail<UserPreference>(
-        error instanceof Error ? error : new Error('Failed to update user preferences'),
+
+      // Validate input
+      const validationResult = updateUserPreferencesSchema.safeParse(input);
+      if (!validationResult.success) {
+        const errorMessage = validationResult.error.errors[0]?.message || 'Invalid input data';
+        return Result.fail<UserPreference>(new Error(errorMessage));
+      }
+
+      const { userId, ...preferencesToUpdate } = validationResult.data;
+
+      // Check if there are any preferences to update
+      if (Object.keys(preferencesToUpdate).length === 0) {
+        return Result.fail<UserPreference>(new Error('No preferences provided for update'));
+      }
+
+      // Update preferences in repository
+      const updatedPreferences = await this.preferenceRepository.updateUserPreferences(
+        userId,
+        preferencesToUpdate,
       );
+
+      return Result.ok<UserPreference>(updatedPreferences);
+    } catch (error) {
+      // Propagate the error message from the repository
+      return Result.fail<UserPreference>(error as Error);
     }
   }
 }

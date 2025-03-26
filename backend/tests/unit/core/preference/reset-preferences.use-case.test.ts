@@ -4,6 +4,7 @@ import {
   ResetPreferencesUseCase,
   ResetPreferencesInput,
 } from '../../../../src/core/application/use-cases/preference/reset-preferences.use-case';
+import { Result } from '../../../../src/shared/result';
 
 // Mock repository implementation
 class MockPreferenceRepository implements IPreferenceRepository {
@@ -17,6 +18,7 @@ class MockPreferenceRepository implements IPreferenceRepository {
       userId,
       theme: 'dark',
       fontSize: 20,
+      enableNotifications: true,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -30,27 +32,7 @@ class MockPreferenceRepository implements IPreferenceRepository {
     userId: string,
     data: Partial<UserPreference>,
   ): Promise<UserPreference> {
-    if (!this.mockData[userId]) {
-      // Create new preferences if they don't exist
-      this.mockData[userId] = {
-        id: `pref-${Date.now()}`,
-        userId,
-        theme: 'system',
-        fontSize: 16,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        ...data,
-      };
-    } else {
-      // Update existing preferences
-      this.mockData[userId] = {
-        ...this.mockData[userId],
-        ...data,
-        updatedAt: new Date(),
-      };
-    }
-
-    return this.mockData[userId];
+    throw new Error('Method not implemented.');
   }
 
   async resetUserPreferences(userId: string): Promise<UserPreference> {
@@ -66,6 +48,7 @@ class MockPreferenceRepository implements IPreferenceRepository {
         userId,
         theme: 'system',
         fontSize: 16,
+        enableNotifications: true,
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -75,6 +58,7 @@ class MockPreferenceRepository implements IPreferenceRepository {
         ...this.mockData[userId],
         theme: 'system',
         fontSize: 16,
+        enableNotifications: true,
         updatedAt: new Date(),
       };
     }
@@ -111,7 +95,7 @@ describe('ResetPreferencesUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isSuccess).toBe(true);
+      expect(result.isSuccess()).toBe(true);
       const preferences = result.getValue();
       expect(preferences.userId).toBe(input.userId);
       expect(preferences.theme).toBe('system'); // Reset to default
@@ -128,7 +112,7 @@ describe('ResetPreferencesUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isSuccess).toBe(true);
+      expect(result.isSuccess()).toBe(true);
       const preferences = result.getValue();
       expect(preferences.userId).toBe(input.userId);
       expect(preferences.theme).toBe('system');
@@ -147,7 +131,7 @@ describe('ResetPreferencesUseCase', () => {
       const result = await useCase.execute(input as any);
 
       // Assert
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
       expect(result.getError().message).toContain('Invalid user ID format');
     });
   });
@@ -163,7 +147,7 @@ describe('ResetPreferencesUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
       expect(result.getError().message).toBe('Database connection error');
     });
   });

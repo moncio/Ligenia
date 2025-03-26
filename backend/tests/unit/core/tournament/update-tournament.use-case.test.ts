@@ -1,66 +1,125 @@
-import { UpdateTournamentUseCase } from '../../../../src/core/application/use-cases/tournament/update-tournament.use-case';
-import { ITournamentRepository } from '../../../../src/core/application/interfaces/repositories/tournament.repository';
+import {
+  UpdateTournamentUseCase,
+  UpdateTournamentInput,
+} from '../../../../src/core/application/use-cases/tournament/update-tournament.use-case';
+import { ITournamentRepository, PaginationOptions, TournamentFilter } from '../../../../src/core/application/interfaces/repositories/tournament.repository';
+import { IUserRepository } from '../../../../src/core/application/interfaces/repositories/user.repository';
 import {
   Tournament,
   TournamentFormat,
   TournamentStatus,
   PlayerLevel,
 } from '../../../../src/core/domain/tournament/tournament.entity';
+import { User, UserRole } from '../../../../src/core/domain/user/user.entity';
 import { Result } from '../../../../src/shared/result';
 
-// Mock for Tournament Repository
+// Mock Tournament Repository
 class MockTournamentRepository implements ITournamentRepository {
-  private tournaments: Tournament[] = [];
+  private tournaments: Map<string, Tournament> = new Map();
+  private participantRegistrations: Map<string, Set<string>> = new Map();
 
   constructor(initialTournaments: Tournament[] = []) {
-    this.tournaments = initialTournaments;
+    initialTournaments.forEach(tournament => {
+      this.tournaments.set(tournament.id, tournament);
+      this.participantRegistrations.set(tournament.id, new Set<string>());
+    });
   }
 
   async findById(id: string): Promise<Tournament | null> {
-    return this.tournaments.find(t => t.id === id) || null;
+    return this.tournaments.get(id) || null;
   }
 
-  async findAll(): Promise<Tournament[]> {
-    return this.tournaments;
+  async findAll(filter?: TournamentFilter, pagination?: PaginationOptions): Promise<Tournament[]> {
+    let tournaments = Array.from(this.tournaments.values());
+
+    // Apply filters if specified
+    if (filter) {
+      tournaments = tournaments.filter(tournament => {
+        if (filter.status && tournament.status !== filter.status) return false;
+        if (filter.category && tournament.category !== filter.category) return false;
+        if (filter.dateRange) {
+          if (filter.dateRange.from && tournament.startDate < filter.dateRange.from) return false;
+          if (filter.dateRange.to && tournament.startDate > filter.dateRange.to) return false;
+        }
+        if (filter.searchTerm) {
+          const searchLower = filter.searchTerm.toLowerCase();
+          return tournament.name.toLowerCase().includes(searchLower) ||
+                 tournament.description.toLowerCase().includes(searchLower);
+        }
+        return true;
+      });
+    }
+
+    // Apply pagination if specified
+    if (pagination) {
+      const { skip, limit } = pagination;
+      tournaments = tournaments.slice(skip, skip + limit);
+    }
+
+    return tournaments;
+  }
+
+  async count(filter?: TournamentFilter): Promise<number> {
+    const tournaments = await this.findAll(filter);
+    return tournaments.length;
   }
 
   async save(tournament: Tournament): Promise<void> {
-    tournament.id = `tournament-${this.tournaments.length + 1}`;
-    this.tournaments.push(tournament);
+    this.tournaments.set(tournament.id, tournament);
   }
 
   async update(tournament: Tournament): Promise<void> {
-    const index = this.tournaments.findIndex(t => t.id === tournament.id);
-    if (index !== -1) {
-      this.tournaments[index] = tournament;
-    }
+    this.tournaments.set(tournament.id, tournament);
   }
 
   async delete(id: string): Promise<void> {
-    const index = this.tournaments.findIndex(t => t.id === id);
-    if (index !== -1) {
-      this.tournaments.splice(index, 1);
-    }
+    this.tournaments.delete(id);
+    this.participantRegistrations.delete(id);
   }
 
   async countParticipants(tournamentId: string): Promise<number> {
-    return 0;
+    const participants = this.participantRegistrations.get(tournamentId);
+    return participants ? participants.size : 0;
   }
 
   async registerParticipant(tournamentId: string, playerId: string): Promise<void> {
-    // Implementation not needed for this test
+    const participants = this.participantRegistrations.get(tournamentId);
+    if (participants) {
+      participants.add(playerId);
+    } else {
+      this.participantRegistrations.set(tournamentId, new Set<string>([playerId]));
+    }
   }
 
   async unregisterParticipant(tournamentId: string, playerId: string): Promise<void> {
-    // Implementation not needed for this test
+    const participants = this.participantRegistrations.get(tournamentId);
+    if (participants) {
+      participants.delete(playerId);
+    }
   }
 
   async isParticipantRegistered(tournamentId: string, playerId: string): Promise<boolean> {
-    return false;
+    const participants = this.participantRegistrations.get(tournamentId);
+    return participants ? participants.has(playerId) : false;
   }
 
-  async getParticipants(tournamentId: string): Promise<string[]> {
-    return [];
+  async getParticipants(tournamentId: string, pagination?: PaginationOptions): Promise<string[]> {
+    const participants = this.participantRegistrations.get(tournamentId);
+    if (!participants) return [];
+
+    let result = Array.from(participants);
+
+    // Apply pagination if specified
+    if (pagination) {
+      const { skip, limit } = pagination;
+      result = result.slice(skip, skip + limit);
+    }
+
+    return result;
+  }
+
+  async countParticipantsByTournamentId(tournamentId: string): Promise<number> {
+    return this.countParticipants(tournamentId);
   }
 }
 
@@ -105,7 +164,7 @@ describe('UpdateTournamentUseCase', () => {
       location: 'Barcelona',
       maxParticipants: 32,
       registrationDeadline: '2023-09-10T23:59:59Z',
-      category: PlayerLevel.P4,
+      category: PlayerLevel.P3,
     };
 
     // Remember original values for comparison
@@ -115,7 +174,7 @@ describe('UpdateTournamentUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const tournament = result.getValue();
     expect(tournament.id).toBe(existingTournament.id);
@@ -152,7 +211,7 @@ describe('UpdateTournamentUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const tournament = result.getValue();
     expect(tournament.id).toBe(existingTournament.id);
@@ -189,7 +248,7 @@ describe('UpdateTournamentUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const tournament = result.getValue();
     expect(tournament.endDate).toBeNull();
@@ -210,7 +269,7 @@ describe('UpdateTournamentUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Tournament with ID');
     expect(result.getError().message).toContain('not found');
   });
@@ -229,7 +288,7 @@ describe('UpdateTournamentUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toBe('End date must be after start date');
   });
 
@@ -245,7 +304,7 @@ describe('UpdateTournamentUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toBe('End date must be after start date');
   });
 
@@ -263,7 +322,7 @@ describe('UpdateTournamentUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toBe('Registration deadline must be before start date');
   });
 
@@ -279,7 +338,7 @@ describe('UpdateTournamentUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toBe('Registration deadline must be before start date');
   });
 
@@ -294,7 +353,7 @@ describe('UpdateTournamentUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('String must contain at least 3 character');
   });
 });

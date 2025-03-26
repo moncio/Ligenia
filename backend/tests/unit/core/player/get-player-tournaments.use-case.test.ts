@@ -58,6 +58,10 @@ class MockPlayerRepository implements IPlayerRepository {
       this.players.splice(index, 1);
     }
   }
+
+  async findByLevel(level: PlayerLevel): Promise<Player[]> {
+    return this.players.filter(p => p.level === level);
+  }
 }
 
 // Mock Tournament Repository
@@ -342,7 +346,7 @@ describe('GetPlayerTournamentsUseCase', () => {
         'Sports Complex B',
         32,
         new Date('2023-09-25'),
-        PlayerLevel.P4,
+        PlayerLevel.P3,
         'admin-user-id',
       ),
     ];
@@ -385,7 +389,7 @@ describe('GetPlayerTournamentsUseCase', () => {
     console.log('Default pagination test result:', result.getValue());
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const { tournaments, total, skip, limit } = result.getValue();
     console.log('Tournaments in default pagination test:', JSON.stringify(tournaments));
@@ -407,7 +411,7 @@ describe('GetPlayerTournamentsUseCase', () => {
     console.log('Status filter test result:', result.getValue());
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const { tournaments, total } = result.getValue();
     console.log('Status filtered tournaments:', JSON.stringify(tournaments));
@@ -429,7 +433,7 @@ describe('GetPlayerTournamentsUseCase', () => {
     console.log('Date range filter test result:', result.getValue());
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const { tournaments, total } = result.getValue();
     console.log('Date range filtered tournaments:', JSON.stringify(tournaments));
@@ -455,7 +459,7 @@ describe('GetPlayerTournamentsUseCase', () => {
     console.log('Category filter test result:', result.getValue());
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const { tournaments, total } = result.getValue();
     console.log('Category filtered tournaments:', JSON.stringify(tournaments));
@@ -476,7 +480,7 @@ describe('GetPlayerTournamentsUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const { tournaments, total, skip, limit } = result.getValue();
     expect(tournaments).toHaveLength(1);
@@ -495,7 +499,7 @@ describe('GetPlayerTournamentsUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toBe('Player not found');
   });
 
@@ -511,7 +515,7 @@ describe('GetPlayerTournamentsUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Invalid player ID format');
   });
 });

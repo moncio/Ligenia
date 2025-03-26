@@ -132,9 +132,9 @@ describe('GetTournamentBracketUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isSuccess).toBe(true);
+      expect(result.isSuccess()).toBe(true);
 
-      if (result.isSuccess) {
+      if (result.isSuccess()) {
         const output = result.getValue();
         expect(output.tournamentId).toBe(tournamentId);
         expect(output.totalMatches).toBe(3);
@@ -170,9 +170,9 @@ describe('GetTournamentBracketUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isSuccess).toBe(true);
+      expect(result.isSuccess()).toBe(true);
 
-      if (result.isSuccess) {
+      if (result.isSuccess()) {
         const output = result.getValue();
         expect(output.tournamentId).toBe(tournamentId);
         expect(output.totalMatches).toBe(0);
@@ -195,7 +195,7 @@ describe('GetTournamentBracketUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
       expect(result.getError().message).toContain('Tournament with ID');
       expect(result.getError().message).toContain('not found');
     });
@@ -210,7 +210,7 @@ describe('GetTournamentBracketUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
       expect(result.getError().message).toContain('Invalid input');
     });
 
@@ -227,7 +227,7 @@ describe('GetTournamentBracketUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
       expect(result.getError().message).toContain('Database connection error');
     });
   });

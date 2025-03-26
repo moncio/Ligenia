@@ -287,93 +287,93 @@ export const setupSupabaseMock = () => {
   process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-supabase-service-role-key';
   process.env.JWT_SECRET = 'test-jwt-secret';
 
-  // Mock the supabase module directly
+  // Mock the supabase module directly - using mockName to avoid Jest reference error
+  const mockSupabaseClient = createMockSupabaseClient();
+  
   jest.mock('@supabase/supabase-js', () => ({
-    createClient: jest.fn().mockImplementation(() => createMockSupabaseClient()),
-  }));
-
-  // Configurar el mock de "from" para manejar consultas específicas
-  const mockClient = createMockSupabaseClient();
-
-  // Modificar el mock de "from" para manejar las consultas específicas a la tabla User
-  const originalFrom = mockClient.from;
-  mockClient.from = jest.fn().mockImplementation(table => {
-    if (table === 'User') {
+    createClient: jest.fn().mockImplementation(() => {
       return {
-        select: jest.fn().mockReturnThis(),
-        insert: jest.fn().mockReturnThis(),
-        update: jest.fn().mockReturnThis(),
-        delete: jest.fn().mockReturnThis(),
-        eq: jest.fn().mockImplementation((field, value) => {
-          // Guardar internamente el campo y valor para usar en single()
-          return {
-            single: jest.fn().mockImplementation(() => {
-              if (field === 'email') {
-                if (value === mockUsers.admin.email) {
-                  return {
-                    data: {
-                      id: mockUsers.admin.id,
-                      email: mockUsers.admin.email,
-                      name: mockUsers.admin.name,
-                      role: mockUsers.admin.role,
-                      emailVerified: true,
-                    },
-                    error: null,
-                  };
-                } else if (value === mockUsers.player.email) {
-                  return {
-                    data: {
-                      id: mockUsers.player.id,
-                      email: mockUsers.player.email,
-                      name: mockUsers.player.name,
-                      role: mockUsers.player.role,
-                      emailVerified: true,
-                    },
-                    error: null,
-                  };
-                }
-              } else if (field === 'id') {
-                if (value === mockUsers.admin.id) {
-                  return {
-                    data: {
-                      id: mockUsers.admin.id,
-                      email: mockUsers.admin.email,
-                      name: mockUsers.admin.name,
-                      role: mockUsers.admin.role,
-                      emailVerified: true,
-                    },
-                    error: null,
-                  };
-                } else if (value === mockUsers.player.id) {
-                  return {
-                    data: {
-                      id: mockUsers.player.id,
-                      email: mockUsers.player.email,
-                      name: mockUsers.player.name,
-                      role: mockUsers.player.role,
-                      emailVerified: true,
-                    },
-                    error: null,
-                  };
-                }
-              }
+        auth: mockSupabaseClient.auth,
+        from: jest.fn().mockImplementation(table => {
+          if (table === 'User') {
+            return {
+              select: jest.fn().mockReturnThis(),
+              insert: jest.fn().mockReturnThis(),
+              update: jest.fn().mockReturnThis(),
+              delete: jest.fn().mockReturnThis(),
+              eq: jest.fn().mockImplementation((field, value) => {
+                // Guardar internamente el campo y valor para usar en single()
+                return {
+                  single: jest.fn().mockImplementation(() => {
+                    if (field === 'email') {
+                      if (value === mockUsers.admin.email) {
+                        return {
+                          data: {
+                            id: mockUsers.admin.id,
+                            email: mockUsers.admin.email,
+                            name: mockUsers.admin.name,
+                            role: mockUsers.admin.role,
+                            emailVerified: true,
+                          },
+                          error: null,
+                        };
+                      } else if (value === mockUsers.player.email) {
+                        return {
+                          data: {
+                            id: mockUsers.player.id,
+                            email: mockUsers.player.email,
+                            name: mockUsers.player.name,
+                            role: mockUsers.player.role,
+                            emailVerified: true,
+                          },
+                          error: null,
+                        };
+                      }
+                    } else if (field === 'id') {
+                      if (value === mockUsers.admin.id) {
+                        return {
+                          data: {
+                            id: mockUsers.admin.id,
+                            email: mockUsers.admin.email,
+                            name: mockUsers.admin.name,
+                            role: mockUsers.admin.role,
+                            emailVerified: true,
+                          },
+                          error: null,
+                        };
+                      } else if (value === mockUsers.player.id) {
+                        return {
+                          data: {
+                            id: mockUsers.player.id,
+                            email: mockUsers.player.email,
+                            name: mockUsers.player.name,
+                            role: mockUsers.player.role,
+                            emailVerified: true,
+                          },
+                          error: null,
+                        };
+                      }
+                    }
 
-              // No match, return null data
-              return { data: null, error: null };
-            }),
-          };
-        }),
-        single: jest.fn().mockImplementation(() => {
-          return {
-            data: null,
-            error: { message: 'Not found', status: 404 },
-          };
+                    // No match, return null data
+                    return { data: null, error: null };
+                  }),
+                };
+              }),
+              single: jest.fn().mockImplementation(() => {
+                return {
+                  data: null,
+                  error: { message: 'Not found', status: 404 },
+                };
+              }),
+            };
+          }
+          return mockSupabaseClient.from(table);
         }),
       };
-    }
-    return originalFrom(table);
-  });
+    }),
+  }));
 
-  // Devolver el mock client para uso directo en pruebas
-  return mockClient;
+  // Return the mock client for direct use in tests
+  return mockSupabaseClient;
 };

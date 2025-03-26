@@ -19,6 +19,27 @@ export enum PlayerLevel {
   P3 = 'P3',
 }
 
+export interface DateRangeFilter {
+  from?: Date;
+  to?: Date;
+}
+
+export interface TournamentFilter {
+  status?: TournamentStatus;
+  category?: PlayerLevel;
+  dateRange?: DateRangeFilter;
+  searchTerm?: string;
+}
+
+export interface PaginationOptions {
+  skip: number;
+  limit: number;
+  sort?: {
+    field: string;
+    order: 'asc' | 'desc';
+  };
+}
+
 export class Tournament {
   constructor(
     public id: string,
@@ -55,12 +76,28 @@ export class Tournament {
   }
 
   public startTournament(): void {
-    if (this.status !== TournamentStatus.OPEN) {
-      throw new Error('Only open tournaments can be started');
-    }
+    try {
+      // Log the current state before starting
+      console.log(`Attempting to start tournament ${this.id} with status ${this.status}`);
 
-    this.status = TournamentStatus.ACTIVE;
-    this.updatedAt = new Date();
+      // Validate tournament state
+      if (this.status !== TournamentStatus.OPEN) {
+        const error = new Error(`Cannot start tournament: Current status is ${this.status}, but must be ${TournamentStatus.OPEN}`);
+        console.error(error.message);
+        throw error;
+      }
+
+      // Update tournament state
+      this.status = TournamentStatus.ACTIVE;
+      this.updatedAt = new Date();
+
+      // Log successful state change
+      console.log(`Successfully started tournament ${this.id}. New status: ${this.status}`);
+    } catch (error) {
+      // Log any unexpected errors
+      console.error(`Error starting tournament ${this.id}:`, error);
+      throw error;
+    }
   }
 
   public completeTournament(): void {

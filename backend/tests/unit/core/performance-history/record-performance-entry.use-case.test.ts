@@ -110,7 +110,7 @@ describe('RecordPerformanceEntryUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isSuccess).toBe(true);
+      expect(result.isSuccess()).toBe(true);
       const performanceEntry = result.getValue();
       expect(performanceEntry).toBeDefined();
       expect(performanceEntry.userId).toBe(input.userId);
@@ -133,7 +133,7 @@ describe('RecordPerformanceEntryUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isSuccess).toBe(true);
+      expect(result.isSuccess()).toBe(true);
       const performanceEntry = result.getValue();
       expect(performanceEntry.matchesPlayed).toBe(0);
       expect(performanceEntry.wins).toBe(0);
@@ -173,7 +173,7 @@ describe('RecordPerformanceEntryUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isSuccess).toBe(true);
+      expect(result.isSuccess()).toBe(true);
       const updatedEntry = result.getValue();
       expect(updatedEntry.id).toBe(existingEntry.id);
       expect(updatedEntry.matchesPlayed).toBe(input.matchesPlayed);
@@ -195,7 +195,7 @@ describe('RecordPerformanceEntryUseCase', () => {
       const result = await useCase.execute(input as any);
 
       // Assert
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
       expect(result.getError().message).toContain('Invalid user ID format');
     });
 
@@ -210,7 +210,7 @@ describe('RecordPerformanceEntryUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
     });
 
     test('should fail with invalid month', async () => {
@@ -224,7 +224,7 @@ describe('RecordPerformanceEntryUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
     });
 
     test('should fail with negative values', async () => {
@@ -238,7 +238,7 @@ describe('RecordPerformanceEntryUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
     });
   });
 
@@ -254,7 +254,7 @@ describe('RecordPerformanceEntryUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
       expect(result.getError().message).toBe('Database connection error');
     });
   });

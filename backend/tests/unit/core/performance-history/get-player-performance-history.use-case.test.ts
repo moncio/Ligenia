@@ -164,7 +164,7 @@ describe('GetPlayerPerformanceHistoryUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isSuccess).toBe(true);
+      expect(result.isSuccess()).toBe(true);
       const history = result.getValue();
       expect(history).toHaveLength(2);
       expect(history[0].userId).toBe('123e4567-e89b-12d3-a456-426614174000');
@@ -182,7 +182,7 @@ describe('GetPlayerPerformanceHistoryUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isSuccess).toBe(true);
+      expect(result.isSuccess()).toBe(true);
       const history = result.getValue();
       expect(history).toHaveLength(2);
       expect(history[0].year).toBe(2023);
@@ -200,7 +200,7 @@ describe('GetPlayerPerformanceHistoryUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isSuccess).toBe(true);
+      expect(result.isSuccess()).toBe(true);
       const history = result.getValue();
       expect(history).toHaveLength(1);
       expect(history[0].month).toBe(1);
@@ -218,7 +218,7 @@ describe('GetPlayerPerformanceHistoryUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isSuccess).toBe(true);
+      expect(result.isSuccess()).toBe(true);
       const history = result.getValue();
       expect(history).toHaveLength(1);
       expect(history[0].id).toBe('perf-2'); // should get the second item due to offset
@@ -234,7 +234,7 @@ describe('GetPlayerPerformanceHistoryUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isSuccess).toBe(true);
+      expect(result.isSuccess()).toBe(true);
       const history = result.getValue();
       expect(history).toHaveLength(0);
     });
@@ -252,7 +252,7 @@ describe('GetPlayerPerformanceHistoryUseCase', () => {
       const result = await useCase.execute(input as any);
 
       // Assert
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
       expect(result.getError().message).toContain('Invalid user ID format');
     });
 
@@ -267,7 +267,7 @@ describe('GetPlayerPerformanceHistoryUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
     });
 
     test('should fail with invalid month', async () => {
@@ -281,7 +281,7 @@ describe('GetPlayerPerformanceHistoryUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
     });
 
     test('should fail with negative limit', async () => {
@@ -295,7 +295,7 @@ describe('GetPlayerPerformanceHistoryUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
     });
   });
 
@@ -311,7 +311,7 @@ describe('GetPlayerPerformanceHistoryUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
       expect(result.getError().message).toBe('Database connection error');
     });
   });

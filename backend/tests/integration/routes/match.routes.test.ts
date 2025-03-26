@@ -3,8 +3,9 @@
  */
 
 import 'dotenv/config';
-import supertest from 'supertest';
-import app from '../../../src/app';
+import { Container } from 'inversify';
+import { setMockContainer } from '../../../src/api/middlewares/auth.middleware';
+import { createMockContainer } from '../../utils/container-mock';
 import { MatchStatus, UserRole, PlayerLevel } from '@prisma/client';
 import { prisma } from '../setup';
 import {
@@ -13,7 +14,6 @@ import {
   cleanupMatchTestData,
   createBasicMatch,
 } from '../../utils/match-test-helper';
-import { container } from '../../../src/config/di-container';
 import { GetMatchByIdUseCase } from '../../../src/core/application/use-cases/match/get-match-by-id.use-case';
 import { CreateMatchUseCase } from '../../../src/core/application/use-cases/match/create-match.use-case';
 import { UpdateMatchDetailsUseCase } from '../../../src/core/application/use-cases/match/update-match-details.use-case';
@@ -22,8 +22,6 @@ import { DeleteMatchUseCase } from '../../../src/core/application/use-cases/matc
 import { ListUserMatchesUseCase } from '../../../src/core/application/use-cases/match/list-user-matches.use-case';
 import { Result } from '../../../src/shared/result';
 import { Match } from '../../../src/core/domain/match/match.entity';
-import { Container } from 'inversify';
-import { setMockContainer } from '../../../src/api/middlewares/auth.middleware';
 import { IUserRepository } from '../../../src/core/application/interfaces/repositories/user.repository';
 import { IPlayerRepository } from '../../../src/core/application/interfaces/repositories/player.repository';
 import { ITournamentRepository } from '../../../src/core/application/interfaces/repositories/tournament.repository';
@@ -34,6 +32,19 @@ import { Tournament, TournamentStatus, TournamentFormat } from '../../../src/cor
 import { PlayerFilter, PaginationOptions } from '../../../src/core/application/interfaces/repositories/player.repository';
 import { TournamentFilter } from '../../../src/core/application/interfaces/repositories/tournament.repository';
 import { MatchFilter } from '../../../src/core/application/interfaces/repositories/match.repository';
+
+// Set test environment
+process.env.NODE_ENV = 'test';
+
+// Create mock container
+const mockContainer = createMockContainer();
+
+// Set up mock container for auth middleware
+setMockContainer(mockContainer);
+
+// Now we can import app
+import supertest from 'supertest';
+import app from '../../../src/app';
 
 /**
  * This test suite uses the enhanced authentication middleware
@@ -101,9 +112,6 @@ const mockUpdateMatchDetailsUseCase = new MockUpdateMatchDetailsUseCase();
 const mockRecordMatchResultUseCase = new MockRecordMatchResultUseCase();
 const mockDeleteMatchUseCase = new MockDeleteMatchUseCase();
 const mockListUserMatchesUseCase = new MockListUserMatchesUseCase();
-
-// Set test environment
-process.env.NODE_ENV = 'test';
 
 // Create supertest agent
 const agent = supertest(app);
@@ -464,9 +472,6 @@ const updateScoreData = {
 let testData: MatchTestData;
 let secondMatch: any;
 
-// Mock the container
-const mockContainer = new Container();
-
 // Bind mock use cases with the correct class names
 mockContainer.bind(GetMatchByIdUseCase).toConstantValue(mockGetMatchByIdUseCase);
 mockContainer.bind(CreateMatchUseCase).toConstantValue(mockCreateMatchUseCase);
@@ -489,23 +494,8 @@ jest.mock('../../../src/config/di-container', () => {
       ...originalModule.container,
       get: jest.fn((key) => {
         console.log(`Mocked container.get called with key: ${key}`);
-        // Handle both class name and string key lookups
+        // Handle string key lookups only
         switch (key) {
-          // Class name lookups
-          case GetMatchByIdUseCase:
-            return mockGetMatchByIdUseCase;
-          case CreateMatchUseCase:
-            return mockCreateMatchUseCase;
-          case UpdateMatchDetailsUseCase:
-            return mockUpdateMatchDetailsUseCase;
-          case RecordMatchResultUseCase:
-            return mockRecordMatchResultUseCase;
-          case DeleteMatchUseCase:
-            return mockDeleteMatchUseCase;
-          case ListUserMatchesUseCase:
-            return mockListUserMatchesUseCase;
-          
-          // String key lookups
           case 'getMatchByIdUseCase':
             return mockGetMatchByIdUseCase;
           case 'createMatchUseCase':
@@ -736,7 +726,7 @@ describe('Match Routes - Integration Tests', () => {
         .post('/api/matches')
         .set('Authorization', 'InvalidPrefix admin-token');
 
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(401);
       expect(response.body).toHaveProperty('status', 'error');
     });
   });

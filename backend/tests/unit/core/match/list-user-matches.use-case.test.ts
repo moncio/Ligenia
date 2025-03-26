@@ -22,15 +22,20 @@ describe('ListUserMatchesUseCase', () => {
       findByFilter: jest.fn(),
       findByTournamentAndRound: jest.fn(),
       findByPlayerId: jest.fn(),
+      tournamentHasMatches: jest.fn(),
       save: jest.fn(),
       delete: jest.fn(),
+      count: jest.fn()
     };
 
     mockUserRepository = {
       findById: jest.fn(),
       findByEmail: jest.fn(),
+      findAll: jest.fn(),
+      count: jest.fn(),
       save: jest.fn(),
       update: jest.fn(),
+      delete: jest.fn(),
     };
 
     listUserMatchesUseCase = new ListUserMatchesUseCase(mockMatchRepository, mockUserRepository);
@@ -127,8 +132,8 @@ describe('ListUserMatchesUseCase', () => {
     const result = await listUserMatchesUseCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
-    if (result.isSuccess) {
+    expect(result.isSuccess()).toBe(true);
+    if (result.isSuccess()) {
       const output = result.getValue();
       expect(output.matches).toHaveLength(defaultPageSize);
       expect(output.pagination.totalItems).toBe(25);
@@ -161,8 +166,8 @@ describe('ListUserMatchesUseCase', () => {
     const result = await listUserMatchesUseCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
-    if (result.isSuccess) {
+    expect(result.isSuccess()).toBe(true);
+    if (result.isSuccess()) {
       const output = result.getValue();
       expect(output.matches).toHaveLength(pageSize);
       expect(output.pagination.totalItems).toBe(25);
@@ -195,8 +200,8 @@ describe('ListUserMatchesUseCase', () => {
     const result = await listUserMatchesUseCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
-    if (result.isSuccess) {
+    expect(result.isSuccess()).toBe(true);
+    if (result.isSuccess()) {
       const output = result.getValue();
       // Verify only winning matches are returned
       output.matches.forEach(match => {
@@ -232,8 +237,8 @@ describe('ListUserMatchesUseCase', () => {
     const result = await listUserMatchesUseCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
-    if (result.isSuccess) {
+    expect(result.isSuccess()).toBe(true);
+    if (result.isSuccess()) {
       const output = result.getValue();
       // Verify only losing matches are returned
       output.matches.forEach(match => {
@@ -273,8 +278,8 @@ describe('ListUserMatchesUseCase', () => {
     const result = await listUserMatchesUseCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
-    if (result.isSuccess) {
+    expect(result.isSuccess()).toBe(true);
+    if (result.isSuccess()) {
       const output = result.getValue();
       output.matches.forEach(match => {
         expect(match.tournamentId).toBe(tournamentId);
@@ -308,8 +313,8 @@ describe('ListUserMatchesUseCase', () => {
     const result = await listUserMatchesUseCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
-    if (result.isSuccess) {
+    expect(result.isSuccess()).toBe(true);
+    if (result.isSuccess()) {
       const output = result.getValue();
       output.matches.forEach(match => {
         expect(match.date).not.toBeNull();
@@ -344,8 +349,8 @@ describe('ListUserMatchesUseCase', () => {
     const result = await listUserMatchesUseCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
-    if (result.isSuccess) {
+    expect(result.isSuccess()).toBe(true);
+    if (result.isSuccess()) {
       const output = result.getValue();
       output.matches.forEach(match => {
         expect(match.date).not.toBeNull();
@@ -382,8 +387,8 @@ describe('ListUserMatchesUseCase', () => {
     const result = await listUserMatchesUseCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
-    if (result.isSuccess) {
+    expect(result.isSuccess()).toBe(true);
+    if (result.isSuccess()) {
       const output = result.getValue();
       output.matches.forEach(match => {
         expect(match.date).not.toBeNull();
@@ -437,8 +442,8 @@ describe('ListUserMatchesUseCase', () => {
     const result = await listUserMatchesUseCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
-    if (result.isSuccess) {
+    expect(result.isSuccess()).toBe(true);
+    if (result.isSuccess()) {
       const output = result.getValue();
       output.matches.forEach(match => {
         expect(match.tournamentId).toBe(tournamentId);
@@ -466,8 +471,8 @@ describe('ListUserMatchesUseCase', () => {
     const result = await listUserMatchesUseCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
-    if (result.isSuccess) {
+    expect(result.isSuccess()).toBe(true);
+    if (result.isSuccess()) {
       const output = result.getValue();
       expect(output.matches).toHaveLength(0);
       expect(output.pagination.totalItems).toBe(0);
@@ -489,7 +494,7 @@ describe('ListUserMatchesUseCase', () => {
     const result = await listUserMatchesUseCase.execute(input);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('User not found');
     expect(mockMatchRepository.findByPlayerId).not.toHaveBeenCalled();
   });
@@ -504,7 +509,7 @@ describe('ListUserMatchesUseCase', () => {
     const result = await listUserMatchesUseCase.execute(invalidInput);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Invalid user ID format');
     expect(mockUserRepository.findById).not.toHaveBeenCalled();
     expect(mockMatchRepository.findByPlayerId).not.toHaveBeenCalled();
@@ -522,7 +527,7 @@ describe('ListUserMatchesUseCase', () => {
     const result = await listUserMatchesUseCase.execute(invalidInput);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Invalid input');
     expect(mockUserRepository.findById).not.toHaveBeenCalled();
     expect(mockMatchRepository.findByPlayerId).not.toHaveBeenCalled();
@@ -541,7 +546,7 @@ describe('ListUserMatchesUseCase', () => {
     const result = await listUserMatchesUseCase.execute(invalidInput);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Invalid from date format');
     expect(mockUserRepository.findById).not.toHaveBeenCalled();
     expect(mockMatchRepository.findByPlayerId).not.toHaveBeenCalled();
@@ -560,7 +565,7 @@ describe('ListUserMatchesUseCase', () => {
     const result = await listUserMatchesUseCase.execute(input);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain(errorMessage);
     expect(mockMatchRepository.findByPlayerId).not.toHaveBeenCalled();
   });

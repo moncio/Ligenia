@@ -174,6 +174,10 @@ class MockPlayerRepository implements IPlayerRepository {
     return this.players.length;
   }
 
+  async findByLevel(level: PlayerLevel): Promise<Player[]> {
+    return this.players.filter(p => p.level === level);
+  }
+
   async save(player: Player): Promise<void> {
     this.players.push(player);
   }
@@ -261,7 +265,7 @@ describe('GetTournamentStatisticsUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const output = result.getValue();
     expect(output.statistics).toHaveLength(3);
@@ -308,7 +312,7 @@ describe('GetTournamentStatisticsUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const output = result.getValue();
     expect(output.statistics).toHaveLength(2);
@@ -335,7 +339,7 @@ describe('GetTournamentStatisticsUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toBe('Tournament not found');
   });
 
@@ -377,7 +381,7 @@ describe('GetTournamentStatisticsUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toBe('No participants found in this tournament');
   });
 
@@ -438,7 +442,7 @@ describe('GetTournamentStatisticsUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toBe('No statistics found for tournament participants');
   });
 
@@ -451,7 +455,7 @@ describe('GetTournamentStatisticsUseCase', () => {
     const result = await useCase.execute(invalidInput);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Invalid tournament ID format');
   });
 
@@ -469,7 +473,7 @@ describe('GetTournamentStatisticsUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const output = result.getValue();
     // The statistics should be sorted by win rate in ascending order
@@ -492,7 +496,7 @@ describe('GetTournamentStatisticsUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const output = result.getValue();
     // The statistics should be sorted by total points in descending order
@@ -517,7 +521,7 @@ describe('GetTournamentStatisticsUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const output = result.getValue();
     // Second page should have only the player with the least matches played

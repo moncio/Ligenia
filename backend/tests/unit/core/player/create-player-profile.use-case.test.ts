@@ -28,6 +28,10 @@ class MockPlayerRepository implements IPlayerRepository {
     return this.players.length;
   }
 
+  async findByLevel(level: PlayerLevel): Promise<Player[]> {
+    return this.players.filter(p => p.level === level);
+  }
+
   async save(player: Player): Promise<void> {
     player.id = `player-${this.players.length + 1}`;
     this.players.push(player);
@@ -64,6 +68,21 @@ class MockUserRepository implements IUserRepository {
     return this.users.find(u => u.email === email) || null;
   }
 
+  async findAll(limit?: number, offset?: number): Promise<User[]> {
+    let result = this.users;
+    if (offset !== undefined) {
+      result = result.slice(offset);
+    }
+    if (limit !== undefined) {
+      result = result.slice(0, limit);
+    }
+    return result;
+  }
+
+  async count(): Promise<number> {
+    return this.users.length;
+  }
+
   async save(user: User): Promise<void> {
     this.users.push(user);
   }
@@ -72,6 +91,13 @@ class MockUserRepository implements IUserRepository {
     const index = this.users.findIndex(u => u.id === user.id);
     if (index !== -1) {
       this.users[index] = user;
+    }
+  }
+
+  async delete(id: string): Promise<void> {
+    const index = this.users.findIndex(u => u.id === id);
+    if (index !== -1) {
+      this.users.splice(index, 1);
     }
   }
 }
@@ -113,7 +139,7 @@ describe('CreatePlayerProfileUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const player = result.getValue().player;
     expect(player.id).toBeDefined();
@@ -134,7 +160,7 @@ describe('CreatePlayerProfileUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toBe('User not found');
   });
 
@@ -152,7 +178,7 @@ describe('CreatePlayerProfileUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toBe('Player profile already exists for this user');
   });
 
@@ -167,7 +193,7 @@ describe('CreatePlayerProfileUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Invalid');
   });
 
@@ -182,7 +208,7 @@ describe('CreatePlayerProfileUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const player = result.getValue().player;
     expect(player.userId).toBe(testUser.id);

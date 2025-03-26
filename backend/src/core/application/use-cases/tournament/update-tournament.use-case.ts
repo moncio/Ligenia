@@ -54,7 +54,7 @@ const UpdateTournamentInputSchema = z.object({
     .nullable(),
 });
 
-type UpdateTournamentInput = z.infer<typeof UpdateTournamentInputSchema>;
+export type UpdateTournamentInput = z.infer<typeof UpdateTournamentInputSchema>;
 
 export class UpdateTournamentUseCase extends BaseUseCase<UpdateTournamentInput, Tournament> {
   constructor(private tournamentRepository: ITournamentRepository) {

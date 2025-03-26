@@ -12,10 +12,7 @@ import { MatchMapper } from '../mappers/match.mapper';
 @injectable()
 export class MatchRepository extends BaseRepository implements IMatchRepository {
   constructor(prisma?: PrismaClient) {
-    super();
-    if (prisma) {
-      this.prisma = prisma;
-    }
+    super(prisma || new PrismaClient());
   }
 
   async findById(id: string): Promise<Match | null> {

@@ -53,4 +53,91 @@ npm run test:integration
 
 # Ejecutar tests e2e
 npm run test:e2e
-``` 
+```
+
+# Testing Strategy
+
+## Test Categories
+
+We have three main categories of tests:
+
+1. **Unit Tests**: Fast tests that test a single unit in isolation with mocks.
+2. **Integration Tests**: Tests that verify the interaction between components.
+3. **Infrastructure Tests**: Tests that verify the integration with external systems like databases.
+
+## Test Isolation Strategy
+
+### Database Test Isolation
+
+Infrastructure tests that interact with the database should be properly isolated to avoid interference between tests. We use the following strategies to ensure test isolation:
+
+1. **Shared PrismaClient Instance**: We use a singleton PrismaClient instance for all tests to avoid connection pool exhaustion.
+2. **Transaction-based Isolation**: Each test runs in a transaction that is rolled back after the test completes.
+3. **Test-specific IDs**: Each test suite uses a unique ID prefix to avoid collisions.
+4. **Proper Cleanup Order**: We clean up data in the correct order to avoid foreign key constraint violations.
+5. **Sequential Execution**: Infrastructure tests run sequentially to avoid race conditions.
+
+### Running Infrastructure Tests
+
+To run infrastructure tests with proper isolation, use the following command:
+
+```bash
+npm run test:infrastructure
+```
+
+This command will:
+- Run tests sequentially (--runInBand)
+- Use proper test isolation via transactions
+- Clean up test data after each test suite
+
+For active development, you can use:
+
+```bash
+npm run test:infrastructure:watch
+```
+
+### Test Utils
+
+We have several utilities to help with test isolation:
+
+1. **db-test-utils.ts**: Provides utilities for database isolation and cleanup.
+2. **test-data-factory.ts**: Factory for creating consistent test data.
+
+Example usage:
+
+```typescript
+import { createRepositoryTestSuite } from '../../utils/db-test-utils';
+import { TestDataFactory } from '../../utils/test-data-factory';
+
+describe('MyRepository Tests', () => {
+  const testSuite = createRepositoryTestSuite('my-repo');
+  const prisma = testSuite.getPrisma();
+  const testDataFactory = new TestDataFactory(prisma, 'my-repo-test');
+  
+  // Setup
+  beforeAll(async () => {
+    // Create test data
+  });
+  
+  // Cleanup
+  afterAll(async () => {
+    await testSuite.cleanup();
+  });
+  
+  // Test in transaction
+  it('should do something transactional', async () => {
+    await testSuite.runInTransaction(async (tx) => {
+      // Test code that will be rolled back after
+    });
+  });
+});
+```
+
+## Best Practices
+
+1. **Use Transactions**: Always run database tests within transactions to avoid side effects.
+2. **Register for Cleanup**: Register created entities for cleanup to ensure proper test data management.
+3. **Use Test Data Factory**: Use the test data factory to ensure consistent test data creation.
+4. **Avoid Hardcoded Expectations**: Use flexible assertions that don't rely on specific counts or IDs.
+5. **Run Tests in Band**: Always run infrastructure tests sequentially to avoid race conditions.
+6. **Clean Up After Yourself**: Even with transactions, explicitly clean up test data. 

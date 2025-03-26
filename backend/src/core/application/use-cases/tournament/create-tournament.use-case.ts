@@ -49,7 +49,7 @@ const CreateTournamentInputSchema = z.object({
   createdById: z.string().uuid(),
 });
 
-type CreateTournamentInput = z.infer<typeof CreateTournamentInputSchema>;
+export type CreateTournamentInput = z.infer<typeof CreateTournamentInputSchema>;
 
 export class CreateTournamentUseCase extends BaseUseCase<CreateTournamentInput, Tournament> {
   constructor(private tournamentRepository: ITournamentRepository) {

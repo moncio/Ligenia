@@ -62,7 +62,7 @@ export class StatisticController {
       const getTournamentStatisticsUseCase = req.container?.get(GetTournamentStatisticsUseCase);
       
       if (!getTournamentStatisticsUseCase) {
-        res.status(500).json({ error: 'Use case not available' });
+        res.status(500).json({ message: 'Use case not available' });
         return;
       }
       
@@ -72,20 +72,20 @@ export class StatisticController {
 
       if (result.isFailure) {
         if (result.error.message === 'Tournament not found') {
-          res.status(404).json({ error: result.error.message });
+          res.status(404).json({ message: result.error.message });
           return;
         }
         if (result.error.message === 'No statistics found for this tournament') {
-          res.status(404).json({ error: result.error.message });
+          res.status(404).json({ message: result.error.message });
           return;
         }
-        res.status(400).json({ error: result.error.message });
+        res.status(400).json({ message: result.error.message });
         return;
       }
 
       res.status(200).json(result.getValue());
     } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
+      res.status(500).json({ message: 'Internal server error' });
     }
   };
 

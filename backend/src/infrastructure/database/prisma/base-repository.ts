@@ -8,9 +8,8 @@ import { Result } from '../../../shared/result';
 export abstract class BaseRepository {
   protected prisma: PrismaClient;
 
-  constructor() {
-    // In a real implementation, this would be injected via DI
-    this.prisma = new PrismaClient();
+  constructor(prisma: PrismaClient) {
+    this.prisma = prisma;
   }
 
   /**

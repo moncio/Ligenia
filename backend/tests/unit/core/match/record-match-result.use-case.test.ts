@@ -12,8 +12,10 @@ describe('RecordMatchResultUseCase', () => {
       findByFilter: jest.fn(),
       findByTournamentAndRound: jest.fn(),
       findByPlayerId: jest.fn(),
+      tournamentHasMatches: jest.fn(),
       save: jest.fn(),
       delete: jest.fn(),
+      count: jest.fn()
     };
 
     recordMatchResultUseCase = new RecordMatchResultUseCase(mockMatchRepository);
@@ -56,7 +58,7 @@ describe('RecordMatchResultUseCase', () => {
     const result = await recordMatchResultUseCase.execute(validInput);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
     expect(result.getValue()).toBeInstanceOf(Match);
     expect(result.getValue().id).toBe(mockMatchId);
     expect(result.getValue().homeScore).toBe(validInput.homeScore);
@@ -79,7 +81,7 @@ describe('RecordMatchResultUseCase', () => {
     const result = await recordMatchResultUseCase.execute(validInput);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Match not found');
     expect(mockMatchRepository.save).not.toHaveBeenCalled();
   });
@@ -99,7 +101,7 @@ describe('RecordMatchResultUseCase', () => {
     const result = await recordMatchResultUseCase.execute(validInput);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain(
       'Only matches in IN_PROGRESS state can have results recorded',
     );
@@ -121,7 +123,7 @@ describe('RecordMatchResultUseCase', () => {
     const result = await recordMatchResultUseCase.execute(validInput);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain(
       'Only matches in IN_PROGRESS state can have results recorded',
     );
@@ -143,7 +145,7 @@ describe('RecordMatchResultUseCase', () => {
     const result = await recordMatchResultUseCase.execute(validInput);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain(
       'Only matches in IN_PROGRESS state can have results recorded',
     );
@@ -165,7 +167,7 @@ describe('RecordMatchResultUseCase', () => {
     const result = await recordMatchResultUseCase.execute(validInput);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain(
       'Only matches in IN_PROGRESS state can have results recorded',
     );
@@ -184,7 +186,7 @@ describe('RecordMatchResultUseCase', () => {
     const result = await recordMatchResultUseCase.execute(invalidInput as any);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Invalid match ID format');
     expect(mockMatchRepository.findById).not.toHaveBeenCalled();
     expect(mockMatchRepository.save).not.toHaveBeenCalled();
@@ -202,7 +204,7 @@ describe('RecordMatchResultUseCase', () => {
     const result = await recordMatchResultUseCase.execute(invalidInput);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Home score must be a non-negative integer');
     expect(mockMatchRepository.findById).not.toHaveBeenCalled();
     expect(mockMatchRepository.save).not.toHaveBeenCalled();
@@ -220,7 +222,7 @@ describe('RecordMatchResultUseCase', () => {
     const result = await recordMatchResultUseCase.execute(invalidInput);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Away score must be a non-negative integer');
     expect(mockMatchRepository.findById).not.toHaveBeenCalled();
     expect(mockMatchRepository.save).not.toHaveBeenCalled();
@@ -238,7 +240,7 @@ describe('RecordMatchResultUseCase', () => {
     const result = await recordMatchResultUseCase.execute(invalidInput);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain(
       'Scores cannot be equal, a winner must be determined',
     );
@@ -261,7 +263,7 @@ describe('RecordMatchResultUseCase', () => {
     const result = await recordMatchResultUseCase.execute(validInput);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain(errorMessage);
     expect(mockMatchRepository.save).not.toHaveBeenCalled();
   });
@@ -283,7 +285,7 @@ describe('RecordMatchResultUseCase', () => {
     const result = await recordMatchResultUseCase.execute(validInput);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain(errorMessage);
     expect(mockMatchRepository.findById).toHaveBeenCalledWith(mockMatchId);
     expect(mockMatchRepository.save).toHaveBeenCalledWith(mockMatch);

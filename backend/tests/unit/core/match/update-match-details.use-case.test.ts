@@ -26,8 +26,10 @@ describe('UpdateMatchDetailsUseCase', () => {
       findByFilter: jest.fn(),
       findByTournamentAndRound: jest.fn(),
       findByPlayerId: jest.fn(),
+      tournamentHasMatches: jest.fn(),
       save: jest.fn(),
       delete: jest.fn(),
+      count: jest.fn()
     };
 
     updateMatchDetailsUseCase = new UpdateMatchDetailsUseCase(mockMatchRepository);
@@ -71,7 +73,7 @@ describe('UpdateMatchDetailsUseCase', () => {
     const result = await updateMatchDetailsUseCase.execute(validUpdateInput);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
     expect(result.getValue()).toBeInstanceOf(Match);
     expect(result.getValue().id).toBe(mockMatchId);
     expect(result.getValue().round).toBe(validUpdateInput.round);
@@ -88,7 +90,7 @@ describe('UpdateMatchDetailsUseCase', () => {
     const result = await updateMatchDetailsUseCase.execute(validUpdateInput);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Match not found');
     expect(mockMatchRepository.save).not.toHaveBeenCalled();
   });
@@ -102,7 +104,7 @@ describe('UpdateMatchDetailsUseCase', () => {
     const result = await updateMatchDetailsUseCase.execute(validUpdateInput);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Match cannot be modified');
     expect(mockMatchRepository.save).not.toHaveBeenCalled();
   });
@@ -116,7 +118,7 @@ describe('UpdateMatchDetailsUseCase', () => {
     const result = await updateMatchDetailsUseCase.execute(validUpdateInput);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Match cannot be modified');
     expect(mockMatchRepository.save).not.toHaveBeenCalled();
   });
@@ -135,7 +137,7 @@ describe('UpdateMatchDetailsUseCase', () => {
     const result = await updateMatchDetailsUseCase.execute(inputWithDuplicatePlayers);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Duplicate players are not allowed');
     expect(mockMatchRepository.save).not.toHaveBeenCalled();
   });
@@ -151,7 +153,7 @@ describe('UpdateMatchDetailsUseCase', () => {
     const result = await updateMatchDetailsUseCase.execute(invalidInput as any);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Invalid match ID format');
     expect(mockMatchRepository.findById).not.toHaveBeenCalled();
     expect(mockMatchRepository.save).not.toHaveBeenCalled();
@@ -168,7 +170,7 @@ describe('UpdateMatchDetailsUseCase', () => {
     const result = await updateMatchDetailsUseCase.execute(invalidInput);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Round must be a positive integer');
     expect(mockMatchRepository.findById).not.toHaveBeenCalled();
     expect(mockMatchRepository.save).not.toHaveBeenCalled();
@@ -188,7 +190,7 @@ describe('UpdateMatchDetailsUseCase', () => {
     const result = await updateMatchDetailsUseCase.execute(updateStatusInput);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
     expect(result.getValue().status).toBe(MatchStatus.SCHEDULED);
     expect(mockMatchRepository.save).toHaveBeenCalledWith(mockMatch);
   });
@@ -207,7 +209,7 @@ describe('UpdateMatchDetailsUseCase', () => {
     const result = await updateMatchDetailsUseCase.execute(updateDateInput);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
     expect(result.getValue().date).toBeNull();
     expect(mockMatchRepository.save).toHaveBeenCalledWith(mockMatch);
   });
@@ -223,7 +225,7 @@ describe('UpdateMatchDetailsUseCase', () => {
     const result = await updateMatchDetailsUseCase.execute(validUpdateInput);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain(errorMessage);
     expect(mockMatchRepository.findById).toHaveBeenCalledWith(mockMatchId);
     expect(mockMatchRepository.save).toHaveBeenCalledWith(mockMatch);

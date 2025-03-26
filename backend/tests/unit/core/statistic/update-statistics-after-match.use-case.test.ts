@@ -223,7 +223,7 @@ describe('UpdateStatisticsAfterMatchUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
     expect(result.getValue().homePlayerOneStatistic).toBeDefined();
     expect(result.getValue().homePlayerTwoStatistic).toBeDefined();
     expect(result.getValue().awayPlayerOneStatistic).toBeDefined();
@@ -277,12 +277,12 @@ describe('UpdateStatisticsAfterMatchUseCase', () => {
     });
 
     // Debug
-    if (result.isFailure) {
+    if (result.isFailure()) {
       console.error('Test failed with error:', result.getError().message);
     }
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     // Check that all the returned statistics exist
     expect(result.getValue().homePlayerOneStatistic).toBeDefined();
@@ -306,7 +306,7 @@ describe('UpdateStatisticsAfterMatchUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toBe('Match not found');
   });
 
@@ -318,7 +318,7 @@ describe('UpdateStatisticsAfterMatchUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toBe(
       'Cannot update statistics for a match that is not completed',
     );
@@ -332,7 +332,7 @@ describe('UpdateStatisticsAfterMatchUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toBe('Match scores not recorded');
   });
 
@@ -345,7 +345,7 @@ describe('UpdateStatisticsAfterMatchUseCase', () => {
     const result = await useCase.execute(invalidInput);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Invalid match ID format');
   });
 
@@ -358,7 +358,7 @@ describe('UpdateStatisticsAfterMatchUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     // Check homePlayer has statistics record with updated values
     const homePlayerStats = result.getValue().homePlayerOneStatistic;

@@ -7,59 +7,117 @@ import {
   PlayerLevel,
 } from '../../../../src/core/domain/tournament/tournament.entity';
 import { Result } from '../../../../src/shared/result';
+import { TournamentFilter, PaginationOptions } from '../../../../src/core/domain/tournament/tournament.entity';
 
 // Mock for Tournament Repository
 class MockTournamentRepository implements ITournamentRepository {
-  private tournaments: Tournament[] = [];
+  private tournaments: Map<string, Tournament> = new Map();
   private participantRegistrations: Map<string, Set<string>> = new Map();
 
   constructor(initialTournaments: Tournament[] = []) {
-    this.tournaments = initialTournaments;
-    // Initialize empty participant sets for each tournament
-    this.tournaments.forEach(tournament => {
+    initialTournaments.forEach(tournament => {
+      this.tournaments.set(tournament.id, tournament);
       this.participantRegistrations.set(tournament.id, new Set<string>());
     });
   }
 
   async findById(id: string): Promise<Tournament | null> {
-    return this.tournaments.find(t => t.id === id) || null;
+    return this.tournaments.get(id) || null;
   }
 
-  async findAll(): Promise<Tournament[]> {
-    return this.tournaments;
+  async findAll(filter?: TournamentFilter, pagination?: PaginationOptions): Promise<Tournament[]> {
+    let tournaments = Array.from(this.tournaments.values());
+
+    if (filter) {
+      if (filter.status) {
+        tournaments = tournaments.filter(t => t.status === filter.status);
+      }
+      if (filter.category) {
+        tournaments = tournaments.filter(t => t.category === filter.category);
+      }
+      if (filter.dateRange) {
+        if (filter.dateRange.from) {
+          tournaments = tournaments.filter(t => t.startDate >= filter.dateRange!.from!);
+        }
+        if (filter.dateRange.to) {
+          tournaments = tournaments.filter(t => t.endDate <= filter.dateRange!.to!);
+        }
+      }
+      if (filter.searchTerm) {
+        const searchLower = filter.searchTerm.toLowerCase();
+        tournaments = tournaments.filter(t => 
+          t.name.toLowerCase().includes(searchLower) ||
+          t.description.toLowerCase().includes(searchLower)
+        );
+      }
+    }
+
+    if (pagination) {
+      tournaments = tournaments.slice(
+        pagination.skip || 0,
+        (pagination.skip || 0) + (pagination.limit || tournaments.length)
+      );
+    }
+
+    return tournaments;
+  }
+
+  async count(filter?: TournamentFilter): Promise<number> {
+    let tournaments = Array.from(this.tournaments.values());
+
+    if (filter) {
+      if (filter.status) {
+        tournaments = tournaments.filter(t => t.status === filter.status);
+      }
+      if (filter.category) {
+        tournaments = tournaments.filter(t => t.category === filter.category);
+      }
+      if (filter.dateRange) {
+        if (filter.dateRange.from) {
+          tournaments = tournaments.filter(t => t.startDate >= filter.dateRange!.from!);
+        }
+        if (filter.dateRange.to) {
+          tournaments = tournaments.filter(t => t.endDate <= filter.dateRange!.to!);
+        }
+      }
+      if (filter.searchTerm) {
+        const searchLower = filter.searchTerm.toLowerCase();
+        tournaments = tournaments.filter(t => 
+          t.name.toLowerCase().includes(searchLower) ||
+          t.description.toLowerCase().includes(searchLower)
+        );
+      }
+    }
+
+    return tournaments.length;
   }
 
   async save(tournament: Tournament): Promise<void> {
-    this.tournaments.push(tournament);
-    this.participantRegistrations.set(tournament.id, new Set<string>());
+    this.tournaments.set(tournament.id, tournament);
+    if (!this.participantRegistrations.has(tournament.id)) {
+      this.participantRegistrations.set(tournament.id, new Set<string>());
+    }
   }
 
   async update(tournament: Tournament): Promise<void> {
-    const index = this.tournaments.findIndex(t => t.id === tournament.id);
-    if (index !== -1) {
-      this.tournaments[index] = tournament;
+    if (this.tournaments.has(tournament.id)) {
+      this.tournaments.set(tournament.id, tournament);
     }
   }
 
   async delete(id: string): Promise<void> {
-    const index = this.tournaments.findIndex(t => t.id === id);
-    if (index !== -1) {
-      this.tournaments.splice(index, 1);
-      this.participantRegistrations.delete(id);
-    }
+    this.tournaments.delete(id);
+    this.participantRegistrations.delete(id);
   }
 
   async countParticipants(tournamentId: string): Promise<number> {
-    const participants = this.participantRegistrations.get(tournamentId);
-    return participants ? participants.size : 0;
+    return this.participantRegistrations.get(tournamentId)?.size || 0;
   }
 
   async registerParticipant(tournamentId: string, playerId: string): Promise<void> {
     const participants = this.participantRegistrations.get(tournamentId);
     if (participants) {
       participants.add(playerId);
-    } else {
-      this.participantRegistrations.set(tournamentId, new Set<string>([playerId]));
     }
   }
 
@@ -72,12 +130,22 @@ class MockTournamentRepository implements ITournamentRepository {
 
   async isParticipantRegistered(tournamentId: string, playerId: string): Promise<boolean> {
     const participants = this.participantRegistrations.get(tournamentId);
-    return participants ? participants.has(playerId) : false;
+    return participants?.has(playerId) || false;
   }
 
-  async getParticipants(tournamentId: string): Promise<string[]> {
-    const participants = this.participantRegistrations.get(tournamentId);
-    return participants ? Array.from(participants) : [];
+  async getParticipants(tournamentId: string, pagination?: PaginationOptions): Promise<string[]> {
+    const participants = Array.from(this.participantRegistrations.get(tournamentId) || []);
+    if (pagination) {
+      return participants.slice(
+        pagination.skip || 0,
+        (pagination.skip || 0) + (pagination.limit || participants.length)
+      );
+    }
+    return participants;
+  }
+
+  async countParticipantsByTournamentId(tournamentId: string): Promise<number> {
+    return this.countParticipants(tournamentId);
   }
 }
 
@@ -175,7 +243,7 @@ describe('UnregisterFromTournamentUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
     const isRegistered = await tournamentRepository.isParticipantRegistered(
       input.tournamentId,
       input.userId,
@@ -194,7 +262,7 @@ describe('UnregisterFromTournamentUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Tournament with ID');
     expect(result.getError().message).toContain('not found');
   });
@@ -210,7 +278,7 @@ describe('UnregisterFromTournamentUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('not registered');
   });
 
@@ -225,7 +293,7 @@ describe('UnregisterFromTournamentUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Cannot unregister from tournament with status');
   });
 
@@ -264,7 +332,7 @@ describe('UnregisterFromTournamentUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Cannot unregister after tournament has started');
   });
 
@@ -279,7 +347,7 @@ describe('UnregisterFromTournamentUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
     const isRegistered = await tournamentRepository.isParticipantRegistered(
       input.tournamentId,
       input.userId,

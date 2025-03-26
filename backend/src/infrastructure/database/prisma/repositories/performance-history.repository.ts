@@ -14,7 +14,7 @@ import { v4 as uuidv4 } from 'uuid';
 @injectable()
 export class PerformanceHistoryRepository extends BaseRepository implements IPerformanceHistoryRepository {
   constructor(protected readonly prisma: PrismaClient) {
-    super();
+    super(prisma);
   }
 
   async create(data: Omit<PerformanceHistory, 'id' | 'createdAt' | 'updatedAt'>): Promise<PerformanceHistory> {
@@ -50,7 +50,7 @@ export class PerformanceHistoryRepository extends BaseRepository implements IPer
       });
     });
 
-    if (result.isFailure) {
+    if (result.isFailure()) {
       throw result.getError();
     }
 
@@ -70,7 +70,7 @@ export class PerformanceHistoryRepository extends BaseRepository implements IPer
       return PerformanceHistoryMapper.toDomain(performance);
     });
 
-    return result.isSuccess ? result.getValue() : null;
+    return result.isSuccess() ? result.getValue() : null;
   }
 
   async findByUserId(userId: string, filter?: PerformanceHistoryFilter): Promise<PerformanceHistory[]> {
@@ -98,7 +98,7 @@ export class PerformanceHistoryRepository extends BaseRepository implements IPer
       return performances.map(performance => PerformanceHistoryMapper.toDomain(performance));
     });
 
-    return result.isSuccess ? result.getValue() : [];
+    return result.isSuccess() ? result.getValue() : [];
   }
 
   async update(id: string, data: Partial<PerformanceHistory>): Promise<PerformanceHistory> {
@@ -114,7 +114,7 @@ export class PerformanceHistoryRepository extends BaseRepository implements IPer
       return PerformanceHistoryMapper.toDomain(updatedPerformance);
     });
 
-    if (result.isFailure) {
+    if (result.isFailure()) {
       throw result.getError();
     }
 
@@ -128,7 +128,7 @@ export class PerformanceHistoryRepository extends BaseRepository implements IPer
       });
     });
 
-    if (result.isFailure) {
+    if (result.isFailure()) {
       throw result.getError();
     }
   }
@@ -194,7 +194,7 @@ export class PerformanceHistoryRepository extends BaseRepository implements IPer
       };
     });
 
-    if (result.isFailure) {
+    if (result.isFailure()) {
       throw result.getError();
     }
 
@@ -247,22 +247,17 @@ export class PerformanceHistoryRepository extends BaseRepository implements IPer
         
         return performances
           .filter(perf => perf.month !== null)
-          .map(perf => {
-            const monthName = monthNames[perf.month! - 1];
-            const period = `${monthName} ${perf.year}`;
-            
-            return {
-              period,
-              matchesPlayed: perf.matchesPlayed,
-              wins: perf.wins,
-              losses: perf.losses,
-              points: perf.points
-            };
-          });
+          .map(perf => ({
+            period: `${monthNames[perf.month! - 1]} ${perf.year}`,
+            matchesPlayed: perf.matchesPlayed,
+            wins: perf.wins,
+            losses: perf.losses,
+            points: perf.points
+          }));
       }
     });
 
-    if (result.isFailure) {
+    if (result.isFailure()) {
       throw result.getError();
     }
 

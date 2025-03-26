@@ -137,8 +137,7 @@ const createMockUserUseCases = () => {
         const result = Result.ok({
           userId,
           theme: 'dark',
-          notificationsEnabled: true,
-          language: 'en'
+          notificationsEnabled: true
         });
         console.log('[MOCK] getUserPreferencesUseCase returning success result for userId:', userId);
         return Promise.resolve(result);
@@ -200,7 +199,270 @@ const createMockUserUseCases = () => {
  */
 const createMockTournamentUseCases = () => {
   return {
-    // Add tournament related mock use cases
+    // Add all tournament related mock use cases
+    listTournamentsUseCase: {
+      execute: jest.fn().mockImplementation(({ page = 1, limit = 10, status, category }) => {
+        console.log('[MOCK] listTournamentsUseCase executed with params:', { page, limit, status, category });
+        
+        // Create mock tournaments
+        let mockTournaments = [
+          {
+            id: 'b3dcef7f-082e-48de-b8f6-9b0e1f1e9699',
+            name: 'Test Tournament 1',
+            description: 'Description for tournament 1',
+            startDate: new Date('2023-07-10').toISOString(),
+            endDate: new Date('2023-07-15').toISOString(),
+            format: 'SINGLE_ELIMINATION',
+            status: 'ACTIVE',
+            location: 'Madrid, Spain',
+            maxParticipants: 32,
+            registrationEndDate: new Date('2023-07-05').toISOString(),
+            category: 'P3',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          },
+          {
+            id: '246db9c9-1ea2-4a5d-9cc7-d5fc94122171',
+            name: 'Test Tournament 2',
+            description: 'Description for tournament 2',
+            startDate: new Date('2023-08-10').toISOString(),
+            endDate: new Date('2023-08-15').toISOString(),
+            format: 'ROUND_ROBIN',
+            status: 'DRAFT',
+            location: 'Barcelona, Spain',
+            maxParticipants: 16,
+            registrationEndDate: new Date('2023-08-05').toISOString(),
+            category: 'P2',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          }
+        ];
+        
+        // Apply filters if provided
+        if (status !== undefined) {
+          mockTournaments = mockTournaments.filter(t => t.status === status);
+        }
+        
+        if (category !== undefined) {
+          mockTournaments = mockTournaments.filter(t => t.category === category);
+        }
+        
+        // Pagination
+        const totalItems = mockTournaments.length;
+        const totalPages = Math.ceil(totalItems / limit);
+        
+        // Get paginated tournaments
+        const startIndex = (page - 1) * limit;
+        const endIndex = startIndex + limit;
+        const paginatedTournaments = mockTournaments.slice(startIndex, endIndex);
+        
+        const result = Result.ok({
+          tournaments: paginatedTournaments,
+          pagination: {
+            totalItems,
+            itemsPerPage: limit,
+            currentPage: page,
+            totalPages,
+          }
+        });
+        
+        console.log('[MOCK] listTournamentsUseCase returning success result');
+        return Promise.resolve(result);
+      })
+    },
+    getTournamentDetailsUseCase: {
+      execute: jest.fn().mockImplementation(({ tournamentId }) => {
+        console.log('[MOCK] getTournamentDetailsUseCase executed with tournamentId:', tournamentId);
+        
+        if (tournamentId === '00000000-0000-0000-0000-000000000000') {
+          const error = new Error('Tournament not found');
+          console.log('[MOCK] getTournamentDetailsUseCase returning failure result for tournamentId:', tournamentId);
+          return Promise.resolve(Result.fail(error));
+        }
+        
+        const mockTournament = {
+          id: tournamentId,
+          name: 'Test Tournament',
+          description: 'Tournament description',
+          startDate: new Date('2023-07-10').toISOString(),
+          endDate: new Date('2023-07-15').toISOString(),
+          format: 'SINGLE_ELIMINATION',
+          status: 'ACTIVE',
+          location: 'Madrid, Spain',
+          maxParticipants: 32,
+          registrationEndDate: new Date('2023-07-05').toISOString(),
+          category: 'P3',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        
+        return Promise.resolve(Result.ok(mockTournament));
+      })
+    },
+    createTournamentUseCase: {
+      execute: jest.fn().mockImplementation((data) => {
+        console.log('[MOCK] createTournamentUseCase executed with data:', data);
+        
+        // Basic validation
+        if (!data.name || data.name.length < 3) {
+          const error = new Error('Invalid tournament data');
+          console.log('[MOCK] createTournamentUseCase returning failure result');
+          return Promise.resolve(Result.fail(error));
+        }
+        
+        const mockTournament = {
+          id: 'new-tournament-id',
+          ...data,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        
+        return Promise.resolve(Result.ok(mockTournament));
+      })
+    },
+    updateTournamentUseCase: {
+      execute: jest.fn().mockImplementation(({ tournamentId, ...data }) => {
+        console.log('[MOCK] updateTournamentUseCase executed with params:', { tournamentId, ...data });
+        
+        if (tournamentId === '00000000-0000-0000-0000-000000000000') {
+          const error = new Error('Tournament not found');
+          console.log('[MOCK] updateTournamentUseCase returning failure result for tournamentId:', tournamentId);
+          return Promise.resolve(Result.fail(error));
+        }
+        
+        const mockTournament = {
+          id: tournamentId,
+          name: data.name || 'Updated Tournament',
+          description: data.description || 'Updated description',
+          startDate: data.startDate || new Date('2023-07-10').toISOString(),
+          endDate: data.endDate || new Date('2023-07-15').toISOString(),
+          format: data.format || 'SINGLE_ELIMINATION',
+          status: data.status || 'ACTIVE',
+          location: data.location || 'Madrid, Spain',
+          maxParticipants: data.maxParticipants || 32,
+          registrationEndDate: data.registrationEndDate || new Date('2023-07-05').toISOString(),
+          category: data.category || 'P3',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        };
+        
+        return Promise.resolve(Result.ok(mockTournament));
+      })
+    },
+    cancelTournamentUseCase: {
+      execute: jest.fn().mockImplementation(({ tournamentId }) => {
+        console.log('[MOCK] cancelTournamentUseCase executed with tournamentId:', tournamentId);
+        
+        if (tournamentId === '00000000-0000-0000-0000-000000000000') {
+          const error = new Error('Tournament not found');
+          console.log('[MOCK] cancelTournamentUseCase returning failure result for tournamentId:', tournamentId);
+          return Promise.resolve(Result.fail(error));
+        }
+        
+        return Promise.resolve(Result.ok(true));
+      })
+    },
+    registerToTournamentUseCase: {
+      execute: jest.fn().mockImplementation(({ tournamentId, playerId }) => {
+        console.log('[MOCK] registerToTournamentUseCase executed with params:', { tournamentId, playerId });
+        
+        if (tournamentId === '00000000-0000-0000-0000-000000000000') {
+          const error = new Error('Tournament not found');
+          console.log('[MOCK] registerToTournamentUseCase returning failure result for tournamentId:', tournamentId);
+          return Promise.resolve(Result.fail(error));
+        }
+        
+        if (tournamentId === 'full-tournament-id') {
+          const error = new Error('Tournament is full');
+          console.log('[MOCK] registerToTournamentUseCase returning failure for full tournament');
+          return Promise.resolve(Result.fail(error));
+        }
+        
+        const mockRegistration = {
+          id: 'registration-id',
+          tournamentId,
+          playerId,
+          registrationDate: new Date().toISOString(),
+          status: 'ACCEPTED',
+        };
+        
+        return Promise.resolve(Result.ok(mockRegistration));
+      })
+    },
+    getTournamentStandingsUseCase: {
+      execute: jest.fn().mockImplementation(({ tournamentId }) => {
+        console.log('[MOCK] getTournamentStandingsUseCase executed with tournamentId:', tournamentId);
+        
+        if (tournamentId === '00000000-0000-0000-0000-000000000000') {
+          const error = new Error('Tournament not found');
+          console.log('[MOCK] getTournamentStandingsUseCase returning failure result for tournamentId:', tournamentId);
+          return Promise.resolve(Result.fail(error));
+        }
+        
+        const mockStandings = [
+          { playerName: 'Player 1', position: 1, points: 100, matchesPlayed: 5, wins: 5, losses: 0 },
+          { playerName: 'Player 2', position: 2, points: 80, matchesPlayed: 5, wins: 4, losses: 1 },
+          { playerName: 'Player 3', position: 3, points: 60, matchesPlayed: 5, wins: 3, losses: 2 },
+        ];
+        
+        return Promise.resolve(Result.ok({ standings: mockStandings }));
+      })
+    },
+    getTournamentBracketUseCase: {
+      execute: jest.fn().mockImplementation(({ tournamentId }) => {
+        console.log('[MOCK] getTournamentBracketUseCase executed with tournamentId:', tournamentId);
+        
+        if (tournamentId === '00000000-0000-0000-0000-000000000000') {
+          const error = new Error('Tournament not found');
+          console.log('[MOCK] getTournamentBracketUseCase returning failure result for tournamentId:', tournamentId);
+          return Promise.resolve(Result.fail(error));
+        }
+        
+        const mockBracket = {
+          rounds: [
+            {
+              round: 1,
+              matches: [
+                { 
+                  matchId: 'match1', 
+                  homePlayer: 'Player 1', 
+                  awayPlayer: 'Player 2',
+                  homeScore: 6,
+                  awayScore: 4,
+                  status: 'COMPLETED',
+                  winner: 'Player 1'
+                },
+                { 
+                  matchId: 'match2', 
+                  homePlayer: 'Player 3', 
+                  awayPlayer: 'Player 4',
+                  homeScore: 6,
+                  awayScore: 2,
+                  status: 'COMPLETED',
+                  winner: 'Player 3'
+                },
+              ]
+            },
+            {
+              round: 2,
+              matches: [
+                { 
+                  matchId: 'match3', 
+                  homePlayer: 'Player 1', 
+                  awayPlayer: 'Player 3',
+                  homeScore: null,
+                  awayScore: null,
+                  status: 'SCHEDULED',
+                  winner: null
+                }
+              ]
+            }
+          ]
+        };
+        
+        return Promise.resolve(Result.ok({ bracket: mockBracket }));
+      })
+    },
     listTournamentMatchesUseCase: {
       execute: jest.fn().mockImplementation(({ tournamentId, page = 1, limit = 10, status, round }) => {
         console.log('[MOCK] listTournamentMatchesUseCase executed with params:', { tournamentId, page, limit, status, round });
@@ -295,171 +557,160 @@ const createMockTournamentUseCases = () => {
 };
 
 /**
- * Mock performance history use cases for testing
+ * Mock performance use cases for testing
  */
 const createMockPerformanceUseCases = () => {
-  const currentYear = new Date().getFullYear();
-  const currentMonth = new Date().getMonth() + 1;
-  
   return {
     getPlayerPerformanceHistoryUseCase: {
       execute: jest.fn().mockImplementation(({ playerId, year, month }) => {
-        console.log('[MOCK] getPlayerPerformanceHistoryUseCase executed with:', { playerId, year, month });
+        console.log('[MOCK] getPlayerPerformanceHistoryUseCase executed with params:', { playerId, year, month });
         
-        // Handle non-existent players
-        if (playerId === '00000000-0000-0000-0000-000000000000') {
-          return Promise.resolve(Result.ok({ performance: [] }));
-        }
-        
-        // If player ID is invalid format, this won't be called due to validation middleware
-        const mockPerformanceHistory = [
-          {
-            id: 'perf-1',
-            playerId,
-            year: year || currentYear,
-            month: month || currentMonth,
-            matchesPlayed: 10,
-            wins: 7,
-            losses: 3,
-            points: 21,
-            winRate: 70
-          },
-          {
-            id: 'perf-2',
-            playerId,
-            year: year || currentYear,
-            month: (month || currentMonth) - 1 || 12,
-            matchesPlayed: 8,
-            wins: 5,
-            losses: 3,
-            points: 15,
-            winRate: 62.5
-          }
-        ];
-        
-        // Filter by year if provided
-        let filteredHistory = mockPerformanceHistory;
-        if (year) {
-          filteredHistory = filteredHistory.filter(p => p.year === parseInt(year));
-        }
-        
-        // Filter by month if provided
-        if (month) {
-          filteredHistory = filteredHistory.filter(p => p.month === parseInt(month));
-        }
-        
-        return Promise.resolve(Result.ok({ performance: filteredHistory }));
-      })
-    },
-    
-    getPerformanceSummaryUseCase: {
-      execute: jest.fn().mockImplementation(({ playerId, userId, year }) => {
-        console.log('[MOCK] getPerformanceSummaryUseCase executed with:', { playerId, userId, year });
-        
-        // Handle non-existent players
-        if (playerId === '00000000-0000-0000-0000-000000000000' || 
-            userId === '00000000-0000-0000-0000-000000000000') {
-          return Promise.resolve(Result.ok({ summary: { 
-            totalMatches: 0,
-            totalWins: 0,
-            totalLosses: 0,
-            totalPoints: 0,
-            winRate: 0,
-            averagePointsPerMatch: 0,
-            bestMonth: null
-          }}));
-        }
-        
-        const mockSummary = {
-          totalMatches: 33,
-          totalWins: 22,
-          totalLosses: 11,
-          totalPoints: 66,
-          winRate: 66.67,
-          averagePointsPerMatch: 2,
-          userId: userId || playerId || 'user1',
-          bestMonth: {
-            month: 2,
-            year: 2023,
-            wins: 12,
-            winRate: 66.67
-          }
-        };
-        
-        // Add year property if requested
-        if (year) {
-          return Promise.resolve(Result.ok({ 
-            summary: {
-              ...mockSummary,
-              year: parseInt(year)
-            } 
-          }));
-        }
-        
-        return Promise.resolve(Result.ok({ summary: mockSummary }));
-      })
-    },
-    
-    trackPerformanceTrendsUseCase: {
-      execute: jest.fn().mockImplementation(({ playerId, timeframe }) => {
-        console.log('[MOCK] trackPerformanceTrendsUseCase executed with:', { playerId, timeframe });
-        
-        // Handle non-existent players
-        if (playerId === '00000000-0000-0000-0000-000000000000') {
-          return Promise.resolve(Result.ok({ trends: [] }));
-        }
-        
-        const mockTrends = [
-          {
-            period: timeframe === 'yearly' ? '2023' : '2023-01',
-            winRate: 65.5,
-            matchesPlayed: 20,
-            averagePoints: 2.3
-          },
-          {
-            period: timeframe === 'yearly' ? '2022' : '2023-02',
-            winRate: 58.3,
-            matchesPlayed: 18,
-            averagePoints: 1.9
-          },
-          {
-            period: timeframe === 'yearly' ? '2021' : '2023-03',
-            winRate: 70.0,
-            matchesPlayed: 22,
-            averagePoints: 2.5
-          }
-        ];
-        
-        return Promise.resolve(Result.ok({ trends: mockTrends }));
-      })
-    },
-    
-    recordPerformanceEntryUseCase: {
-      execute: jest.fn().mockImplementation(({ playerId, ...performanceData }) => {
-        console.log('[MOCK] recordPerformanceEntryUseCase executed with:', { playerId, ...performanceData });
-        
-        // Handle non-existent players
-        if (playerId === '00000000-0000-0000-0000-000000000000') {
-          const error = new Error('Player not found');
+        // Validate playerId format
+        if (!playerId || typeof playerId !== 'string' || playerId.length !== 36) {
+          const error = new Error('Invalid player ID format');
+          console.log('[MOCK] getPlayerPerformanceHistoryUseCase returning validation error');
           return Promise.resolve(Result.fail(error));
         }
+
+        // Handle non-existent player
+        if (playerId === '00000000-0000-0000-0000-000000000000') {
+          const error = new Error('Player not found');
+          console.log('[MOCK] getPlayerPerformanceHistoryUseCase returning not found error');
+          return Promise.resolve(Result.fail(error));
+        }
+
+        // Return mock performance history
+        const result = Result.ok([
+          {
+            id: '1',
+            playerId,
+            year: year || 2023,
+            month: month || 1,
+            matchesPlayed: 15,
+            wins: 10,
+            losses: 5,
+            points: 30,
+            createdAt: '2023-01-31T23:59:59Z',
+            updatedAt: '2023-01-31T23:59:59Z'
+          }
+        ]);
+        console.log('[MOCK] getPlayerPerformanceHistoryUseCase returning success result');
+        return Promise.resolve(result);
+      })
+    },
+    getPerformanceSummaryUseCase: {
+      execute: jest.fn().mockImplementation(({ playerId, year }) => {
+        console.log('[MOCK] getPerformanceSummaryUseCase executed with params:', { playerId, year });
         
-        const mockPerformance = {
-          id: 'perf-' + Math.random().toString(36).substring(2, 9),
+        // Validate playerId format
+        if (!playerId || typeof playerId !== 'string' || playerId.length !== 36) {
+          const error = new Error('Invalid player ID format');
+          console.log('[MOCK] getPerformanceSummaryUseCase returning validation error');
+          return Promise.resolve(Result.fail(error));
+        }
+
+        // Handle non-existent player
+        if (playerId === '00000000-0000-0000-0000-000000000000') {
+          const error = new Error('Player not found');
+          console.log('[MOCK] getPerformanceSummaryUseCase returning not found error');
+          return Promise.resolve(Result.fail(error));
+        }
+
+        // Return mock performance summary
+        const result = Result.ok({
           playerId,
-          year: performanceData.year || currentYear,
-          month: performanceData.month || currentMonth,
-          matchesPlayed: performanceData.matchesPlayed || 0,
-          wins: performanceData.wins || 0,
-          losses: performanceData.losses || 0,
-          points: performanceData.points || 0,
-          winRate: performanceData.wins && performanceData.matchesPlayed ? 
-                  (performanceData.wins / performanceData.matchesPlayed * 100) : 0,
+          year: year || 2023,
+          totalMatches: 30,
+          wins: 20,
+          losses: 10,
+          winRate: 0.67,
+          averagePoints: 25
+        });
+        console.log('[MOCK] getPerformanceSummaryUseCase returning success result');
+        return Promise.resolve(result);
+      })
+    },
+    trackPerformanceTrendsUseCase: {
+      execute: jest.fn().mockImplementation(({ playerId, timeframe }) => {
+        console.log('[MOCK] trackPerformanceTrendsUseCase executed with params:', { playerId, timeframe });
+        
+        // Validate playerId format
+        if (!playerId || typeof playerId !== 'string' || playerId.length !== 36) {
+          const error = new Error('Invalid player ID format');
+          console.log('[MOCK] trackPerformanceTrendsUseCase returning validation error');
+          return Promise.resolve(Result.fail(error));
+        }
+
+        // Handle non-existent player
+        if (playerId === '00000000-0000-0000-0000-000000000000') {
+          const error = new Error('Player not found');
+          console.log('[MOCK] trackPerformanceTrendsUseCase returning not found error');
+          return Promise.resolve(Result.fail(error));
+        }
+
+        // Validate timeframe
+        if (!timeframe || !['week', 'month', 'year'].includes(timeframe)) {
+          const error = new Error('Invalid timeframe');
+          console.log('[MOCK] trackPerformanceTrendsUseCase returning validation error');
+          return Promise.resolve(Result.fail(error));
+        }
+
+        // Return mock performance trends
+        const result = Result.ok({
+          playerId,
+          timeframe,
+          trends: [
+            { date: '2023-01-01', winRate: 0.6, points: 25 },
+            { date: '2023-02-01', winRate: 0.7, points: 28 },
+            { date: '2023-03-01', winRate: 0.65, points: 26 }
+          ]
+        });
+        console.log('[MOCK] trackPerformanceTrendsUseCase returning success result');
+        return Promise.resolve(result);
+      })
+    },
+    recordPerformanceEntryUseCase: {
+      execute: jest.fn().mockImplementation(({ playerId, performanceData }) => {
+        console.log('[MOCK] recordPerformanceEntryUseCase executed with params:', { playerId, performanceData });
+        
+        // Validate playerId format
+        if (!playerId || typeof playerId !== 'string' || playerId.length !== 36) {
+          const error = new Error('Invalid player ID format');
+          console.log('[MOCK] recordPerformanceEntryUseCase returning validation error');
+          return Promise.resolve(Result.fail(error));
+        }
+
+        // Handle non-existent player
+        if (playerId === '00000000-0000-0000-0000-000000000000') {
+          const error = new Error('Player not found');
+          console.log('[MOCK] recordPerformanceEntryUseCase returning not found error');
+          return Promise.resolve(Result.fail(error));
+        }
+
+        // Validate performance data
+        if (!performanceData || typeof performanceData !== 'object') {
+          const error = new Error('Invalid performance data');
+          console.log('[MOCK] recordPerformanceEntryUseCase returning validation error');
+          return Promise.resolve(Result.fail(error));
+        }
+
+        // Validate performance data fields
+        if (performanceData.matchesPlayed !== performanceData.wins + performanceData.losses) {
+          const error = new Error('Invalid performance data: matches played must equal wins plus losses');
+          console.log('[MOCK] recordPerformanceEntryUseCase returning validation error');
+          return Promise.resolve(Result.fail(error));
+        }
+
+        // Return mock performance entry
+        const result = Result.ok({
+          id: 'generated-uuid',
+          playerId,
+          ...performanceData,
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString()
-        };
-        
-        return Promise.resolve(Result.ok({ performance: mockPerformance }));
+        });
+        console.log('[MOCK] recordPerformanceEntryUseCase returning success result');
+        return Promise.resolve(result);
       })
     }
   };
@@ -559,6 +810,157 @@ const createMockPreferenceUseCases = () => {
 };
 
 /**
+ * Mock statistic use cases for testing
+ */
+const createMockStatisticUseCases = () => {
+  return {
+    getStatisticsUseCase: {
+      execute: jest.fn().mockImplementation((params) => {
+        console.log('[MOCK] getStatisticsUseCase executed with params:', params);
+        const result = Result.ok([
+          {
+            id: 'test-statistic-id',
+            userId: params.userId || 'test-user-id',
+            tournamentId: params.tournamentId || 'test-tournament-id',
+            matchesPlayed: 10,
+            wins: 7,
+            losses: 3,
+            points: 70,
+            rank: 1,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          }
+        ]);
+        console.log('[MOCK] getStatisticsUseCase returning success result:', JSON.stringify(result));
+        return Promise.resolve(result);
+      })
+    },
+    getStatisticByIdUseCase: {
+      execute: jest.fn().mockImplementation(({ id }) => {
+        console.log('[MOCK] getStatisticByIdUseCase executed with id:', id);
+        if (id === '00000000-0000-0000-0000-000000000000') {
+          const error = new Error('Statistic not found');
+          console.log('[MOCK] getStatisticByIdUseCase returning failure result for id:', id);
+          return Promise.resolve(Result.fail(error));
+        }
+        const result = Result.ok({
+          id,
+          userId: 'test-user-id',
+          tournamentId: 'test-tournament-id',
+          matchesPlayed: 10,
+          wins: 7,
+          losses: 3,
+          points: 70,
+          rank: 1,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+        console.log('[MOCK] getStatisticByIdUseCase returning success result:', JSON.stringify(result));
+        return Promise.resolve(result);
+      })
+    },
+    createStatisticUseCase: {
+      execute: jest.fn().mockImplementation((data) => {
+        console.log('[MOCK] createStatisticUseCase executed with data:', data);
+        const result = Result.ok({
+          id: 'new-statistic-id',
+          ...data,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+        console.log('[MOCK] createStatisticUseCase returning success result:', JSON.stringify(result));
+        return Promise.resolve(result);
+      })
+    },
+    updateStatisticUseCase: {
+      execute: jest.fn().mockImplementation(({ id, ...data }) => {
+        console.log('[MOCK] updateStatisticUseCase executed with params:', { id, ...data });
+        if (id === '00000000-0000-0000-0000-000000000000') {
+          const error = new Error('Statistic not found');
+          console.log('[MOCK] updateStatisticUseCase returning failure result for id:', id);
+          return Promise.resolve(Result.fail(error));
+        }
+        const result = Result.ok({
+          id,
+          userId: 'test-user-id',
+          tournamentId: 'test-tournament-id',
+          ...data,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+        console.log('[MOCK] updateStatisticUseCase returning success result:', JSON.stringify(result));
+        return Promise.resolve(result);
+      })
+    },
+    deleteStatisticUseCase: {
+      execute: jest.fn().mockImplementation(({ id }) => {
+        console.log('[MOCK] deleteStatisticUseCase executed with id:', id);
+        if (id === '00000000-0000-0000-0000-000000000000') {
+          const error = new Error('Statistic not found');
+          console.log('[MOCK] deleteStatisticUseCase returning failure result for id:', id);
+          return Promise.resolve(Result.fail(error));
+        }
+        const result = Result.ok();
+        console.log('[MOCK] deleteStatisticUseCase returning success result for id:', id);
+        return Promise.resolve(result);
+      })
+    },
+    getStatisticsByUserIdUseCase: {
+      execute: jest.fn().mockImplementation(({ userId }) => {
+        console.log('[MOCK] getStatisticsByUserIdUseCase executed with userId:', userId);
+        if (userId === '00000000-0000-0000-0000-000000000000') {
+          const error = new Error('User not found');
+          console.log('[MOCK] getStatisticsByUserIdUseCase returning failure result for userId:', userId);
+          return Promise.resolve(Result.fail(error));
+        }
+        const result = Result.ok([
+          {
+            id: 'test-statistic-id',
+            userId,
+            tournamentId: 'test-tournament-id',
+            matchesPlayed: 10,
+            wins: 7,
+            losses: 3,
+            points: 70,
+            rank: 1,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          }
+        ]);
+        console.log('[MOCK] getStatisticsByUserIdUseCase returning success result:', JSON.stringify(result));
+        return Promise.resolve(result);
+      })
+    },
+    getStatisticsByTournamentIdUseCase: {
+      execute: jest.fn().mockImplementation(({ tournamentId }) => {
+        console.log('[MOCK] getStatisticsByTournamentIdUseCase executed with tournamentId:', tournamentId);
+        if (tournamentId === '00000000-0000-0000-0000-000000000000') {
+          const error = new Error('Tournament not found');
+          console.log('[MOCK] getStatisticsByTournamentIdUseCase returning failure result for tournamentId:', tournamentId);
+          return Promise.resolve(Result.fail(error));
+        }
+        const result = Result.ok([
+          {
+            id: 'test-statistic-id',
+            userId: 'test-user-id',
+            tournamentId,
+            matchesPlayed: 10,
+            wins: 7,
+            losses: 3,
+            points: 70,
+            rank: 1,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          }
+        ]);
+        console.log('[MOCK] getStatisticsByTournamentIdUseCase returning success result:', JSON.stringify(result));
+        return Promise.resolve(result);
+      })
+    }
+  };
+};
+
+/**
  * Create a mock DI container for testing
  */
 export const createMockContainer = () => {
@@ -567,6 +969,7 @@ export const createMockContainer = () => {
   const mockTournamentUseCases = createMockTournamentUseCases();
   const mockPerformanceUseCases = createMockPerformanceUseCases();
   const mockPreferenceUseCases = createMockPreferenceUseCases();
+  const mockStatisticUseCases = createMockStatisticUseCases();
   
   // Bind mock user use cases
   container.bind('getUserByIdUseCase').toConstantValue(mockUserUseCases.getUserByIdUseCase);
@@ -575,25 +978,40 @@ export const createMockContainer = () => {
   container.bind('deleteUserUseCase').toConstantValue(mockUserUseCases.deleteUserUseCase);
   container.bind('registerUserUseCase').toConstantValue(mockUserUseCases.registerUserUseCase);
   container.bind('getUserStatisticsUseCase').toConstantValue(mockUserUseCases.getUserStatisticsUseCase);
-  container.bind('getUserPreferencesUseCase').toConstantValue(mockUserUseCases.getUserPreferencesUseCase);
-  container.bind('updateUserPreferencesUseCase').toConstantValue(mockUserUseCases.updateUserPreferencesUseCase);
   container.bind('changePasswordUseCase').toConstantValue(mockUserUseCases.changePasswordUseCase);
   container.bind('getUserPerformanceUseCase').toConstantValue(mockUserUseCases.getUserPerformanceUseCase);
   container.bind('getMatchHistoryUseCase').toConstantValue(mockUserUseCases.getMatchHistoryUseCase);
   
   // Bind mock tournament use cases
+  container.bind('listTournamentsUseCase').toConstantValue(mockTournamentUseCases.listTournamentsUseCase);
+  container.bind('getTournamentDetailsUseCase').toConstantValue(mockTournamentUseCases.getTournamentDetailsUseCase);
+  container.bind('createTournamentUseCase').toConstantValue(mockTournamentUseCases.createTournamentUseCase);
+  container.bind('updateTournamentUseCase').toConstantValue(mockTournamentUseCases.updateTournamentUseCase);
+  container.bind('cancelTournamentUseCase').toConstantValue(mockTournamentUseCases.cancelTournamentUseCase);
+  container.bind('registerToTournamentUseCase').toConstantValue(mockTournamentUseCases.registerToTournamentUseCase);
+  container.bind('getTournamentStandingsUseCase').toConstantValue(mockTournamentUseCases.getTournamentStandingsUseCase);
+  container.bind('getTournamentBracketUseCase').toConstantValue(mockTournamentUseCases.getTournamentBracketUseCase);
   container.bind('listTournamentMatchesUseCase').toConstantValue(mockTournamentUseCases.listTournamentMatchesUseCase);
   
   // Bind mock performance use cases
-  container.bind('trackPerformanceTrendsUseCase').toConstantValue(mockPerformanceUseCases.trackPerformanceTrendsUseCase);
-  container.bind('getPlayerPerformanceHistoryUseCase').toConstantValue(mockPerformanceUseCases.getPlayerPerformanceHistoryUseCase);
-  container.bind('getPerformanceSummaryUseCase').toConstantValue(mockPerformanceUseCases.getPerformanceSummaryUseCase);
-  container.bind('recordPerformanceEntryUseCase').toConstantValue(mockPerformanceUseCases.recordPerformanceEntryUseCase);
+  container.bind('GetPlayerPerformanceHistoryUseCase').toConstantValue(mockPerformanceUseCases.getPlayerPerformanceHistoryUseCase);
+  container.bind('GetPerformanceSummaryUseCase').toConstantValue(mockPerformanceUseCases.getPerformanceSummaryUseCase);
+  container.bind('TrackPerformanceTrendsUseCase').toConstantValue(mockPerformanceUseCases.trackPerformanceTrendsUseCase);
+  container.bind('RecordPerformanceEntryUseCase').toConstantValue(mockPerformanceUseCases.recordPerformanceEntryUseCase);
   
   // Bind mock preference use cases
-  container.bind('getUserPreferencesUseCase').toConstantValue(mockPreferenceUseCases.getUserPreferencesUseCase);
-  container.bind('updateUserPreferencesUseCase').toConstantValue(mockPreferenceUseCases.updateUserPreferencesUseCase);
-  container.bind('resetPreferencesUseCase').toConstantValue(mockPreferenceUseCases.resetPreferencesUseCase);
+  container.bind('GetUserPreferencesUseCase').toConstantValue(mockPreferenceUseCases.getUserPreferencesUseCase);
+  container.bind('UpdateUserPreferencesUseCase').toConstantValue(mockPreferenceUseCases.updateUserPreferencesUseCase);
+  container.bind('ResetPreferencesUseCase').toConstantValue(mockPreferenceUseCases.resetPreferencesUseCase);
+  
+  // Bind mock statistic use cases
+  container.bind('getStatisticsUseCase').toConstantValue(mockStatisticUseCases.getStatisticsUseCase);
+  container.bind('getStatisticByIdUseCase').toConstantValue(mockStatisticUseCases.getStatisticByIdUseCase);
+  container.bind('createStatisticUseCase').toConstantValue(mockStatisticUseCases.createStatisticUseCase);
+  container.bind('updateStatisticUseCase').toConstantValue(mockStatisticUseCases.updateStatisticUseCase);
+  container.bind('deleteStatisticUseCase').toConstantValue(mockStatisticUseCases.deleteStatisticUseCase);
+  container.bind('getStatisticsByUserIdUseCase').toConstantValue(mockStatisticUseCases.getStatisticsByUserIdUseCase);
+  container.bind('getStatisticsByTournamentIdUseCase').toConstantValue(mockStatisticUseCases.getStatisticsByTournamentIdUseCase);
   
   return container;
 }; 

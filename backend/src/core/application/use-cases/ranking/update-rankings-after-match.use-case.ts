@@ -70,7 +70,7 @@ export class UpdateRankingsAfterMatchUseCase extends BaseUseCase<
           playerId,
         });
 
-        if (result.isSuccess) {
+        if (result.isSuccess()) {
           playersUpdated.push(playerId);
         }
       }
@@ -97,7 +97,6 @@ export class UpdateRankingsAfterMatchUseCase extends BaseUseCase<
     if (match.homePlayerOneId) {
       playerIds.push(match.homePlayerOneId);
     }
-
     if (match.homePlayerTwoId) {
       playerIds.push(match.homePlayerTwoId);
     }
@@ -106,12 +105,11 @@ export class UpdateRankingsAfterMatchUseCase extends BaseUseCase<
     if (match.awayPlayerOneId) {
       playerIds.push(match.awayPlayerOneId);
     }
-
     if (match.awayPlayerTwoId) {
       playerIds.push(match.awayPlayerTwoId);
     }
 
-    // Remove duplicates (in case a player is in both home and away teams)
-    return [...new Set(playerIds)];
+    // Remove duplicates and null values
+    return [...new Set(playerIds)].filter(id => id !== null);
   }
 }

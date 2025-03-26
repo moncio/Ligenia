@@ -6,9 +6,10 @@ import { PrismaClient } from '@prisma/client';
 import { config } from 'dotenv';
 import path from 'path';
 import { Container } from 'inversify';
-import { TYPES, container } from '../../src/config/di-container';
+import { TYPES } from '../../src/config/di-container';
 import { IAuthService } from '../../src/core/application/interfaces/auth-service.interface';
 import { MockAuthService } from '../mocks/auth-service.mock';
+import { createMockContainer } from '../utils/container-mock';
 
 // Cargar variables de entorno de prueba
 config({ path: path.resolve(__dirname, '../../.env.test') });
@@ -19,15 +20,22 @@ process.env.SUPABASE_ANON_KEY = 'test-supabase-anon-key';
 process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-supabase-service-role-key';
 process.env.JWT_SECRET = 'test-jwt-secret';
 
+// Create mock container
+const mockContainer = createMockContainer();
+
 // Registrar el MockAuthService en el contenedor ANTES de importar app
-container.bind<IAuthService>(TYPES.AuthService).to(MockAuthService).inSingletonScope();
+mockContainer.bind<IAuthService>(TYPES.AuthService).to(MockAuthService).inSingletonScope();
+
+// Set mock container for auth middleware
+import { setMockContainer } from '../../src/api/middlewares/auth.middleware';
+setMockContainer(mockContainer);
 
 // Ahora podemos importar app ya que el contenedor está configurado
 import supertest from 'supertest';
 import app from '../../src/app';
 
 // Exportar el servicio de autenticación mock para usarlo en las pruebas
-export const mockAuthService = container.get<IAuthService>(TYPES.AuthService);
+export const mockAuthService = mockContainer.get<IAuthService>(TYPES.AuthService);
 
 // Crear un cliente Prisma para las pruebas
 export const prisma = new PrismaClient();
@@ -37,6 +45,11 @@ export const request = supertest(app);
 
 // Configuración global antes de todas las pruebas
 beforeAll(async () => {
+  // Skip database cleanup in test mode since we're using mocks
+  if (process.env.NODE_ENV === 'test') {
+    return;
+  }
+
   try {
     // Limpiar tablas de prueba antes de cada suite de tests
     await prisma.$transaction([
@@ -55,6 +68,11 @@ beforeAll(async () => {
 
 // Configuración global después de todas las pruebas
 afterAll(async () => {
+  // Skip database cleanup in test mode since we're using mocks
+  if (process.env.NODE_ENV === 'test') {
+    return;
+  }
+
   try {
     // Limpiar tablas después de completar las pruebas
     await prisma.$transaction([

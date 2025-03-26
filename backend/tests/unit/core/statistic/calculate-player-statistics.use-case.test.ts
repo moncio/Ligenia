@@ -80,6 +80,10 @@ class MockPlayerRepository implements IPlayerRepository {
     return this.players.length;
   }
 
+  async findByLevel(level: PlayerLevel): Promise<Player[]> {
+    return this.players.filter(p => p.level === level);
+  }
+
   async save(player: Player): Promise<void> {
     this.players.push(player);
   }
@@ -224,7 +228,7 @@ describe('CalculatePlayerStatisticsUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const statistic = result.getValue().statistic;
     expect(statistic.playerId).toBe(playerId);
@@ -271,7 +275,7 @@ describe('CalculatePlayerStatisticsUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const statistic = result.getValue().statistic;
     expect(statistic.id).toBe(existingStatistic.id);
@@ -298,7 +302,7 @@ describe('CalculatePlayerStatisticsUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const statistic = result.getValue().statistic;
     expect(statistic.playerId).toBe(playerId);
@@ -341,7 +345,7 @@ describe('CalculatePlayerStatisticsUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const statistic = result.getValue().statistic;
     expect(statistic.matchesPlayed).toBe(0);
@@ -363,7 +367,7 @@ describe('CalculatePlayerStatisticsUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toBe('Player not found');
   });
 
@@ -383,7 +387,7 @@ describe('CalculatePlayerStatisticsUseCase', () => {
     const result = await useCase.execute(invalidInput);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Invalid player ID format');
   });
 });

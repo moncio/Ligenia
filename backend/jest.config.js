@@ -2,45 +2,50 @@
 module.exports = {
   preset: 'ts-jest',
   testEnvironment: 'node',
-  roots: ['<rootDir>/src', '<rootDir>/tests'],
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-  testMatch: [
-    '**/tests/unit/**/*.test.ts',
-    '**/tests/integration/**/*.test.ts'
+  setupFilesAfterEnv: ['./tests/setup.ts'],
+  testMatch: ['**/?(*.)+(spec|test).ts'],
+  coveragePathIgnorePatterns: [
+    "node_modules",
+    "test-config",
+    "interfaces",
+    "jestGlobalMocks.ts",
+    ".module.ts",
+    ".mock.ts",
+    "<rootDir>/src/main.ts",
+    "<rootDir>/src/app.module.ts",
+    "prisma/seed.ts",
+    ".dto.ts",
+    ".entity.ts"
   ],
-  transform: {
-    '^.+\\.(ts|tsx)$': ['ts-jest', {
-      tsconfig: 'tsconfig.json',
-    }],
-  },
-  moduleNameMapper: {
-    '@/(.*)': '<rootDir>/src/$1',
-    '@tests/(.*)': '<rootDir>/tests/$1',
-    '@supabase/supabase-js': '<rootDir>/tests/mocks/supabase.mock.ts'
-  },
-  setupFilesAfterEnv: [
-    '<rootDir>/tests/unit/setup.ts',
-    '<rootDir>/tests/integration/setup.ts'
-  ],
-  collectCoverage: true,
-  coverageDirectory: 'coverage',
-  collectCoverageFrom: [
-    'src/**/*.{ts,js}',
-    '!src/**/*.d.ts',
-    '!**/node_modules/**',
-    '!**/dist/**'
-  ],
-  verbose: true,
+  // Configurations to handle database-dependent tests
   testTimeout: 30000,
-  clearMocks: true,
-  resetMocks: true,
-  restoreMocks: true,
-  coverageThreshold: {
-    global: {
-      branches: 70,
-      functions: 70,
-      lines: 70,
-      statements: 70
+  verbose: true,
+  // Database tests should run in band to prevent race conditions
+  // Add --maxWorkers=1 for infrastructure tests
+  globals: {
+    'ts-jest': {
+      isolatedModules: true
     }
-  }
+  },
+  // Add configuration to define test groups
+  projects: [
+    {
+      displayName: 'unit',
+      testMatch: ['<rootDir>/tests/unit/**/*.test.ts'],
+      // Unit tests can run in parallel
+      maxWorkers: '50%',
+    },
+    {
+      displayName: 'integration',
+      testMatch: ['<rootDir>/tests/integration/**/*.test.ts'],
+      // Integration tests run serially
+      maxWorkers: 1,
+    },
+    {
+      displayName: 'infrastructure',
+      testMatch: ['<rootDir>/tests/integration/infrastructure/**/*.test.ts'],
+      // Infrastructure tests that touch the database run serially
+      maxWorkers: 1,
+    }
+  ]
 }; 

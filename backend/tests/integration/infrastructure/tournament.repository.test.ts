@@ -52,11 +52,8 @@ describe('TournamentRepository', () => {
     // Act
     await repository.save(testTournament);
 
-    // Assert
-    const savedTournament = await prisma.tournament.findUnique({
-      where: { id: testTournament.id },
-    });
-
+    // Assert - Verify by finding the tournament
+    const savedTournament = await repository.findById(testTournament.id);
     expect(savedTournament).not.toBeNull();
     expect(savedTournament?.name).toBe(testTournament.name);
   });
@@ -79,11 +76,8 @@ describe('TournamentRepository', () => {
     // Act
     await repository.update(testTournament);
 
-    // Assert
-    const updatedTournament = await prisma.tournament.findUnique({
-      where: { id: testTournament.id },
-    });
-
+    // Assert - Verify by finding the tournament
+    const updatedTournament = await repository.findById(testTournament.id);
     expect(updatedTournament?.name).toBe(updatedName);
   });
 
@@ -99,11 +93,8 @@ describe('TournamentRepository', () => {
     // Act
     await repository.delete(testTournament.id);
 
-    // Assert
-    const deletedTournament = await prisma.tournament.findUnique({
-      where: { id: testTournament.id },
-    });
-
+    // Assert - Verify by finding the tournament
+    const deletedTournament = await repository.findById(testTournament.id);
     expect(deletedTournament).toBeNull();
   });
 
@@ -117,7 +108,7 @@ describe('TournamentRepository', () => {
       new Date(),
       new Date(Date.now() + 86400000),
       TournamentFormat.SINGLE_ELIMINATION,
-      TournamentStatus.DRAFT, // Using supported status in Prisma
+      TournamentStatus.DRAFT,
       'Test Location',
       null,
       new Date(Date.now() + 43200000), // 12 hours from now
@@ -132,7 +123,7 @@ describe('TournamentRepository', () => {
       new Date(),
       new Date(Date.now() + 86400000),
       TournamentFormat.SINGLE_ELIMINATION,
-      TournamentStatus.DRAFT, // Using supported status in Prisma
+      TournamentStatus.DRAFT,
       'Test Location',
       null,
       new Date(Date.now() + 43200000), // 12 hours from now

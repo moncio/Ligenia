@@ -12,7 +12,7 @@ import { injectable } from "inversify";
 @injectable()
 export class TournamentRepository extends BaseRepository implements ITournamentRepository {
   constructor(protected readonly prisma: PrismaClient) {
-    super();
+    super(prisma);
   }
   
   /**
@@ -70,50 +70,50 @@ export class TournamentRepository extends BaseRepository implements ITournamentR
    * Save a new tournament
    */
   async save(tournament: Tournament): Promise<void> {
-    return this.executeOperation(async () => {
+    const result = await this.executeOperation(async () => {
       const prismaData = TournamentMapper.toPrisma(tournament);
       
       await this.prisma.tournament.create({
         data: prismaData as Prisma.TournamentCreateInput
       });
-    }).then(result => {
-      if (result.isFailure) {
-        throw result.getError();
-      }
     });
+    
+    if (result.isFailure()) {
+      throw result.getError();
+    }
   }
 
   /**
    * Update an existing tournament
    */
   async update(tournament: Tournament): Promise<void> {
-    return this.executeOperation(async () => {
+    const result = await this.executeOperation(async () => {
       const prismaData = TournamentMapper.toPrisma(tournament);
       
       await this.prisma.tournament.update({
         where: { id: tournament.id },
         data: prismaData
       });
-    }).then(result => {
-      if (result.isFailure) {
-        throw result.getError();
-      }
     });
+    
+    if (result.isFailure()) {
+      throw result.getError();
+    }
   }
 
   /**
    * Delete a tournament by ID
    */
   async delete(id: string): Promise<void> {
-    return this.executeOperation(async () => {
+    const result = await this.executeOperation(async () => {
       await this.prisma.tournament.delete({
         where: { id }
       });
-    }).then(result => {
-      if (result.isFailure) {
-        throw result.getError();
-      }
     });
+    
+    if (result.isFailure()) {
+      throw result.getError();
+    }
   }
 
   /**

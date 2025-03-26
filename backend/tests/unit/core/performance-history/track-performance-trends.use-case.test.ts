@@ -139,7 +139,7 @@ describe('TrackPerformanceTrendsUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isSuccess).toBe(true);
+      expect(result.isSuccess()).toBe(true);
       const trends = result.getValue();
       expect(trends.length).toBe(3); // 3 months
       expect(trends[0].period).toBe('Jan');
@@ -158,7 +158,7 @@ describe('TrackPerformanceTrendsUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isSuccess).toBe(true);
+      expect(result.isSuccess()).toBe(true);
       const trends = result.getValue();
       expect(trends.length).toBe(2); // 2 years
       expect(trends[0].period).toBe('2022');
@@ -176,7 +176,7 @@ describe('TrackPerformanceTrendsUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isSuccess).toBe(true);
+      expect(result.isSuccess()).toBe(true);
       const trends = result.getValue();
       expect(trends.length).toBe(1); // All-time summary
       expect(trends[0].period).toBe('All-time');
@@ -196,7 +196,7 @@ describe('TrackPerformanceTrendsUseCase', () => {
       const result = await useCase.execute(input as any);
 
       // Assert
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
       expect(result.getError().message).toContain('Invalid user ID format');
     });
 
@@ -211,7 +211,7 @@ describe('TrackPerformanceTrendsUseCase', () => {
       const result = await useCase.execute(input as any);
 
       // Assert
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
     });
   });
 
@@ -232,7 +232,7 @@ describe('TrackPerformanceTrendsUseCase', () => {
       const result = await useCase.execute(input);
 
       // Assert
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
       expect(result.getError().message).toBe('Database connection error');
     });
   });

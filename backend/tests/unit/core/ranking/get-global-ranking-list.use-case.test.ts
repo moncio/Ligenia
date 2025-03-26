@@ -253,7 +253,7 @@ describe('GetGlobalRankingListUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const output = result.getValue();
     expect(output.rankings.length).toBe(4); // Default limit is 10, we have 4
@@ -278,7 +278,7 @@ describe('GetGlobalRankingListUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const output = result.getValue();
     expect(output.rankings.length).toBe(2);
@@ -303,7 +303,7 @@ describe('GetGlobalRankingListUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const output = result.getValue();
     expect(output.rankings.length).toBe(2); // Only P3 players
@@ -326,7 +326,7 @@ describe('GetGlobalRankingListUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const output = result.getValue();
     const rankingPoints = output.rankings.map(r => r.rankingPoints);
@@ -349,7 +349,7 @@ describe('GetGlobalRankingListUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const output = result.getValue();
     const positions = output.rankings.map(r => r.globalPosition);
@@ -372,7 +372,7 @@ describe('GetGlobalRankingListUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const output = result.getValue();
     expect(output.rankings.length).toBe(0);
@@ -392,6 +392,6 @@ describe('GetGlobalRankingListUseCase', () => {
     const result = await useCase.execute(invalidInput);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
   });
 });

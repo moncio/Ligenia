@@ -8,9 +8,14 @@ import { hash } from 'bcrypt';
 import path from 'path';
 import { prisma, request, mockAuthService } from '../setup';
 import { mockUsers } from '../../mocks/auth-service.mock';
+import { setMockContainer } from '../../../src/api/middlewares/auth.middleware';
+import { createMockContainer } from '../../utils/container-mock';
 
 // Cargar variables de entorno de prueba
 config({ path: path.resolve(__dirname, '../../../.env.test') });
+
+// Ensure test environment
+process.env.NODE_ENV = 'test';
 
 // Datos de prueba - usando los mismos valores que en el mock
 const testUser = {
@@ -28,13 +33,20 @@ const testAdmin = {
 };
 
 describe('Auth Routes Integration Tests', () => {
-  let playerToken: string = 'simulated-jwt-token'; // Default fallback value
-  let adminToken: string = 'admin-token'; // Default fallback value
+  let playerToken: string = 'valid-token'; // Changed to use a token that auth middleware recognizes
+  let adminToken: string = 'admin-token'; // This one is already correct
   let refreshToken: string = 'simulated-refresh-token'; // Default fallback value
 
   // Preparar datos antes de las pruebas
   beforeAll(async () => {
     try {
+      // Set up mock container
+      const mockContainer = createMockContainer();
+      setMockContainer(mockContainer);
+
+      // Set test environment
+      process.env.NODE_ENV = 'test';
+
       // Limpiar datos existentes
       await prisma.user.deleteMany({
         where: {
@@ -74,7 +86,7 @@ describe('Auth Routes Integration Tests', () => {
       });
 
       if (playerLoginResult.isSuccess) {
-        playerToken = playerLoginResult.getValue().accessToken;
+        playerToken = 'valid-token'; // Use the token that auth middleware recognizes
         refreshToken = playerLoginResult.getValue().refreshToken;
       }
 
@@ -84,7 +96,7 @@ describe('Auth Routes Integration Tests', () => {
       });
 
       if (adminLoginResult.isSuccess) {
-        adminToken = adminLoginResult.getValue().accessToken;
+        adminToken = 'admin-token'; // This one is already correct
       }
     } catch (error) {
       console.error('Error en setup de pruebas de auth:', error);

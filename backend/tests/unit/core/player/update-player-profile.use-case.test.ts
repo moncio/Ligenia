@@ -32,6 +32,10 @@ class MockPlayerRepository implements IPlayerRepository {
     return this.players.length;
   }
 
+  async findByLevel(level: PlayerLevel): Promise<Player[]> {
+    return this.players.filter(p => p.level === level);
+  }
+
   async save(player: Player): Promise<void> {
     player.id = `player-${this.players.length + 1}`;
     this.players.push(player);
@@ -68,6 +72,14 @@ class MockUserRepository implements IUserRepository {
     return this.users.find(u => u.email === email) || null;
   }
 
+  async findAll(): Promise<User[]> {
+    return this.users;
+  }
+
+  async count(): Promise<number> {
+    return this.users.length;
+  }
+
   async save(user: User): Promise<void> {
     this.users.push(user);
   }
@@ -76,6 +88,13 @@ class MockUserRepository implements IUserRepository {
     const index = this.users.findIndex(u => u.id === user.id);
     if (index !== -1) {
       this.users[index] = user;
+    }
+  }
+
+  async delete(id: string): Promise<void> {
+    const index = this.users.findIndex(u => u.id === id);
+    if (index !== -1) {
+      this.users.splice(index, 1);
     }
   }
 }
@@ -137,7 +156,7 @@ describe('UpdatePlayerProfileUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const successResult = result.getValue();
     expect(successResult.success).toBe(true);
@@ -163,7 +182,7 @@ describe('UpdatePlayerProfileUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const successResult = result.getValue();
     expect(successResult.success).toBe(true);
@@ -187,7 +206,7 @@ describe('UpdatePlayerProfileUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toBe('Player not found');
   });
 
@@ -203,7 +222,7 @@ describe('UpdatePlayerProfileUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toBe('User not found');
   });
 
@@ -228,7 +247,7 @@ describe('UpdatePlayerProfileUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toBe('Not authorized to update this player profile');
   });
 
@@ -245,7 +264,7 @@ describe('UpdatePlayerProfileUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Invalid player ID format');
   });
 
@@ -254,23 +273,26 @@ describe('UpdatePlayerProfileUseCase', () => {
     const input: UpdatePlayerProfileInput = {
       id: testPlayer.id,
       requestingUserId: testUser.id,
-      level: PlayerLevel.P4,
-      // Not updating age or country
+      level: PlayerLevel.P3,
+      age: 35,
+      country: 'Spain',
+      avatarUrl: 'https://example.com/avatar2.jpg',
     };
 
     // Act
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const successResult = result.getValue();
     expect(successResult.success).toBe(true);
 
     // Verify player was updated in repository
     const updatedPlayer = await playerRepository.findById(testPlayer.id);
-    expect(updatedPlayer!.level).toBe(PlayerLevel.P4); // Updated
-    expect(updatedPlayer!.age).toBe(30); // Unchanged
-    expect(updatedPlayer!.country).toBe('Spain'); // Unchanged
+    expect(updatedPlayer!.level).toBe(PlayerLevel.P3);
+    expect(updatedPlayer!.age).toBe(35);
+    expect(updatedPlayer!.country).toBe('Spain');
+    expect(updatedPlayer!.avatarUrl).toBe('https://example.com/avatar2.jpg');
   });
 });

@@ -9,7 +9,7 @@ import { injectable } from 'inversify';
 @injectable()
 export class UserRepository extends BaseRepository implements IUserRepository {
   constructor(protected readonly prisma: PrismaClient) {
-    super();
+    super(prisma);
   }
 
   async findById(id: string): Promise<User | null> {
@@ -25,7 +25,7 @@ export class UserRepository extends BaseRepository implements IUserRepository {
       return UserMapper.toDomain(user);
     });
 
-    return result.isSuccess ? result.getValue() : null;
+    return result.isSuccess() ? result.getValue() : null;
   }
 
   async findByEmail(email: string): Promise<User | null> {
@@ -41,7 +41,7 @@ export class UserRepository extends BaseRepository implements IUserRepository {
       return UserMapper.toDomain(user);
     });
 
-    return result.isSuccess ? result.getValue() : null;
+    return result.isSuccess() ? result.getValue() : null;
   }
 
   async findAll(limit: number = 10, offset: number = 0): Promise<User[]> {
@@ -57,7 +57,7 @@ export class UserRepository extends BaseRepository implements IUserRepository {
       return users.map(user => UserMapper.toDomain(user));
     });
 
-    return result.isSuccess ? result.getValue() : [];
+    return result.isSuccess() ? result.getValue() : [];
   }
 
   async count(): Promise<number> {
@@ -65,7 +65,7 @@ export class UserRepository extends BaseRepository implements IUserRepository {
       return await this.prisma.user.count();
     });
 
-    return result.isSuccess ? result.getValue() : 0;
+    return result.isSuccess() ? result.getValue() : 0;
   }
 
   async save(user: User): Promise<void> {
@@ -95,13 +95,13 @@ export class UserRepository extends BaseRepository implements IUserRepository {
       return undefined;
     });
 
-    if (result.isFailure) {
+    if (result.isFailure()) {
       throw result.getError();
     }
   }
 
   async update(user: User): Promise<void> {
-    const result = await this.executeOperation(async () => {
+    const result = await this.executeOperation<void>(async () => {
       const userData = UserMapper.toPrisma(user);
 
       await this.prisma.user.update({
@@ -109,10 +109,10 @@ export class UserRepository extends BaseRepository implements IUserRepository {
         data: userData,
       });
       
-      return Result.ok<void>(undefined);
+      return undefined;
     });
     
-    if (result.isFailure) {
+    if (result.isFailure()) {
       throw result.getError();
     }
   }
@@ -126,7 +126,7 @@ export class UserRepository extends BaseRepository implements IUserRepository {
       return undefined;
     });
 
-    if (result.isFailure) {
+    if (result.isFailure()) {
       throw result.getError();
     }
   }

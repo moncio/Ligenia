@@ -41,8 +41,9 @@ export const authenticate = async (
   next: NextFunction,
 ) => {
   try {
-    // Check if there's an authorization header
     const authHeader = req.headers.authorization;
+
+    // Check if auth header exists
     if (!authHeader) {
       return res.status(401).json({
         status: 'error',
@@ -50,12 +51,24 @@ export const authenticate = async (
       });
     }
 
-    // Extract the token
-    const token = authHeader.split(' ')[1];
+    // Split Bearer token
+    const parts = authHeader.split(' ');
+
+    // Check if token has correct format (Bearer token)
+    if (parts.length !== 2 || parts[0] !== 'Bearer') {
+      return res.status(401).json({
+        status: 'error',
+        message: 'Invalid token format',
+      });
+    }
+
+    const token = parts[1];
+
+    // If token is empty, return error
     if (!token) {
       return res.status(401).json({
         status: 'error',
-        message: 'Invalid authorization format',
+        message: 'Authentication token is missing',
       });
     }
 
@@ -77,26 +90,22 @@ export const authenticate = async (
         if (typeof decoded === 'object' && decoded !== null) {
           // Extract user information from the token
           req.user = {
-            id: decoded.sub as string,
-            email: decoded.email as string,
-            name: decoded.name as string,
-            role: decoded.role as UserRole,
+            id: decoded.sub as string || 'mock-user-id',
+            email: decoded.email as string || 'test@example.com',
+            name: decoded.name as string || 'Test User',
+            role: (decoded.role as UserRole) || UserRole.PLAYER,
           };
           
           // Check for role override header
           const roleOverride = req.headers['x-test-role'] as string;
           if (roleOverride) {
-            if (roleOverride.toUpperCase() === 'ADMIN') {
-              req.user.role = UserRole.ADMIN;
-            } else if (roleOverride.toUpperCase() === 'PLAYER') {
-              req.user.role = UserRole.PLAYER;
-            }
+            req.user.role = roleOverride as UserRole;
           }
           
           return next();
         }
       } catch (error) {
-        console.error('Error parsing test token:', error);
+        console.error('Error decoding test token:', error);
       }
     }
     

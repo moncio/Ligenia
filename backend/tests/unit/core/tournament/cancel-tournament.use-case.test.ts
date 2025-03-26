@@ -11,6 +11,7 @@ import {
   PlayerLevel,
 } from '../../../../src/core/domain/tournament/tournament.entity';
 import { User, UserRole } from '../../../../src/core/domain/user/user.entity';
+import { PaginationOptions } from '../../../../src/core/application/interfaces/repositories/tournament.repository';
 
 // Mock Tournament Repository
 class MockTournamentRepository implements ITournamentRepository {
@@ -71,12 +72,10 @@ class MockTournamentRepository implements ITournamentRepository {
 
 // Mock User Repository
 class MockUserRepository implements IUserRepository {
-  private users: Map<string, User> = new Map();
+  private users: Map<string, User>;
 
-  constructor(initialUsers: User[] = []) {
-    initialUsers.forEach(user => {
-      this.users.set(user.id, user);
-    });
+  constructor(users: User[]) {
+    this.users = new Map(users.map(user => [user.id, user]));
   }
 
   async findById(id: string): Promise<User | null> {
@@ -87,14 +86,28 @@ class MockUserRepository implements IUserRepository {
     return Array.from(this.users.values()).find(user => user.email === email) || null;
   }
 
+  async findAll(limit?: number, offset?: number): Promise<User[]> {
+    const users = Array.from(this.users.values());
+    if (offset !== undefined && limit !== undefined) {
+      return users.slice(offset, offset + limit);
+    }
+    return users;
+  }
+
+  async count(): Promise<number> {
+    return this.users.size;
+  }
+
   async save(user: User): Promise<void> {
     this.users.set(user.id, user);
   }
 
   async update(user: User): Promise<void> {
-    if (this.users.has(user.id)) {
-      this.users.set(user.id, user);
-    }
+    this.users.set(user.id, user);
+  }
+
+  async delete(id: string): Promise<void> {
+    this.users.delete(id);
   }
 }
 
@@ -266,7 +279,7 @@ describe('CancelTournamentUseCase', () => {
 
     const result = await useCase.execute(input);
 
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const output = result.getValue();
     expect(output.tournament.status).toBe(TournamentStatus.CANCELLED);
@@ -285,7 +298,7 @@ describe('CancelTournamentUseCase', () => {
 
     const result = await useCase.execute(input);
 
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const output = result.getValue();
     expect(output.tournament.status).toBe(TournamentStatus.CANCELLED);
@@ -304,7 +317,7 @@ describe('CancelTournamentUseCase', () => {
 
     const result = await useCase.execute(input);
 
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Only admins or the tournament organizer');
   });
 
@@ -316,7 +329,7 @@ describe('CancelTournamentUseCase', () => {
 
     const result = await useCase.execute(input);
 
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Cannot cancel an active tournament');
   });
 
@@ -328,7 +341,7 @@ describe('CancelTournamentUseCase', () => {
 
     const result = await useCase.execute(input);
 
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Cannot cancel a completed tournament');
   });
 
@@ -340,7 +353,7 @@ describe('CancelTournamentUseCase', () => {
 
     const result = await useCase.execute(input);
 
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('already cancelled');
   });
 
@@ -352,7 +365,7 @@ describe('CancelTournamentUseCase', () => {
 
     const result = await useCase.execute(input);
 
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('not found');
   });
 
@@ -364,7 +377,7 @@ describe('CancelTournamentUseCase', () => {
 
     const result = await useCase.execute(input);
 
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('User with ID');
     expect(result.getError().message).toContain('not found');
   });
@@ -377,7 +390,7 @@ describe('CancelTournamentUseCase', () => {
 
     const result = await useCase.execute(input);
 
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Invalid input');
   });
 });

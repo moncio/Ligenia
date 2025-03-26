@@ -1,40 +1,39 @@
 import { PrismaClient } from '@prisma/client';
 import { Player } from '../../../src/core/domain/player/player.entity';
 import { PlayerRepository } from '../../../src/infrastructure/database/prisma/repositories/player.repository';
-import { PlayerLevel } from '../../../src/core/domain/tournament/tournament.entity';
 import { v4 as uuidv4 } from 'uuid';
+import { testData, cleanupData } from '../../utils/test-utils';
+import { PlayerLevel } from '../../../src/core/domain/tournament/tournament.entity';
 
 describe('PlayerRepository Integration Tests', () => {
   let prisma: PrismaClient;
   let repository: PlayerRepository;
   let testPlayers: Player[] = [];
-  let testUsers: { id: string }[] = [];
+  let testUserIds: string[] = [];
 
   beforeAll(async () => {
     prisma = new PrismaClient();
     repository = new PlayerRepository(prisma);
+  });
 
-    // Create test users first
-    testUsers = await Promise.all(
-      Array(3).fill(0).map(async (_, i) => {
-        const userId = uuidv4();
-        await prisma.user.create({
-          data: {
-            id: userId,
-            email: `test${i}@example.com`,
-            password: 'password',
-            name: `Test User ${i}`,
-          },
-        });
-        return { id: userId };
-      })
-    );
-
+  beforeEach(async () => {
+    // Clean up any existing test data
+    await cleanupData.cleanupAll(prisma);
+    
+    // Create fresh test users
+    const users = await Promise.all([
+      testData.createUser(prisma, { email: 'player-test-1@example.com' }),
+      testData.createUser(prisma, { email: 'player-test-2@example.com' }),
+      testData.createUser(prisma, { email: 'player-test-3@example.com' }),
+    ]);
+    
+    testUserIds = users.map(user => user.id);
+    
     // Create test players
     testPlayers = [
       new Player(
         uuidv4(),
-        testUsers[0].id, // userId
+        testUserIds[0],
         PlayerLevel.P1,
         25,
         'USA',
@@ -44,7 +43,7 @@ describe('PlayerRepository Integration Tests', () => {
       ),
       new Player(
         uuidv4(),
-        testUsers[1].id, // userId
+        testUserIds[1],
         PlayerLevel.P2,
         30,
         'Spain',
@@ -54,7 +53,7 @@ describe('PlayerRepository Integration Tests', () => {
       ),
       new Player(
         uuidv4(),
-        testUsers[2].id, // userId
+        testUserIds[2],
         PlayerLevel.P3,
         35,
         'France',
@@ -66,40 +65,8 @@ describe('PlayerRepository Integration Tests', () => {
   });
 
   afterAll(async () => {
-    // Clean up test data
-    for (const player of testPlayers) {
-      try {
-        await prisma.player.delete({
-          where: { id: player.id },
-        });
-      } catch (error) {
-        // Ignore errors if player doesn't exist
-      }
-    }
-
-    // Clean up test users
-    for (const user of testUsers) {
-      try {
-        await prisma.user.delete({
-          where: { id: user.id },
-        });
-      } catch (error) {
-        // Ignore errors if user doesn't exist
-      }
-    }
-
+    await cleanupData.cleanupAll(prisma);
     await prisma.$disconnect();
-  });
-
-  beforeEach(async () => {
-    // Clean players before each test
-    try {
-      await prisma.player.deleteMany({
-        where: { id: { in: testPlayers.map(p => p.id) } },
-      });
-    } catch (error) {
-      // Ignore errors
-    }
   });
 
   describe('save', () => {
@@ -254,6 +221,19 @@ describe('PlayerRepository Integration Tests', () => {
       expect(players.length).toBeGreaterThanOrEqual(1);
       expect(players[0].level).toBe(PlayerLevel.P2);
     });
+
+    it('should return empty array for non-existent level', async () => {
+      // Act
+      // Using P3 level but ensuring no P3 players exist
+      await prisma.player.deleteMany({
+        where: { level: 'P3' }
+      });
+      
+      const players = await repository.findByLevel(PlayerLevel.P3);
+
+      // Assert
+      expect(players).toHaveLength(0);
+    });
   });
 
   describe('count', () => {
@@ -262,7 +242,7 @@ describe('PlayerRepository Integration Tests', () => {
       await Promise.all(testPlayers.map(player => repository.save(player)));
     });
 
-    it('should count all players', async () => {
+    it('should count all players without filter', async () => {
       // Act
       const count = await repository.count();
 
@@ -270,9 +250,9 @@ describe('PlayerRepository Integration Tests', () => {
       expect(count).toBeGreaterThanOrEqual(3);
     });
 
-    it('should count players with filter', async () => {
+    it('should count players by level', async () => {
       // Act
-      const count = await repository.count({ country: 'Spain' });
+      const count = await repository.count({ level: PlayerLevel.P1 });
 
       // Assert
       expect(count).toBeGreaterThanOrEqual(1);
@@ -283,7 +263,7 @@ describe('PlayerRepository Integration Tests', () => {
     it('should delete a player', async () => {
       // Arrange
       await repository.save(testPlayers[0]);
-      
+
       // Act
       await repository.delete(testPlayers[0].id);
 
@@ -291,7 +271,6 @@ describe('PlayerRepository Integration Tests', () => {
       const deletedPlayer = await prisma.player.findUnique({
         where: { id: testPlayers[0].id },
       });
-      
       expect(deletedPlayer).toBeNull();
     });
   });

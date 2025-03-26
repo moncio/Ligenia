@@ -153,7 +153,7 @@ describe('GetTournamentDetailsUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assertions
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const output = result.getValue();
     expect(output.tournament).toBeDefined();
@@ -178,7 +178,7 @@ describe('GetTournamentDetailsUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assertions
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const output = result.getValue();
     expect(output.tournament).toBeDefined();
@@ -203,7 +203,7 @@ describe('GetTournamentDetailsUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assertions
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('not found');
   });
 
@@ -217,7 +217,7 @@ describe('GetTournamentDetailsUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assertions
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Invalid input');
     expect(result.getError().message).toContain('UUID');
   });

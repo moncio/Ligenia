@@ -234,25 +234,28 @@ class MockStatisticRepository implements IStatisticRepository {
 
 // Mock CalculatePlayerRankingsUseCase
 class MockCalculatePlayerRankingsUseCase extends CalculatePlayerRankingsUseCase {
-  private playerIdsToSucceed: string[] = [];
+  private successfulPlayerIds: string[];
 
-  constructor(playerIdsToSucceed: string[]) {
-    // Pass empty repositories as they won't be used (we're mocking the execute method)
-    super({} as IRankingRepository, {} as IStatisticRepository, {} as IPlayerRepository);
-    this.playerIdsToSucceed = playerIdsToSucceed;
+  constructor(successfulPlayerIds: string[]) {
+    super(null as any, null as any, null as any);
+    this.successfulPlayerIds = successfulPlayerIds;
   }
 
   async execute(input: { playerId?: string }): Promise<Result<any>> {
-    if (input.playerId && this.playerIdsToSucceed.includes(input.playerId)) {
+    if (!input.playerId) {
+      return Result.fail(new Error('Player ID is required'));
+    }
+
+    if (this.successfulPlayerIds.includes(input.playerId)) {
       return Result.ok({
-        updatedRankings: [
+        rankings: [
           new Ranking(
             'mock-ranking-id',
             input.playerId,
             50,
             1,
             1,
-            PlayerLevel.P3,
+            PlayerLevel.P3.toString(),
             null,
             0,
             new Date(),
@@ -262,7 +265,7 @@ class MockCalculatePlayerRankingsUseCase extends CalculatePlayerRankingsUseCase 
         ],
       });
     }
-    return Result.fail(new Error('Failed to calculate rankings for player'));
+    return Result.fail(new Error(`Failed to calculate rankings for player ${input.playerId}`));
   }
 }
 
@@ -293,11 +296,11 @@ describe('UpdateRankingsAfterMatchUseCase', () => {
     awayPlayer1Id,
     awayPlayer2Id,
     1, // Round
-    new Date('2023-06-01'), // Match date
+    new Date(), // Match date
     'Test Location', // Location
     MatchStatus.COMPLETED,
-    10, // Home score
-    5, // Away score
+    3, // Home score
+    1, // Away score
     new Date(),
     new Date(),
   );
@@ -320,12 +323,11 @@ describe('UpdateRankingsAfterMatchUseCase', () => {
   );
 
   beforeEach(() => {
-    // Initialize repositories
-    rankingRepository = new MockRankingRepository();
+    // Initialize repositories with test data
     matchRepository = new MockMatchRepository([completedMatch, pendingMatch]);
+    rankingRepository = new MockRankingRepository([]);
 
-    // Initialize calculate rankings use case mock
-    // Set it to succeed for all players
+    // Create a mock CalculatePlayerRankingsUseCase that succeeds for all players
     calculatePlayerRankingsUseCase = new MockCalculatePlayerRankingsUseCase([
       homePlayer1Id,
       homePlayer2Id,
@@ -333,7 +335,6 @@ describe('UpdateRankingsAfterMatchUseCase', () => {
       awayPlayer2Id,
     ]);
 
-    // Initialize use case
     useCase = new UpdateRankingsAfterMatchUseCase(
       rankingRepository,
       matchRepository,
@@ -349,7 +350,7 @@ describe('UpdateRankingsAfterMatchUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const output = result.getValue();
     expect(output.matchId).toBe(completedMatchId);
@@ -370,7 +371,7 @@ describe('UpdateRankingsAfterMatchUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toBe(
       'Cannot update rankings for a match that is not completed',
     );
@@ -385,7 +386,7 @@ describe('UpdateRankingsAfterMatchUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toBe('Match not found');
   });
 
@@ -409,7 +410,7 @@ describe('UpdateRankingsAfterMatchUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const output = result.getValue();
     expect(output.playersUpdated.length).toBe(2); // Only home players updated
@@ -454,7 +455,7 @@ describe('UpdateRankingsAfterMatchUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const output = result.getValue();
     expect(output.playersUpdated.length).toBe(2); // Only 2 players in singles
@@ -472,7 +473,7 @@ describe('UpdateRankingsAfterMatchUseCase', () => {
     const result = await useCase.execute(invalidInput);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Invalid match ID format');
   });
 });

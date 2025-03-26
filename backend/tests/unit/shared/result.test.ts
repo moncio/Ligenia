@@ -6,8 +6,8 @@ describe('Result', () => {
       const value = 'test';
       const result = Result.ok(value);
 
-      expect(result.isSuccess).toBe(true);
-      expect(result.isFailure).toBe(false);
+      expect(result.isSuccess()).toBe(true);
+      expect(result.isFailure()).toBe(false);
       expect(result.getValue()).toBe(value);
       expect(() => result.getError()).toThrow();
     });
@@ -18,8 +18,8 @@ describe('Result', () => {
       const error = new Error('test error');
       const result = Result.fail(error);
 
-      expect(result.isSuccess).toBe(false);
-      expect(result.isFailure).toBe(true);
+      expect(result.isSuccess()).toBe(false);
+      expect(result.isFailure()).toBe(true);
       expect(result.getError()).toBe(error);
       expect(() => result.getValue()).toThrow();
     });

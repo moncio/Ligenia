@@ -10,7 +10,7 @@ import { v4 as uuidv4 } from 'uuid';
 @injectable()
 export class RankingRepository extends BaseRepository implements IRankingRepository {
   constructor(protected readonly prisma: PrismaClient) {
-    super();
+    super(prisma);
   }
 
   async findById(id: string): Promise<Ranking | null> {
@@ -33,7 +33,7 @@ export class RankingRepository extends BaseRepository implements IRankingReposit
       return RankingMapper.toDomain(rankingData);
     });
 
-    return result.isSuccess ? result.getValue() as Ranking | null : null;
+    return result.isSuccess() ? result.getValue() as Ranking | null : null;
   }
 
   async findByPlayerId(playerId: string): Promise<Ranking | null> {
@@ -49,7 +49,7 @@ export class RankingRepository extends BaseRepository implements IRankingReposit
       return RankingMapper.toDomain(rankingData);
     });
 
-    return result.isSuccess ? result.getValue() as Ranking | null : null;
+    return result.isSuccess() ? result.getValue() as Ranking | null : null;
   }
 
   async findAll(options?: {
@@ -92,7 +92,7 @@ export class RankingRepository extends BaseRepository implements IRankingReposit
       return paginatedRankings.map(RankingMapper.toDomain);
     });
 
-    return result.isSuccess ? result.getValue() as Ranking[] : [];
+    return result.isSuccess() ? result.getValue() as Ranking[] : [];
   }
 
   async count(options?: { playerLevel?: PlayerLevel }): Promise<number> {
@@ -108,7 +108,7 @@ export class RankingRepository extends BaseRepository implements IRankingReposit
       return allRankings.length;
     });
 
-    return result.isSuccess ? result.getValue() as number : 0;
+    return result.isSuccess() ? result.getValue() as number : 0;
   }
 
   async save(ranking: Ranking): Promise<void> {
@@ -120,7 +120,7 @@ export class RankingRepository extends BaseRepository implements IRankingReposit
       await this.upsertRanking(ranking);
     });
 
-    if (result.isFailure) {
+    if (result.isFailure()) {
       throw result.getError();
     }
   }
@@ -131,7 +131,7 @@ export class RankingRepository extends BaseRepository implements IRankingReposit
       await this.upsertRanking(ranking);
     });
 
-    if (result.isFailure) {
+    if (result.isFailure()) {
       throw result.getError();
     }
   }
@@ -151,7 +151,7 @@ export class RankingRepository extends BaseRepository implements IRankingReposit
       return true;
     });
 
-    return result.isSuccess ? result.getValue() as boolean : false;
+    return result.isSuccess() ? result.getValue() as boolean : false;
   }
 
   async findByPlayerLevel(playerLevel: PlayerLevel, options?: {
@@ -191,7 +191,7 @@ export class RankingRepository extends BaseRepository implements IRankingReposit
       return paginatedRankings.map(RankingMapper.toDomain);
     });
 
-    return result.isSuccess ? result.getValue() as Ranking[] : [];
+    return result.isSuccess() ? result.getValue() as Ranking[] : [];
   }
 
   async countByPlayerLevel(playerLevel: PlayerLevel): Promise<number> {
@@ -203,7 +203,7 @@ export class RankingRepository extends BaseRepository implements IRankingReposit
       return allRankings.filter(r => r.playerLevel === playerLevel).length;
     });
 
-    return result.isSuccess ? result.getValue() as number : 0;
+    return result.isSuccess() ? result.getValue() as number : 0;
   }
 
   // Private methods

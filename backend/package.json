@@ -20,7 +20,19 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
     "prisma:seed": "prisma db seed",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "test:infrastructure": "NODE_ENV=test npx dotenv-cli -e .env.test -- jest --config=jest.config.js --runInBand --testMatch='**/tests/integration/infrastructure/**/*.test.ts' --forceExit",
+    "test:infrastructure:watch": "NODE_ENV=test npx dotenv-cli -e .env.test -- jest --config=jest.config.js --runInBand --testMatch='**/tests/integration/infrastructure/**/*.test.ts' --watch",
+    "test:routes": "NODE_ENV=test npx dotenv-cli -e .env.test -- jest --config=jest.config.js --runInBand --testMatch='**/tests/integration/routes/**/*.test.ts' --forceExit",
+    "test:routes:watch": "NODE_ENV=test npx dotenv-cli -e .env.test -- jest --config=jest.config.js --runInBand --testMatch='**/tests/integration/routes/**/*.test.ts' --watch",
+    "test:unit": "jest --config=jest.config.js --testMatch='**/tests/unit/**/*.test.ts'",
+    "test:unit:watch": "jest --config=jest.config.js --testMatch='**/tests/unit/**/*.test.ts' --watch",
+    "test:routes:tournament": "NODE_ENV=test npx dotenv-cli -e .env.test -- jest --config=jest.config.js --runInBand --testPathPattern='tests/integration/routes/tournament' --forceExit",
+    "test:routes:user": "NODE_ENV=test npx dotenv-cli -e .env.test -- jest --config=jest.config.js --runInBand --testPathPattern='tests/integration/routes/user' --forceExit",
+    "test:routes:match": "NODE_ENV=test npx dotenv-cli -e .env.test -- jest --config=jest.config.js --runInBand --testPathPattern='tests/integration/routes/match' --forceExit",
+    "test:routes:preference": "NODE_ENV=test npx dotenv-cli -e .env.test -- jest --config=jest.config.js --runInBand --testPathPattern='tests/integration/routes/preference' --forceExit",
+    "test:routes:performance": "NODE_ENV=test npx dotenv-cli -e .env.test -- jest --config=jest.config.js --runInBand --testPathPattern='tests/integration/routes/performance' --forceExit",
+    "test:routes:entity": "node -e \"const entity = process.env.ENTITY; if (!entity) { console.error('Please provide an entity using: npm run test:routes:entity -- --env.ENTITY=tournament'); process.exit(1); } else { require('child_process').execSync(`NODE_ENV=test npx dotenv-cli -e .env.test -- jest --config=jest.config.js --runInBand --testPathPattern='tests/integration/routes/${entity}' --forceExit`, {stdio: 'inherit'}); }\""
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
@@ -78,6 +90,7 @@
     "@typescript-eslint/eslint-plugin": "^6.21.0",
     "@typescript-eslint/parser": "^6.21.0",
     "dotenv": "^16.4.7",
+    "dotenv-cli": "^8.0.0",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.1.3",

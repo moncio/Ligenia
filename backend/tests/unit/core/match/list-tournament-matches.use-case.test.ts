@@ -25,8 +25,10 @@ describe('ListTournamentMatchesUseCase', () => {
       findByFilter: jest.fn(),
       findByTournamentAndRound: jest.fn(),
       findByPlayerId: jest.fn(),
+      tournamentHasMatches: jest.fn(),
       save: jest.fn(),
       delete: jest.fn(),
+      count: jest.fn()
     };
 
     mockTournamentRepository = {
@@ -132,8 +134,8 @@ describe('ListTournamentMatchesUseCase', () => {
     const result = await listTournamentMatchesUseCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
-    if (result.isSuccess) {
+    expect(result.isSuccess()).toBe(true);
+    if (result.isSuccess()) {
       const output = result.getValue();
       expect(output.matches).toHaveLength(defaultPageSize);
       expect(output.pagination.totalItems).toBe(25);
@@ -174,8 +176,8 @@ describe('ListTournamentMatchesUseCase', () => {
     const result = await listTournamentMatchesUseCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
-    if (result.isSuccess) {
+    expect(result.isSuccess()).toBe(true);
+    if (result.isSuccess()) {
       const output = result.getValue();
       expect(output.matches).toHaveLength(pageSize);
       expect(output.pagination.totalItems).toBe(25);
@@ -218,8 +220,8 @@ describe('ListTournamentMatchesUseCase', () => {
     const result = await listTournamentMatchesUseCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
-    if (result.isSuccess) {
+    expect(result.isSuccess()).toBe(true);
+    if (result.isSuccess()) {
       const output = result.getValue();
       expect(output.matches).toHaveLength(5);
       expect(output.pagination.totalItems).toBe(5);
@@ -262,8 +264,8 @@ describe('ListTournamentMatchesUseCase', () => {
     const result = await listTournamentMatchesUseCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
-    if (result.isSuccess) {
+    expect(result.isSuccess()).toBe(true);
+    if (result.isSuccess()) {
       const output = result.getValue();
       expect(output.matches).toHaveLength(4);
       expect(output.pagination.totalItems).toBe(4);
@@ -309,8 +311,8 @@ describe('ListTournamentMatchesUseCase', () => {
     const result = await listTournamentMatchesUseCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
-    if (result.isSuccess) {
+    expect(result.isSuccess()).toBe(true);
+    if (result.isSuccess()) {
       const output = result.getValue();
       expect(output.matches).toHaveLength(2);
       expect(output.pagination.totalItems).toBe(2);
@@ -341,8 +343,8 @@ describe('ListTournamentMatchesUseCase', () => {
     const result = await listTournamentMatchesUseCase.execute(input);
 
     // Assert
-    expect(result.isSuccess).toBe(true);
-    if (result.isSuccess) {
+    expect(result.isSuccess()).toBe(true);
+    if (result.isSuccess()) {
       const output = result.getValue();
       expect(output.matches).toHaveLength(0);
       expect(output.pagination.totalItems).toBe(0);
@@ -364,7 +366,7 @@ describe('ListTournamentMatchesUseCase', () => {
     const result = await listTournamentMatchesUseCase.execute(input);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Tournament not found');
     expect(mockMatchRepository.findByFilter).not.toHaveBeenCalled();
   });
@@ -379,7 +381,7 @@ describe('ListTournamentMatchesUseCase', () => {
     const result = await listTournamentMatchesUseCase.execute(invalidInput);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Invalid tournament ID format');
     expect(mockTournamentRepository.findById).not.toHaveBeenCalled();
     expect(mockMatchRepository.findByFilter).not.toHaveBeenCalled();
@@ -397,7 +399,7 @@ describe('ListTournamentMatchesUseCase', () => {
     const result = await listTournamentMatchesUseCase.execute(invalidInput);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Invalid input');
     expect(mockTournamentRepository.findById).not.toHaveBeenCalled();
     expect(mockMatchRepository.findByFilter).not.toHaveBeenCalled();
@@ -416,7 +418,7 @@ describe('ListTournamentMatchesUseCase', () => {
     const result = await listTournamentMatchesUseCase.execute(input);
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain(errorMessage);
     expect(mockMatchRepository.findByFilter).not.toHaveBeenCalled();
   });

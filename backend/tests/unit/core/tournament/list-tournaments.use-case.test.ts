@@ -92,8 +92,41 @@ class MockTournamentRepository implements ITournamentRepository {
   }
 
   async count(filter?: TournamentFilter): Promise<number> {
-    // We reuse the filtering logic but return the count instead
-    const result = await this.findAll(filter);
+    let result = this.tournaments;
+
+    // Apply filters
+    if (filter) {
+      // Filter by status
+      if (filter.status) {
+        result = result.filter(t => t.status === filter.status);
+      }
+
+      // Filter by category
+      if (filter.category) {
+        result = result.filter(t => t.category === filter.category);
+      }
+
+      // Filter by date range
+      if (filter.dateRange) {
+        if (filter.dateRange.from) {
+          result = result.filter(t => t.startDate >= filter.dateRange!.from!);
+        }
+        if (filter.dateRange.to) {
+          result = result.filter(t => t.startDate <= filter.dateRange!.to!);
+        }
+      }
+
+      // Filter by search term (name or location)
+      if (filter.searchTerm) {
+        const term = filter.searchTerm.toLowerCase();
+        result = result.filter(
+          t =>
+            t.name.toLowerCase().includes(term) ||
+            (t.location && t.location.toLowerCase().includes(term)),
+        );
+      }
+    }
+
     return result.length;
   }
 
@@ -143,23 +176,13 @@ class MockTournamentRepository implements ITournamentRepository {
     return participants ? participants.has(playerId) : false;
   }
 
-  async getParticipants(tournamentId: string, pagination?: PaginationOptions): Promise<string[]> {
-    const participants = this.participantRegistrations.get(tournamentId);
-    if (!participants) return [];
-
-    let result = Array.from(participants);
-
-    // Apply pagination if specified
-    if (pagination) {
-      const { skip, limit } = pagination;
-      result = result.slice(skip, skip + limit);
-    }
-
-    return result;
+  async getParticipants(tournamentId: string): Promise<string[]> {
+    return Array.from(this.participantRegistrations.get(tournamentId) || new Set());
   }
 
   async countParticipantsByTournamentId(tournamentId: string): Promise<number> {
-    return this.countParticipants(tournamentId);
+    const participants = this.participantRegistrations.get(tournamentId);
+    return participants ? participants.size : 0;
   }
 }
 
@@ -354,7 +377,7 @@ describe('ListTournamentsUseCase', () => {
     const result = await useCase.execute(input);
 
     // Expect success
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     // Check response content
     const output = result.getValue();
@@ -379,7 +402,7 @@ describe('ListTournamentsUseCase', () => {
     };
 
     const result = await useCase.execute(input);
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const output = result.getValue();
 
@@ -401,7 +424,7 @@ describe('ListTournamentsUseCase', () => {
     };
 
     const resultPage2 = await useCase.execute(inputPage2);
-    expect(resultPage2.isSuccess).toBe(true);
+    expect(resultPage2.isSuccess()).toBe(true);
 
     const outputPage2 = resultPage2.getValue();
 
@@ -422,7 +445,7 @@ describe('ListTournamentsUseCase', () => {
     };
 
     const result = await useCase.execute(input);
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const output = result.getValue();
 
@@ -440,7 +463,7 @@ describe('ListTournamentsUseCase', () => {
     };
 
     const result = await useCase.execute(input);
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const output = result.getValue();
 
@@ -459,7 +482,7 @@ describe('ListTournamentsUseCase', () => {
     };
 
     const result = await useCase.execute(input);
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const output = result.getValue();
 
@@ -480,7 +503,7 @@ describe('ListTournamentsUseCase', () => {
     };
 
     const result = await useCase.execute(input);
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const output = result.getValue();
 
@@ -499,7 +522,7 @@ describe('ListTournamentsUseCase', () => {
     };
 
     const resultAsc = await useCase.execute(inputAsc);
-    expect(resultAsc.isSuccess).toBe(true);
+    expect(resultAsc.isSuccess()).toBe(true);
 
     const outputAsc = resultAsc.getValue();
 
@@ -517,7 +540,7 @@ describe('ListTournamentsUseCase', () => {
     };
 
     const resultDesc = await useCase.execute(inputDesc);
-    expect(resultDesc.isSuccess).toBe(true);
+    expect(resultDesc.isSuccess()).toBe(true);
 
     const outputDesc = resultDesc.getValue();
 
@@ -538,7 +561,7 @@ describe('ListTournamentsUseCase', () => {
     };
 
     const result = await useCase.execute(input);
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
 
     const output = result.getValue();
 
@@ -558,7 +581,7 @@ describe('ListTournamentsUseCase', () => {
     const result = await useCase.execute(input);
 
     // Expect failure
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Invalid input');
   });
 
@@ -571,7 +594,7 @@ describe('ListTournamentsUseCase', () => {
     const result = await useCase.execute(input);
 
     // Expect failure
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toContain('Invalid input');
   });
 });

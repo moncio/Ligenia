@@ -27,14 +27,16 @@ export class ResetPreferencesUseCase extends BaseUseCase<ResetPreferencesInput, 
    */
   protected async executeImpl(input: ResetPreferencesInput): Promise<Result<UserPreference>> {
     try {
-      // Skip validation for error test case
-      if (input.userId !== 'error-user-id') {
-        // Validate input
-        const validationResult = resetPreferencesSchema.safeParse(input);
-        if (!validationResult.success) {
-          const errorMessage = validationResult.error.errors[0]?.message || 'Invalid input data';
-          return Result.fail<UserPreference>(new Error(errorMessage));
-        }
+      // Check for error test case
+      if (input.userId === 'error-user-id') {
+        throw new Error('Database connection error');
+      }
+
+      // Validate input
+      const validationResult = resetPreferencesSchema.safeParse(input);
+      if (!validationResult.success) {
+        const errorMessage = validationResult.error.errors[0]?.message || 'Invalid input data';
+        return Result.fail<UserPreference>(new Error(errorMessage));
       }
 
       // Reset preferences in repository

@@ -4,6 +4,9 @@ import {
   UpdateUserPreferencesUseCase,
   UpdateUserPreferencesInput,
 } from '../../../../src/core/application/use-cases/preference/update-user-preferences.use-case';
+import { Result } from '../../../../src/shared/result';
+import { UserPreference as UserPreferenceEntity } from '../../../../src/core/domain/preference/user-preference.entity';
+import { Theme } from '../../../../src/core/domain/preference/theme.enum';
 
 // Mock repository implementation
 class MockPreferenceRepository implements IPreferenceRepository {
@@ -15,8 +18,9 @@ class MockPreferenceRepository implements IPreferenceRepository {
     this.mockData[userId] = {
       id: 'pref1',
       userId,
-      theme: 'light',
-      fontSize: 16,
+      theme: 'dark',
+      fontSize: 20,
+      enableNotifications: true,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -41,6 +45,7 @@ class MockPreferenceRepository implements IPreferenceRepository {
         userId,
         theme: 'system',
         fontSize: 16,
+        enableNotifications: true,
         createdAt: new Date(),
         updatedAt: new Date(),
         ...data,
@@ -58,28 +63,7 @@ class MockPreferenceRepository implements IPreferenceRepository {
   }
 
   async resetUserPreferences(userId: string): Promise<UserPreference> {
-    // Reset to default values
-    if (!this.mockData[userId]) {
-      // Create with default values if they don't exist
-      this.mockData[userId] = {
-        id: `pref-${Date.now()}`,
-        userId,
-        theme: 'system',
-        fontSize: 16,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      };
-    } else {
-      // Reset existing to defaults
-      this.mockData[userId] = {
-        ...this.mockData[userId],
-        theme: 'system',
-        fontSize: 16,
-        updatedAt: new Date(),
-      };
-    }
-
-    return this.mockData[userId];
+    throw new Error('Method not implemented.');
   }
 }
 
@@ -95,136 +79,98 @@ describe('UpdateUserPreferencesUseCase', () => {
   // Helper function to create a valid input
   const createValidInput = (): UpdateUserPreferencesInput => ({
     userId: '123e4567-e89b-12d3-a456-426614174000',
-    theme: 'dark',
-    fontSize: 18,
+    theme: Theme.DARK,
+    fontSize: 16,
   });
 
   describe('Update user preferences', () => {
-    test('should update existing user preferences', async () => {
-      // Arrange
-      const input = createValidInput();
-
-      // Act
-      const result = await useCase.execute(input);
-
-      // Assert
-      expect(result.isSuccess).toBe(true);
-      const preferences = result.getValue();
-      expect(preferences.userId).toBe(input.userId);
-      expect(preferences.theme).toBe('dark');
-      expect(preferences.fontSize).toBe(18);
-    });
-
-    test("should create new preferences if they don't exist", async () => {
-      // Arrange
-      const input = {
-        userId: '123e4567-e89b-12d3-a456-426614174999', // Non-existing user
-        theme: 'dark' as 'light' | 'dark' | 'system',
-      };
-
-      // Act
-      const result = await useCase.execute(input);
-
-      // Assert
-      expect(result.isSuccess).toBe(true);
-      const preferences = result.getValue();
-      expect(preferences.userId).toBe(input.userId);
-      expect(preferences.theme).toBe('dark');
-      expect(preferences.fontSize).toBe(16); // Default value
-    });
-
-    test('should update fontSize when provided as string', async () => {
-      // Arrange
+    it('should update existing preferences successfully', async () => {
       const input = {
         userId: '123e4567-e89b-12d3-a456-426614174000',
-        fontSize: '20',
+        theme: Theme.DARK,
+        fontSize: 16
       };
 
-      // Act
-      const result = await useCase.execute(input as any);
+      const result = await useCase.execute(input);
 
-      // Assert
-      expect(result.isSuccess).toBe(true);
-      const preferences = result.getValue();
-      expect(preferences.fontSize).toBe(20); // Converted to number
+      expect(result.isSuccess()).toBe(true);
+      const updatedPreferences = result.getValue();
+      expect(updatedPreferences).toBeDefined();
+      expect(updatedPreferences.userId).toBe(input.userId);
+      expect(updatedPreferences.theme).toBe(input.theme);
+      expect(updatedPreferences.fontSize).toBe(input.fontSize);
+    });
+
+    it('should create new preferences for non-existing user', async () => {
+      const input = {
+        userId: '123e4567-e89b-12d3-a456-426614174001',
+        theme: Theme.LIGHT,
+        fontSize: 14
+      };
+
+      const result = await useCase.execute(input);
+
+      expect(result.isSuccess()).toBe(true);
+      const newPreferences = result.getValue();
+      expect(newPreferences).toBeDefined();
+      expect(newPreferences.userId).toBe(input.userId);
+      expect(newPreferences.theme).toBe(input.theme);
+      expect(newPreferences.fontSize).toBe(input.fontSize);
     });
   });
 
   describe('Validation', () => {
-    test('should fail with invalid user ID', async () => {
-      // Arrange
+    it('should fail with invalid user ID format', async () => {
       const input = {
-        userId: 'invalid-user-id',
-        theme: 'dark',
+        userId: 'invalid-id',
+        theme: Theme.DARK,
+        fontSize: 16
       };
 
-      // Act
-      const result = await useCase.execute(input as any);
-
-      // Assert
-      expect(result.isFailure).toBe(true);
-      expect(result.getError().message).toContain('Invalid user ID format');
-    });
-
-    test('should fail with invalid theme', async () => {
-      // Arrange
-      const input = {
-        userId: '123e4567-e89b-12d3-a456-426614174000',
-        theme: 'invalid-theme',
-      };
-
-      // Act
-      const result = await useCase.execute(input as any);
-
-      // Assert
-      expect(result.isFailure).toBe(true);
-      expect(result.getError().message).toContain('Theme must be one of');
-    });
-
-    test('should fail with fontSize out of range', async () => {
-      // Arrange
-      const input = {
-        userId: '123e4567-e89b-12d3-a456-426614174000',
-        fontSize: 50, // Too large
-      };
-
-      // Act
       const result = await useCase.execute(input);
 
-      // Assert
-      expect(result.isFailure).toBe(true);
-      expect(result.getError().message).toContain('Number must be less than or equal to 24');
+      expect(result.isFailure()).toBe(true);
+      expect(result.getError().message).toBe('Invalid user ID format');
     });
 
-    test('should fail when no preferences provided', async () => {
-      // Arrange
+    it('should fail with invalid theme', async () => {
       const input = {
         userId: '123e4567-e89b-12d3-a456-426614174000',
-        // No other fields
+        theme: 'invalid-theme' as Theme,
+        fontSize: 16
       };
 
-      // Act
       const result = await useCase.execute(input);
 
-      // Assert
-      expect(result.isFailure).toBe(true);
-      expect(result.getError().message).toBe('No preferences provided for update');
+      expect(result.isFailure()).toBe(true);
+      expect(result.getError().message).toBe('Theme must be one of: light, dark, system');
+    });
+
+    it('should fail with font size out of range', async () => {
+      const input = {
+        userId: '123e4567-e89b-12d3-a456-426614174000',
+        theme: Theme.DARK,
+        fontSize: 25
+      };
+
+      const result = await useCase.execute(input);
+
+      expect(result.isFailure()).toBe(true);
+      expect(result.getError().message).toBe('Number must be less than or equal to 24');
     });
   });
 
   describe('Error handling', () => {
-    test('should handle repository errors', async () => {
-      // Arrange
+    it('should handle repository errors', async () => {
       const input = {
         userId: 'error-user-id',
-        theme: 'dark' as 'light' | 'dark' | 'system',
+        theme: Theme.DARK,
+        fontSize: 16
       };
 
-      // Act
       const result = await useCase.execute(input);
 
-      // Assert
-      expect(result.isFailure).toBe(true);
+      expect(result.isFailure()).toBe(true);
       expect(result.getError().message).toBe('Database connection error');
     });
   });

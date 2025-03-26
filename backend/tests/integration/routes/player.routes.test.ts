@@ -122,6 +122,23 @@ describe('Player API Integration Tests', () => {
       );
     });
 
+    /**
+     * TODO: Role Override Feature (Post-MVP)
+     * 
+     * This test is skipped as the role override feature is not critical for MVP.
+     * The feature would allow overriding user roles in test environment using the 'x-test-role' header,
+     * making it easier to test different authorization scenarios without creating multiple test users.
+     * 
+     * Current implementation using 'admin-token' and 'valid-token' is sufficient for MVP testing.
+     * 
+     * To implement:
+     * 1. Add role override support in auth middleware
+     * 2. Update test environment configuration
+     * 3. Enable this test
+     * 
+     * Priority: Low
+     * Target: Post-MVP enhancement
+     */
     it.skip('should respect role override for testing', async () => {
       const response = await agent
         .post('/api/players')

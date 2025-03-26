@@ -116,7 +116,7 @@ describe('DeleteMatchUseCase', () => {
     });
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
     expect(matchRepository.findById).toHaveBeenCalledWith(matchId);
     expect(tournamentRepository.findById).toHaveBeenCalledWith(tournamentId);
     expect(matchRepository.delete).toHaveBeenCalledWith(matchId);
@@ -138,7 +138,7 @@ describe('DeleteMatchUseCase', () => {
     });
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
     expect(matchRepository.findById).toHaveBeenCalledWith(matchId);
     expect(tournamentRepository.findById).toHaveBeenCalledWith(tournamentId);
     expect(matchRepository.delete).toHaveBeenCalledWith(matchId);
@@ -160,7 +160,7 @@ describe('DeleteMatchUseCase', () => {
     });
 
     // Assert
-    expect(result.isSuccess).toBe(true);
+    expect(result.isSuccess()).toBe(true);
     expect(matchRepository.findById).toHaveBeenCalledWith(matchId);
     expect(tournamentRepository.findById).toHaveBeenCalledWith(tournamentId);
     expect(matchRepository.delete).toHaveBeenCalledWith(matchId);
@@ -179,7 +179,7 @@ describe('DeleteMatchUseCase', () => {
     });
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toBe('Match not found');
     expect(matchRepository.delete).not.toHaveBeenCalled();
   });
@@ -197,7 +197,7 @@ describe('DeleteMatchUseCase', () => {
     });
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toBe('Tournament not found');
     expect(matchRepository.delete).not.toHaveBeenCalled();
   });
@@ -217,7 +217,7 @@ describe('DeleteMatchUseCase', () => {
     });
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toBe(
       'Permission denied: only tournament creator can delete matches',
     );
@@ -239,7 +239,7 @@ describe('DeleteMatchUseCase', () => {
     });
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toBe(
       'Cannot delete match in COMPLETED status. Only PENDING or SCHEDULED matches can be deleted',
     );
@@ -261,7 +261,7 @@ describe('DeleteMatchUseCase', () => {
     });
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toBe(
       'Cannot delete match in IN_PROGRESS status. Only PENDING or SCHEDULED matches can be deleted',
     );
@@ -283,7 +283,7 @@ describe('DeleteMatchUseCase', () => {
     });
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toBe(
       'Cannot delete match in CANCELED status. Only PENDING or SCHEDULED matches can be deleted',
     );
@@ -305,7 +305,7 @@ describe('DeleteMatchUseCase', () => {
     });
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toBe(
       'Cannot delete match in tournament with ACTIVE status. Tournament must be in DRAFT or OPEN status',
     );
@@ -327,7 +327,7 @@ describe('DeleteMatchUseCase', () => {
     });
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toBe(
       'Cannot delete match in tournament with COMPLETED status. Tournament must be in DRAFT or OPEN status',
     );
@@ -349,7 +349,7 @@ describe('DeleteMatchUseCase', () => {
     });
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toBe(
       'Cannot delete match in tournament with CANCELLED status. Tournament must be in DRAFT or OPEN status',
     );
@@ -366,7 +366,7 @@ describe('DeleteMatchUseCase', () => {
     });
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toBe('Invalid input: Invalid match ID format');
     expect(matchRepository.findById).not.toHaveBeenCalled();
     expect(matchRepository.delete).not.toHaveBeenCalled();
@@ -380,7 +380,7 @@ describe('DeleteMatchUseCase', () => {
     });
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toBe('Invalid input: Invalid user ID format');
     expect(matchRepository.findById).not.toHaveBeenCalled();
     expect(matchRepository.delete).not.toHaveBeenCalled();
@@ -399,7 +399,7 @@ describe('DeleteMatchUseCase', () => {
     });
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toBe('Database error');
     expect(matchRepository.delete).not.toHaveBeenCalled();
   });
@@ -417,7 +417,7 @@ describe('DeleteMatchUseCase', () => {
     });
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toBe('Database error');
     expect(matchRepository.delete).not.toHaveBeenCalled();
   });
@@ -438,7 +438,7 @@ describe('DeleteMatchUseCase', () => {
     });
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toBe('Database error');
   });
 
@@ -458,7 +458,7 @@ describe('DeleteMatchUseCase', () => {
     });
 
     // Assert
-    expect(result.isFailure).toBe(true);
+    expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toBe('Failed to delete the match');
   });
 });
