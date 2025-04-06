@@ -60,9 +60,9 @@ export class RegisterToTournamentUseCase extends BaseUseCase<RegisterToTournamen
     }
 
     // Check tournament status
-    if (tournament.status !== TournamentStatus.ACTIVE) {
+    if (tournament.status !== TournamentStatus.DRAFT) {
       return Result.fail(
-        new Error(`Cannot register for tournament with status ${tournament.status}`),
+        new Error(`Tournament registration is not available - Tournament must be in DRAFT status (current: ${tournament.status})`),
       );
     }
 

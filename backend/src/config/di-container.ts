@@ -175,6 +175,12 @@ if (process.env.NODE_ENV === 'test') {
     return new ResetPreferencesUseCase(repository);
   });
   
+  // Add binding with PascalCase to match what's used in the controller
+  container.bind('ResetPreferencesUseCase').toDynamicValue(() => {
+    const repository = container.get<IPreferenceRepository>(TYPES.PreferenceRepository);
+    return new ResetPreferencesUseCase(repository);
+  });
+  
   // User use cases
   container.bind('getUserByIdUseCase').toDynamicValue(() => {
     const repository = container.get<IUserRepository>(TYPES.UserRepository);
@@ -409,6 +415,35 @@ if (process.env.NODE_ENV === 'test') {
   container.bind('updatePlayerLevelUseCase').toDynamicValue(() => {
     const playerRepository = container.get<IPlayerRepository>(TYPES.PlayerRepository);
     return new UpdatePlayerLevelUseCase(playerRepository);
+  });
+
+  // Performance use cases con nombres correctos (PascalCase) - para corregir los errores
+  container.bind('GetPlayerPerformanceHistoryUseCase').toDynamicValue(() => {
+    const repository = container.get<IPerformanceHistoryRepository>(
+      TYPES.PerformanceHistoryRepository,
+    );
+    return new GetPlayerPerformanceHistoryUseCase(repository);
+  });
+  
+  container.bind('GetPerformanceSummaryUseCase').toDynamicValue(() => {
+    const repository = container.get<IPerformanceHistoryRepository>(
+      TYPES.PerformanceHistoryRepository,
+    );
+    return new GetPerformanceSummaryUseCase(repository);
+  });
+  
+  container.bind('TrackPerformanceTrendsUseCase').toDynamicValue(() => {
+    const repository = container.get<IPerformanceHistoryRepository>(
+      TYPES.PerformanceHistoryRepository,
+    );
+    return new TrackPerformanceTrendsUseCase(repository);
+  });
+  
+  container.bind('RecordPerformanceEntryUseCase').toDynamicValue(() => {
+    const repository = container.get<IPerformanceHistoryRepository>(
+      TYPES.PerformanceHistoryRepository,
+    );
+    return new RecordPerformanceEntryUseCase(repository);
   });
 }
 

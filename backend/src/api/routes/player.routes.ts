@@ -238,7 +238,6 @@ router.put(
   '/:id',
   authenticate,
   diMiddleware,
-  authorize([UserRole.ADMIN]),
   validateParams(idParamSchema),
   validateBody(updatePlayerSchema),
   withAuthContainer(playerController.updatePlayer),

@@ -92,19 +92,6 @@ router.get(
 
 /**
  * @swagger
- * /api/rankings/category/:category
- * @desc Get rankings filtered by player category
- * @access Private
- */
-router.get(
-  '/category/:category',
-  authenticate,
-  diMiddleware,
-  rankingController.getCategoryBasedRanking
-);
-
-/**
- * @swagger
  * /api/rankings/match/{matchId}/update:
  *   post:
  *     summary: Update rankings after match
@@ -204,56 +191,6 @@ router.post(
     }),
   ),
   rankingController.calculatePlayerRankings
-);
-
-/**
- * @swagger
- * /api/rankings/{categoryId}:
- *   get:
- *     summary: Get rankings by category (legacy)
- *     description: Retrieve player rankings for a specific category/level (backward compatibility)
- *     tags: [Rankings]
- *     parameters:
- *       - in: path
- *         name: categoryId
- *         schema:
- *           type: string
- *           enum: [BEGINNER, INTERMEDIATE, ADVANCED, PROFESSIONAL]
- *         required: true
- *         description: Player category/level
- *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *           minimum: 1
- *           default: 1
- *         description: Page number
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *           minimum: 1
- *           maximum: 100
- *           default: 10
- *         description: Number of items per page
- *     responses:
- *       200:
- *         description: List of category-specific player rankings
- *       400:
- *         description: Invalid category ID
- *     deprecated: true
- */
-router.get(
-  '/:categoryId',
-  diMiddleware,
-  validateParams(
-    z.object({
-      categoryId: z.nativeEnum(PlayerLevel, {
-        errorMap: () => ({ message: 'Invalid player category' }),
-      }),
-    }),
-  ),
-  rankingController.getCategoryBasedRanking
 );
 
 /**

@@ -224,7 +224,9 @@ export class TournamentController {
       const result = await getTournamentDetailsUseCase.execute({ tournamentId: id });
       
       if (result.isSuccess()) {
-        const tournament = result.getValue();
+        const { tournament } = result.getValue();
+        
+        // Evitamos la doble anidación tournament.tournament
         return res.status(200).json({
           status: 'success',
           data: {
@@ -717,7 +719,7 @@ export class TournamentController {
       });
       
       if (result.isFailure()) {
-        const error = result.error;
+        const error = result.getError();
         console.error('Failed to register player to tournament:', error);
         
         if (typeof error === 'string' || error instanceof Error) {

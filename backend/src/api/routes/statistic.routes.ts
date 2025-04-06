@@ -6,6 +6,7 @@ import { validateBody, validateParams, validateQuery } from '../middlewares/vali
 import {
   idParamSchema,
   userIdParamSchema,
+  playerIdParamSchema,
   tournamentIdParamSchema,
   matchIdParamSchema,
   createStatisticSchema,
@@ -76,7 +77,7 @@ const statisticController = new StatisticController();
 router.get(
   '/player/:playerId',
   diMiddleware,
-  validateParams(userIdParamSchema),
+  validateParams(playerIdParamSchema),
   withAuthContainer(statisticController.getPlayerStatistics)
 );
 
@@ -139,7 +140,7 @@ router.get(
  * /api/statistics/global:
  *   get:
  *     summary: Get global statistics
- *     description: Retrieve global platform statistics with optional filters
+ *     description: Retrieve global platform statistics with optional filters (public access)
  *     tags: [Statistics]
  *     parameters:
  *       - in: query

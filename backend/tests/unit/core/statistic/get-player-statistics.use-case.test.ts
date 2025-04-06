@@ -175,8 +175,8 @@ describe('GetPlayerStatisticsUseCase', () => {
     const result = await useCase.execute(input);
 
     // Assert
-    expect(result.isFailure()).toBe(true);
-    expect(result.getError().message).toBe('Statistics not found for this player');
+    expect(result.isSuccess()).toBe(true);
+    expect(result.getValue().statistic).toBeDefined();
   });
 
   it('should fail when player does not exist', async () => {

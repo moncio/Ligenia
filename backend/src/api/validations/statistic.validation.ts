@@ -10,6 +10,11 @@ export const userIdParamSchema = z.object({
   userId: z.string().uuid({ message: 'Invalid user ID format' }),
 });
 
+// Esquema de validación para parámetros de jugador
+export const playerIdParamSchema = z.object({
+  playerId: z.string().uuid({ message: 'Invalid player ID format' }),
+});
+
 // Esquema de validación para parámetros de torneo
 export const tournamentIdParamSchema = z.object({
   tournamentId: z.string().uuid({ message: 'Invalid tournament ID format' }),

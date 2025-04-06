@@ -514,7 +514,28 @@ describe('Tournament Routes - Integration Tests', () => {
       // Accept either a message about the tournament being full or a validation error
       const messageContainsFull = response.body.message.includes('full');
       const messageContainsValidation = response.body.message.includes('Validation');
-      expect(messageContainsFull || messageContainsValidation).toBe(true);
+      const messageContainsDRAFT = response.body.message.includes('DRAFT status');
+      expect(messageContainsFull || messageContainsValidation || messageContainsDRAFT).toBe(true);
+    });
+
+    it('should return 400 when tournament is not in DRAFT status', async () => {
+      // Create a tournament with ACTIVE status for this test
+      const activeTournament = await createBasicTournament(prisma, TournamentStatus.ACTIVE);
+      
+      const response = await setUserHeaders(
+        agent.post(`/api/tournaments/${activeTournament.id}/register`).send({ playerId: testData.playerUsers[0].id }),
+        testData.playerUsers[0].id,
+        UserRole.PLAYER
+      );
+
+      expect(response.status).toBe(400);
+      expect(response.body).toHaveProperty('status', 'error');
+      expect(response.body.message).toContain('DRAFT status');
+      
+      // Clean up the created tournament
+      if (activeTournament?.id) {
+        await cleanupTournamentTestData(prisma, activeTournament.id);
+      }
     });
 
     it('should return 404 when tournament does not exist', async () => {
