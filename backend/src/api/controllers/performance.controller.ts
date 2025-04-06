@@ -364,7 +364,7 @@ export class PerformanceController {
 
       const result = await req.container
         .get<GetPlayerPerformanceHistoryUseCase>('GetPlayerPerformanceHistoryUseCase')
-        .execute({ playerId, year: year ? Number(year) : undefined, month: month ? Number(month) : undefined });
+        .execute({ userId: playerId, year: year ? Number(year) : undefined, month: month ? Number(month) : undefined });
 
       if (!result.isSuccess) {
         const error = result.error;
@@ -395,7 +395,7 @@ export class PerformanceController {
 
       const result = await req.container
         .get<GetPerformanceSummaryUseCase>('GetPerformanceSummaryUseCase')
-        .execute({ playerId, year: year ? Number(year) : undefined });
+        .execute({ userId: playerId, year: year ? Number(year) : undefined });
 
       if (!result.isSuccess) {
         const error = result.error;
@@ -426,7 +426,7 @@ export class PerformanceController {
 
       const result = await req.container
         .get<TrackPerformanceTrendsUseCase>('TrackPerformanceTrendsUseCase')
-        .execute({ playerId, timeframe: timeframe as string });
+        .execute({ userId: playerId, timeframe: timeframe as "monthly" | "yearly" | "all" });
 
       if (!result.isSuccess) {
         const error = result.error;
@@ -465,7 +465,7 @@ export class PerformanceController {
 
       const result = await req.container
         .get<RecordPerformanceEntryUseCase>('RecordPerformanceEntryUseCase')
-        .execute({ playerId, performanceData });
+        .execute({ userId: playerId, ...performanceData });
 
       if (!result.isSuccess) {
         const error = result.error;

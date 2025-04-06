@@ -1,6 +1,8 @@
 import { User, UserRole } from '../../../../src/core/domain/user/user.entity';
 import { IUserRepository } from '../../../../src/core/application/interfaces/repositories/user.repository';
 import { UpdateUserUseCase } from '../../../../src/core/application/use-cases/user/update-user.use-case';
+import { Result } from '../../../../src/shared/result';
+import { IAuthService } from '../../../../src/core/application/interfaces/auth-service.interface';
 
 // Mock UserRepository
 class MockUserRepository implements IUserRepository {
@@ -76,6 +78,19 @@ class ErrorThrowingUserRepository implements IUserRepository {
   }
 }
 
+// Mock AuthService
+const mockAuthService: jest.Mocked<IAuthService> = {
+  login: jest.fn(),
+  register: jest.fn(),
+  validateToken: jest.fn(),
+  getUserById: jest.fn(),
+  updateUser: jest.fn(),
+  refreshToken: jest.fn(),
+  verifyPassword: jest.fn(),
+  generateToken: jest.fn(),
+  deleteUser: jest.fn(),
+};
+
 // Test suite for UpdateUserUseCase
 describe('UpdateUserUseCase', () => {
   // Create test users
@@ -100,7 +115,20 @@ describe('UpdateUserUseCase', () => {
 
   beforeEach(() => {
     userRepository = new MockUserRepository([testUser, anotherUser]);
-    updateUserUseCase = new UpdateUserUseCase(userRepository);
+    updateUserUseCase = new UpdateUserUseCase(userRepository, mockAuthService);
+
+    // Configure mock for the authService.updateUser method
+    mockAuthService.updateUser.mockImplementation((userId, data) => {
+      return Promise.resolve(
+        Result.ok({
+          id: userId,
+          email: data.email || testUser.email,
+          name: data.name || testUser.name,
+          role: data.role || testUser.role,
+          emailVerified: true
+        })
+      );
+    });
   });
 
   // 1. Success scenario - update name
@@ -201,7 +229,7 @@ describe('UpdateUserUseCase', () => {
   // 9. Error handling with mocked repository
   it('should handle repository errors', async () => {
     const errorRepository = new ErrorThrowingUserRepository();
-    const useCase = new UpdateUserUseCase(errorRepository);
+    const useCase = new UpdateUserUseCase(errorRepository, mockAuthService);
     
     const result = await useCase.execute({
       id: testUser.id,

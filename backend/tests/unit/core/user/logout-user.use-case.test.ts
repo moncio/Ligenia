@@ -14,6 +14,7 @@ const mockAuthService: jest.Mocked<IAuthService> = {
   refreshToken: jest.fn(),
   verifyPassword: jest.fn(),
   generateToken: jest.fn(),
+  deleteUser: jest.fn(),
 };
 
 describe('LogoutUserUseCase', () => {

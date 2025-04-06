@@ -63,48 +63,54 @@ console.log('🔄 Resetting test database...');
 // Setup Supabase roles, policies, etc.
 console.log('🔧 Setting up Supabase for tests...');
 
-try {
-  // Create Supabase client
-  const supabaseUrl = process.env.SUPABASE_URL;
-  const supabaseKey = process.env.SUPABASE_KEY;
-  
-  if (!supabaseUrl || !supabaseKey) {
-    throw new Error('Supabase credentials not found');
+// Wrapping Supabase connection in an async function
+const setupSupabase = async () => {
+  try {
+    // Create Supabase client
+    const supabaseUrl = process.env.SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_KEY;
+    
+    if (!supabaseUrl || !supabaseKey) {
+      throw new Error('Supabase credentials not found');
+    }
+    
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    
+    // Test the connection
+    const { data, error } = await supabase.auth.getSession();
+    
+    if (error) {
+      throw new Error(`Supabase connection error: ${error.message}`);
+    }
+    
+    console.log('✅ Supabase connection verified');
+    
+    // This part would be to create test users, but it's implemented in the tests themselves
+    // You would implement additional Supabase setup here if needed
+    
+    return true;
+  } catch (error) {
+    console.error('❌ Failed to setup Supabase');
+    console.error(error.message);
+    console.error('Please verify the SUPABASE_URL and SUPABASE_KEY variables in .env.test');
+    process.exit(1);
   }
-  
-  const supabase = createClient(supabaseUrl, supabaseKey);
-  
-  // Test the connection
-  const { data, error } = await supabase.auth.getSession();
-  
-  if (error) {
-    throw new Error(`Supabase connection error: ${error.message}`);
+};
+
+// Execute the async function
+setupSupabase().then(() => {
+  // Reset test database with Prisma (this will apply migrations)
+  console.log('🔄 Applying Prisma migrations to test database...');
+  try {
+    execSync('npx dotenv -e .env.test -- npx prisma migrate reset --force', {
+      stdio: 'inherit',
+    });
+    console.log('✅ Test database reset and migrations applied');
+    console.log('✅ Integration test environment is ready');
+    console.log('You can now run: npm run test:integration');
+  } catch (error) {
+    console.error('❌ Failed to reset test database');
+    console.error(error);
+    process.exit(1);
   }
-  
-  console.log('✅ Supabase connection verified');
-  
-  // This part would be to create test users, but it's implemented in the tests themselves
-  // You would implement additional Supabase setup here if needed
-  
-} catch (error) {
-  console.error('❌ Failed to setup Supabase');
-  console.error(error.message);
-  console.error('Please verify the SUPABASE_URL and SUPABASE_KEY variables in .env.test');
-  process.exit(1);
-}
-
-// Reset test database with Prisma (this will apply migrations)
-console.log('🔄 Applying Prisma migrations to test database...');
-try {
-  execSync('npx dotenv -e .env.test -- npx prisma migrate reset --force', {
-    stdio: 'inherit',
-  });
-  console.log('✅ Test database reset and migrations applied');
-} catch (error) {
-  console.error('❌ Failed to reset test database');
-  console.error(error);
-  process.exit(1);
-}
-
-console.log('✅ Integration test environment is ready');
-console.log('You can now run: npm run test:integration'); 
+}); 

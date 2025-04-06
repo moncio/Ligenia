@@ -78,9 +78,9 @@ export class StartTournamentUseCase extends BaseUseCase<
       });
 
       // Check if tournament is in the correct state to be started
-      if (tournament.status !== TournamentStatus.OPEN) {
+      if (tournament.status !== TournamentStatus.DRAFT) {
         const error = new Error(
-          `Only tournaments in OPEN state can be started. Current state: ${tournament.status}`,
+          `Cannot start tournament: Current status is ${tournament.status}, but must be ${TournamentStatus.DRAFT}`,
         );
         console.error('Invalid tournament state:', error.message);
         return Result.fail(error);
@@ -162,7 +162,7 @@ export class StartTournamentUseCase extends BaseUseCase<
         console.error('Bracket generation failed:', bracketResult.getError());
         // Revert tournament status if bracket generation fails
         console.log('Reverting tournament status...');
-        tournament.status = TournamentStatus.OPEN;
+        tournament.status = TournamentStatus.DRAFT;
         tournament.updatedAt = new Date();
         await this.tournamentRepository.update(tournament);
         return Result.fail(new Error(`Tournament started but bracket generation failed: ${bracketResult.getError().message}`));

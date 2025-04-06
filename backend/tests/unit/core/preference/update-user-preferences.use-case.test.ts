@@ -20,7 +20,6 @@ class MockPreferenceRepository implements IPreferenceRepository {
       userId,
       theme: 'dark',
       fontSize: 20,
-      enableNotifications: true,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -45,7 +44,6 @@ class MockPreferenceRepository implements IPreferenceRepository {
         userId,
         theme: 'system',
         fontSize: 16,
-        enableNotifications: true,
         createdAt: new Date(),
         updatedAt: new Date(),
         ...data,

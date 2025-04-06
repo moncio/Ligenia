@@ -172,7 +172,7 @@ describe('UnregisterFromTournamentUseCase', () => {
       tomorrow, // Starts tomorrow
       null,
       TournamentFormat.SINGLE_ELIMINATION,
-      TournamentStatus.OPEN,
+      TournamentStatus.DRAFT,
       'Madrid',
       16,
       tomorrow,
@@ -310,7 +310,7 @@ describe('UnregisterFromTournamentUseCase', () => {
       yesterday, // Started yesterday
       null,
       TournamentFormat.SINGLE_ELIMINATION,
-      TournamentStatus.OPEN, // Still OPEN for some reason
+      TournamentStatus.DRAFT, // Still OPEN for some reason
       'Madrid',
       16,
       yesterday,

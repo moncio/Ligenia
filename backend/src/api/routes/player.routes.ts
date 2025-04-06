@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { PlayerController } from '../controllers/player.controller';
-import { authenticate, authorize } from '../middlewares/auth.middleware';
+import { authenticate, authorize, withAuthContainer } from '../middlewares/auth.middleware';
 import { UserRole } from '../../core/domain/user/user.entity';
 import { validateBody, validateParams, validateQuery } from '../middlewares/validate.middleware';
 import {
@@ -8,6 +8,7 @@ import {
   createPlayerSchema,
   updatePlayerSchema,
   getPlayersQuerySchema,
+  playerValidationSchema
 } from '../validations/player.validation';
 import { diMiddleware } from '../middlewares/di.middleware';
 
@@ -90,11 +91,10 @@ const playerController = new PlayerController();
  *         description: Forbidden - Not an admin
  */
 router.get(
-  '/', 
+  '/',
+  validateQuery(getPlayersQuerySchema),
   authenticate,
   diMiddleware,
-  authorize([UserRole.ADMIN]),
-  validateQuery(getPlayersQuerySchema), 
   playerController.getPlayers
 );
 
@@ -188,7 +188,7 @@ router.post(
   diMiddleware,
   authorize([UserRole.ADMIN]),
   validateBody(createPlayerSchema),
-  playerController.createPlayer,
+  withAuthContainer(playerController.createPlayer),
 );
 
 /**
@@ -238,9 +238,10 @@ router.put(
   '/:id',
   authenticate,
   diMiddleware,
+  authorize([UserRole.ADMIN]),
   validateParams(idParamSchema),
   validateBody(updatePlayerSchema),
-  playerController.updatePlayer,
+  withAuthContainer(playerController.updatePlayer),
 );
 
 /**
@@ -278,7 +279,7 @@ router.delete(
   diMiddleware,
   authorize([UserRole.ADMIN]),
   validateParams(idParamSchema),
-  playerController.deletePlayer,
+  withAuthContainer(playerController.deletePlayer),
 );
 
 /**

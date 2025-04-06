@@ -353,7 +353,7 @@ describe('GetTournamentStatisticsUseCase', () => {
       new Date(),
       null, // endDate
       TournamentFormat.SINGLE_ELIMINATION,
-      TournamentStatus.OPEN,
+      TournamentStatus.DRAFT,
       'Location',
       16, // maxParticipants
       null, // registrationDeadline
@@ -406,7 +406,7 @@ describe('GetTournamentStatisticsUseCase', () => {
       new Date(),
       null, // endDate
       TournamentFormat.SINGLE_ELIMINATION,
-      TournamentStatus.OPEN,
+      TournamentStatus.DRAFT,
       'Location',
       16, // maxParticipants
       null, // registrationDeadline

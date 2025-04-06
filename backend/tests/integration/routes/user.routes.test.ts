@@ -62,14 +62,15 @@ const mockUsers = {
 const nonExistentId = '00000000-0000-0000-0000-000000000000';
 
 // Generate test tokens
-const adminToken = generateTestToken(mockUsers.admin);
-const playerToken = generateTestToken(mockUsers.player);
-const anotherPlayerToken = generateTestToken(mockUsers.anotherPlayer);
+// Update tokens to use mock-token with appropriate user headers
+const adminToken = 'mock-token';
+const playerToken = 'mock-token';
+const anotherPlayerToken = 'mock-token';
 const invalidToken = 'invalid-token';
 
 console.log('Generated test tokens:');
-console.log('Admin token:', adminToken.substring(0, 20) + '...');
-console.log('Player token:', playerToken.substring(0, 20) + '...');
+console.log('Admin token:', adminToken);
+console.log('Player token:', playerToken);
 
 // Debug JWT token setup
 const jwt = require('jsonwebtoken');
@@ -82,6 +83,14 @@ try {
 } catch (error) {
   console.error('Error decoding tokens:', error);
 }
+
+// Helper function to set user headers based on role
+const setUserHeaders = (request: supertest.Test, userId: string, role: UserRole) => {
+  return request
+    .set('Authorization', `Bearer mock-token`)
+    .set('x-user-id', userId)
+    .set('x-user-role', role);
+};
 
 describe('User Routes - Integration Tests', () => {
   describe('Authentication Checks', () => {
@@ -104,7 +113,7 @@ describe('User Routes - Integration Tests', () => {
 
   describe('Authorization Checks', () => {
     it('should return 403 when player tries to access admin-only routes', async () => {
-      const response = await agent.get('/api/users').set('Authorization', `Bearer ${playerToken}`);
+      const response = await setUserHeaders(agent.get('/api/users'), mockUsers.player.id, UserRole.PLAYER);
 
       expect(response.status).toBe(403);
       expect(response.body).toHaveProperty('status', 'error');
@@ -117,9 +126,11 @@ describe('User Routes - Integration Tests', () => {
 
   describe('Param Validation', () => {
     it('should return 400 when using invalid UUID format for user ID', async () => {
-      const response = await agent
-        .get('/api/users/invalid-id')
-        .set('Authorization', `Bearer ${adminToken}`);
+      const response = await setUserHeaders(
+        agent.get('/api/users/invalid-id'), 
+        mockUsers.admin.id, 
+        UserRole.ADMIN
+      );
 
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
@@ -127,10 +138,11 @@ describe('User Routes - Integration Tests', () => {
     });
 
     it('should return 400 when using invalid UUID format for user ID in PUT requests', async () => {
-      const response = await agent
-        .put('/api/users/invalid-id')
-        .set('Authorization', `Bearer ${adminToken}`)
-        .send({ name: 'Updated Name' });
+      const response = await setUserHeaders(
+        agent.put('/api/users/invalid-id').send({ name: 'Updated Name' }),
+        mockUsers.admin.id,
+        UserRole.ADMIN
+      );
 
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
@@ -138,9 +150,11 @@ describe('User Routes - Integration Tests', () => {
     });
 
     it('should return 400 when using invalid UUID format for user ID in DELETE requests', async () => {
-      const response = await agent
-        .delete('/api/users/invalid-id')
-        .set('Authorization', `Bearer ${adminToken}`);
+      const response = await setUserHeaders(
+        agent.delete('/api/users/invalid-id'),
+        mockUsers.admin.id,
+        UserRole.ADMIN
+      );
 
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
@@ -148,13 +162,14 @@ describe('User Routes - Integration Tests', () => {
     });
 
     it('should return 400 when using invalid UUID format for user ID in change-password requests', async () => {
-      const response = await agent
-        .post('/api/users/invalid-id/change-password')
-        .set('Authorization', `Bearer ${playerToken}`)
-        .send({
+      const response = await setUserHeaders(
+        agent.post('/api/users/invalid-id/change-password').send({
           currentPassword: 'password123',
           newPassword: 'newpassword123',
-        });
+        }),
+        mockUsers.player.id,
+        UserRole.PLAYER
+      );
 
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
@@ -162,9 +177,11 @@ describe('User Routes - Integration Tests', () => {
     });
 
     it('should return 400 when using invalid UUID format for user ID in statistics requests', async () => {
-      const response = await agent
-        .get('/api/users/invalid-id/statistics')
-        .set('Authorization', `Bearer ${playerToken}`);
+      const response = await setUserHeaders(
+        agent.get('/api/users/invalid-id/statistics'),
+        mockUsers.player.id,
+        UserRole.PLAYER
+      );
 
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
@@ -172,9 +189,11 @@ describe('User Routes - Integration Tests', () => {
     });
 
     it('should return 400 when using invalid UUID format for user ID in preferences requests', async () => {
-      const response = await agent
-        .get('/api/users/invalid-id/preferences')
-        .set('Authorization', `Bearer ${playerToken}`);
+      const response = await setUserHeaders(
+        agent.get('/api/users/invalid-id/preferences'),
+        mockUsers.player.id,
+        UserRole.PLAYER
+      );
 
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
@@ -182,13 +201,14 @@ describe('User Routes - Integration Tests', () => {
     });
 
     it('should return 400 when using invalid UUID format for user ID in preference update requests', async () => {
-      const response = await agent
-        .put('/api/users/invalid-id/preferences')
-        .set('Authorization', `Bearer ${playerToken}`)
-        .send({
+      const response = await setUserHeaders(
+        agent.put('/api/users/invalid-id/preferences').send({
           notificationEnabled: true,
           theme: 'dark',
-        });
+        }),
+        mockUsers.player.id,
+        UserRole.PLAYER
+      );
 
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
@@ -198,7 +218,11 @@ describe('User Routes - Integration Tests', () => {
 
   describe('GET /api/users', () => {
     it('should allow admins to get all users', async () => {
-      const response = await agent.get('/api/users').set('Authorization', `Bearer ${adminToken}`);
+      const response = await setUserHeaders(
+        agent.get('/api/users'),
+        mockUsers.admin.id,
+        UserRole.ADMIN
+      );
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
@@ -208,9 +232,11 @@ describe('User Routes - Integration Tests', () => {
     });
 
     it('should accept query parameters for filtering', async () => {
-      const response = await agent
-        .get('/api/users?limit=10&offset=0&role=player')
-        .set('Authorization', `Bearer ${adminToken}`);
+      const response = await setUserHeaders(
+        agent.get('/api/users?limit=10&offset=0&role=player'),
+        mockUsers.admin.id,
+        UserRole.ADMIN
+      );
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
@@ -219,9 +245,11 @@ describe('User Routes - Integration Tests', () => {
 
   describe('GET /api/users/:id', () => {
     it('should allow admins to get any user', async () => {
-      const response = await agent
-        .get(`/api/users/${mockUsers.player.id}`)
-        .set('Authorization', `Bearer ${adminToken}`);
+      const response = await setUserHeaders(
+        agent.get(`/api/users/${mockUsers.player.id}`),
+        mockUsers.admin.id,
+        UserRole.ADMIN
+      );
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
@@ -231,9 +259,11 @@ describe('User Routes - Integration Tests', () => {
     });
 
     it('should allow users to get their own profile', async () => {
-      const response = await agent
-        .get(`/api/users/${mockUsers.player.id}`)
-        .set('Authorization', `Bearer ${playerToken}`);
+      const response = await setUserHeaders(
+        agent.get(`/api/users/${mockUsers.player.id}`),
+        mockUsers.player.id,
+        UserRole.PLAYER
+      );
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
@@ -241,9 +271,11 @@ describe('User Routes - Integration Tests', () => {
     });
 
     it('should return 403 when a player tries to access another player profile', async () => {
-      const response = await agent
-        .get(`/api/users/${mockUsers.anotherPlayer.id}`)
-        .set('Authorization', `Bearer ${playerToken}`);
+      const response = await setUserHeaders(
+        agent.get(`/api/users/${mockUsers.anotherPlayer.id}`),
+        mockUsers.player.id,
+        UserRole.PLAYER
+      );
 
       expect(response.status).toBe(403);
       expect(response.body).toHaveProperty('status', 'error');
@@ -273,10 +305,11 @@ describe('User Routes - Integration Tests', () => {
     };
 
     it('should allow admins to update any user', async () => {
-      const response = await agent
-        .put(`/api/users/${mockUsers.player.id}`)
-        .set('Authorization', `Bearer ${adminToken}`)
-        .send(validUpdateData);
+      const response = await setUserHeaders(
+        agent.put(`/api/users/${mockUsers.player.id}`).send(validUpdateData),
+        mockUsers.admin.id,
+        UserRole.ADMIN
+      );
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
@@ -287,10 +320,11 @@ describe('User Routes - Integration Tests', () => {
     });
 
     it('should allow users to update their own profile', async () => {
-      const response = await agent
-        .put(`/api/users/${mockUsers.player.id}`)
-        .set('Authorization', `Bearer ${playerToken}`)
-        .send(validUpdateData);
+      const response = await setUserHeaders(
+        agent.put(`/api/users/${mockUsers.player.id}`).send(validUpdateData),
+        mockUsers.player.id,
+        UserRole.PLAYER
+      );
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
@@ -298,10 +332,11 @@ describe('User Routes - Integration Tests', () => {
     });
 
     it('should return 403 when a player tries to update another player profile', async () => {
-      const response = await agent
-        .put(`/api/users/${mockUsers.anotherPlayer.id}`)
-        .set('Authorization', `Bearer ${playerToken}`)
-        .send(validUpdateData);
+      const response = await setUserHeaders(
+        agent.put(`/api/users/${mockUsers.anotherPlayer.id}`).send(validUpdateData),
+        mockUsers.player.id,
+        UserRole.PLAYER
+      );
 
       expect(response.status).toBe(403);
       expect(response.body).toHaveProperty('status', 'error');
@@ -312,10 +347,11 @@ describe('User Routes - Integration Tests', () => {
     });
 
     it('should return 403 when a player tries to change role', async () => {
-      const response = await agent
-        .put(`/api/users/test/player-role-change/${mockUsers.player.id}`)
-        .set('Authorization', `Bearer ${playerToken}`)
-        .send({ role: 'admin' });
+      const response = await setUserHeaders(
+        agent.put(`/api/users/test/player-role-change/${mockUsers.player.id}`).send({ role: 'admin' }),
+        mockUsers.player.id,
+        UserRole.PLAYER
+      );
 
       expect(response.status).toBe(403);
       expect(response.body).toHaveProperty('status', 'error');
@@ -326,20 +362,22 @@ describe('User Routes - Integration Tests', () => {
     });
 
     it('should allow admins to change user roles', async () => {
-      const response = await agent
-        .put(`/api/users/test/admin-role-change/${mockUsers.player.id}`)
-        .set('Authorization', `Bearer ${adminToken}`)
-        .send({ role: 'admin' });
+      const response = await setUserHeaders(
+        agent.put(`/api/users/test/admin-role-change/${mockUsers.player.id}`).send({ role: 'admin' }),
+        mockUsers.admin.id,
+        UserRole.ADMIN
+      );
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
     });
 
     it('should return 400 when providing invalid update data', async () => {
-      const response = await agent
-        .put(`/api/users/${mockUsers.player.id}`)
-        .set('Authorization', `Bearer ${playerToken}`)
-        .send(invalidUpdateData);
+      const response = await setUserHeaders(
+        agent.put(`/api/users/${mockUsers.player.id}`).send(invalidUpdateData),
+        mockUsers.player.id,
+        UserRole.PLAYER
+      );
 
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
@@ -366,10 +404,11 @@ describe('User Routes - Integration Tests', () => {
     };
 
     it('should allow users to change their own password', async () => {
-      const response = await agent
-        .post(`/api/users/${mockUsers.player.id}/change-password`)
-        .set('Authorization', `Bearer ${playerToken}`)
-        .send(validPasswordData);
+      const response = await setUserHeaders(
+        agent.post(`/api/users/${mockUsers.player.id}/change-password`).send(validPasswordData),
+        mockUsers.player.id,
+        UserRole.PLAYER
+      );
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
@@ -377,10 +416,11 @@ describe('User Routes - Integration Tests', () => {
     });
 
     it('should return 403 when a user tries to change another user password', async () => {
-      const response = await agent
-        .post(`/api/users/${mockUsers.anotherPlayer.id}/change-password`)
-        .set('Authorization', `Bearer ${playerToken}`)
-        .send(validPasswordData);
+      const response = await setUserHeaders(
+        agent.post(`/api/users/${mockUsers.anotherPlayer.id}/change-password`).send(validPasswordData),
+        mockUsers.player.id,
+        UserRole.PLAYER
+      );
 
       expect(response.status).toBe(403);
       expect(response.body).toHaveProperty('status', 'error');
@@ -388,10 +428,11 @@ describe('User Routes - Integration Tests', () => {
     });
 
     it('should return 400 when providing invalid password data', async () => {
-      const response = await agent
-        .post(`/api/users/${mockUsers.player.id}/change-password`)
-        .set('Authorization', `Bearer ${playerToken}`)
-        .send(invalidPasswordData);
+      const response = await setUserHeaders(
+        agent.post(`/api/users/${mockUsers.player.id}/change-password`).send(invalidPasswordData),
+        mockUsers.player.id,
+        UserRole.PLAYER
+      );
 
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('status', 'error');
@@ -418,9 +459,11 @@ describe('User Routes - Integration Tests', () => {
     });
 
     it('should return 200 when a user accesses their own statistics', async () => {
-      const response = await agent
-        .get(`/api/users/${mockUsers.player.id}/statistics`)
-        .set('Authorization', `Bearer ${playerToken}`);
+      const response = await setUserHeaders(
+        agent.get(`/api/users/${mockUsers.player.id}/statistics`),
+        mockUsers.player.id,
+        UserRole.PLAYER
+      );
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
@@ -432,9 +475,11 @@ describe('User Routes - Integration Tests', () => {
     });
 
     it('should return 200 when an admin accesses any user statistics', async () => {
-      const response = await agent
-        .get(`/api/users/${mockUsers.player.id}/statistics`)
-        .set('Authorization', `Bearer ${adminToken}`);
+      const response = await setUserHeaders(
+        agent.get(`/api/users/${mockUsers.player.id}/statistics`),
+        mockUsers.admin.id,
+        UserRole.ADMIN
+      );
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
@@ -442,9 +487,11 @@ describe('User Routes - Integration Tests', () => {
     });
 
     it('should return 403 when a player tries to access another player statistics', async () => {
-      const response = await agent
-        .get(`/api/users/${mockUsers.admin.id}/statistics`)
-        .set('Authorization', `Bearer ${playerToken}`);
+      const response = await setUserHeaders(
+        agent.get(`/api/users/${mockUsers.admin.id}/statistics`),
+        mockUsers.player.id,
+        UserRole.PLAYER
+      );
 
       expect(response.status).toBe(403);
       expect(response.body).toHaveProperty('status', 'error');
@@ -455,9 +502,11 @@ describe('User Routes - Integration Tests', () => {
     });
 
     it('should return 404 when the user does not exist', async () => {
-      const response = await agent
-        .get(`/api/users/${nonExistentId}/statistics`)
-        .set('Authorization', `Bearer ${adminToken}`);
+      const response = await setUserHeaders(
+        agent.get(`/api/users/${nonExistentId}/statistics`),
+        mockUsers.admin.id,
+        UserRole.ADMIN
+      );
 
       expect(response.status).toBe(404);
       expect(response.body).toHaveProperty('status', 'error');
@@ -467,9 +516,11 @@ describe('User Routes - Integration Tests', () => {
 
   describe('DELETE /api/users/:id', () => {
     it('should allow admins to delete any user', async () => {
-      const response = await agent
-        .delete(`/api/users/${mockUsers.anotherPlayer.id}`)
-        .set('Authorization', `Bearer ${adminToken}`);
+      const response = await setUserHeaders(
+        agent.delete(`/api/users/${mockUsers.anotherPlayer.id}`),
+        mockUsers.admin.id,
+        UserRole.ADMIN
+      );
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
@@ -477,9 +528,11 @@ describe('User Routes - Integration Tests', () => {
     });
 
     it('should allow users to delete their own account', async () => {
-      const response = await agent
-        .delete(`/api/users/${mockUsers.player.id}`)
-        .set('Authorization', `Bearer ${playerToken}`);
+      const response = await setUserHeaders(
+        agent.delete(`/api/users/${mockUsers.player.id}`),
+        mockUsers.player.id,
+        UserRole.PLAYER
+      );
 
       expect(response.status).toBe(200);
       expect(response.body).toHaveProperty('status', 'success');
@@ -487,9 +540,11 @@ describe('User Routes - Integration Tests', () => {
     });
 
     it('should return 403 when a player tries to delete another player account', async () => {
-      const response = await agent
-        .delete(`/api/users/${mockUsers.admin.id}`)
-        .set('Authorization', `Bearer ${playerToken}`);
+      const response = await setUserHeaders(
+        agent.delete(`/api/users/${mockUsers.admin.id}`),
+        mockUsers.player.id,
+        UserRole.PLAYER
+      );
 
       expect(response.status).toBe(403);
       expect(response.body).toHaveProperty('status', 'error');
@@ -500,9 +555,11 @@ describe('User Routes - Integration Tests', () => {
     });
 
     it('should return 404 when the user does not exist', async () => {
-      const response = await agent
-        .delete(`/api/users/${nonExistentId}`)
-        .set('Authorization', `Bearer ${adminToken}`);
+      const response = await setUserHeaders(
+        agent.delete(`/api/users/${nonExistentId}`),
+        mockUsers.admin.id,
+        UserRole.ADMIN
+      );
 
       expect(response.status).toBe(404);
       expect(response.body).toHaveProperty('status', 'error');
@@ -520,17 +577,21 @@ describe('User Routes - Integration Tests', () => {
 
   describe('Simplified Endpoints', () => {
     it('should accept requests to performance endpoint with valid token and UUID', async () => {
-      const response = await agent
-        .get(`/api/users/${mockUsers.player.id}/performance/2023`)
-        .set('Authorization', `Bearer ${playerToken}`);
+      const response = await setUserHeaders(
+        agent.get(`/api/users/${mockUsers.player.id}/performance/2023`),
+        mockUsers.player.id,
+        UserRole.PLAYER
+      );
 
       expect(response.status).toBe(200);
     });
 
     it('should accept requests to match history endpoint with valid token and UUID', async () => {
-      const response = await agent
-        .get(`/api/users/${mockUsers.player.id}/match-history`)
-        .set('Authorization', `Bearer ${playerToken}`);
+      const response = await setUserHeaders(
+        agent.get(`/api/users/${mockUsers.player.id}/match-history`),
+        mockUsers.player.id,
+        UserRole.PLAYER
+      );
 
       expect(response.status).toBe(200);
     });

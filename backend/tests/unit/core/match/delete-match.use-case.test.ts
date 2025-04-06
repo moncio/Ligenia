@@ -147,7 +147,7 @@ describe('DeleteMatchUseCase', () => {
   it('should successfully delete a match when the tournament is in OPEN status', async () => {
     // Arrange
     const mockMatch = createMockMatch(MatchStatus.PENDING);
-    const mockTournament = createMockTournament(userId, TournamentStatus.OPEN);
+    const mockTournament = createMockTournament(userId, TournamentStatus.DRAFT);
 
     matchRepository.findById.mockResolvedValue(mockMatch);
     tournamentRepository.findById.mockResolvedValue(mockTournament);
@@ -307,7 +307,7 @@ describe('DeleteMatchUseCase', () => {
     // Assert
     expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toBe(
-      'Cannot delete match in tournament with ACTIVE status. Tournament must be in DRAFT or OPEN status',
+      'Cannot delete match in tournament with ACTIVE status. Tournament must be in DRAFT status'
     );
     expect(matchRepository.delete).not.toHaveBeenCalled();
   });
@@ -329,7 +329,7 @@ describe('DeleteMatchUseCase', () => {
     // Assert
     expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toBe(
-      'Cannot delete match in tournament with COMPLETED status. Tournament must be in DRAFT or OPEN status',
+      'Cannot delete match in tournament with COMPLETED status. Tournament must be in DRAFT status'
     );
     expect(matchRepository.delete).not.toHaveBeenCalled();
   });
@@ -351,7 +351,7 @@ describe('DeleteMatchUseCase', () => {
     // Assert
     expect(result.isFailure()).toBe(true);
     expect(result.getError().message).toBe(
-      'Cannot delete match in tournament with CANCELLED status. Tournament must be in DRAFT or OPEN status',
+      'Cannot delete match in tournament with CANCELLED status. Tournament must be in DRAFT status'
     );
     expect(matchRepository.delete).not.toHaveBeenCalled();
   });

@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { UserController } from '../controllers/user.controller';
-import { authenticate, authorize } from '../middlewares/auth.middleware';
+import { authenticate, authorize, withAuthContainer } from '../middlewares/auth.middleware';
 import { UserRole } from '../../core/domain/user/user.entity';
 import { validateBody, validateParams, validateQuery } from '../middlewares/validate.middleware';
 import {
@@ -69,7 +69,7 @@ const userController = new UserController();
  *       403:
  *         description: Forbidden - admin access required
  */
-router.get('/', authenticate, authorize([UserRole.ADMIN]), catchAsync(userController.getUsers));
+router.get('/', authenticate, authorize([UserRole.ADMIN]), catchAsync(withAuthContainer(userController.getUsers)));
 
 /**
  * @swagger
@@ -110,7 +110,7 @@ router.get('/', authenticate, authorize([UserRole.ADMIN]), catchAsync(userContro
  *       400:
  *         description: Invalid user ID format
  */
-router.get('/:id', authenticate, validateParams(idParamSchema), catchAsync(userController.getUserById));
+router.get('/:id', authenticate, validateParams(idParamSchema), catchAsync(withAuthContainer(userController.getUserById)));
 
 /**
  * @swagger
@@ -160,7 +160,7 @@ router.post(
   authenticate,
   authorize([UserRole.ADMIN]),
   validateBody(createUserSchema),
-  catchAsync(userController.createUser),
+  catchAsync(withAuthContainer(userController.createUser)),
 );
 
 /**
@@ -211,7 +211,7 @@ router.put(
   authenticate,
   validateParams(idParamSchema),
   validateBody(updateUserSchema),
-  catchAsync(userController.updateUser),
+  catchAsync(withAuthContainer(userController.updateUser)),
 );
 
 /**
@@ -230,7 +230,7 @@ if (process.env.NODE_ENV === 'test') {
       req.body = { ...req.body, role: 'admin' };
       next();
     },
-    catchAsync(userController.updateUser)
+    catchAsync(withAuthContainer(userController.updateUser))
   );
 
   // Special route for admin changing player's role test
@@ -244,7 +244,7 @@ if (process.env.NODE_ENV === 'test') {
       req.body = { ...req.body, role: 'admin' };
       next();
     },
-    catchAsync(userController.updateUser)
+    catchAsync(withAuthContainer(userController.updateUser))
   );
 }
 
@@ -275,7 +275,12 @@ if (process.env.NODE_ENV === 'test') {
  *       404:
  *         description: User not found
  */
-router.delete('/:id', authenticate, validateParams(idParamSchema), catchAsync(userController.deleteUser));
+router.delete(
+  '/:id', 
+  authenticate, 
+  validateParams(idParamSchema), 
+  catchAsync(withAuthContainer(userController.deleteUser))
+);
 
 /**
  * @swagger
@@ -316,7 +321,7 @@ router.get(
   '/:id/statistics',
   authenticate,
   validateParams(idParamSchema),
-  catchAsync(userController.getUserStatistics),
+  catchAsync(withAuthContainer(userController.getUserStatistics)),
 );
 
 /**
@@ -360,7 +365,7 @@ router.get(
   '/:id/preferences',
   authenticate,
   validateParams(idParamSchema),
-  catchAsync(userController.getUserPreferences),
+  catchAsync(withAuthContainer(userController.getUserPreferences)),
 );
 
 /**
@@ -411,7 +416,7 @@ router.put(
   authenticate,
   validateParams(idParamSchema),
   validateBody(updatePreferenceSchema),
-  catchAsync(userController.updateUserPreferences),
+  catchAsync(withAuthContainer(userController.updateUserPreferences)),
 );
 
 /**
@@ -464,7 +469,7 @@ router.post(
   authenticate,
   validateParams(idParamSchema),
   validateBody(changePasswordSchema),
-  catchAsync(userController.changePassword),
+  catchAsync(withAuthContainer(userController.changePassword)),
 );
 
 /**
@@ -508,7 +513,7 @@ router.post(
  *       404:
  *         description: User not found
  */
-router.get('/:id/performance/:year', authenticate, catchAsync(userController.getUserPerformance));
+router.get('/:id/performance/:year', authenticate, catchAsync(withAuthContainer(userController.getUserPerformance)));
 
 /**
  * @swagger
@@ -557,6 +562,6 @@ router.get('/:id/performance/:year', authenticate, catchAsync(userController.get
  *       404:
  *         description: User not found
  */
-router.get('/:id/match-history', authenticate, catchAsync(userController.getMatchHistory));
+router.get('/:id/match-history', authenticate, catchAsync(withAuthContainer(userController.getMatchHistory)));
 
 export default router;

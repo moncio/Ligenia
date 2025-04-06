@@ -189,7 +189,7 @@ describe('RegisterToTournamentUseCase', () => {
       tomorrow, // Starts tomorrow
       null,
       TournamentFormat.SINGLE_ELIMINATION,
-      TournamentStatus.OPEN,
+      TournamentStatus.ACTIVE,
       'Madrid',
       16, // Max 16 participants
       tomorrow, // Registration deadline is tomorrow
@@ -223,7 +223,7 @@ describe('RegisterToTournamentUseCase', () => {
       tomorrow,
       null,
       TournamentFormat.SINGLE_ELIMINATION,
-      TournamentStatus.OPEN,
+      TournamentStatus.ACTIVE,
       'Madrid',
       1, // Max 1 participant
       tomorrow,
@@ -240,7 +240,7 @@ describe('RegisterToTournamentUseCase', () => {
       tomorrow,
       null,
       TournamentFormat.SINGLE_ELIMINATION,
-      TournamentStatus.OPEN,
+      TournamentStatus.ACTIVE,
       'Madrid',
       16,
       yesterday, // Registration deadline was yesterday

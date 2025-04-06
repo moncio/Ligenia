@@ -6,10 +6,11 @@ import { IRankingRepository } from '../../interfaces/repositories/ranking.reposi
 import { IPlayerRepository } from '../../interfaces/repositories/player.repository';
 import { Player } from '../../../domain/player/player.entity';
 import { PlayerLevel } from '../../../domain/tournament/tournament.entity';
+import { injectable, inject } from 'inversify';
 
 // Input validation schema
 const GetCategoryBasedRankingInputSchema = z.object({
-  playerLevel: z.nativeEnum(PlayerLevel, {
+  playerLevel: z.enum(['P1', 'P2', 'P3'], {
     errorMap: () => ({ message: 'Invalid player level' }),
   }),
   limit: z.number().int().positive().default(10),
@@ -35,15 +36,16 @@ export interface GetCategoryBasedRankingOutput {
 
 /**
  * Use case for retrieving rankings filtered by player category
- * Returns rankings filtered by player category (e.g., beginner, intermediate, pro)
+ * Returns a paginated and sorted list of players in a specific category
  */
+@injectable()
 export class GetCategoryBasedRankingUseCase extends BaseUseCase<
   GetCategoryBasedRankingInput,
   GetCategoryBasedRankingOutput
 > {
   constructor(
-    private readonly rankingRepository: IRankingRepository,
-    private readonly playerRepository: IPlayerRepository,
+    @inject('RankingRepository') private readonly rankingRepository: IRankingRepository,
+    @inject('PlayerRepository') private readonly playerRepository: IPlayerRepository,
   ) {
     super();
   }
@@ -52,14 +54,28 @@ export class GetCategoryBasedRankingUseCase extends BaseUseCase<
     input: GetCategoryBasedRankingInput,
   ): Promise<Result<GetCategoryBasedRankingOutput>> {
     try {
-      // Validate input
-      const validatedData = await GetCategoryBasedRankingInputSchema.parseAsync(input);
+      // Validate input - more robust error handling
+      let validatedData: GetCategoryBasedRankingInput;
+      try {
+        validatedData = await GetCategoryBasedRankingInputSchema.parseAsync(input);
+      } catch (validationError) {
+        console.error('Validation error in GetCategoryBasedRankingUseCase:', validationError);
+        if (validationError instanceof z.ZodError) {
+          return Result.fail<GetCategoryBasedRankingOutput>(
+            new Error('Invalid player level')
+          );
+        }
+        throw validationError;
+      }
+
+      // Convert string to PlayerLevel enum
+      const playerLevel = validatedData.playerLevel as PlayerLevel;
 
       // Get total count of rankings in this category
-      const totalCount = await this.rankingRepository.countByPlayerLevel(validatedData.playerLevel);
+      const totalCount = await this.rankingRepository.countByPlayerLevel(playerLevel);
 
       // Get rankings for this category with specified sorting and pagination
-      const rankings = await this.rankingRepository.findByPlayerLevel(validatedData.playerLevel, {
+      const rankings = await this.rankingRepository.findByPlayerLevel(playerLevel, {
         limit: validatedData.limit,
         offset: validatedData.offset,
         sortBy: validatedData.sortBy,
@@ -93,9 +109,10 @@ export class GetCategoryBasedRankingUseCase extends BaseUseCase<
       return Result.ok<GetCategoryBasedRankingOutput>({
         rankings: rankingsWithPlayer,
         pagination,
-        playerLevel: validatedData.playerLevel,
+        playerLevel,
       });
     } catch (error) {
+      console.error('Error in GetCategoryBasedRankingUseCase:', error);
       return Result.fail<GetCategoryBasedRankingOutput>(
         error instanceof Error ? error : new Error('Failed to get category-based ranking'),
       );

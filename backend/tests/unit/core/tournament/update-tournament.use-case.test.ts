@@ -160,7 +160,7 @@ describe('UpdateTournamentUseCase', () => {
       startDate: '2023-09-15T09:00:00Z',
       endDate: '2023-09-16T18:00:00Z',
       format: TournamentFormat.DOUBLE_ELIMINATION,
-      status: TournamentStatus.OPEN,
+      status: TournamentStatus.ACTIVE,
       location: 'Barcelona',
       maxParticipants: 32,
       registrationDeadline: '2023-09-10T23:59:59Z',

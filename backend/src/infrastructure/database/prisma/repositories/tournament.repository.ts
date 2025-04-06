@@ -7,7 +7,7 @@ import {
 import { BaseRepository } from "../base-repository";
 import { TournamentMapper } from "../mappers/tournament.mapper";
 import { Prisma, PrismaClient } from "@prisma/client";
-import { injectable } from "inversify";
+import { injectable, inject } from "inversify";
 
 @injectable()
 export class TournamentRepository extends BaseRepository implements ITournamentRepository {

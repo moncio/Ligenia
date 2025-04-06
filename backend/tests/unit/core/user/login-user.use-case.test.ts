@@ -29,6 +29,7 @@ describe('LoginUserUseCase', () => {
     refreshToken: jest.fn(),
     verifyPassword: jest.fn(),
     generateToken: jest.fn(),
+    deleteUser: jest.fn(),
   };
 
   let useCase: LoginUserUseCase;

@@ -70,12 +70,11 @@ export class DeleteMatchUseCase extends BaseUseCase<DeleteMatchInput, void> {
 
       // Check if tournament status allows match deletion
       if (
-        tournament.status !== TournamentStatus.DRAFT &&
-        tournament.status !== TournamentStatus.OPEN
+        tournament.status !== TournamentStatus.DRAFT
       ) {
         return Result.fail(
           new Error(
-            `Cannot delete match in tournament with ${tournament.status} status. Tournament must be in DRAFT or OPEN status`,
+            `Cannot delete match in tournament with ${tournament.status} status. Tournament must be in DRAFT status`,
           ),
         );
       }

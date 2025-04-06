@@ -21,7 +21,7 @@ export class PreferenceController {
       }
 
       const getUserPreferencesUseCase = req.container?.get(
-        'GetUserPreferencesUseCase'
+        'getUserPreferencesUseCase'
       ) as GetUserPreferencesUseCase;
 
       if (!getUserPreferencesUseCase) {
@@ -176,7 +176,7 @@ export class PreferenceController {
       }
 
       const updateUserPreferencesUseCase = req.container?.get(
-        'UpdateUserPreferencesUseCase'
+        'updateUserPreferencesUseCase'
       ) as UpdateUserPreferencesUseCase;
 
       if (!updateUserPreferencesUseCase) {

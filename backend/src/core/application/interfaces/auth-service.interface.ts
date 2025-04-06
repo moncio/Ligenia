@@ -16,4 +16,5 @@ export interface IAuthService {
   refreshToken(refreshToken: string): Promise<Result<ITokenResponse>>;
   verifyPassword(plainPassword: string, hashedPassword: string): Promise<boolean>;
   generateToken(user: IAuthUser): Promise<string>;
+  deleteUser(userId: string): Promise<Result<void>>;
 }

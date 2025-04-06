@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { PreferenceController } from '../controllers/preference.controller';
-import { authenticate } from '../middlewares/auth.middleware';
+import { authenticate, withAuthContainer } from '../middlewares/auth.middleware';
 import { validateBody } from '../middlewares/validate.middleware';
 import { updatePreferenceSchema, resetPreferenceSchema } from '../validations/preference.validation';
 import { diMiddleware } from '../middlewares/di.middleware';
@@ -61,7 +61,7 @@ router.use(diMiddleware);
  *       401:
  *         description: Unauthorized
  */
-router.get('/', authenticate, preferenceController.getPreferences);
+router.get('/', authenticate, withAuthContainer(preferenceController.getPreferences));
 
 /**
  * @swagger
@@ -125,7 +125,7 @@ router.put(
   '/',
   authenticate,
   validateBody(updatePreferenceSchema),
-  preferenceController.updatePreference,
+  withAuthContainer(preferenceController.updatePreference),
 );
 
 /**
@@ -156,6 +156,6 @@ router.put(
  *       401:
  *         description: Unauthorized
  */
-router.delete('/reset', authenticate, preferenceController.resetPreferences);
+router.delete('/reset', authenticate, withAuthContainer(preferenceController.resetPreferences));
 
 export default router;

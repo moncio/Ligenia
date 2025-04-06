@@ -81,11 +81,11 @@ export class GenerateTournamentBracketUseCase extends BaseUseCase<
       }
 
       // Check if tournament is in the correct state
-      const validStates = [TournamentStatus.DRAFT, TournamentStatus.OPEN];
+      const validStates = [TournamentStatus.DRAFT];
       if (!validStates.includes(tournament.status)) {
         return Result.fail(
           new Error(
-            `Cannot generate bracket for a tournament in ${tournament.status} state. Tournament must be in DRAFT or OPEN state`,
+            `Cannot generate bracket for a tournament in ${tournament.status} state. Tournament must be in DRAFT state`,
           ),
         );
       }

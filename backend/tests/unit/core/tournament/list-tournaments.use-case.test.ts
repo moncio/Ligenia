@@ -205,7 +205,7 @@ describe('ListTournamentsUseCase', () => {
         createDate(15, 7, 2023),
         createDate(20, 7, 2023),
         TournamentFormat.SINGLE_ELIMINATION,
-        TournamentStatus.OPEN,
+        TournamentStatus.ACTIVE,
         'Madrid',
         16,
         createDate(10, 7, 2023),
@@ -221,7 +221,7 @@ describe('ListTournamentsUseCase', () => {
         createDate(20, 8, 2023),
         createDate(25, 8, 2023),
         TournamentFormat.DOUBLE_ELIMINATION,
-        TournamentStatus.OPEN,
+        TournamentStatus.ACTIVE,
         'Barcelona',
         32,
         createDate(15, 8, 2023),
@@ -289,7 +289,7 @@ describe('ListTournamentsUseCase', () => {
         createDate(1, 7, 2023),
         createDate(10, 7, 2023),
         TournamentFormat.SINGLE_ELIMINATION,
-        TournamentStatus.OPEN,
+        TournamentStatus.ACTIVE,
         'Madrid',
         32,
         createDate(25, 6, 2023),
@@ -305,7 +305,7 @@ describe('ListTournamentsUseCase', () => {
         createDate(15, 7, 2023),
         createDate(25, 7, 2023),
         TournamentFormat.DOUBLE_ELIMINATION,
-        TournamentStatus.OPEN,
+        TournamentStatus.ACTIVE,
         'Barcelona',
         16,
         createDate(10, 7, 2023),
@@ -321,7 +321,7 @@ describe('ListTournamentsUseCase', () => {
         createDate(10, 10, 2023),
         createDate(20, 10, 2023),
         TournamentFormat.SWISS,
-        TournamentStatus.OPEN,
+        TournamentStatus.DRAFT,
         'Valencia',
         24,
         createDate(5, 10, 2023),
@@ -441,7 +441,7 @@ describe('ListTournamentsUseCase', () => {
   it('should filter tournaments by status', async () => {
     // Filter by OPEN status
     const input: ListTournamentsInput = {
-      status: TournamentStatus.OPEN,
+      status: TournamentStatus.ACTIVE,
     };
 
     const result = await useCase.execute(input);
@@ -452,7 +452,7 @@ describe('ListTournamentsUseCase', () => {
     // Should return only OPEN tournaments
     expect(output.tournaments.length).toBe(5);
     output.tournaments.forEach(tournament => {
-      expect(tournament.status).toBe(TournamentStatus.OPEN);
+      expect(tournament.status).toBe(TournamentStatus.ACTIVE);
     });
   });
 
@@ -555,7 +555,7 @@ describe('ListTournamentsUseCase', () => {
   it('should combine multiple filters', async () => {
     // Filter by OPEN status, P2 category, and containing "Summer" in the name
     const input: ListTournamentsInput = {
-      status: TournamentStatus.OPEN,
+      status: TournamentStatus.ACTIVE,
       category: PlayerLevel.P2,
       searchTerm: 'Summer',
     };
@@ -567,7 +567,7 @@ describe('ListTournamentsUseCase', () => {
 
     // Should return only tournaments matching all criteria
     expect(output.tournaments.length).toBe(1);
-    expect(output.tournaments[0].status).toBe(TournamentStatus.OPEN);
+    expect(output.tournaments[0].status).toBe(TournamentStatus.ACTIVE);
     expect(output.tournaments[0].category).toBe(PlayerLevel.P2);
     expect(output.tournaments[0].name.includes('Summer')).toBe(true);
   });

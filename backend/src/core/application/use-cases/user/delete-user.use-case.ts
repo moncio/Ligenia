@@ -3,6 +3,7 @@ import { Result } from '../../../../shared/result';
 import { IUserRepository } from '../../interfaces/repositories/user.repository';
 import { z } from 'zod';
 import { injectable, inject } from 'inversify';
+import { IAuthService } from '../../interfaces/auth-service.interface';
 
 export interface DeleteUserInput {
   id: string;
@@ -11,7 +12,8 @@ export interface DeleteUserInput {
 @injectable()
 export class DeleteUserUseCase extends BaseUseCase<DeleteUserInput, void> {
   constructor(
-    @inject('UserRepository') private userRepository: IUserRepository
+    @inject('UserRepository') private userRepository: IUserRepository,
+    @inject('AuthService') private authService: IAuthService
   ) {
     super();
   }
@@ -39,8 +41,16 @@ export class DeleteUserUseCase extends BaseUseCase<DeleteUserInput, void> {
         return Result.fail<void>(new Error('User not found'));
       }
       
-      // Delete the user
+      // Delete the user from the local database
       await this.userRepository.delete(input.id);
+      
+      // Delete the user from Supabase Auth
+      const authResult = await this.authService.deleteUser(input.id);
+      if (authResult.isFailure()) {
+        console.error(`Failed to delete user from Supabase Auth: ${authResult.getError().message}`);
+        // We continue anyway since the user is already deleted from our database
+        // This could lead to the situation where a user exists in Supabase but not in our DB
+      }
       
       return Result.ok<void>(undefined);
     } catch (error) {

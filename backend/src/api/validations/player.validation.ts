@@ -74,3 +74,10 @@ export const getPlayersQuerySchema = z.object({
   limit: z.coerce.number().positive().optional(),
   offset: z.coerce.number().nonnegative().optional(),
 });
+
+// Exporting all validation schemas together
+export const playerValidationSchema = {
+  createPlayerSchema,
+  updatePlayerSchema,
+  getPlayersSchema: getPlayersQuerySchema
+};

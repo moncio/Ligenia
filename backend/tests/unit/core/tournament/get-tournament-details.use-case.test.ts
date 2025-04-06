@@ -121,7 +121,7 @@ describe('GetTournamentDetailsUseCase', () => {
       createDate(15, 7, 2023),
       createDate(20, 7, 2023),
       TournamentFormat.SINGLE_ELIMINATION,
-      TournamentStatus.OPEN,
+      TournamentStatus.DRAFT,
       'Madrid',
       16,
       createDate(10, 7, 2023),
@@ -160,7 +160,7 @@ describe('GetTournamentDetailsUseCase', () => {
     expect(output.tournament.id).toBe(existingTournamentId);
     expect(output.tournament.name).toBe('Test Tournament');
     expect(output.tournament.format).toBe(TournamentFormat.SINGLE_ELIMINATION);
-    expect(output.tournament.status).toBe(TournamentStatus.OPEN);
+    expect(output.tournament.status).toBe(TournamentStatus.DRAFT);
 
     // Participant info should not be included by default
     expect(output.participantCount).toBeUndefined();

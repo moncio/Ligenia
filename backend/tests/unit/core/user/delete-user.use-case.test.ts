@@ -1,13 +1,15 @@
 import { User, UserRole } from '../../../../src/core/domain/user/user.entity';
 import { IUserRepository } from '../../../../src/core/application/interfaces/repositories/user.repository';
 import { DeleteUserUseCase } from '../../../../src/core/application/use-cases/user/delete-user.use-case';
+import { Result } from '../../../../src/shared/result';
+import { IAuthService } from '../../../../src/core/application/interfaces/auth-service.interface';
 
 // Mock UserRepository
 class MockUserRepository implements IUserRepository {
   private users: User[] = [];
 
   constructor(initialUsers: User[] = []) {
-    this.users = initialUsers;
+    this.users = [...initialUsers];
   }
 
   async findById(id: string): Promise<User | null> {
@@ -76,6 +78,19 @@ class ErrorThrowingUserRepository implements IUserRepository {
   }
 }
 
+// Mock AuthService
+const mockAuthService: jest.Mocked<IAuthService> = {
+  login: jest.fn(),
+  register: jest.fn(),
+  validateToken: jest.fn(),
+  getUserById: jest.fn(),
+  updateUser: jest.fn(),
+  refreshToken: jest.fn(),
+  verifyPassword: jest.fn(),
+  generateToken: jest.fn(),
+  deleteUser: jest.fn().mockResolvedValue(Result.ok<void>(undefined)),
+};
+
 // Test suite for DeleteUserUseCase
 describe('DeleteUserUseCase', () => {
   // Create test user
@@ -92,7 +107,11 @@ describe('DeleteUserUseCase', () => {
 
   beforeEach(() => {
     userRepository = new MockUserRepository([testUser]);
-    deleteUserUseCase = new DeleteUserUseCase(userRepository);
+    deleteUserUseCase = new DeleteUserUseCase(userRepository, mockAuthService);
+    
+    // Reset mocks
+    mockAuthService.deleteUser.mockClear();
+    mockAuthService.deleteUser.mockResolvedValue(Result.ok<void>(undefined));
   });
 
   // 1. Success scenario
@@ -127,7 +146,7 @@ describe('DeleteUserUseCase', () => {
   // 4. Error handling with mocked repository
   it('should handle repository errors', async () => {
     const errorRepository = new ErrorThrowingUserRepository();
-    const useCase = new DeleteUserUseCase(errorRepository);
+    const useCase = new DeleteUserUseCase(errorRepository, mockAuthService);
     
     const result = await useCase.execute({ id: testUser.id });
 

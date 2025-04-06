@@ -27,7 +27,7 @@ const options = {
     },
     security: [
       {
-        bearerAuth: [],
+        bearerAuth: [] as string[],
       },
     ],
   },

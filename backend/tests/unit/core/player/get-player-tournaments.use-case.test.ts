@@ -300,7 +300,7 @@ describe('GetPlayerTournamentsUseCase', () => {
         new Date('2023-07-05'),
         new Date('2023-07-15'),
         TournamentFormat.DOUBLE_ELIMINATION,
-        TournamentStatus.OPEN,
+        TournamentStatus.DRAFT,
         'Sports Complex',
         64,
         new Date('2023-06-30'),

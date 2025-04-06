@@ -84,82 +84,22 @@ const rankingController = new RankingController();
  *                           type: integer
  */
 router.get(
-  '/',
+  '/global',
+  authenticate,
   diMiddleware,
-  validateQuery(getRankingsQuerySchema),
   rankingController.getGlobalRankingList
 );
 
 /**
  * @swagger
- * /api/rankings/category/{categoryId}:
- *   get:
- *     summary: Get rankings by category
- *     description: Retrieve player rankings for a specific category/level
- *     tags: [Rankings]
- *     parameters:
- *       - in: path
- *         name: categoryId
- *         schema:
- *           type: string
- *           enum: [BEGINNER, INTERMEDIATE, ADVANCED, PROFESSIONAL]
- *         required: true
- *         description: Player category/level
- *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *           minimum: 1
- *           default: 1
- *         description: Page number
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *           minimum: 1
- *           maximum: 100
- *           default: 10
- *         description: Number of items per page
- *     responses:
- *       200:
- *         description: List of category-specific player rankings
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: success
- *                 data:
- *                   type: object
- *                   properties:
- *                     rankings:
- *                       type: array
- *                       items:
- *                         type: object
- *                     pagination:
- *                       type: object
- *                       properties:
- *                         total:
- *                           type: integer
- *                         page:
- *                           type: integer
- *                         limit:
- *                           type: integer
- *       400:
- *         description: Invalid category ID
+ * /api/rankings/category/:category
+ * @desc Get rankings filtered by player category
+ * @access Private
  */
 router.get(
-  '/category/:categoryId',
+  '/category/:category',
+  authenticate,
   diMiddleware,
-  validateParams(
-    z.object({
-      categoryId: z.nativeEnum(PlayerLevel, {
-        errorMap: () => ({ message: 'Invalid player category' }),
-      }),
-    }),
-  ),
   rankingController.getCategoryBasedRanking
 );
 
@@ -314,6 +254,18 @@ router.get(
     }),
   ),
   rankingController.getCategoryBasedRanking
+);
+
+/**
+ * @route GET /api/rankings
+ * @desc Get all rankings (legacy endpoint)
+ * @access Private
+ */
+router.get(
+  '/',
+  authenticate,
+  diMiddleware,
+  rankingController.getRankings
 );
 
 export default router;

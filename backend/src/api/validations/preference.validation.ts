@@ -7,12 +7,8 @@ export const idParamSchema = z.object({
 
 // Esquema de validación para actualización de preferencias
 export const updatePreferenceSchema = z.object({
-  theme: z
-    .enum(['light', 'dark', 'system'], {
-      errorMap: () => ({ message: 'Theme must be one of: light, dark, system' }),
-    })
-    .optional(),
-  fontSize: z.number().int().min(10).max(24).optional(),
+  theme: z.enum(['LIGHT', 'DARK', 'SYSTEM']).optional(),
+  fontSize: z.number().min(8).max(24).optional(),
   // Otras preferencias que puedan aplicar
 });
 

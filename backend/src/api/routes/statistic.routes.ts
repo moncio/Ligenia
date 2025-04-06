@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { StatisticController } from '../controllers/statistic.controller';
-import { authenticate, authorize } from '../middlewares/auth.middleware';
+import { authenticate, authorize, withAuthContainer } from '../middlewares/auth.middleware';
 import { UserRole } from '../../core/domain/user/user.entity';
 import { validateBody, validateParams, validateQuery } from '../middlewares/validate.middleware';
 import {
@@ -77,7 +77,7 @@ router.get(
   '/player/:playerId',
   diMiddleware,
   validateParams(userIdParamSchema),
-  statisticController.getPlayerStatistics
+  withAuthContainer(statisticController.getPlayerStatistics)
 );
 
 /**
@@ -131,7 +131,7 @@ router.get(
   '/tournament/:tournamentId',
   diMiddleware,
   validateParams(tournamentIdParamSchema),
-  statisticController.getTournamentStatistics
+  withAuthContainer(statisticController.getTournamentStatistics)
 );
 
 /**
@@ -186,7 +186,7 @@ router.get(
   '/global',
   diMiddleware,
   validateQuery(getStatisticsQuerySchema),
-  statisticController.getGlobalStatistics
+  withAuthContainer(statisticController.getGlobalStatistics)
 );
 
 /**
@@ -241,7 +241,7 @@ router.post(
   diMiddleware,
   authorize([UserRole.ADMIN]),
   validateParams(matchIdParamSchema),
-  statisticController.updateStatisticsAfterMatch
+  withAuthContainer(statisticController.updateStatisticsAfterMatch)
 );
 
 // The following routes are for admin functionality
@@ -321,7 +321,7 @@ router.get(
   diMiddleware,
   authorize([UserRole.ADMIN]),
   validateQuery(getStatisticsQuerySchema),
-  statisticController.getStatistics
+  withAuthContainer(statisticController.getStatistics)
 );
 
 /**
@@ -372,7 +372,7 @@ router.get(
   diMiddleware,
   authorize([UserRole.ADMIN]),
   validateParams(idParamSchema),
-  statisticController.getStatisticById
+  withAuthContainer(statisticController.getStatisticById)
 );
 
 /**
@@ -430,7 +430,7 @@ router.post(
   diMiddleware,
   authorize([UserRole.ADMIN]),
   validateBody(createStatisticSchema),
-  statisticController.createStatistic
+  withAuthContainer(statisticController.createStatistic)
 );
 
 /**
@@ -485,7 +485,7 @@ router.put(
   authorize([UserRole.ADMIN]),
   validateParams(idParamSchema),
   validateBody(updateStatisticSchema),
-  statisticController.updateStatistic
+  withAuthContainer(statisticController.updateStatistic)
 );
 
 /**
@@ -523,7 +523,7 @@ router.delete(
   diMiddleware,
   authorize([UserRole.ADMIN]),
   validateParams(idParamSchema),
-  statisticController.deleteStatistic
+  withAuthContainer(statisticController.deleteStatistic)
 );
 
 /**
@@ -554,7 +554,7 @@ router.get(
   '/user/:userId',
   diMiddleware,
   validateParams(userIdParamSchema),
-  statisticController.getUserStatistics
+  withAuthContainer(statisticController.getUserStatistics)
 );
 
 export default router;

@@ -4,3 +4,19 @@ node_modules
 .env.*
 !.env.example
 !.env.test.example
+
+# Supabase testing files
+supabase_api_tester.py
+supabase_tokens.json
+
+# Testing and development scripts
+scripts/fix-admin-role.js
+scripts/debug-auth-middleware.js
+scripts/test-admin-token.js
+scripts/update_tournament.js
+scripts/fix-player-statistics.ts
+scripts/create-player-and-statistics-for-admin.ts
+scripts/generate-test-data.ts
+scripts/create-admin-user.ts
+scripts/sync-supabase-users.ts
+scripts/debug-mocks.js

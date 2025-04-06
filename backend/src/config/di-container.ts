@@ -22,6 +22,8 @@ import { RegisterToTournamentUseCase } from '../core/application/use-cases/tourn
 import { GetTournamentBracketUseCase } from '../core/application/use-cases/tournament/get-tournament-bracket.use-case';
 import { GetTournamentStandingsUseCase } from '../core/application/use-cases/tournament/get-tournament-standings.use-case';
 import { UpdateTournamentMatchesAndStandingsUseCase } from '../core/application/use-cases/tournament/update-tournament-matches-and-standings.use-case';
+import { StartTournamentUseCase } from '../core/application/use-cases/tournament/start-tournament.use-case';
+import { GenerateTournamentBracketUseCase } from '../core/application/use-cases/tournament/generate-tournament-bracket.use-case';
 // Import match repository
 import { IMatchRepository } from '../core/application/interfaces/repositories/match.repository';
 import { MatchRepository } from '../infrastructure/database/prisma/repositories/match.repository';
@@ -59,6 +61,15 @@ import { PreferenceRepository } from '../infrastructure/database/prisma/reposito
 import { GetUserPreferencesUseCase } from '../core/application/use-cases/preference/get-user-preferences.use-case';
 import { UpdateUserPreferencesUseCase } from '../core/application/use-cases/preference/update-user-preferences.use-case';
 import { ResetPreferencesUseCase } from '../core/application/use-cases/preference/reset-preferences.use-case';
+import { RegisterUserUseCase } from '../core/application/use-cases/user/register-user.use-case';
+// Import player use cases
+import { ListPlayersUseCase } from '../core/application/use-cases/player/list-players.use-case';
+import { GetPlayerByIdUseCase } from '../core/application/use-cases/player/get-player-by-id.use-case';
+import { UpdatePlayerLevelUseCase } from '../core/application/use-cases/player/update-player-level.use-case';
+import { CreatePlayerProfileUseCase } from '../core/application/use-cases/player/create-player-profile.use-case';
+import { UpdatePlayerProfileUseCase } from '../core/application/use-cases/player/update-player-profile.use-case';
+import { GetPlayerMatchesUseCase } from '../core/application/use-cases/player/get-player-matches.use-case';
+import { GetPlayerTournamentsUseCase } from '../core/application/use-cases/player/get-player-tournaments.use-case';
 
 // Symbols for dependency injection
 export const TYPES = {
@@ -72,6 +83,7 @@ export const TYPES = {
   RankingRepository: Symbol.for('RankingRepository'),
   PlayerRepository: Symbol.for('PlayerRepository'),
   PreferenceRepository: Symbol.for('PreferenceRepository'),
+  StatisticService: Symbol.for('StatisticService'),
 };
 
 // Create and configure container
@@ -85,20 +97,38 @@ if (process.env.NODE_ENV === 'test') {
   container = new Container();
   
   // Database
-  container.bind<PrismaClient>(TYPES.PrismaClient).toConstantValue(new PrismaClient());
+  const prismaClient = new PrismaClient();
+  container.bind<PrismaClient>(TYPES.PrismaClient).toConstantValue(prismaClient);
   
   // Services
   container.bind<IAuthService>(TYPES.AuthService).to(SupabaseAuthService);
+  container.bind<IAuthService>('AuthService').to(SupabaseAuthService);
   
   // Repositories
-  container.bind<IUserRepository>(TYPES.UserRepository).to(UserRepository).inSingletonScope();
-  container.bind<ITournamentRepository>(TYPES.TournamentRepository).to(TournamentRepository).inSingletonScope();
-  container.bind<IMatchRepository>(TYPES.MatchRepository).to(MatchRepository).inSingletonScope();
-  container.bind<IStatisticRepository>(TYPES.StatisticRepository).to(StatisticRepository).inSingletonScope();
-  container.bind<IRankingRepository>(TYPES.RankingRepository).to(RankingRepository).inSingletonScope();
-  container.bind<IPlayerRepository>(TYPES.PlayerRepository).to(PlayerRepository).inSingletonScope();
-  container.bind<IPerformanceHistoryRepository>(TYPES.PerformanceHistoryRepository).to(PerformanceHistoryRepository).inSingletonScope();
-  container.bind<IPreferenceRepository>(TYPES.PreferenceRepository).to(PreferenceRepository).inSingletonScope();
+  container.bind<IUserRepository>(TYPES.UserRepository).toDynamicValue(() => {
+    return new UserRepository(prismaClient);
+  }).inSingletonScope();
+  container.bind<ITournamentRepository>(TYPES.TournamentRepository).toDynamicValue(() => {
+    return new TournamentRepository(prismaClient);
+  }).inSingletonScope();
+  container.bind<IMatchRepository>(TYPES.MatchRepository).toDynamicValue(() => {
+    return new MatchRepository(prismaClient);
+  }).inSingletonScope();
+  container.bind<IStatisticRepository>(TYPES.StatisticRepository).toDynamicValue(() => {
+    return new StatisticRepository(prismaClient);
+  }).inSingletonScope();
+  container.bind<IRankingRepository>(TYPES.RankingRepository).toDynamicValue(() => {
+    return new RankingRepository(prismaClient);
+  }).inSingletonScope();
+  container.bind<IPlayerRepository>(TYPES.PlayerRepository).toDynamicValue(() => {
+    return new PlayerRepository(prismaClient);
+  }).inSingletonScope();
+  container.bind<IPerformanceHistoryRepository>(TYPES.PerformanceHistoryRepository).toDynamicValue(() => {
+    return new PerformanceHistoryRepository(prismaClient);
+  }).inSingletonScope();
+  container.bind<IPreferenceRepository>(TYPES.PreferenceRepository).toDynamicValue(() => {
+    return new PreferenceRepository(prismaClient);
+  }).inSingletonScope();
 
   // Register use cases
   container.bind('trackPerformanceTrendsUseCase').toDynamicValue(() => {
@@ -158,12 +188,20 @@ if (process.env.NODE_ENV === 'test') {
   
   container.bind('updateUserUseCase').toDynamicValue(() => {
     const repository = container.get<IUserRepository>(TYPES.UserRepository);
-    return new UpdateUserUseCase(repository);
+    const authService = container.get<IAuthService>(TYPES.AuthService);
+    return new UpdateUserUseCase(repository, authService);
   });
   
   container.bind('deleteUserUseCase').toDynamicValue(() => {
     const repository = container.get<IUserRepository>(TYPES.UserRepository);
-    return new DeleteUserUseCase(repository);
+    const authService = container.get<IAuthService>(TYPES.AuthService);
+    return new DeleteUserUseCase(repository, authService);
+  });
+  
+  container.bind('registerUserUseCase').toDynamicValue(() => {
+    const repository = container.get<IUserRepository>(TYPES.UserRepository);
+    const authService = container.get<IAuthService>(TYPES.AuthService);
+    return new RegisterUserUseCase(repository, authService);
   });
   
   // Tournament use cases
@@ -315,6 +353,62 @@ if (process.env.NODE_ENV === 'test') {
     const rankingRepository = container.get<IRankingRepository>(TYPES.RankingRepository);
     const playerRepository = container.get<IPlayerRepository>(TYPES.PlayerRepository);
     return new GetCategoryBasedRankingUseCase(rankingRepository, playerRepository);
+  });
+
+  // Add the missing GenerateTournamentBracketUseCase binding
+  container.bind('generateTournamentBracketUseCase').toDynamicValue(() => {
+    const tournamentRepository = container.get<ITournamentRepository>(TYPES.TournamentRepository);
+    const matchRepository = container.get<IMatchRepository>(TYPES.MatchRepository);
+    const userRepository = container.get<IUserRepository>(TYPES.UserRepository);
+    return new GenerateTournamentBracketUseCase(tournamentRepository, matchRepository, userRepository);
+  });
+  
+  // Add the missing StartTournamentUseCase binding
+  container.bind('startTournamentUseCase').toDynamicValue(() => {
+    const tournamentRepository = container.get<ITournamentRepository>(TYPES.TournamentRepository);
+    const userRepository = container.get<IUserRepository>(TYPES.UserRepository);
+    const generateTournamentBracketUseCase = container.get<GenerateTournamentBracketUseCase>('generateTournamentBracketUseCase');
+    return new StartTournamentUseCase(tournamentRepository, userRepository, generateTournamentBracketUseCase);
+  });
+
+  // Player use cases
+  container.bind('listPlayersUseCase').toDynamicValue(() => {
+    const playerRepository = container.get<IPlayerRepository>(TYPES.PlayerRepository);
+    return new ListPlayersUseCase(playerRepository);
+  });
+
+  container.bind('getPlayerByIdUseCase').toDynamicValue(() => {
+    const playerRepository = container.get<IPlayerRepository>(TYPES.PlayerRepository);
+    return new GetPlayerByIdUseCase(playerRepository);
+  });
+  
+  container.bind('createPlayerProfileUseCase').toDynamicValue(() => {
+    const playerRepository = container.get<IPlayerRepository>(TYPES.PlayerRepository);
+    const userRepository = container.get<IUserRepository>(TYPES.UserRepository);
+    return new CreatePlayerProfileUseCase(playerRepository, userRepository);
+  });
+  
+  container.bind('updatePlayerProfileUseCase').toDynamicValue(() => {
+    const playerRepository = container.get<IPlayerRepository>(TYPES.PlayerRepository);
+    const userRepository = container.get<IUserRepository>(TYPES.UserRepository);
+    return new UpdatePlayerProfileUseCase(playerRepository, userRepository);
+  });
+  
+  container.bind('getPlayerMatchesUseCase').toDynamicValue(() => {
+    const matchRepository = container.get<IMatchRepository>(TYPES.MatchRepository);
+    const playerRepository = container.get<IPlayerRepository>(TYPES.PlayerRepository);
+    return new GetPlayerMatchesUseCase(matchRepository, playerRepository);
+  });
+  
+  container.bind('getPlayerTournamentsUseCase').toDynamicValue(() => {
+    const tournamentRepository = container.get<ITournamentRepository>(TYPES.TournamentRepository);
+    const playerRepository = container.get<IPlayerRepository>(TYPES.PlayerRepository);
+    return new GetPlayerTournamentsUseCase(tournamentRepository, playerRepository);
+  });
+  
+  container.bind('updatePlayerLevelUseCase').toDynamicValue(() => {
+    const playerRepository = container.get<IPlayerRepository>(TYPES.PlayerRepository);
+    return new UpdatePlayerLevelUseCase(playerRepository);
   });
 }
 

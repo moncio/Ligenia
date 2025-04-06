@@ -160,7 +160,7 @@ describe('CancelTournamentUseCase', () => {
       createDate(15, 8, 2023),
       createDate(20, 8, 2023),
       TournamentFormat.SINGLE_ELIMINATION,
-      TournamentStatus.OPEN,
+      TournamentStatus.DRAFT,
       'Barcelona',
       16,
       createDate(10, 8, 2023),

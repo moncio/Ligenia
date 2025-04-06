@@ -9,6 +9,7 @@ import { IAuthService } from '../../src/core/application/interfaces/auth-service
 import { Result } from '../../src/shared/result';
 import { UserRole } from '../../src/core/domain/user/user.entity';
 import jwt from 'jsonwebtoken';
+import { UserNotFoundError } from '../../src/shared/errors/auth.error';
 
 // Definición de tipos para los usuarios mock
 type MockUser = {
@@ -62,22 +63,24 @@ const generateTestToken = (
  * Mock para el servicio de autenticación
  */
 export class MockAuthService implements IAuthService {
-  private users: Record<string, IAuthUser> = {
-    [mockUserData.admin.id]: {
+  private users: Map<string, IAuthUser> = new Map();
+
+  constructor() {
+    this.users.set(mockUserData.admin.id, {
       id: mockUserData.admin.id,
       email: mockUserData.admin.email,
       name: mockUserData.admin.name,
       role: mockUserData.admin.role,
       emailVerified: true,
-    },
-    [mockUserData.player.id]: {
+    });
+    this.users.set(mockUserData.player.id, {
       id: mockUserData.player.id,
       email: mockUserData.player.email,
       name: mockUserData.player.name,
       role: mockUserData.player.role,
       emailVerified: true,
-    },
-  };
+    });
+  }
 
   async login(credentials: ILoginCredentials): Promise<Result<ITokenResponse>> {
     if (
@@ -131,7 +134,7 @@ export class MockAuthService implements IAuthService {
 
   async register(data: IRegistrationData): Promise<Result<ITokenResponse>> {
     // Verificar si el correo ya está registrado
-    const existingUser = Object.values(this.users).find(user => user.email === data.email);
+    const existingUser = Array.from(this.users.values()).find((user: IAuthUser) => user.email === data.email);
     if (existingUser) {
       return Result.fail(new Error('Email already in use'));
     }
@@ -155,7 +158,7 @@ export class MockAuthService implements IAuthService {
       emailVerified: false,
     };
 
-    this.users[newUserId] = newUser;
+    this.users.set(newUserId, newUser);
 
     const token = generateTestToken({
       id: newUserId,
@@ -175,7 +178,7 @@ export class MockAuthService implements IAuthService {
       const decoded = jwt.verify(token, process.env.JWT_SECRET || 'test-secret-key');
       if (typeof decoded === 'object' && decoded.sub) {
         const userId = decoded.sub as string;
-        const user = this.users[userId];
+        const user = this.users.get(userId);
 
         if (user) {
           return Result.ok({
@@ -191,7 +194,7 @@ export class MockAuthService implements IAuthService {
   }
 
   async getUserById(userId: string): Promise<Result<IAuthUser>> {
-    const user = this.users[userId];
+    const user = this.users.get(userId);
     if (!user) {
       return Result.fail(new Error('User not found'));
     }
@@ -200,7 +203,7 @@ export class MockAuthService implements IAuthService {
   }
 
   async updateUser(userId: string, data: Partial<IAuthUser>): Promise<Result<IAuthUser>> {
-    const user = this.users[userId];
+    const user = this.users.get(userId);
     if (!user) {
       return Result.fail(new Error('User not found'));
     }
@@ -220,9 +223,9 @@ export class MockAuthService implements IAuthService {
       role: updatedRole,
     };
 
-    this.users[userId] = updatedUser;
+    this.users.set(userId, updatedUser);
 
-    return Result.ok(this.users[userId]);
+    return Result.ok(this.users.get(userId) as IAuthUser);
   }
 
   async refreshToken(refreshToken: string): Promise<Result<ITokenResponse>> {
@@ -236,7 +239,7 @@ export class MockAuthService implements IAuthService {
       return Result.ok({
         accessToken: token,
         refreshToken: 'new-admin-refresh-token',
-        user: this.users[mockUserData.admin.id],
+        user: this.users.get(mockUserData.admin.id) as IAuthUser,
       });
     }
 
@@ -250,7 +253,7 @@ export class MockAuthService implements IAuthService {
       return Result.ok({
         accessToken: token,
         refreshToken: 'new-player-refresh-token',
-        user: this.users[mockUserData.player.id],
+        user: this.users.get(mockUserData.player.id) as IAuthUser,
       });
     }
 
@@ -258,16 +261,21 @@ export class MockAuthService implements IAuthService {
   }
 
   async verifyPassword(plainPassword: string, hashedPassword: string): Promise<boolean> {
-    // Mock password verification logic
+    // Simulación básica de verificación de contraseña
     return plainPassword === hashedPassword;
   }
 
   async generateToken(user: IAuthUser): Promise<string> {
-    return generateTestToken({
-      id: user.id,
-      email: user.email,
-      role: user.role as UserRole,
-    });
+    // Simulación de generación de token
+    return `mock-token-for-${user.id}`;
+  }
+
+  async deleteUser(userId: string): Promise<Result<void>> {
+    if (this.users.has(userId)) {
+      this.users.delete(userId);
+      return Result.ok(undefined);
+    }
+    return Result.fail(new UserNotFoundError());
   }
 }
 

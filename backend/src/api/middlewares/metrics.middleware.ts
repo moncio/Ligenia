@@ -36,8 +36,8 @@ export const protectMetricsEndpoint = async (
     const authService = container.get<IAuthService>(TYPES.AuthService);
     
     // Verify token and get user
-    const user = await authService.verifyToken(token);
-    if (!user) {
+    const result = await authService.validateToken(token);
+    if (!result.isSuccess() || !result.getValue().user) {
       throw new AppError(
         'Invalid authentication token',
         ErrorType.UNAUTHORIZED,
@@ -46,6 +46,8 @@ export const protectMetricsEndpoint = async (
       );
     }
 
+    const user = result.getValue().user;
+    
     // Check if user has admin role
     if (user.role !== UserRole.ADMIN) {
       throw new AppError(

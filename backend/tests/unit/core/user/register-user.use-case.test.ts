@@ -1,6 +1,7 @@
 import { User, UserRole } from '../../../../src/core/domain/user/user.entity';
 import { IUserRepository } from '../../../../src/core/application/interfaces/repositories/user.repository';
 import { RegisterUserUseCase } from '../../../../src/core/application/use-cases/user/register-user.use-case';
+import { IAuthService } from '../../../../src/core/application/interfaces/auth-service.interface';
 import { Result } from '../../../../src/shared/result';
 
 // Mock UserRepository
@@ -49,6 +50,19 @@ class MockUserRepository implements IUserRepository {
   }
 }
 
+// Mock AuthService
+const mockAuthService: jest.Mocked<IAuthService> = {
+  login: jest.fn(),
+  register: jest.fn(),
+  validateToken: jest.fn(),
+  getUserById: jest.fn(),
+  updateUser: jest.fn(),
+  refreshToken: jest.fn(),
+  verifyPassword: jest.fn(),
+  generateToken: jest.fn(),
+  deleteUser: jest.fn(),
+};
+
 // Test suite for RegisterUserUseCase
 describe('RegisterUserUseCase', () => {
   let userRepository: IUserRepository;
@@ -56,7 +70,24 @@ describe('RegisterUserUseCase', () => {
 
   beforeEach(() => {
     userRepository = new MockUserRepository();
-    registerUserUseCase = new RegisterUserUseCase(userRepository);
+    registerUserUseCase = new RegisterUserUseCase(userRepository, mockAuthService);
+    
+    // Setup the mock implementation for register method
+    mockAuthService.register.mockImplementation((data) => {
+      return Promise.resolve(
+        Result.ok({
+          accessToken: 'test-token',
+          refreshToken: 'test-refresh-token',
+          user: {
+            id: 'new-user-id',
+            email: data.email,
+            name: data.name,
+            role: data.role || 'PLAYER',
+            emailVerified: false
+          }
+        })
+      );
+    });
   });
 
   it('should register a new user successfully', async () => {

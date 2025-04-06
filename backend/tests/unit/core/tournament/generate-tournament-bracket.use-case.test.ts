@@ -122,7 +122,7 @@ describe('GenerateTournamentBracketUseCase', () => {
 
     // Setup default mock responses
     mockTournamentRepository.findById.mockResolvedValue(
-      createTournament(creatorId, TournamentStatus.OPEN),
+      createTournament(creatorId, TournamentStatus.DRAFT),
     );
     mockMatchRepository.tournamentHasMatches.mockResolvedValue(false);
     mockTournamentRepository.getParticipants.mockResolvedValue(participants);

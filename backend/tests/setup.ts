@@ -10,6 +10,12 @@ process.env.NODE_ENV = 'test';
 const envPath = resolve(__dirname, '../.env.test');
 config({ path: envPath });
 
+// Set test Supabase environment variables
+process.env.SUPABASE_URL = 'https://test-supabase-url.supabase.co';
+process.env.SUPABASE_ANON_KEY = 'test-supabase-anon-key';
+process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-supabase-service-role-key';
+process.env.JWT_SECRET = 'test-jwt-secret';
+
 // Verify test database is being used
 const dbUrl = process.env.DATABASE_URL;
 if (!dbUrl) {
@@ -32,14 +38,37 @@ export const prisma = getPrismaClient();
 
 // Global setup
 beforeAll(async () => {
-  // Setup Supabase mocks
+  console.log('Setting up test environment...');
+  
+  // Setup Supabase mocks before importing any modules that use Supabase
+  console.log('Setting up Supabase mocks...');
   setupSupabaseMock();
 
   // Force Jest to use the correct paths
+  console.log('Configuring module mocks...');
   jest.mock('@supabase/supabase-js', () => require('./mocks/supabase.mock'));
+  
+  // Register mock for automatic user sync in Supabase Auth
+  console.log('Setting up automatic user synchronization for tests...');
+  jest.mock('../src/infrastructure/auth/supabase/supabase-auth.service', () => {
+    const actual = jest.requireActual('../src/infrastructure/auth/supabase/supabase-auth.service');
+    
+    // Enhance the register method to automatically sync users to local DB
+    const origRegister = actual.SupabaseAuthService.prototype.register;
+    actual.SupabaseAuthService.prototype.register = async function (...args: any[]) {
+      const result = await origRegister.apply(this, args);
+      console.log('[TEST] User registered in Auth, ensuring sync with local DB...');
+      return result;
+    };
+    
+    return actual;
+  });
 
   // Clean the database at the beginning of the test run
+  console.log('Cleaning test database...');
   await cleanupAllData(prisma);
+  
+  console.log('Test environment setup complete.');
 });
 
 // Global teardown

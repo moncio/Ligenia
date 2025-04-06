@@ -134,7 +134,7 @@ export class AuthController {
     const log = logWithRequestId(req);
     
     try {
-      // Verificar que el usuario esté autenticado
+      // Check if the user is authenticated
       if (!req.user) {
         log.warn('Unauthorized profile access attempt');
         return res.status(401).json({
@@ -143,12 +143,13 @@ export class AuthController {
         });
       }
 
-      // The req.user object is already populated by the auth middleware
+      // The req.user object is populated by the auth middleware
       const user = {
         id: req.user.id,
         email: req.user.email,
-        name: req.user.name,
-        role: req.user.role,
+        name: req.user.name || req.user.email?.split('@')[0] || 'User',
+        role: req.user.role || 'PLAYER',
+        emailVerified: req.user.emailVerified || false,
       };
 
       log.info('User profile retrieved successfully', { userId: user.id });

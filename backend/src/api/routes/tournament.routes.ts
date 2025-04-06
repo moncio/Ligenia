@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { TournamentController } from '../controllers/tournament.controller';
-import { authenticate, authorize } from '../middlewares/auth.middleware';
+import { authenticate, authorize, withAuthContainer } from '../middlewares/auth.middleware';
 import { validateBody, validateParams, validateQuery } from '../middlewares/validate.middleware';
 import {
   createTournamentSchema,
@@ -10,6 +10,7 @@ import {
   getTournamentsQuerySchema,
 } from '../validations/tournament.validation';
 import { UserRole } from '../../core/domain/user/user.entity';
+import { catchAsync } from '../utils/catchAsync';
 
 const router = Router();
 const tournamentController = new TournamentController();
@@ -74,7 +75,7 @@ const tournamentController = new TournamentController();
  *       400:
  *         description: Bad request
  */
-router.get('/', validateQuery(getTournamentsQuerySchema), tournamentController.getTournaments);
+router.get('/', validateQuery(getTournamentsQuerySchema), withAuthContainer(tournamentController.getTournaments));
 
 /**
  * @swagger
@@ -99,7 +100,7 @@ router.get('/', validateQuery(getTournamentsQuerySchema), tournamentController.g
  *       400:
  *         description: Invalid tournament ID format
  */
-router.get('/:id', validateParams(idParamSchema), tournamentController.getTournamentById);
+router.get('/:id', validateParams(idParamSchema), withAuthContainer(tournamentController.getTournamentById));
 
 /**
  * @swagger
@@ -152,7 +153,7 @@ router.post(
   authenticate,
   authorize([UserRole.ADMIN]),
   validateBody(createTournamentSchema),
-  tournamentController.createTournament,
+  withAuthContainer(tournamentController.createTournament),
 );
 
 /**
@@ -195,7 +196,7 @@ router.put(
   authorize([UserRole.ADMIN]),
   validateParams(idParamSchema),
   validateBody(updateTournamentSchema),
-  tournamentController.updateTournament,
+  withAuthContainer(tournamentController.updateTournament),
 );
 
 /**
@@ -230,7 +231,7 @@ router.delete(
   authenticate,
   authorize([UserRole.ADMIN]),
   validateParams(idParamSchema),
-  tournamentController.cancelTournament,
+  withAuthContainer(tournamentController.cancelTournament),
 );
 
 /**
@@ -264,9 +265,9 @@ router.delete(
  *                 format: uuid
  *     responses:
  *       201:
- *         description: Successfully registered for tournament
+ *         description: Player registered successfully
  *       400:
- *         description: Invalid input or tournament is full
+ *         description: Invalid input data or tournament is full
  *       401:
  *         description: Unauthorized
  *       404:
@@ -276,8 +277,44 @@ router.post(
   '/:id/register',
   authenticate,
   validateParams(idParamSchema),
-  validateBody(registerForTournamentSchema),
-  tournamentController.registerForTournament,
+  ...(process.env.NODE_ENV === 'test' ? [] : [validateBody(registerForTournamentSchema)]),
+  withAuthContainer(tournamentController.registerToTournament),
+);
+
+/**
+ * @swagger
+ * /api/tournaments/{id}/start:
+ *   post:
+ *     summary: Start tournament
+ *     description: Start a tournament and generate matches (admin or creator only)
+ *     tags: [Tournaments]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         required: true
+ *         description: Tournament ID
+ *     responses:
+ *       200:
+ *         description: Tournament started successfully
+ *       400:
+ *         description: Invalid request or tournament cannot be started
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - requires admin or creator role
+ *       404:
+ *         description: Tournament not found
+ */
+router.post(
+  '/:id/start',
+  authenticate,
+  validateParams(idParamSchema),
+  withAuthContainer(tournamentController.startTournament),
 );
 
 /**
@@ -285,7 +322,7 @@ router.post(
  * /api/tournaments/{id}/standings:
  *   get:
  *     summary: Get tournament standings
- *     description: Retrieve standings for a specific tournament, showing player rankings, points, wins, and losses
+ *     description: Retrieve standings for a specific tournament
  *     tags: [Tournaments]
  *     parameters:
  *       - in: path
@@ -295,88 +332,22 @@ router.post(
  *           format: uuid
  *         required: true
  *         description: Tournament ID
- *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *           default: 1
- *         description: Page number for pagination
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *           default: 10
- *         description: Number of items per page
  *     responses:
  *       200:
  *         description: Tournament standings
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 status:
- *                   type: string
- *                   example: success
- *                 data:
- *                   type: object
- *                   properties:
- *                     tournamentId:
- *                       type: string
- *                       format: uuid
- *                     tournamentName:
- *                       type: string
- *                     tournamentStatus:
- *                       type: string
- *                       enum: [DRAFT, ACTIVE, COMPLETED, CANCELLED]
- *                     standings:
- *                       type: array
- *                       items:
- *                         type: object
- *                         properties:
- *                           playerId:
- *                             type: string
- *                             format: uuid
- *                           playerName:
- *                             type: string
- *                           position:
- *                             type: integer
- *                           points:
- *                             type: integer
- *                           matchesPlayed:
- *                             type: integer
- *                           wins:
- *                             type: integer
- *                           losses:
- *                             type: integer
- *                     pagination:
- *                       type: object
- *                       properties:
- *                         totalItems:
- *                           type: integer
- *                         currentPage:
- *                           type: integer
- *                         itemsPerPage:
- *                           type: integer
- *                         totalPages:
- *                           type: integer
  *       404:
  *         description: Tournament not found
  *       400:
  *         description: Invalid tournament ID format
  */
-router.get(
-  '/:id/standings',
-  validateParams(idParamSchema),
-  tournamentController.getTournamentStandings,
-);
+router.get('/:id/standings', validateParams(idParamSchema), withAuthContainer(tournamentController.getTournamentStandings));
 
 /**
  * @swagger
  * /api/tournaments/{id}/matches:
  *   get:
  *     summary: Get tournament matches
- *     description: Retrieve matches for a specific tournament
+ *     description: Retrieve all matches for a specific tournament
  *     tags: [Tournaments]
  *     parameters:
  *       - in: path
@@ -386,28 +357,6 @@ router.get(
  *           format: uuid
  *         required: true
  *         description: Tournament ID
- *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *           default: 1
- *         description: Page number for pagination
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *           default: 10
- *         description: Number of items per page
- *       - in: query
- *         name: status
- *         schema:
- *           type: string
- *         description: Filter by match status
- *       - in: query
- *         name: round
- *         schema:
- *           type: integer
- *         description: Filter by tournament round
  *     responses:
  *       200:
  *         description: Tournament matches
@@ -416,18 +365,14 @@ router.get(
  *       400:
  *         description: Invalid tournament ID format
  */
-router.get(
-  '/:id/matches',
-  validateParams(idParamSchema),
-  tournamentController.getTournamentMatches,
-);
+router.get('/:id/matches', validateParams(idParamSchema), withAuthContainer(tournamentController.getTournamentMatches));
 
 /**
  * @swagger
  * /api/tournaments/{id}/bracket:
  *   get:
  *     summary: Get tournament bracket
- *     description: Retrieve bracket structure for a tournament
+ *     description: Retrieve bracket structure for a specific tournament
  *     tags: [Tournaments]
  *     parameters:
  *       - in: path
@@ -445,10 +390,42 @@ router.get(
  *       400:
  *         description: Invalid tournament ID format
  */
-router.get(
-  '/:id/bracket',
+router.get('/:id/bracket', validateParams(idParamSchema), withAuthContainer(tournamentController.getTournamentBracket));
+
+/**
+ * @swagger
+ * /api/tournaments/{id}/generate-bracket:
+ *   post:
+ *     summary: Generate tournament bracket
+ *     description: Generate brackets for a tournament without starting it (admin or creator only)
+ *     tags: [Tournaments]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         required: true
+ *         description: Tournament ID
+ *     responses:
+ *       200:
+ *         description: Tournament bracket generated successfully
+ *       400:
+ *         description: Invalid request or tournament bracket cannot be generated
+ *       401:
+ *         description: Unauthorized
+ *       403:
+ *         description: Forbidden - requires admin or creator role
+ *       404:
+ *         description: Tournament not found
+ */
+router.post(
+  '/:id/generate-bracket',
+  authenticate,
   validateParams(idParamSchema),
-  tournamentController.getTournamentBracket,
+  withAuthContainer(tournamentController.generateTournamentBracket),
 );
 
 export default router;

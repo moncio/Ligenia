@@ -2,7 +2,8 @@ import { CreateMatchUseCase } from '../../../../src/core/application/use-cases/m
 import { IMatchRepository } from '../../../../src/core/application/interfaces/repositories/match.repository';
 import { ITournamentRepository } from '../../../../src/core/application/interfaces/repositories/tournament.repository';
 import { Match, MatchStatus } from '../../../../src/core/domain/match/match.entity';
-import { TournamentStatus } from '../../../../src/core/domain/tournament/tournament.entity';
+import { Tournament, TournamentStatus, TournamentFormat, PlayerLevel } from '../../../../src/core/domain/tournament/tournament.entity';
+import { Result } from '../../../../src/shared/result';
 
 describe('CreateMatchUseCase', () => {
   let createMatchUseCase: CreateMatchUseCase;
@@ -11,20 +12,40 @@ describe('CreateMatchUseCase', () => {
 
   beforeEach(() => {
     mockMatchRepository = {
+      save: jest.fn().mockImplementation((match) => {
+        return Promise.resolve();
+      }),
       findById: jest.fn(),
+      findAll: jest.fn(),
+      update: jest.fn(),
+      delete: jest.fn(),
       findByFilter: jest.fn(),
       findByTournamentAndRound: jest.fn(),
       findByPlayerId: jest.fn(),
-      tournamentHasMatches: jest.fn(),
-      save: jest.fn(),
-      delete: jest.fn(),
-      count: jest.fn()
-    };
+      count: jest.fn(),
+      tournamentHasMatches: jest.fn().mockResolvedValue(false),
+    } as jest.Mocked<IMatchRepository>;
 
     mockTournamentRepository = {
-      findById: jest.fn(),
+      findById: jest.fn().mockResolvedValue(
+        new Tournament(
+          '123e4567-e89b-12d3-a456-426614174000',
+          'Test Tournament',
+          'Test Tournament Description',
+          new Date(),
+          new Date(),
+          TournamentFormat.SINGLE_ELIMINATION,
+          TournamentStatus.DRAFT,
+          'Test Location',
+          16,
+          new Date(),
+          PlayerLevel.P1,
+          '123e4567-e89b-12d3-a456-426614174005',
+          new Date(),
+          new Date()
+        )
+      ),
       findAll: jest.fn(),
-      count: jest.fn(),
       save: jest.fn(),
       update: jest.fn(),
       delete: jest.fn(),
@@ -34,7 +55,8 @@ describe('CreateMatchUseCase', () => {
       isParticipantRegistered: jest.fn(),
       getParticipants: jest.fn(),
       countParticipantsByTournamentId: jest.fn(),
-    };
+      count: jest.fn(),
+    } as jest.Mocked<ITournamentRepository>;
 
     createMatchUseCase = new CreateMatchUseCase(mockMatchRepository, mockTournamentRepository);
   });
@@ -46,9 +68,8 @@ describe('CreateMatchUseCase', () => {
     awayPlayerOneId: '123e4567-e89b-12d3-a456-426614174003',
     awayPlayerTwoId: '123e4567-e89b-12d3-a456-426614174004',
     round: 1,
-    date: '2023-07-10T10:00:00Z',
+    date: new Date().toISOString(),
     location: 'Court 1',
-    status: MatchStatus.PENDING,
   };
 
   // Mock active tournament
@@ -62,12 +83,28 @@ describe('CreateMatchUseCase', () => {
 
   test('should create a match successfully when all inputs are valid', async () => {
     // Arrange
-    mockTournamentRepository.findById.mockResolvedValue(mockActiveTournament as any);
+    const now = new Date();
+    mockTournamentRepository.findById.mockResolvedValue(
+      new Tournament(
+        validInput.tournamentId,
+        'Test Tournament',
+        'Test Tournament Description',
+        now,
+        now,
+        TournamentFormat.SINGLE_ELIMINATION,
+        TournamentStatus.DRAFT,
+        'Test Location',
+        16,
+        now,
+        PlayerLevel.P1,
+        '123e4567-e89b-12d3-a456-426614174005',
+        now,
+        now
+      )
+    );
+
     mockMatchRepository.save.mockImplementation(async (match: Match) => {
-      // Simulate ID generation
-      Object.defineProperty(match, 'id', {
-        value: '123e4567-e89b-12d3-a456-426614174099',
-      });
+      return Promise.resolve();
     });
 
     // Act
@@ -75,6 +112,12 @@ describe('CreateMatchUseCase', () => {
 
     // Assert
     expect(result.isSuccess()).toBe(true);
+    expect(mockMatchRepository.save).toHaveBeenCalled();
+    const savedMatch = mockMatchRepository.save.mock.calls[0][0];
+    expect(savedMatch.tournamentId).toBe(validInput.tournamentId);
+    expect(savedMatch.homePlayerOneId).toBe(validInput.homePlayerOneId);
+    expect(savedMatch.round).toBe(validInput.round);
+    expect(savedMatch.homeScore).toBeNull();
     expect(result.getValue()).toBeInstanceOf(Match);
     expect(result.getValue().tournamentId).toBe(validInput.tournamentId);
     expect(result.getValue().homePlayerOneId).toBe(validInput.homePlayerOneId);
@@ -97,23 +140,59 @@ describe('CreateMatchUseCase', () => {
     expect(mockMatchRepository.save).not.toHaveBeenCalled();
   });
 
-  test('should fail when tournament is not in ACTIVE or OPEN state', async () => {
+  test('should fail when tournament is not in DRAFT state', async () => {
     // Arrange
-    const draftTournament = { ...mockActiveTournament, status: TournamentStatus.DRAFT };
-    mockTournamentRepository.findById.mockResolvedValue(draftTournament as any);
+    const now = new Date();
+    mockTournamentRepository.findById.mockResolvedValueOnce(
+      new Tournament(
+        validInput.tournamentId,
+        'Test Tournament',
+        'Test Tournament Description',
+        now,
+        now,
+        TournamentFormat.SINGLE_ELIMINATION,
+        TournamentStatus.ACTIVE,
+        'Test Location',
+        16,
+        now,
+        PlayerLevel.P1,
+        '123e4567-e89b-12d3-a456-426614174005',
+        now,
+        now
+      )
+    );
 
     // Act
     const result = await createMatchUseCase.execute(validInput);
 
     // Assert
     expect(result.isFailure()).toBe(true);
-    expect(result.getError().message).toContain('Cannot create matches for tournaments');
+    expect(result.getError().message).toBe('Cannot create matches for tournaments that are not in DRAFT status');
     expect(mockMatchRepository.save).not.toHaveBeenCalled();
   });
 
   test('should fail when duplicate players are provided', async () => {
     // Arrange
-    mockTournamentRepository.findById.mockResolvedValue(mockActiveTournament as any);
+    const now = new Date();
+    mockTournamentRepository.findById.mockResolvedValue(
+      new Tournament(
+        validInput.tournamentId,
+        'Test Tournament',
+        'Test Tournament Description',
+        now,
+        now,
+        TournamentFormat.SINGLE_ELIMINATION,
+        TournamentStatus.DRAFT,
+        'Test Location',
+        16,
+        now,
+        PlayerLevel.P1,
+        '123e4567-e89b-12d3-a456-426614174005',
+        now,
+        now
+      )
+    );
+
     const inputWithDuplicatePlayers = {
       ...validInput,
       // Make homePlayerTwoId the same as homePlayerOneId

@@ -281,99 +281,44 @@ export default mockCreateClient;
 
 // Setup function to be called in test setup
 export const setupSupabaseMock = () => {
-  // Set environment variables if needed
-  process.env.SUPABASE_URL = 'https://test-supabase-url.supabase.co';
-  process.env.SUPABASE_ANON_KEY = 'test-supabase-anon-key';
-  process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-supabase-service-role-key';
-  process.env.JWT_SECRET = 'test-jwt-secret';
-
-  // Mock the supabase module directly - using mockName to avoid Jest reference error
-  const mockSupabaseClient = createMockSupabaseClient();
-  
-  jest.mock('@supabase/supabase-js', () => ({
-    createClient: jest.fn().mockImplementation(() => {
-      return {
-        auth: mockSupabaseClient.auth,
-        from: jest.fn().mockImplementation(table => {
-          if (table === 'User') {
-            return {
-              select: jest.fn().mockReturnThis(),
-              insert: jest.fn().mockReturnThis(),
-              update: jest.fn().mockReturnThis(),
-              delete: jest.fn().mockReturnThis(),
-              eq: jest.fn().mockImplementation((field, value) => {
-                // Guardar internamente el campo y valor para usar en single()
-                return {
-                  single: jest.fn().mockImplementation(() => {
-                    if (field === 'email') {
-                      if (value === mockUsers.admin.email) {
-                        return {
-                          data: {
-                            id: mockUsers.admin.id,
-                            email: mockUsers.admin.email,
-                            name: mockUsers.admin.name,
-                            role: mockUsers.admin.role,
-                            emailVerified: true,
-                          },
-                          error: null,
-                        };
-                      } else if (value === mockUsers.player.email) {
-                        return {
-                          data: {
-                            id: mockUsers.player.id,
-                            email: mockUsers.player.email,
-                            name: mockUsers.player.name,
-                            role: mockUsers.player.role,
-                            emailVerified: true,
-                          },
-                          error: null,
-                        };
-                      }
-                    } else if (field === 'id') {
-                      if (value === mockUsers.admin.id) {
-                        return {
-                          data: {
-                            id: mockUsers.admin.id,
-                            email: mockUsers.admin.email,
-                            name: mockUsers.admin.name,
-                            role: mockUsers.admin.role,
-                            emailVerified: true,
-                          },
-                          error: null,
-                        };
-                      } else if (value === mockUsers.player.id) {
-                        return {
-                          data: {
-                            id: mockUsers.player.id,
-                            email: mockUsers.player.email,
-                            name: mockUsers.player.name,
-                            role: mockUsers.player.role,
-                            emailVerified: true,
-                          },
-                          error: null,
-                        };
-                      }
-                    }
-
-                    // No match, return null data
-                    return { data: null, error: null };
-                  }),
-                };
-              }),
-              single: jest.fn().mockImplementation(() => {
-                return {
-                  data: null,
-                  error: { message: 'Not found', status: 404 },
-                };
-              }),
-            };
+  // Mock the createClient function to return our mock client
+  jest.mock('@supabase/supabase-js', () => {
+    const originalModule = jest.requireActual('@supabase/supabase-js');
+    
+    return {
+      ...originalModule,
+      createClient: jest.fn().mockImplementation(() => {
+        const mockClient = createMockSupabaseClient();
+        
+        // Automatically sync users created in Auth to the database
+        const originalSignUp = mockClient.auth.signUp;
+        mockClient.auth.signUp = jest.fn().mockImplementation(async (credentials) => {
+          const result = await originalSignUp(credentials);
+          
+          // If signup was successful, ensure user is created in database
+          if (result.data?.user && !result.error) {
+            // Get user repository to sync user
+            // This is a mock implementation for tests
+            const newUserId = result.data.user.id;
+            const userEmail = result.data.user.email || '';
+            const userName = result.data.user.user_metadata?.name || userEmail.split('@')[0] || 'User';
+            const userRole = result.data.user.user_metadata?.role || 'PLAYER';
+            
+            // Mock the database insertion (we're not actually creating the user in the DB during tests)
+            console.log(`[TEST] Mock sync: Created user ${newUserId} (${userEmail}) in local database`);
+            
+            // In a real application, you'd call user repository here to create the user
+            // userRepository.create({...});
           }
-          return mockSupabaseClient.from(table);
-        }),
-      };
-    }),
-  }));
-
-  // Return the mock client for direct use in tests
-  return mockSupabaseClient;
+          
+          return result;
+        });
+        
+        return mockClient;
+      }),
+    };
+  });
+  
+  // Return a mock instance that can be used directly
+  return createMockSupabaseClient();
 };

@@ -97,12 +97,29 @@ export class CreatePlayerProfileUseCase extends BaseUseCase<
       );
 
       // Save player
-      await this.playerRepository.save(player);
+      console.log('Attempting to save player:', JSON.stringify({
+        userId: player.userId,
+        level: player.level,
+        age: player.age,
+        country: player.country,
+        avatarUrl: player.avatarUrl
+      }));
+      
+      try {
+        await this.playerRepository.save(player);
+        console.log('Player saved successfully:', player.id);
+      } catch (saveError) {
+        console.error('Error saving player:', saveError);
+        return Result.fail<CreatePlayerProfileOutput>(
+          new Error(`Failed to save player profile: ${saveError instanceof Error ? saveError.message : 'Unknown error'}`),
+        );
+      }
 
       return Result.ok<CreatePlayerProfileOutput>({ player });
     } catch (error) {
+      console.error('Unhandled error in CreatePlayerProfileUseCase:', error);
       return Result.fail<CreatePlayerProfileOutput>(
-        error instanceof Error ? error : new Error('Failed to create player profile'),
+        error instanceof Error ? error : new Error('Failed to create player profile: ' + (error ? error.toString() : 'Unknown error')),
       );
     }
   }

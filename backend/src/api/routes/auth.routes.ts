@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { AuthController } from '../controllers/auth.controller';
-import { authenticate } from '../middlewares/auth.middleware';
+import { authenticate, withAuthContainer } from '../middlewares/auth.middleware';
 import { validateBody } from '../middlewares/validate.middleware';
 import {
   loginSchema,
@@ -55,7 +55,7 @@ const authController = new AuthController();
  *       409:
  *         description: Email already exists
  */
-router.post('/register', validateBody(registerSchema), authController.register);
+router.post('/register', validateBody(registerSchema), withAuthContainer(authController.register));
 
 /**
  * @swagger
@@ -103,7 +103,7 @@ router.post('/register', validateBody(registerSchema), authController.register);
  *       404:
  *         description: User not found
  */
-router.post('/login', validateBody(loginSchema), authController.login);
+router.post('/login', validateBody(loginSchema), withAuthContainer(authController.login));
 
 /**
  * @swagger
@@ -120,7 +120,7 @@ router.post('/login', validateBody(loginSchema), authController.login);
  *       401:
  *         description: Unauthorized
  */
-router.post('/logout', authenticate, authController.logout);
+router.post('/logout', authenticate, withAuthContainer(authController.logout));
 
 /**
  * @swagger
@@ -155,7 +155,7 @@ router.post('/logout', authenticate, authController.logout);
  *       401:
  *         description: Refresh token expired
  */
-router.post('/refresh-token', validateBody(refreshTokenSchema), authController.refreshToken);
+router.post('/refresh-token', validateBody(refreshTokenSchema), withAuthContainer(authController.refreshToken));
 
 /**
  * @swagger
@@ -185,7 +185,7 @@ router.post('/refresh-token', validateBody(refreshTokenSchema), authController.r
  *       401:
  *         description: Unauthorized
  */
-router.get('/me', authenticate, authController.getMe);
+router.get('/me', authenticate, withAuthContainer(authController.getMe));
 
 /**
  * @swagger
@@ -214,7 +214,7 @@ router.get('/me', authenticate, authController.getMe);
  *       404:
  *         description: Email not found
  */
-router.post('/forgot-password', validateBody(forgotPasswordSchema), authController.forgotPassword);
+router.post('/forgot-password', validateBody(forgotPasswordSchema), withAuthContainer(authController.forgotPassword));
 
 /**
  * @swagger
@@ -246,14 +246,14 @@ router.post('/forgot-password', validateBody(forgotPasswordSchema), authControll
  *       404:
  *         description: Token not found
  */
-router.post('/reset-password', validateBody(resetPasswordSchema), authController.resetPassword);
+router.post('/reset-password', validateBody(resetPasswordSchema), withAuthContainer(authController.resetPassword));
 
 /**
  * @swagger
  * /api/auth/verify-email:
  *   post:
  *     summary: Verify email
- *     description: Verify user email using token
+ *     description: Verify email using token
  *     tags: [Authentication]
  *     requestBody:
  *       required: true
@@ -274,6 +274,6 @@ router.post('/reset-password', validateBody(resetPasswordSchema), authController
  *       404:
  *         description: Token not found
  */
-router.post('/verify-email', validateBody(verifyEmailSchema), authController.verifyEmail);
+router.post('/verify-email', validateBody(verifyEmailSchema), withAuthContainer(authController.verifyEmail));
 
 export default router;

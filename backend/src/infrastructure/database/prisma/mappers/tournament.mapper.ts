@@ -98,7 +98,6 @@ export class TournamentMapper {
     // Mapping between domain and Prisma enum values
     const statusMap: Record<TournamentStatus, PrismaTournament['status']> = {
       [TournamentStatus.DRAFT]: 'DRAFT',
-      [TournamentStatus.OPEN]: 'DRAFT', // Map OPEN to DRAFT as it doesn't exist in Prisma
       [TournamentStatus.ACTIVE]: 'ACTIVE',
       [TournamentStatus.COMPLETED]: 'COMPLETED',
       [TournamentStatus.CANCELLED]: 'CANCELLED',

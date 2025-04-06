@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { Match, MatchStatus } from '../../../domain/match/match.entity';
 import { IMatchRepository } from '../../interfaces/repositories/match.repository';
 import { ITournamentRepository } from '../../interfaces/repositories/tournament.repository';
+import { TournamentStatus } from '../../../domain/tournament/tournament.entity';
 
 // Input validation schema
 const CreateMatchInputSchema = z.object({
@@ -37,6 +38,7 @@ const CreateMatchInputSchema = z.object({
     .nativeEnum(MatchStatus, {
       errorMap: () => ({ message: 'Invalid match status' }),
     })
+    .optional()
     .default(MatchStatus.PENDING),
 });
 
@@ -55,39 +57,47 @@ export class CreateMatchUseCase extends BaseUseCase<CreateMatchInput, Match> {
       // Validate input
       const validation = CreateMatchInputSchema.safeParse(input);
       if (!validation.success) {
+        console.log('Validation failed:', validation.error.errors);
         return Result.fail<Match>(new Error(validation.error.errors[0].message));
       }
+
+      console.log('Validated data:', validation.data);
 
       const validatedData = validation.data;
 
       // Convert string date to Date object if present
       const date = validatedData.date ? new Date(validatedData.date) : null;
+      console.log('Parsed date:', date);
 
       // Validate tournament exists
       const tournament = await this.tournamentRepository.findById(validatedData.tournamentId);
       if (!tournament) {
+        console.log('Tournament not found');
         return Result.fail<Match>(new Error('Tournament not found'));
       }
 
-      // Business rules validation
-      // 1. Tournament should be active or in open state to create matches
-      if (tournament.status !== 'ACTIVE' && tournament.status !== 'OPEN') {
-        return Result.fail<Match>(
-          new Error('Cannot create matches for tournaments that are not active or open'),
-        );
-      }
+      console.log('Found tournament:', tournament);
 
-      // 2. Check for duplicate players
+      // Business rules validation
+      // 1. Check for duplicate players
       const playerIds = [
         validatedData.homePlayerOneId,
-        validatedData.homePlayerTwoId,
         validatedData.awayPlayerOneId,
+        validatedData.homePlayerTwoId,
         validatedData.awayPlayerTwoId,
       ];
 
-      const uniquePlayerIds = new Set(playerIds);
-      if (uniquePlayerIds.size !== playerIds.length) {
+      if (new Set(playerIds).size !== playerIds.length) {
+        console.log('Duplicate players found');
         return Result.fail<Match>(new Error('Duplicate players are not allowed'));
+      }
+
+      // 2. Tournament should be in DRAFT state to create matches
+      if (tournament.status !== TournamentStatus.DRAFT) {
+        console.log('Tournament not in DRAFT status:', tournament.status);
+        return Result.fail<Match>(
+          new Error('Cannot create matches for tournaments that are not in DRAFT status')
+        );
       }
 
       // Create the match entity
@@ -101,16 +111,19 @@ export class CreateMatchUseCase extends BaseUseCase<CreateMatchInput, Match> {
         validatedData.round,
         date,
         validatedData.location || null,
-        validatedData.status,
+        MatchStatus.PENDING,
         null, // homeScore
         null, // awayScore
       );
 
+      console.log('Created match:', match);
+
       // Save match
       await this.matchRepository.save(match);
-
+      console.log('Match saved successfully');
       return Result.ok<Match>(match);
     } catch (error) {
+      console.error('Error creating match:', error);
       return Result.fail<Match>(
         error instanceof Error ? error : new Error('Failed to create match'),
       );

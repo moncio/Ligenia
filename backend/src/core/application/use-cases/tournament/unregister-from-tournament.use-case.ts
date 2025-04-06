@@ -50,11 +50,8 @@ export class UnregisterFromTournamentUseCase extends BaseUseCase<
       );
     }
 
-    // Check if tournament status allows unregistration (OPEN or DRAFT only)
-    if (
-      tournament.status !== TournamentStatus.OPEN &&
-      tournament.status !== TournamentStatus.DRAFT
-    ) {
+    // Check if tournament status allows unregistration (DRAFT only)
+    if (tournament.status !== TournamentStatus.DRAFT) {
       return Result.fail(
         new Error(`Cannot unregister from tournament with status ${tournament.status}`),
       );

@@ -7,7 +7,6 @@ export enum TournamentFormat {
 
 export enum TournamentStatus {
   DRAFT = 'DRAFT',
-  OPEN = 'OPEN',
   ACTIVE = 'ACTIVE',
   COMPLETED = 'COMPLETED',
   CANCELLED = 'CANCELLED',
@@ -60,7 +59,7 @@ export class Tournament {
 
   // Domain methods
   public canRegister(currentParticipants: number): boolean {
-    if (this.status !== TournamentStatus.OPEN) {
+    if (this.status !== TournamentStatus.ACTIVE) {
       return false;
     }
 
@@ -81,8 +80,8 @@ export class Tournament {
       console.log(`Attempting to start tournament ${this.id} with status ${this.status}`);
 
       // Validate tournament state
-      if (this.status !== TournamentStatus.OPEN) {
-        const error = new Error(`Cannot start tournament: Current status is ${this.status}, but must be ${TournamentStatus.OPEN}`);
+      if (this.status !== TournamentStatus.DRAFT) {
+        const error = new Error(`Cannot start tournament: Current status is ${this.status}, but must be ${TournamentStatus.DRAFT}`);
         console.error(error.message);
         throw error;
       }
@@ -130,9 +129,9 @@ export class Tournament {
     category?: PlayerLevel | null,
     status?: TournamentStatus,
   ): void {
-    // Only draft or open tournaments can be updated
-    if (this.status !== TournamentStatus.DRAFT && this.status !== TournamentStatus.OPEN) {
-      throw new Error('Only draft or open tournaments can be updated');
+    // Only draft or active tournaments can be updated
+    if (this.status !== TournamentStatus.DRAFT && this.status !== TournamentStatus.ACTIVE) {
+      throw new Error('Only draft or active tournaments can be updated');
     }
 
     if (name !== undefined) this.name = name;

@@ -1,6 +1,6 @@
-import { Result } from '../utils/result';
+import { Result } from '../../src/shared/result';
 import { Statistic } from '@prisma/client';
-import { IStatisticService } from '../../../src/core/application/interfaces/statistic-service.interface';
+import { IStatisticService } from '../../src/core/application/interfaces/statistic-service.interface';
 
 export class MockStatisticService implements IStatisticService {
   private statistics: Statistic[] = [
@@ -111,7 +111,7 @@ export class MockStatisticService implements IStatisticService {
     }
 
     this.statistics = this.statistics.filter(stat => stat.id !== id);
-    return Result.ok();
+    return Result.ok<void>(undefined);
   }
 
   async getStatisticsByUserId(userId: string): Promise<Result<Statistic[]>> {

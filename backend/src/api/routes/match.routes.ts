@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { MatchController } from '../controllers/match.controller';
-import { authenticate, authorize } from '../middlewares/auth.middleware';
+import { authenticate, authorize, withAuthContainer } from '../middlewares/auth.middleware';
 import { UserRole } from '../../core/domain/user/user.entity';
 import { validateBody, validateParams, validateQuery } from '../middlewares/validate.middleware';
 import {
@@ -94,8 +94,9 @@ const matchController = new MatchController();
 router.get(
   '/', 
   diMiddleware,
+  authenticate,
   validateQuery(getMatchesQuerySchema), 
-  matchController.getMatches
+  withAuthContainer(matchController.getMatches)
 );
 
 /**
@@ -137,8 +138,9 @@ router.get(
 router.get(
   '/:id', 
   diMiddleware,
+  authenticate,
   validateParams(idParamSchema), 
-  matchController.getMatchById
+  withAuthContainer(matchController.getMatchById)
 );
 
 /**
@@ -209,7 +211,7 @@ router.post(
   diMiddleware,
   authorize([UserRole.ADMIN]),
   validateBody(createMatchSchema),
-  matchController.createMatch,
+  withAuthContainer(matchController.createMatch),
 );
 
 /**
@@ -273,7 +275,7 @@ router.put(
   authorize([UserRole.ADMIN]),
   validateParams(idParamSchema),
   validateBody(updateMatchSchema),
-  matchController.updateMatch,
+  withAuthContainer(matchController.updateMatch),
 );
 
 /**
@@ -334,7 +336,7 @@ router.patch(
   authorize([UserRole.ADMIN]),
   validateParams(idParamSchema),
   validateBody(updateScoreSchema),
-  matchController.updateScore,
+  withAuthContainer(matchController.updateScore),
 );
 
 /**
@@ -372,7 +374,7 @@ router.delete(
   diMiddleware,
   authorize([UserRole.ADMIN]),
   validateParams(idParamSchema),
-  matchController.deleteMatch,
+  withAuthContainer(matchController.deleteMatch),
 );
 
 export default router;

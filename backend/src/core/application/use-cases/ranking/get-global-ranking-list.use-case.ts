@@ -6,12 +6,13 @@ import { IRankingRepository } from '../../interfaces/repositories/ranking.reposi
 import { IPlayerRepository } from '../../interfaces/repositories/player.repository';
 import { Player } from '../../../domain/player/player.entity';
 import { PlayerLevel } from '../../../domain/tournament/tournament.entity';
+import { injectable, inject } from 'inversify';
 
 // Input validation schema
 const GetGlobalRankingListInputSchema = z.object({
   limit: z.number().int().positive().default(10),
   offset: z.number().int().min(0).default(0),
-  playerLevel: z.nativeEnum(PlayerLevel).optional(),
+  playerLevel: z.enum(['P1', 'P2', 'P3']).optional(),
   sortBy: z.enum(['rankingPoints', 'globalPosition']).default('globalPosition'),
   sortOrder: z.enum(['asc', 'desc']).default('asc'),
 });
@@ -34,13 +35,14 @@ export interface GetGlobalRankingListOutput {
  * Use case for retrieving a global ranking list
  * Returns a paginated and optionally filtered/sorted list of all ranked players
  */
+@injectable()
 export class GetGlobalRankingListUseCase extends BaseUseCase<
   GetGlobalRankingListInput,
   GetGlobalRankingListOutput
 > {
   constructor(
-    private readonly rankingRepository: IRankingRepository,
-    private readonly playerRepository: IPlayerRepository,
+    @inject('RankingRepository') private readonly rankingRepository: IRankingRepository,
+    @inject('PlayerRepository') private readonly playerRepository: IPlayerRepository,
   ) {
     super();
   }
@@ -49,25 +51,44 @@ export class GetGlobalRankingListUseCase extends BaseUseCase<
     input: GetGlobalRankingListInput,
   ): Promise<Result<GetGlobalRankingListOutput>> {
     try {
-      // Validate input
-      const validatedData = await GetGlobalRankingListInputSchema.parseAsync(input);
+      // Validate input with more flexible handling for playerLevel
+      let validatedInput;
+      try {
+        // First try to validate the input directly
+        validatedInput = await GetGlobalRankingListInputSchema.parseAsync(input);
+        console.log("Input validated successfully:", validatedInput);
+      } catch (validationError) {
+        console.warn('Validation error in GetGlobalRankingListUseCase, removing problematic fields', validationError);
+        
+        // Create a clean input without the playerLevel field
+        const { playerLevel, ...cleanInput } = input;
+        
+        // Try to validate without the problematic field
+        validatedInput = await GetGlobalRankingListInputSchema.parseAsync(cleanInput);
+        console.log("Input validated after removing playerLevel:", validatedInput);
+      }
 
       // Get total count for pagination
+      console.log(`Finding total rankings count with playerLevel: ${validatedInput.playerLevel || 'all'}`);
       const totalCount = await this.rankingRepository.count({
-        playerLevel: validatedData.playerLevel,
+        playerLevel: validatedInput.playerLevel as PlayerLevel | undefined,
       });
 
       // Get rankings with pagination and sorting
+      console.log(`Finding rankings with pagination: limit=${validatedInput.limit}, offset=${validatedInput.offset}`);
       const rankings = await this.rankingRepository.findAll({
-        limit: validatedData.limit,
-        offset: validatedData.offset,
-        playerLevel: validatedData.playerLevel,
-        sortBy: validatedData.sortBy,
-        sortOrder: validatedData.sortOrder,
+        limit: validatedInput.limit,
+        offset: validatedInput.offset,
+        playerLevel: validatedInput.playerLevel as PlayerLevel | undefined,
+        sortBy: validatedInput.sortBy,
+        sortOrder: validatedInput.sortOrder,
       });
+
+      console.log(`Found ${rankings.length} rankings`);
 
       // Get player details for each ranking
       const playerIds = rankings.map(ranking => ranking.playerId);
+      console.log(`Getting player details for ${playerIds.length} players`);
       const players = await this.playerRepository.findAll();
       const playerMap = new Map(players.filter(p => playerIds.includes(p.id)).map(p => [p.id, p]));
 
@@ -85,9 +106,9 @@ export class GetGlobalRankingListUseCase extends BaseUseCase<
       // Create pagination info
       const pagination = {
         total: totalCount,
-        limit: validatedData.limit,
-        offset: validatedData.offset,
-        hasMore: validatedData.offset + rankings.length < totalCount,
+        limit: validatedInput.limit,
+        offset: validatedInput.offset,
+        hasMore: validatedInput.offset + rankings.length < totalCount,
       };
 
       return Result.ok<GetGlobalRankingListOutput>({
@@ -95,6 +116,7 @@ export class GetGlobalRankingListUseCase extends BaseUseCase<
         pagination,
       });
     } catch (error) {
+      console.error('Error in GetGlobalRankingListUseCase:', error);
       return Result.fail<GetGlobalRankingListOutput>(
         error instanceof Error ? error : new Error('Failed to get global ranking list'),
       );

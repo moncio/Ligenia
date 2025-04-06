@@ -18,7 +18,6 @@ class MockPreferenceRepository implements IPreferenceRepository {
       userId,
       theme: 'dark',
       fontSize: 20,
-      enableNotifications: true,
       createdAt: new Date(),
       updatedAt: new Date(),
     };

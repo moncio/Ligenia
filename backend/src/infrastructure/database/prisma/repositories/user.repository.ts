@@ -5,6 +5,7 @@ import { BaseRepository } from '../base-repository';
 import { UserMapper } from '../mappers/user.mapper';
 import { Result } from '../../../../shared/result';
 import { injectable } from 'inversify';
+import { logger } from '../../../../config/logger';
 
 @injectable()
 export class UserRepository extends BaseRepository implements IUserRepository {
@@ -69,35 +70,68 @@ export class UserRepository extends BaseRepository implements IUserRepository {
   }
 
   async save(user: User): Promise<void> {
+    logger.info(`UserRepository.save called with user ID: ${user.id}`);
+    
     const result = await this.executeOperation<void>(async () => {
+      logger.info(`Converting domain user to Prisma model`);
       const userData = UserMapper.toPrisma(user);
+      logger.info(`User data after mapping: ${JSON.stringify(userData)}`);
       
-      if (await this.prisma.user.findUnique({ where: { id: user.id } })) {
-        // Update existing user
-        await this.prisma.user.update({
-          where: { id: user.id },
-          data: userData,
-        });
-      } else {
-        // Create new user - ensure required fields are present
-        await this.prisma.user.create({
-          data: {
-            id: userData.id,
-            email: userData.email!,
-            password: userData.password!,
-            name: userData.name || '',
-            role: userData.role || UserRole.PLAYER,
-            emailVerified: userData.emailVerified || false,
-          },
-        });
+      try {
+        const existingUser = await this.prisma.user.findUnique({ where: { id: user.id } });
+        logger.info(`Existing user check result: ${existingUser ? 'User exists' : 'User does not exist'}`);
+        
+        if (existingUser) {
+          // Update existing user
+          logger.info(`Updating existing user with ID: ${user.id}`);
+          try {
+            await this.prisma.user.update({
+              where: { id: user.id },
+              data: userData,
+            });
+            logger.info(`User updated successfully: ${user.id}`);
+          } catch (updateError) {
+            logger.error(`Error updating user: ${updateError instanceof Error ? updateError.message : 'Unknown error'}`);
+            throw updateError;
+          }
+        } else {
+          // Create new user - ensure required fields are present
+          logger.info(`Creating new user with ID: ${user.id}`);
+          try {
+            await this.prisma.user.create({
+              data: {
+                id: userData.id,
+                email: userData.email!,
+                password: userData.password!,
+                name: userData.name || '',
+                role: userData.role || UserRole.PLAYER,
+                emailVerified: userData.emailVerified || false,
+              },
+            });
+            logger.info(`User created successfully: ${user.id}`);
+          } catch (createError) {
+            logger.error(`Error creating user: ${createError instanceof Error ? createError.message : 'Unknown error'}`);
+            if (createError instanceof Error && createError.name === 'PrismaClientKnownRequestError') {
+              const prismaError = createError as any;
+              logger.error(`Prisma error code: ${prismaError.code}, meta: ${JSON.stringify(prismaError.meta)}`);
+            }
+            throw createError;
+          }
+        }
+      } catch (error) {
+        logger.error(`Error checking for existing user: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        throw error;
       }
 
       return undefined;
     });
 
     if (result.isFailure()) {
+      logger.error(`UserRepository.save failed: ${result.getError().message}`);
       throw result.getError();
     }
+    
+    logger.info(`UserRepository.save completed successfully for user: ${user.id}`);
   }
 
   async update(user: User): Promise<void> {

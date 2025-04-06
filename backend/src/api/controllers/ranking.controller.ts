@@ -11,91 +11,193 @@ export class RankingController {
   /**
    * Get global rankings list with optional filters and pagination
    */
-  public getGlobalRankingList = async (req: ContainerRequest, res: Response): Promise<void> => {
+  public getGlobalRankingList = async (req: ContainerRequest, res: Response) => {
     try {
+      console.log('Received request: getGlobalRankingList');
+      console.log('Query params:', req.query);
+      
       const limit = req.query.limit ? parseInt(String(req.query.limit)) : 10;
       const offset = req.query.offset ? parseInt(String(req.query.offset)) : 0;
-      const playerLevel = req.query.playerLevel as unknown as PlayerLevel | undefined;
       const sortBy = (req.query.sortBy as 'rankingPoints' | 'globalPosition') || 'globalPosition';
       const sortOrder = (req.query.sortOrder as 'asc' | 'desc') || 'asc';
 
-      const getGlobalRankingListUseCase = req.container?.get<GetGlobalRankingListUseCase>('getGlobalRankingListUseCase');
+      console.log('Input for getGlobalRankingList:', { limit, offset, sortBy, sortOrder });
       
-      if (!getGlobalRankingListUseCase) {
-        res.status(500).json({ error: 'Use case not available' });
-        return;
+      // Use direct database access to calculate rankings from statistics
+      try {
+        console.log('Using direct database access for global rankings');
+        const { PrismaClient } = require('@prisma/client');
+        const prisma = new PrismaClient();
+        
+        // Get all players with their statistics
+        const players = await prisma.player.findMany({
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                email: true,
+                statistics: true
+              }
+            }
+          }
+        });
+        
+        console.log(`Found ${players.length} players`);
+        
+        // Calculate total points for each player
+        const playerRankings = players.map((player: any) => {
+          const totalPoints = player.user.statistics.reduce((sum: number, stat: any) => sum + stat.points, 0);
+          return {
+            id: `ranking-${player.id}`,
+            playerId: player.id,
+            globalPosition: 0, // We'll calculate this after sorting
+            categoryPosition: 0, // We'll calculate this after grouping and sorting
+            rankingPoints: totalPoints,
+            category: player.level,
+            lastUpdated: new Date(),
+            player: {
+              id: player.id,
+              level: player.level,
+              country: player.country,
+              avatar_url: player.avatar_url,
+              name: player.user?.name,
+              email: player.user?.email
+            }
+          };
+        });
+        
+        // Sort by total points (descending)
+        playerRankings.sort((a: any, b: any) => b.rankingPoints - a.rankingPoints);
+        
+        // Assign global positions
+        playerRankings.forEach((ranking: any, index: number) => {
+          ranking.globalPosition = index + 1;
+        });
+        
+        // Apply pagination
+        const totalCount = playerRankings.length;
+        const paginatedRankings = playerRankings.slice(offset, offset + limit);
+        
+        console.log(`Successfully calculated global rankings for ${totalCount} players`);
+        
+        // Create pagination info
+        const pagination = {
+          total: totalCount,
+          limit,
+          offset,
+          hasMore: offset + paginatedRankings.length < totalCount,
+        };
+        
+        console.log(`Returning ${paginatedRankings.length} rankings after pagination`);
+        
+        return res.status(200).json({
+          rankings: paginatedRankings,
+          pagination
+        });
+      } catch (dbError) {
+        console.error('Error accessing database for global rankings:', dbError);
+        return res.status(500).json({ 
+          status: 'error', 
+          message: 'Internal server error - Database access failed' 
+        });
       }
-      
-      const result = await getGlobalRankingListUseCase.execute({
-        limit,
-        offset,
-        playerLevel,
-        sortBy,
-        sortOrder,
-      });
-
-      if (result.isFailure) {
-        res.status(400).json({ error: result.error?.message || 'Failed to get global rankings' });
-        return;
-      }
-
-      res.status(200).json(result.getValue());
     } catch (error) {
       console.error('Error in getGlobalRankingList:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Internal server error';
-      res.status(500).json({ error: errorMessage });
+      return res.status(500).json({ 
+        status: 'error', 
+        message: 'Internal server error' 
+      });
     }
   };
 
   /**
-   * Get rankings filtered by player category
+   * Get rankings by player category (P1, P2, P3)
    */
-  public getCategoryBasedRanking = async (req: ContainerRequest, res: Response): Promise<void> => {
+  public getCategoryBasedRanking = async (req: ContainerRequest, res: Response) => {
     try {
-      const playerLevel = req.params.categoryId as unknown as PlayerLevel;
+      console.log('Received request: getCategoryBasedRanking');
+      console.log('Params:', req.params);
+      
+      // Handle the category parameter more robustly
+      let category = req.params.category;
+      
+      // Validate and normalize the category
+      if (!category) {
+        return res.status(400).json({
+          status: 'error',
+          message: 'Category parameter is required',
+        });
+      }
+      
+      // Convert to uppercase if it's not already
+      category = category.toUpperCase();
+      
+      // Validate if it's one of the allowed categories
+      if (!['P1', 'P2', 'P3'].includes(category)) {
+        return res.status(400).json({
+          status: 'error',
+          message: 'Invalid player category. Must be one of: P1, P2, P3',
+        });
+      }
+      
+      // Parse other query parameters
       const limit = req.query.limit ? parseInt(String(req.query.limit)) : 10;
       const offset = req.query.offset ? parseInt(String(req.query.offset)) : 0;
       const sortBy = (req.query.sortBy as 'rankingPoints' | 'categoryPosition') || 'categoryPosition';
       const sortOrder = (req.query.sortOrder as 'asc' | 'desc') || 'asc';
+      
+      console.log('Input for getCategoryBasedRankingUseCase:', { 
+        playerLevel: category, 
+        limit, 
+        offset, 
+        sortBy, 
+        sortOrder 
+      });
 
-      const getCategoryBasedRankingUseCase = req.container?.get<GetCategoryBasedRankingUseCase>('getCategoryBasedRankingUseCase');
+      const getCategoryBasedRankingUseCase = req.container?.get<any>('getCategoryBasedRankingUseCase');
       
       if (!getCategoryBasedRankingUseCase) {
-        res.status(500).json({ error: 'Use case not available' });
-        return;
+        console.error('getCategoryBasedRankingUseCase is undefined or null');
+        return res.status(500).json({ 
+          status: 'error', 
+          message: 'Internal server error - Use case not available' 
+        });
       }
       
       const result = await getCategoryBasedRankingUseCase.execute({
-        playerLevel,
+        playerLevel: category as PlayerLevel,
         limit,
         offset,
         sortBy,
         sortOrder,
       });
 
-      if (result.isFailure) {
-        if (result.error?.message?.includes('Invalid player level')) {
-          res.status(400).json({ error: result.error.message });
-          return;
-        }
-        res.status(400).json({ error: result.error?.message || 'Failed to get category rankings' });
-        return;
+      if (!result.isSuccess()) {
+        console.error('Error from getCategoryBasedRankingUseCase:', result.getError());
+        return res.status(400).json({
+          status: 'error',
+          message: result.getError()?.message || 'Failed to get category-based ranking',
+        });
       }
 
-      res.status(200).json(result.getValue());
+      console.log('Successful result from getCategoryBasedRankingUseCase');
+      return res.status(200).json(result.getValue());
     } catch (error) {
       console.error('Error in getCategoryBasedRanking:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Internal server error';
-      res.status(500).json({ error: errorMessage });
+      return res.status(500).json({ 
+        status: 'error', 
+        message: 'Internal server error' 
+      });
     }
   };
 
   /**
-   * Update rankings after a match has been completed
+   * Update rankings after a match
    */
   public updateRankingsAfterMatch = async (req: ContainerRequest, res: Response): Promise<void> => {
     try {
-      const matchId = req.params.matchId;
+      const matchId = req.body.matchId;
       const updateRankingsAfterMatchUseCase = req.container?.get<UpdateRankingsAfterMatchUseCase>('updateRankingsAfterMatchUseCase');
       
       if (!updateRankingsAfterMatchUseCase) {
@@ -114,11 +216,7 @@ export class RankingController {
           res.status(404).json({ error: errorMessage });
           return;
         }
-        if (errorMessage === 'Cannot update rankings for a match that is not completed' ||
-            errorMessage === 'Match scores not recorded') {
-          res.status(400).json({ error: errorMessage });
-          return;
-        }
+        
         res.status(400).json({ error: errorMessage });
         return;
       }
@@ -175,11 +273,150 @@ export class RankingController {
    * Legacy method for backward compatibility with existing routing
    * @deprecated Use getGlobalRankingList instead
    */
-  public getRankings = this.getGlobalRankingList;
+  public getRankings = async (req: ContainerRequest, res: Response) => {
+    // Call directly to the same code as getGlobalRankingList
+    // but adjust the response to maintain compatibility with the old format
+    try {
+      console.log('Received request: getRankings (legacy endpoint)');
+      console.log('Query params:', req.query);
+      
+      const limit = req.query.limit ? parseInt(String(req.query.limit)) : 10;
+      const offset = req.query.offset ? parseInt(String(req.query.offset)) : 0;
+      // We don't pass playerLevel on purpose to get all rankings
+      const sortBy = 'globalPosition';
+      const sortOrder = 'asc';
+
+      const getGlobalRankingListUseCase = req.container?.get<GetGlobalRankingListUseCase>('getGlobalRankingListUseCase');
+      
+      if (!getGlobalRankingListUseCase) {
+        console.error('getGlobalRankingListUseCase is undefined or null');
+        return res.status(500).json({ 
+          status: 'error', 
+          message: 'Internal server error - Use case not available' 
+        });
+      }
+      
+      console.log('Executing getGlobalRankingListUseCase for legacy endpoint');
+      
+      const result = await getGlobalRankingListUseCase.execute({
+        limit,
+        offset,
+        sortBy,
+        sortOrder,
+      });
+
+      if (!result.isSuccess()) {
+        console.error('Error from getGlobalRankingListUseCase:', result.getError());
+        return res.status(400).json({
+          status: 'error',
+          message: result.getError()?.message || 'Failed to get global rankings',
+        });
+      }
+
+      const data = result.getValue();
+      
+      // Transform to the format expected by the old API
+      console.log(`Formatting response with ${data.rankings.length} rankings`);
+      
+      return res.status(200).json({
+        status: 'success',
+        data: {
+          rankings: data.rankings,
+          pagination: {
+            total: data.pagination.total,
+            page: Math.floor(data.pagination.offset / data.pagination.limit) + 1,
+            limit: data.pagination.limit,
+            totalPages: Math.ceil(data.pagination.total / data.pagination.limit),
+          },
+        },
+      });
+    } catch (error) {
+      console.error('Error in getRankings:', error);
+      return res.status(500).json({ 
+        status: 'error', 
+        message: 'Internal server error' 
+      });
+    }
+  };
 
   /**
    * Legacy method for backward compatibility with existing routing
    * @deprecated Use getCategoryBasedRanking instead
    */
-  public getRankingsByCategory = this.getCategoryBasedRanking;
+  public getRankingsByCategory = async (req: ContainerRequest, res: Response) => {
+    // Call directly to the same code as getCategoryBasedRanking
+    // but adjust the response to maintain compatibility with the old format
+    try {
+      const categoryId = req.params.categoryId as string;
+      
+      // Validate the category
+      if (!Object.values(PlayerLevel).includes(categoryId as PlayerLevel)) {
+        return res.status(400).json({
+          status: 'error',
+          message: 'Invalid player category',
+        });
+      }
+      
+      const playerLevel = categoryId as PlayerLevel;
+      const limit = req.query.limit ? parseInt(String(req.query.limit)) : 10;
+      const offset = req.query.offset ? parseInt(String(req.query.offset)) : 0;
+      const sortBy = 'categoryPosition';
+      const sortOrder = 'asc';
+
+      const getCategoryBasedRankingUseCase = req.container?.get<GetCategoryBasedRankingUseCase>('getCategoryBasedRankingUseCase');
+      
+      if (!getCategoryBasedRankingUseCase) {
+        return res.status(500).json({ 
+          status: 'error', 
+          message: 'Internal server error - Use case not available' 
+        });
+      }
+      
+      const result = await getCategoryBasedRankingUseCase.execute({
+        playerLevel,
+        limit,
+        offset,
+        sortBy,
+        sortOrder,
+      });
+
+      if (!result.isSuccess()) {
+        // If there is a specific error message about the player level
+        if (result.getError()?.message?.includes('Invalid player level')) {
+          return res.status(400).json({
+            status: 'error',
+            message: 'Invalid player category',
+          });
+        }
+        
+        return res.status(400).json({
+          status: 'error',
+          message: result.getError()?.message || 'Failed to get category rankings',
+        });
+      }
+
+      const data = result.getValue();
+      
+      // Transform to the format expected by the old API
+      return res.status(200).json({
+        status: 'success',
+        data: {
+          rankings: data.rankings,
+          pagination: {
+            total: data.pagination.total,
+            page: Math.floor(data.pagination.offset / data.pagination.limit) + 1,
+            limit: data.pagination.limit,
+            totalPages: Math.ceil(data.pagination.total / data.pagination.limit),
+          },
+          category: data.playerLevel,
+        },
+      });
+    } catch (error) {
+      console.error('Error in getRankingsByCategory:', error);
+      return res.status(500).json({ 
+        status: 'error', 
+        message: 'Internal server error' 
+      });
+    }
+  };
 } 

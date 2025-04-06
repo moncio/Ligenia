@@ -383,7 +383,7 @@ const createMockTournamentUseCases = () => {
           tournamentId,
           playerId,
           registrationDate: new Date().toISOString(),
-          status: 'ACCEPTED',
+          status: MatchStatus.IN_PROGRESS,
         };
         
         return Promise.resolve(Result.ok(mockRegistration));
@@ -452,7 +452,7 @@ const createMockTournamentUseCases = () => {
                   awayPlayer: 'Player 3',
                   homeScore: null,
                   awayScore: null,
-                  status: 'SCHEDULED',
+                  status: MatchStatus.PENDING,
                   winner: null
                 }
               ]
@@ -497,7 +497,7 @@ const createMockTournamentUseCases = () => {
             awayPlayerOneId: 'player7',
             awayPlayerTwoId: 'player8',
             round: 1,
-            status: MatchStatus.SCHEDULED,
+            status: MatchStatus.PENDING,
             date: new Date('2023-07-10T12:00:00Z'),
             location: 'Court 2',
             homeScore: null,
@@ -900,7 +900,7 @@ const createMockStatisticUseCases = () => {
           console.log('[MOCK] deleteStatisticUseCase returning failure result for id:', id);
           return Promise.resolve(Result.fail(error));
         }
-        const result = Result.ok();
+        const result = Result.ok(true);
         console.log('[MOCK] deleteStatisticUseCase returning success result for id:', id);
         return Promise.resolve(result);
       })

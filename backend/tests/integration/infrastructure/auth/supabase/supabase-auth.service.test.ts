@@ -118,7 +118,11 @@ class MockSupabaseAuthService implements IAuthService {
   }
 
   async generateToken(user: IAuthUser): Promise<string> {
-    return 'mock-token';
+    return `test-token-${user.id}`;
+  }
+
+  async deleteUser(userId: string): Promise<Result<void>> {
+    return Result.ok<void>(undefined);
   }
 }
 
