@@ -69,28 +69,28 @@ const TournamentCarousel = ({
   const getStatusClass = (status: string) => {
     switch (status) {
       case "Inscripción abierta":
-        return "bg-blue-100 text-blue-800";
+        return "bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200";
       case "Inscripción cerrada":
-        return "bg-yellow-100 text-yellow-800";
+        return "bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200";
       case "En curso":
-        return "bg-green-100 text-green-800";
+        return "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200";
       case "Finalizado":
-        return "bg-gray-100 text-gray-800";
+        return "bg-muted text-muted-foreground";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-muted text-muted-foreground";
     }
   };
 
   const getCategoryClass = (category: string) => {
     switch (category) {
       case "P1":
-        return "bg-gradient-to-r from-sport-blue to-sport-purple text-white";
+        return "bg-gradient-to-r from-primary to-primary/80 text-primary-foreground";
       case "P2":
-        return "bg-gradient-to-r from-sport-orange to-amber-500 text-white";
+        return "bg-gradient-to-r from-orange-500 to-amber-500 text-white dark:text-white";
       case "P3":
-        return "bg-gradient-to-r from-sport-green to-emerald-500 text-white";
+        return "bg-gradient-to-r from-green-500 to-emerald-500 text-white dark:text-white";
       default:
-        return "bg-gray-300 text-gray-800";
+        return "bg-muted text-muted-foreground";
     }
   };
 
@@ -187,37 +187,37 @@ const TournamentCarousel = ({
         onClick={() => handleSlideClick(index)}
       >
         <div className="relative h-28 md:h-32 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-gray-800/80 to-gray-800/40"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-background/80 to-background/40"></div>
           <div className="absolute top-0 right-0 p-2">
             <Badge className={getStatusClass(torneo.estado)}>{torneo.estado}</Badge>
           </div>
-          <div className="absolute bottom-0 left-0 p-3 text-white">
+          <div className="absolute bottom-0 left-0 p-3 text-foreground">
             <h3 className="font-semibold text-lg md:text-xl">{torneo.nombre}</h3>
-            <p className="text-sm text-gray-200">{torneo.liga}</p>
+            <p className="text-sm text-muted-foreground">{torneo.liga}</p>
           </div>
         </div>
         
-        <div className="flex flex-col flex-grow p-3 pb-4 bg-white justify-between">
+        <div className="flex flex-col flex-grow p-3 pb-4 bg-background justify-between">
           <div className="grid grid-cols-2 gap-y-2 text-sm mb-3">
-            <div className="text-gray-500">Inicio:</div>
+            <div className="text-muted-foreground">Inicio:</div>
             <div className="text-right">{torneo.fechaInicio}</div>
             
-            <div className="text-gray-500">Fin:</div>
+            <div className="text-muted-foreground">Fin:</div>
             <div className="text-right">{torneo.fechaFin}</div>
             
             {torneo.estado === "Inscripción abierta" && (
               <>
-                <div className="text-gray-500 font-medium text-sport-blue">Límite inscripción:</div>
-                <div className="text-right font-medium text-sport-blue">{torneo.fechaLimiteInscripcion}</div>
+                <div className="text-muted-foreground font-medium text-primary">Límite inscripción:</div>
+                <div className="text-right font-medium text-primary">{torneo.fechaLimiteInscripcion}</div>
               </>
             )}
             
-            <div className="text-gray-500">Categoría:</div>
+            <div className="text-muted-foreground">Categoría:</div>
             <div className="text-right">
               <Badge className={getCategoryClass(torneo.categoria)}>{torneo.categoria}</Badge>
             </div>
             
-            <div className="text-gray-500">Ubicación:</div>
+            <div className="text-muted-foreground">Ubicación:</div>
             <div className="text-right truncate" title={torneo.localizacion}>{torneo.localizacion}</div>
           </div>
           

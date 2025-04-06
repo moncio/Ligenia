@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Input } from "@/components/ui/input";
@@ -8,7 +7,6 @@ import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
 import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { useLanguage } from '@/hooks/useLanguage';
 
 const LoginForm = ({ onSuccess }: { onSuccess?: () => void }) => {
   const [email, setEmail] = useState('');
@@ -19,26 +17,69 @@ const LoginForm = ({ onSuccess }: { onSuccess?: () => void }) => {
   const [isResetOpen, setIsResetOpen] = useState(false);
   const [isResetSent, setIsResetSent] = useState(false);
   const [loginError, setLoginError] = useState<string | null>(null);
+  const [formErrors, setFormErrors] = useState<{email?: string; password?: string}>({});
+  const [touchedFields, setTouchedFields] = useState<{email?: boolean; password?: boolean}>({});
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { translations } = useLanguage();
 
-  // Limpiar mensajes de error al cambiar los inputs
   useEffect(() => {
     if (loginError && (email || password)) {
       setLoginError(null);
     }
   }, [email, password, loginError]);
 
+  const validateField = (field: 'email' | 'password', value: string) => {
+    if (field === 'email') {
+      if (!value) return "El correo electrónico es obligatorio";
+      if (!/\S+@\S+\.\S+/.test(value)) return "Formato de correo electrónico inválido";
+    }
+    if (field === 'password') {
+      if (!value) return "La contraseña es obligatoria";
+    }
+    return undefined;
+  };
+
+  const handleBlur = (field: 'email' | 'password') => {
+    setTouchedFields(prev => ({ ...prev, [field]: true }));
+    
+    let fieldValue = '';
+    if (field === 'email') fieldValue = email;
+    if (field === 'password') fieldValue = password;
+    
+    const error = validateField(field, fieldValue);
+    
+    setFormErrors(prev => ({
+      ...prev,
+      [field]: error
+    }));
+  };
+
+  const validateForm = () => {
+    const errors: {email?: string; password?: string} = {};
+    let isValid = true;
+
+    const emailError = validateField('email', email);
+    if (emailError) {
+      errors.email = emailError;
+      isValid = false;
+    }
+
+    const passwordError = validateField('password', password);
+    if (passwordError) {
+      errors.password = passwordError;
+      isValid = false;
+    }
+
+    setFormErrors(errors);
+    // Marcar todos los campos como tocados cuando se envía el formulario
+    setTouchedFields({ email: true, password: true });
+    return isValid;
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email || !password) {
-      toast({
-        title: "Error",
-        description: "Por favor, introduce tu email y contraseña",
-        variant: "destructive"
-      });
+    if (!validateForm()) {
       return;
     }
 
@@ -56,13 +97,12 @@ const LoginForm = ({ onSuccess }: { onSuccess?: () => void }) => {
       if (error) {
         console.error("Error de autenticación:", error);
         
-        // Mensaje de error más descriptivo basado en el tipo de error
-        let errorMessage = "Credenciales inválidas. Verifica tu email y contraseña.";
+        let errorMessage = "Credenciales inválidas";
         
         if (error.message.includes("Invalid login credentials")) {
-          errorMessage = "Credenciales inválidas. Verifica tu email y contraseña.";
+          errorMessage = "Correo o contraseña incorrectos";
         } else if (error.message.includes("Email not confirmed")) {
-          errorMessage = "Debes confirmar tu email antes de iniciar sesión. Revisa tu bandeja de entrada.";
+          errorMessage = "Correo electrónico no confirmado";
         }
         
         setLoginError(errorMessage);
@@ -70,7 +110,7 @@ const LoginForm = ({ onSuccess }: { onSuccess?: () => void }) => {
       }
       
       if (!data.session) {
-        throw new Error("No se pudo obtener la sesión");
+        throw new Error("No se pudo establecer sesión");
       }
       
       console.log("Inicio de sesión exitoso:", data.user?.email);
@@ -139,15 +179,29 @@ const LoginForm = ({ onSuccess }: { onSuccess?: () => void }) => {
     }
   };
 
-  const handleResetPassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const validateResetEmail = () => {
     if (!resetEmail) {
       toast({
         title: "Error",
-        description: "Por favor, introduce tu email",
+        description: "El correo electrónico es obligatorio",
         variant: "destructive"
       });
+      return false;
+    } else if (!/\S+@\S+\.\S+/.test(resetEmail)) {
+      toast({
+        title: "Error",
+        description: "Formato de correo electrónico inválido",
+        variant: "destructive"
+      });
+      return false;
+    }
+    return true;
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!validateResetEmail()) {
       return;
     }
 
@@ -162,7 +216,7 @@ const LoginForm = ({ onSuccess }: { onSuccess?: () => void }) => {
       setIsResetSent(true);
       toast({
         title: "Correo enviado",
-        description: "Revisa tu bandeja de entrada y sigue las instrucciones para recuperar tu contraseña",
+        description: "Se ha enviado un enlace para restablecer la contraseña",
       });
       
     } catch (error: any) {
@@ -178,22 +232,29 @@ const LoginForm = ({ onSuccess }: { onSuccess?: () => void }) => {
 
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
 
+  // Determinar si un campo debe mostrar error
+  const shouldShowError = (field: 'email' | 'password') => {
+    return touchedFields[field] && formErrors[field];
+  };
+
   return (
     <div className="w-full space-y-5">
       <div className="space-y-2 text-center">
-        <h2 className="text-3xl font-bold text-sport-dark tracking-tight font-display">{translations.login.toUpperCase()}</h2>
-        <p className="text-sm text-muted-foreground">Accede a tu cuenta para gestionar tus competiciones</p>
+        <h2 className="text-3xl font-bold text-foreground tracking-tight font-display">
+          INICIAR SESIÓN
+        </h2>
+        <p className="text-sm text-muted-foreground">Accede a tu cuenta para gestionar tus torneos</p>
       </div>
       
       {loginError && (
-        <div className="bg-red-50 border-l-4 border-red-400 p-4 rounded-md">
-          <p className="text-red-700">{loginError}</p>
+        <div className="p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-sm">
+          {loginError}
         </div>
       )}
       
       <form onSubmit={handleLogin} className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="email" className="font-medium">{translations.email}</Label>
+          <Label htmlFor="email" className="font-medium">Email</Label>
           <div className="relative">
             <Input
               id="email"
@@ -201,15 +262,19 @@ const LoginForm = ({ onSuccess }: { onSuccess?: () => void }) => {
               placeholder="tu@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              onBlur={() => handleBlur('email')}
               disabled={isLoading}
-              className="pl-10 bg-gray-50 border-gray-200 focus:border-sport-blue focus:ring-2 focus:ring-sport-blue/20"
+              className={`pl-10 bg-background border-input focus:border-primary focus:ring-2 focus:ring-primary/20 ${
+                shouldShowError('email') ? 'border-destructive focus:border-destructive focus:ring-destructive/20' : ''
+              }`}
             />
-            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
           </div>
+          {shouldShowError('email') && <p className="mt-1 text-xs text-destructive">{formErrors.email}</p>}
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="password" className="font-medium">{translations.password}</Label>
+          <Label htmlFor="password" className="font-medium">Contraseña</Label>
           <div className="relative">
             <Input
               id="password"
@@ -217,10 +282,13 @@ const LoginForm = ({ onSuccess }: { onSuccess?: () => void }) => {
               placeholder="••••••••"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              onBlur={() => handleBlur('password')}
               disabled={isLoading}
-              className="pl-10 bg-gray-50 border-gray-200 focus:border-sport-blue focus:ring-2 focus:ring-sport-blue/20"
+              className={`pl-10 bg-background border-input focus:border-primary focus:ring-2 focus:ring-primary/20 ${
+                shouldShowError('password') ? 'border-destructive focus:border-destructive focus:ring-destructive/20' : ''
+              }`}
             />
-            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                 <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
@@ -228,111 +296,82 @@ const LoginForm = ({ onSuccess }: { onSuccess?: () => void }) => {
             </div>
             <button 
               type="button"
-              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
               onClick={togglePasswordVisibility}
+              className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
             >
-              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
             </button>
           </div>
+          {shouldShowError('password') && <p className="mt-1 text-xs text-destructive">{formErrors.password}</p>}
         </div>
         
-        <div className="text-sm text-right">
-          <button 
-            type="button" 
-            onClick={() => setIsResetOpen(true)} 
-            className="text-sport-blue hover:text-sport-blue/80 font-medium hover:underline transition-colors"
-          >
-            {translations.forgotPassword}
-          </button>
-        </div>
+        <Button
+          type="button"
+          variant="link"
+          className="text-sm text-muted-foreground hover:text-foreground p-0 h-auto font-normal"
+          onClick={() => setIsResetOpen(true)}
+        >
+          ¿Olvidaste tu contraseña?
+        </Button>
         
-        <Button 
-          type="submit" 
-          className="w-full h-12 text-base font-semibold"
-          variant="sport"
+        <Button
+          type="submit"
+          className="w-full"
           disabled={isLoading}
         >
-          {isLoading ? "Accediendo..." : translations.signIn.toUpperCase()}
+          {isLoading ? "Iniciando sesión..." : "Iniciar sesión"}
         </Button>
       </form>
       
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t border-gray-200" />
+          <span className="w-full border-t border-border" />
         </div>
-        <div className="relative flex justify-center">
-          <span className="bg-background px-3 text-xs text-gray-500 uppercase tracking-widest">o continuar con</span>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-background px-2 text-muted-foreground">
+            O continúa con
+          </span>
         </div>
       </div>
       
       <div className="grid grid-cols-2 gap-3">
-        <Button 
-          type="button" 
-          variant="outline" 
-          className="h-12 bg-white hover:bg-gray-50 border border-gray-200" 
+        <Button
+          type="button"
+          variant="outline"
           onClick={handleGoogleSignIn}
           disabled={isLoading}
+          className="w-full"
         >
-          <svg className="mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-            <path fill="none" d="M1 1h22v22H1z" />
+          <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
+            <path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"></path>
           </svg>
           Google
         </Button>
-        <Button 
-          type="button" 
-          variant="outline" 
-          className="h-12 bg-white hover:bg-gray-50 border border-gray-200"
+        <Button
+          type="button"
+          variant="outline"
           onClick={handleGithubSignIn}
           disabled={isLoading}
+          className="w-full"
         >
-          <Github className="mr-2 h-5 w-5" />
+          <Github className="mr-2 h-4 w-4" />
           GitHub
         </Button>
       </div>
 
       <Dialog open={isResetOpen} onOpenChange={setIsResetOpen}>
-        <DialogContent className="sm:max-w-md bg-white rounded-xl p-6 shadow-xl">
-          <DialogHeader>
-            <DialogTitle className="text-2xl font-bold font-display tracking-tight text-sport-dark">Recuperar contraseña</DialogTitle>
-            <DialogDescription className="text-gray-600">
-              Introduce tu email y te enviaremos instrucciones para restablecer tu contraseña.
-            </DialogDescription>
-          </DialogHeader>
-          
-          {isResetSent ? (
-            <div className="space-y-4 py-4">
-              <div className="bg-green-50 border-l-4 border-green-400 p-4 rounded-md">
-                <p className="flex items-center text-green-700 font-medium">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                  </svg>
-                  Correo enviado
-                </p>
-                <p className="text-green-600 mt-1">
-                  Se ha enviado un enlace para restablecer tu contraseña.
-                </p>
-              </div>
-              <p className="text-center text-sm text-gray-500">
-                Si no lo encuentras, revisa la carpeta de spam.
+        <DialogContent className="sm:max-w-md">
+          <div className="w-full space-y-5">
+            <div className="space-y-2 text-center">
+              <h2 className="text-2xl font-bold text-foreground tracking-tight font-display">
+                Restablecer contraseña
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                Ingresa tu correo electrónico para recibir un enlace de restablecimiento
               </p>
-              <Button 
-                className="w-full" 
-                variant="sport"
-                onClick={() => {
-                  setIsResetOpen(false);
-                  setIsResetSent(false);
-                  setResetEmail('');
-                }}
-              >
-                CERRAR
-              </Button>
             </div>
-          ) : (
-            <form onSubmit={handleResetPassword} className="space-y-4 py-4">
+
+            <form onSubmit={handleResetPassword} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="resetEmail" className="font-medium">Email</Label>
                 <div className="relative">
@@ -343,32 +382,21 @@ const LoginForm = ({ onSuccess }: { onSuccess?: () => void }) => {
                     value={resetEmail}
                     onChange={(e) => setResetEmail(e.target.value)}
                     disabled={isLoading}
-                    className="pl-10 bg-gray-50 border-gray-200 focus:border-sport-blue focus:ring-2 focus:ring-sport-blue/20"
+                    className="pl-10 bg-background border-input focus:border-primary focus:ring-2 focus:ring-primary/20"
                   />
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-5 w-5" />
                 </div>
               </div>
-              
-              <div className="flex justify-end space-x-2 mt-6">
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={() => setIsResetOpen(false)}
-                  disabled={isLoading}
-                  className="border-gray-200"
-                >
-                  {translations.cancel}
-                </Button>
-                <Button 
-                  type="submit" 
-                  disabled={isLoading}
-                  variant="energy"
-                >
-                  {isLoading ? "Enviando..." : "ENVIAR ENLACE"}
-                </Button>
-              </div>
+
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={isLoading || isResetSent}
+              >
+                {isLoading ? "Enviando..." : isResetSent ? "Enlace enviado" : "Enviar enlace"}
+              </Button>
             </form>
-          )}
+          </div>
         </DialogContent>
       </Dialog>
     </div>

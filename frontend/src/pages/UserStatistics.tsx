@@ -1,4 +1,3 @@
-
 import { useParams } from "react-router-dom";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,7 +8,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useLanguage } from "@/hooks/useLanguage";
 
 const mockUserData = {
   name: "Carlos Rodríguez",
@@ -35,7 +33,6 @@ const mockMatchHistory = [
   { id: 12, date: "2022-09-05", opponent: "Jorge Navarro", result: "Victoria", score: "6-4, 7-5", tournament: "Torneo Otoño", round: "Cuartos de final" },
 ];
 
-// Performance data for different years
 const performanceData2023 = [
   { month: "Ene", victories: 3, defeats: 1 },
   { month: "Feb", victories: 2, defeats: 1 },
@@ -75,7 +72,6 @@ const getAvailableYears = () => {
 const UserStatistics = () => {
   const { userId } = useParams();
   const isMobile = useIsMobile();
-  const { translations } = useLanguage();
   const availableYears = getAvailableYears();
   const [selectedYear, setSelectedYear] = useState<string>(availableYears[0]);
   const [performanceYear, setPerformanceYear] = useState<string>(availableYears[0]);
@@ -85,33 +81,30 @@ const UserStatistics = () => {
   );
 
   const getResultClass = (result: string) => {
-    if (result === "Victoria" || result === translations.victory) return "text-green-600 font-medium";
-    if (result === "Derrota" || result === translations.defeat) return "text-red-600 font-medium";
+    if (result === "Victoria") return "text-green-600 font-medium";
+    if (result === "Derrota") return "text-red-600 font-medium";
     return "text-blue-600 font-medium";
   };
 
   const translateResult = (result: string) => {
-    if (result === "Victoria") return translations.victory;
-    if (result === "Derrota") return translations.defeat;
-    if (result === "Empate") return translations.draw;
-    return result;
+    return result; // Already in Spanish
   };
 
   return (
     <DashboardLayout>
       <div className="w-full px-4 sm:px-6 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">{translations.statistics} - {mockUserData.name}</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Estadísticas - {mockUserData.name}</h1>
           <p className="text-muted-foreground">
-            {translations.performance}
+            Rendimiento
           </p>
         </div>
         
         <div className="space-y-6 w-full">
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 w-full">
-            <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+            <Card className="relative overflow-hidden border bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-transparent hover:from-blue-500/20 hover:via-blue-500/10 transition-all duration-300">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">{translations.matches}</CardTitle>
+                <CardTitle className="text-sm font-medium">Partidos</CardTitle>
                 <Users className="h-4 w-4 text-blue-500" />
               </CardHeader>
               <CardContent>
@@ -122,9 +115,9 @@ const UserStatistics = () => {
               </CardContent>
             </Card>
             
-            <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+            <Card className="relative overflow-hidden border bg-gradient-to-br from-green-500/10 via-green-500/5 to-transparent hover:from-green-500/20 hover:via-green-500/10 transition-all duration-300">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">{translations.winRate}</CardTitle>
+                <CardTitle className="text-sm font-medium">Porcentaje de victorias</CardTitle>
                 <TrendingUp className="h-4 w-4 text-green-500" />
               </CardHeader>
               <CardContent>
@@ -135,10 +128,10 @@ const UserStatistics = () => {
               </CardContent>
             </Card>
             
-            <Card className="bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200">
+            <Card className="relative overflow-hidden border bg-gradient-to-br from-purple-500/10 via-purple-500/5 to-transparent hover:from-purple-500/20 hover:via-purple-500/10 transition-all duration-300">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">{translations.position}</CardTitle>
-                <Trophy className="h-4 w-4 text-amber-500" />
+                <CardTitle className="text-sm font-medium">Posición</CardTitle>
+                <Trophy className="h-4 w-4 text-purple-500" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">#{mockUserData.ranking}</div>
@@ -152,9 +145,9 @@ const UserStatistics = () => {
           <Card className="col-span-1 w-full">
             <CardHeader className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
               <div>
-                <CardTitle>{translations.performance}</CardTitle>
+                <CardTitle>Rendimiento</CardTitle>
                 <CardDescription>
-                  {translations.victoriesChart} y {translations.defeatsChart}
+                  Victorias y Derrotas
                 </CardDescription>
               </div>
               <div className="flex items-center gap-2">
@@ -181,21 +174,28 @@ const UserStatistics = () => {
                 <div className={isMobile ? "min-w-[600px] h-[250px]" : "w-full h-[250px]"}>
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={performanceDataByYear[performanceYear] || performanceData2023}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="month" tick={{ fontSize: isMobile ? 10 : 12 }} />
-                      <YAxis tick={{ fontSize: isMobile ? 10 : 12 }} />
-                      <Tooltip contentStyle={{ fontSize: isMobile ? '11px' : '12px' }} />
+                      <CartesianGrid strokeDasharray="3 3" className="stroke-border/50" />
+                      <XAxis dataKey="month" tick={{ fontSize: isMobile ? 10 : 12 }} className="text-muted-foreground" />
+                      <YAxis tick={{ fontSize: isMobile ? 10 : 12 }} className="text-muted-foreground" />
+                      <Tooltip 
+                        contentStyle={{ 
+                          fontSize: isMobile ? '11px' : '12px',
+                          backgroundColor: 'hsl(var(--popover))',
+                          border: '1px solid hsl(var(--border))',
+                          color: 'hsl(var(--foreground))'
+                        }} 
+                      />
                       <Legend wrapperStyle={{ fontSize: isMobile ? '11px' : '12px' }} />
                       <Bar 
                         dataKey="victories" 
                         fill="#22C55E" 
-                        name={translations.victoriesChart} 
+                        name="Victorias" 
                         radius={[4, 4, 0, 0]}
                       />
                       <Bar 
                         dataKey="defeats" 
-                        fill="#EF4444" 
-                        name={translations.defeatsChart}
+                        fill="hsl(var(--destructive))" 
+                        name="Derrotas"
                         radius={[4, 4, 0, 0]} 
                       />
                     </BarChart>
@@ -208,9 +208,9 @@ const UserStatistics = () => {
           <Card className="w-full">
             <CardHeader className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
               <div>
-                <CardTitle>{translations.playerActivity}</CardTitle>
+                <CardTitle>Actividad del jugador</CardTitle>
                 <CardDescription>
-                  {translations.matches}
+                  Partidos
                 </CardDescription>
               </div>
               <div className="flex items-center gap-2">
@@ -238,12 +238,12 @@ const UserStatistics = () => {
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="text-xs md:text-sm">{translations.date}</TableHead>
-                        <TableHead className="text-xs md:text-sm">{translations.tournament}</TableHead>
-                        <TableHead className="text-xs md:text-sm">{translations.round}</TableHead>
-                        <TableHead className="text-xs md:text-sm">{translations.opponent}</TableHead>
-                        <TableHead className="text-xs md:text-sm">{translations.result}</TableHead>
-                        <TableHead className="text-xs md:text-sm">{translations.score}</TableHead>
+                        <TableHead className="text-xs md:text-sm">Fecha</TableHead>
+                        <TableHead className="text-xs md:text-sm">Torneo</TableHead>
+                        <TableHead className="text-xs md:text-sm">Ronda</TableHead>
+                        <TableHead className="text-xs md:text-sm">Oponente</TableHead>
+                        <TableHead className="text-xs md:text-sm">Resultado</TableHead>
+                        <TableHead className="text-xs md:text-sm">Marcador</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -253,8 +253,14 @@ const UserStatistics = () => {
                           <TableCell className="text-xs md:text-sm">{match.tournament}</TableCell>
                           <TableCell className="text-xs md:text-sm">{match.round}</TableCell>
                           <TableCell className="text-xs md:text-sm">{match.opponent}</TableCell>
-                          <TableCell className={`${getResultClass(match.result)} text-xs md:text-sm`}>
-                            {translateResult(match.result)}
+                          <TableCell>
+                            <span className={`text-xs md:text-sm font-medium ${
+                              match.result === "Victoria" ? "text-[#22C55E]" :
+                              match.result === "Derrota" ? "text-destructive" :
+                              "text-primary"
+                            }`}>
+                              {translateResult(match.result)}
+                            </span>
                           </TableCell>
                           <TableCell className="text-xs md:text-sm">{match.score}</TableCell>
                         </TableRow>

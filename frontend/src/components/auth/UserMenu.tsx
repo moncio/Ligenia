@@ -1,6 +1,4 @@
 
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -11,8 +9,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut, Settings, User as UserIcon } from 'lucide-react';
+import { LogOut, Settings } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { Skeleton } from "@/components/ui/skeleton";
 
 const UserMenu = () => {
@@ -39,9 +38,9 @@ const UserMenu = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+        <Button variant="ghost" className="relative h-10 w-10 rounded-full p-0 cursor-pointer">
           <Avatar>
-            <AvatarImage src={profile?.avatar_url} />
+            <AvatarImage src={profile?.avatar_url} alt={profile?.full_name || user?.email} />
             <AvatarFallback className="bg-blue-500 text-white">
               {userInitials}
             </AvatarFallback>
@@ -49,19 +48,17 @@ const UserMenu = () => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel>Mi cuenta</DropdownMenuLabel>
+        <DropdownMenuLabel>
+          {profile?.full_name || user?.email}
+        </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
-          <span className="w-full truncate">{profile?.full_name || user?.email}</span>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => navigate('/settings')} className="flex items-center">
+        <DropdownMenuItem onClick={() => navigate('/settings')} className="flex items-center cursor-pointer">
           <Settings className="mr-2 h-4 w-4" />
           <span>Configuración</span>
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={handleSignOut} className="flex items-center">
+        <DropdownMenuItem onClick={handleSignOut} className="flex items-center cursor-pointer">
           <LogOut className="mr-2 h-4 w-4" />
-          <span>Cerrar sesión</span>
+          <span>Cerrar Sesión</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

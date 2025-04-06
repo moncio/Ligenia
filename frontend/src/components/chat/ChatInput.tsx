@@ -3,7 +3,6 @@ import { FormEvent } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Send } from "lucide-react";
-import { useLanguage } from "@/hooks/useLanguage";
 
 interface ChatInputProps {
   value: string;
@@ -14,14 +13,12 @@ interface ChatInputProps {
 }
 
 const ChatInput = ({ value, onChange, onSubmit, placeholder, isLoading = false }: ChatInputProps) => {
-  const { translations } = useLanguage();
-  
   return (
     <form onSubmit={onSubmit} className="flex w-full gap-2">
       <Input
         value={value}
         onChange={onChange}
-        placeholder={placeholder || translations.askQuestion}
+        placeholder={placeholder || "Escribe tu pregunta..."}
         disabled={isLoading}
         className="flex-1"
       />
@@ -31,6 +28,7 @@ const ChatInput = ({ value, onChange, onSubmit, placeholder, isLoading = false }
         className="shrink-0"
       >
         <Send className="h-4 w-4" />
+        <span className="sr-only">Enviar mensaje</span>
       </Button>
     </form>
   );

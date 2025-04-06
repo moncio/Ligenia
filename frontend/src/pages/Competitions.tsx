@@ -253,12 +253,12 @@ const Competitions = () => {
             transition={{ duration: 0.5 }}
             className="flex justify-between items-center mb-6"
           >
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 font-display">
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground font-display">
               Torneos
             </h1>
             <div className="flex items-center gap-2">
-              <Filter className="h-5 w-5 text-sport-blue" />
-              <span className="text-sm font-medium text-gray-700 hidden sm:inline">Filtrar por:</span>
+              <Filter className="h-5 w-5 text-primary" />
+              <span className="text-sm font-medium text-muted-foreground hidden sm:inline">Filtrar por:</span>
             </div>
           </motion.div>
           
@@ -266,13 +266,13 @@ const Competitions = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="mb-6 bg-white rounded-xl shadow-sm p-4"
+            className="mb-6 bg-background rounded-xl shadow-sm p-4 border"
           >
             <div className="w-full">
               <Tabs value={filtroEstado} onValueChange={value => setFiltroEstado(value as FilterType)} className="w-full">
                 <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center pb-3">
                   <div className="relative flex-1 w-full">
-                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
                       placeholder="Buscar torneo..."
                       value={searchTerm}
@@ -282,38 +282,38 @@ const Competitions = () => {
                   </div>
                   
                   <div className="w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0">
-                    <TabsList className="inline-flex h-auto p-1 bg-gray-100 rounded-lg w-full sm:w-auto min-w-[300px] sm:min-w-0">
-                      <TabsTrigger value="todos" className="px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-md font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm flex-1 sm:flex-none whitespace-nowrap">Todos</TabsTrigger>
-                      <TabsTrigger value="proximos" className="px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-md font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm flex-1 sm:flex-none whitespace-nowrap">Próximos</TabsTrigger>
-                      <TabsTrigger value="activos" className="px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-md font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm flex-1 sm:flex-none whitespace-nowrap">Activos</TabsTrigger>
-                      <TabsTrigger value="finalizados" className="px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-md font-medium data-[state=active]:bg-white data-[state=active]:shadow-sm flex-1 sm:flex-none whitespace-nowrap">Finalizados</TabsTrigger>
+                    <TabsList className="inline-flex h-auto p-1 bg-muted rounded-lg w-full sm:w-auto min-w-[300px] sm:min-w-0">
+                      <TabsTrigger value="todos" className="px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-md font-medium data-[state=active]:bg-background data-[state=active]:shadow-sm flex-1 sm:flex-none whitespace-nowrap">Todos</TabsTrigger>
+                      <TabsTrigger value="proximos" className="px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-md font-medium data-[state=active]:bg-background data-[state=active]:shadow-sm flex-1 sm:flex-none whitespace-nowrap">Próximos</TabsTrigger>
+                      <TabsTrigger value="activos" className="px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-md font-medium data-[state=active]:bg-background data-[state=active]:shadow-sm flex-1 sm:flex-none whitespace-nowrap">Activos</TabsTrigger>
+                      <TabsTrigger value="finalizados" className="px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-md font-medium data-[state=active]:bg-background data-[state=active]:shadow-sm flex-1 sm:flex-none whitespace-nowrap">Finalizados</TabsTrigger>
                     </TabsList>
                   </div>
                 </div>
                 
                 <TabsContent value="todos" className="mt-0">
-                  <div className="flex items-center gap-2 mb-4 text-sm text-gray-500">
+                  <div className="flex items-center gap-2 mb-4 text-sm text-muted-foreground">
                     <Calendar className="h-4 w-4" />
                     <span>Mostrando todos los torneos ({torneosFiltrados.length})</span>
                   </div>
                 </TabsContent>
                 
                 <TabsContent value="proximos" className="mt-0">
-                  <div className="flex items-center gap-2 mb-4 text-sm text-gray-500">
+                  <div className="flex items-center gap-2 mb-4 text-sm text-muted-foreground">
                     <Calendar className="h-4 w-4" />
                     <span>Mostrando torneos próximos ({torneosFiltrados.length})</span>
                   </div>
                 </TabsContent>
                 
                 <TabsContent value="activos" className="mt-0">
-                  <div className="flex items-center gap-2 mb-4 text-sm text-gray-500">
+                  <div className="flex items-center gap-2 mb-4 text-sm text-muted-foreground">
                     <Calendar className="h-4 w-4" />
                     <span>Mostrando torneos activos ({torneosFiltrados.length})</span>
                   </div>
                 </TabsContent>
                 
                 <TabsContent value="finalizados" className="mt-0">
-                  <div className="flex items-center gap-2 mb-4 text-sm text-gray-500">
+                  <div className="flex items-center gap-2 mb-4 text-sm text-muted-foreground">
                     <Calendar className="h-4 w-4" />
                     <span>Mostrando torneos finalizados ({torneosFiltrados.length})</span>
                   </div>
@@ -326,19 +326,19 @@ const Competitions = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="rounded-xl overflow-hidden bg-white shadow-sm"
+            className="rounded-xl overflow-hidden bg-background shadow-sm border"
           >
             {torneosFiltrados.length === 0 ? (
               <div className="p-8 text-center w-full">
                 <motion.div
                   animate={{ scale: [1, 1.05, 1] }}
                   transition={{ repeat: Infinity, duration: 3 }}
-                  className="mx-auto w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mb-4"
+                  className="mx-auto w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mb-4"
                 >
-                  <Trophy className="h-8 w-8 text-sport-blue" />
+                  <Trophy className="h-8 w-8 text-primary" />
                 </motion.div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No hay torneos disponibles</h3>
-                <p className="text-gray-500 max-w-md mx-auto">
+                <h3 className="text-lg font-medium text-foreground mb-2">No hay torneos disponibles</h3>
+                <p className="text-muted-foreground max-w-md mx-auto">
                   No se encontraron torneos para el filtro "{getNombreFiltro()}". 
                   Prueba con otro filtro o vuelve más tarde.
                 </p>

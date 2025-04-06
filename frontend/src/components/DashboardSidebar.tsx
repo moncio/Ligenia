@@ -23,81 +23,83 @@ import {
   useSidebar
 } from "@/components/ui/sidebar";
 import { useLocation, Link, useNavigate } from 'react-router-dom';
-import { useLanguage } from '@/hooks/useLanguage';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
 
 export const DashboardSidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { isMobile, setOpenMobile } = useSidebar();
-  const { translations, language } = useLanguage();
+  const { signOut } = useAuth();
+  const { toast } = useToast();
   
-  // Función para determinar si un enlace está activo
+  // Function to determine if a link is active
   const isActive = (path: string) => {
     return location.pathname === path;
   };
   
-  // Función para manejar la navegación en móvil
+  // Function to handle navigation on mobile
   const handleNavigation = (path: string) => {
     if (isMobile) {
       setOpenMobile(false);
     }
     navigate(path);
   };
-  
-  // Traducciones adicionales para el sidebar
-  const sidebarTranslations = {
-    es: {
-      general: "General",
-      home: "Inicio",
-      tournaments: "Torneos",
-      statistics: "Estadísticas",
-      chatbot: "Chatbot IA",
-      account: "Cuenta",
-      settings: "Configuración",
-      logout: "Cerrar Sesión"
-    },
-    en: {
-      general: "General",
-      home: "Home",
-      tournaments: "Tournaments",
-      statistics: "Statistics",
-      chatbot: "AI Chatbot",
-      account: "Account",
-      settings: "Settings",
-      logout: "Logout"
+
+  // Handle logout - updated to match UserMenu implementation
+  const handleSignOut = async () => {
+    try {
+      if (isMobile) {
+        setOpenMobile(false);
+      }
+      
+      await signOut();
+      
+      // After successful signOut, redirect to landing page
+      navigate('/', { replace: true });
+      
+      toast({
+        title: 'Sesión cerrada',
+        description: 'Has cerrado sesión correctamente'
+      });
+    } catch (error) {
+      console.error('Error signing out:', error);
+      toast({
+        title: 'Error',
+        description: 'No se pudo cerrar la sesión',
+        variant: 'destructive'
+      });
     }
   };
   
-  const t = sidebarTranslations[language];
-  
-  // Elementos del menú principal
+  // Main menu items
   const mainMenuItems = [
     {
-      title: t.home,
+      title: "Inicio",
       path: "/dashboard",
       icon: Home,
     },
     {
-      title: t.tournaments,
+      title: "Competiciones",
       path: "/torneos",
       icon: Trophy,
     },
     {
-      title: t.statistics,
+      title: "Estadísticas",
       path: "/statistics",
       icon: BarChart,
     },
     {
-      title: t.chatbot,
+      title: "Asistente IA",
       path: "/assistant",
       icon: MessageSquare,
     },
   ];
   
-  // Elementos del menú secundario
+  // Secondary menu items
   const secondaryMenuItems = [
     {
-      title: t.settings,
+      title: "Configuración",
       path: "/settings",
       icon: Settings,
     },
@@ -115,7 +117,7 @@ export const DashboardSidebar = () => {
       
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>{t.general}</SidebarGroupLabel>
+          <SidebarGroupLabel>General</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {mainMenuItems.map((item) => (
@@ -145,7 +147,7 @@ export const DashboardSidebar = () => {
         <SidebarSeparator />
         
         <SidebarGroup>
-          <SidebarGroupLabel>{t.account}</SidebarGroupLabel>
+          <SidebarGroupLabel>Cuenta</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {secondaryMenuItems.map((item) => (
@@ -179,20 +181,11 @@ export const DashboardSidebar = () => {
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton 
-                  asChild 
-                  tooltip={t.logout}
-                  onClick={(e) => {
-                    if (isMobile) {
-                      e.preventDefault();
-                      setOpenMobile(false);
-                      navigate("/");
-                    }
-                  }}
+                  tooltip="Cerrar sesión"
+                  onClick={handleSignOut}
                 >
-                  <Link to="/">
-                    <LogOut />
-                    <span>{t.logout}</span>
-                  </Link>
+                  <LogOut />
+                  <span>Cerrar sesión</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>

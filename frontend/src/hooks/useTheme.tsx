@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 
 type Theme = 'light' | 'dark' | 'system';
@@ -6,50 +5,51 @@ type Theme = 'light' | 'dark' | 'system';
 export function useTheme() {
   // Estado para almacenar el tema actual
   const [theme, setTheme] = useState<Theme>(() => {
-    // Intentar recuperar del localStorage al inicializar
+    // Try to get the theme from localStorage
     const savedTheme = localStorage.getItem('theme') as Theme | null;
     return savedTheme || 'system';
   });
 
-  // Efecto para aplicar el tema al documento
+  // Effect to handle system preference changes
   useEffect(() => {
-    const root = window.document.documentElement;
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     
-    // Limpiar clases anteriores
+    const handleSystemThemeChange = () => {
+      if (theme === 'system') {
+        document.documentElement.classList.remove('light', 'dark');
+        document.documentElement.classList.add(
+          mediaQuery.matches ? 'dark' : 'light'
+        );
+      }
+    };
+
+    mediaQuery.addEventListener('change', handleSystemThemeChange);
+    return () => mediaQuery.removeEventListener('change', handleSystemThemeChange);
+  }, [theme]);
+
+  // Effect to apply theme changes
+  useEffect(() => {
+    const root = document.documentElement;
     root.classList.remove('light', 'dark');
-    
+
     if (theme === 'system') {
-      // Detectar preferencia del sistema
-      const systemPreference = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-      root.classList.add(systemPreference);
+      // Check system preference
+      const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches
+        ? 'dark'
+        : 'light';
+      root.classList.add(systemTheme);
     } else {
-      // Aplicar tema específico
       root.classList.add(theme);
     }
-    
-    // Guardar en localStorage
+
+    // Save to localStorage
     localStorage.setItem('theme', theme);
   }, [theme]);
 
-  // Efecto para escuchar cambios en la preferencia del sistema
-  useEffect(() => {
-    if (theme !== 'system') return;
-    
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    
-    // Función para manejar cambios en la preferencia del sistema
-    const handleChange = () => {
-      const root = window.document.documentElement;
-      root.classList.remove('light', 'dark');
-      root.classList.add(mediaQuery.matches ? 'dark' : 'light');
-    };
-    
-    // Añadir listener
-    mediaQuery.addEventListener('change', handleChange);
-    
-    // Limpiar al desmontar
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, [theme]);
-
-  return { theme, setTheme };
+  return {
+    theme,
+    setTheme: (newTheme: Theme) => {
+      setTheme(newTheme);
+    },
+  };
 }

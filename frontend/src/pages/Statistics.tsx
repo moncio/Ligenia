@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,7 +22,6 @@ import {
 } from "@/components/ui/pagination";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
-import { useLanguage } from "@/hooks/useLanguage";
 
 // Mockup data for player ranking
 const PLAYERS_PER_PAGE = 10;
@@ -39,7 +37,6 @@ const Statistics = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const navigate = useNavigate();
-  const { translations } = useLanguage();
 
   // Fetch the current user to highlight them in the table
   const { data: currentUser } = useQuery({
@@ -144,13 +141,13 @@ const Statistics = () => {
     <DashboardLayout>
       <div className="w-full py-8 px-4 sm:px-6">
         <div className="mb-8 w-full">
-          <h1 className="text-3xl font-bold mb-6">{translations.playerRanking}</h1>
+          <h1 className="text-3xl font-bold mb-6">Ranking de jugadores</h1>
           
           {/* Search filter */}
           <div className="mb-6">
             <Input
               type="text"
-              placeholder={translations.searchPlayer}
+              placeholder="Buscar jugador"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="max-w-sm"
@@ -162,22 +159,22 @@ const Statistics = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-24 text-center">{translations.position}</TableHead>
-                  <TableHead>{translations.name}</TableHead>
-                  <TableHead className="text-right">{translations.points}</TableHead>
+                  <TableHead className="w-24 text-center">Posición</TableHead>
+                  <TableHead>Nombre</TableHead>
+                  <TableHead className="text-right">Puntos</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoading ? (
                   <TableRow>
                     <TableCell colSpan={3} className="text-center py-10">
-                      {translations.loading}
+                      Cargando...
                     </TableCell>
                   </TableRow>
                 ) : paginatedPlayers.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={3} className="text-center py-10">
-                      {translations.noResults}
+                      No se encontraron resultados
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -188,7 +185,7 @@ const Statistics = () => {
                     return (
                       <TableRow 
                         key={player.id}
-                        className={`cursor-pointer ${isCurrentUser ? 'bg-blue-50 hover:bg-blue-100' : 'hover:bg-gray-50'}`}
+                        className={`cursor-pointer ${isCurrentUser ? 'bg-primary/10 hover:bg-primary/20' : 'hover:bg-muted'}`}
                         onClick={() => handlePlayerClick(player.id)}
                       >
                         <TableCell className="text-center font-medium">

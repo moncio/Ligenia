@@ -1,9 +1,13 @@
+import { Facebook, Instagram, Twitter, Youtube, Mail } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
-import { Facebook, Instagram, Twitter, Youtube, Mail, Phone } from 'lucide-react';
+interface FooterProps {
+  className?: string;
+}
 
-const Footer = () => {
+const Footer: React.FC<FooterProps> = ({ className }) => {
   return (
-    <footer className="bg-gradient-to-r from-blue-50 to-blue-100 py-6 shadow-xl relative z-20">
+    <footer className={cn("bg-gradient-to-r from-blue-50 to-blue-100 py-4 shadow-xl relative z-20", className)}>
       <div className="container mx-auto px-6">
         <div className="max-w-7xl mx-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -46,7 +50,7 @@ const Footer = () => {
             </div>
           </div>
 
-          <div className="pt-4 text-center text-xs text-gray-500">
+          <div className="pt-2 text-center text-xs text-gray-500">
             © {new Date().getFullYear()} LIGENIA. Todos los derechos reservados.
           </div>
         </div>

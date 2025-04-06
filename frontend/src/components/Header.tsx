@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -21,11 +20,28 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Helper functions to trigger modal dialogs via button clicks
+  const handleLoginClick = () => {
+    setIsMenuOpen(false);
+    // Find and click the login trigger button
+    setTimeout(() => {
+      document.querySelector<HTMLButtonElement>('[data-login-trigger]')?.click();
+    }, 100);
+  };
+
+  const handleRegisterClick = () => {
+    setIsMenuOpen(false);
+    // Find and click the register trigger button
+    setTimeout(() => {
+      document.querySelector<HTMLButtonElement>('[data-register-trigger]')?.click();
+    }, 100);
+  };
+
   return (
     <header
       className={cn(
         "fixed top-0 left-0 right-0 z-50 transition-all duration-300 ease-in-out py-3 px-6 md:px-12",
-        isScrolled ? "bg-sport-dark/80 backdrop-blur-md shadow-lg" : "bg-transparent"
+        "bg-[#999999]" // Gray color #999999
       )}
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between relative z-10">
@@ -40,16 +56,20 @@ const Header = () => {
           {/* Show login/register buttons if user is not logged in */}
           {!user && (
             <div className="hidden md:flex items-center gap-4">
-              <Link to="/" onClick={() => document.querySelector<HTMLButtonElement>('[data-login-trigger]')?.click()}>
-                <Button variant="ghost" className="text-white hover:bg-white/10">
-                  Iniciar Sesión
-                </Button>
-              </Link>
-              <Link to="/" onClick={() => document.querySelector<HTMLButtonElement>('[data-register-trigger]')?.click()}>
-                <Button variant="sport" className="rounded-full shadow-sport">
-                  Registrarse
-                </Button>
-              </Link>
+              <Button 
+                variant="ghost" 
+                className="text-white hover:bg-white/10"
+                onClick={handleLoginClick}
+              >
+                Iniciar Sesión
+              </Button>
+              <Button 
+                variant="sport" 
+                className="rounded-full shadow-sport"
+                onClick={handleRegisterClick}
+              >
+                Registrarse
+              </Button>
             </div>
           )}
 
@@ -60,7 +80,7 @@ const Header = () => {
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="md:hidden relative z-10 p-2 text-white"
-            aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+            aria-label={isMenuOpen ? "Cerrar menú" : "Abrir menú"}
           >
             {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -68,27 +88,21 @@ const Header = () => {
 
         {/* Mobile Navigation */}
         {isMenuOpen && (
-          <div className="md:hidden fixed inset-0 bg-gradient-to-br from-sport-dark to-sport-blue z-0 flex flex-col justify-center items-center animate-fade-in">
-            <div className="mt-8 flex flex-col space-y-4 w-full items-center">
+          <div className="md:hidden fixed inset-0 bg-[#999999] z-0 flex flex-col justify-center items-center animate-fade-in">
+            <div className="mt-8 flex flex-col space-y-6 w-full items-center">
               {!user ? (
                 <>
                   <Button 
                     variant="ghost" 
                     className="text-white text-xl hover:bg-white/10 w-2/3"
-                    onClick={() => {
-                      setIsMenuOpen(false);
-                      document.querySelector<HTMLButtonElement>('[data-login-trigger]')?.click();
-                    }}
+                    onClick={handleLoginClick}
                   >
                     Iniciar Sesión
                   </Button>
                   <Button 
                     variant="sport" 
                     className="rounded-full shadow-sport text-xl w-2/3"
-                    onClick={() => {
-                      setIsMenuOpen(false);
-                      document.querySelector<HTMLButtonElement>('[data-register-trigger]')?.click();
-                    }}
+                    onClick={handleRegisterClick}
                   >
                     Registrarse
                   </Button>
@@ -97,7 +111,7 @@ const Header = () => {
                 <>
                   <Link to="/dashboard" className="w-2/3">
                     <Button variant="ghost" className="text-white text-xl hover:bg-white/10 w-full" onClick={() => setIsMenuOpen(false)}>
-                      Dashboard
+                      Panel Principal
                     </Button>
                   </Link>
                   <Link to="/settings" className="w-2/3">

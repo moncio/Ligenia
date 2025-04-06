@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import MessageBubble from "@/components/chat/MessageBubble";
@@ -14,40 +13,24 @@ interface Message {
   timestamp: Date;
 }
 
-// Sample initial messages
-const initialMessages: Message[] = [
-  {
-    id: "1",
-    content: "¡Hola! Soy el asistente virtual de LIGENIA. ¿En qué puedo ayudarte hoy?",
-    role: "assistant",
-    timestamp: new Date(),
-  },
-];
-
-// Updated suggestions
-const suggestions = [
-  {
-    text: "¿Cómo me inscribo a un torneo?",
-    icon: <Calendar className="h-4 w-4 mr-2" />,
-  },
-  {
-    text: "¿Cómo funciona el sistema de ranking?",
-    icon: <Trophy className="h-4 w-4 mr-2" />,
-  },
-  {
-    text: "¿Qué niveles de juego existen?",
-    icon: <Key className="h-4 w-4 mr-2" />,
-  },
-];
-
 // Generate a random ID for messages
 const generateId = () => Math.random().toString(36).substring(2, 9);
 
 const AIAssistant = () => {
-  const [messages, setMessages] = useState<Message[]>(initialMessages);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Initialize with welcome message in Spanish
+  useEffect(() => {
+    setMessages([{
+      id: "1",
+      content: "Soy el asistente virtual de LIGENIA. ¿En qué puedo ayudarte hoy?",
+      role: "assistant",
+      timestamp: new Date(),
+    }]);
+  }, []);
 
   // Scroll to bottom when new messages are added
   useEffect(() => {
@@ -116,34 +99,50 @@ const AIAssistant = () => {
     }, 1000);
   };
 
-  // Updated simulated response function with the corrected information
+  // Updated simulated response function with static Spanish responses
   const getSimulatedResponse = (input: string): string => {
     const lowerInput = input.toLowerCase();
     
-    if (lowerInput.includes("inscribo") || lowerInput.includes("torneo")) {
-      return "Para inscribirte a un torneo, debes seguir estos pasos:\n\n1. Inicia sesión en tu cuenta de LIGENIA\n2. Ve a la sección 'Torneos' en el menú principal\n3. Selecciona el torneo al que deseas inscribirte\n4. Haz clic en el botón 'Inscribirse'\n5. Completa el formulario con tus datos\n6. Realiza el pago de la inscripción si es necesario\n7. Recibirás un correo de confirmación con los detalles del torneo";
+    if (lowerInput.includes("torneo") || lowerInput.includes("inscrib")) {
+      return "Para inscribirte en un torneo, dirígete a la sección 'Torneos' en el menú principal. Allí podrás ver todos los torneos disponibles y sus fechas. Para inscribirte, selecciona el torneo que te interese y haz clic en 'Inscribirse'. Deberás completar un formulario con tus datos y realizar el pago correspondiente.";
     } else if (lowerInput.includes("ranking") || lowerInput.includes("sistema")) {
-      return "El sistema de ranking funciona de la siguiente manera:\n\n- Los puntos se asignan según la categoría del torneo (P1, P2 o P3)\n- Los torneos P1 otorgan más puntos que los P2, y estos más que los P3\n- También obtienes más puntos según la ronda a la que llegues en el torneo\n- Por ejemplo, ganar un torneo P1 otorga significativamente más puntos que ganar un torneo P3\n- Tu ranking se calcula sumando los puntos obtenidos en los últimos 12 meses\n- Esto determina tu posición en la clasificación general";
-    } else if (lowerInput.includes("nivel") || lowerInput.includes("juego") || lowerInput.includes("existen")) {
-      return "En LIGENIA utilizamos 3 niveles de juego según la habilidad del jugador:\n\n- P1 → Avanzado (nivel 4, 4.5 y 5): Jugadores con técnica refinada y estrategia avanzada\n- P2 → Intermedio (nivel 3, 3.5 y 4): Jugadores con buena técnica y táctica consistente\n- P3 → Principiante (nivel 1, 2 y 2.5): Jugadores con poca experiencia o habilidades básicas\n\nEsto nos permite crear emparejamientos más justos y competitivos en los torneos.";
+      return "El sistema de ranking se basa en los puntos obtenidos en los torneos oficiales. Los puntos se asignan según la ronda alcanzada y la categoría del torneo. Al final de cada temporada, se actualiza el ranking general y se determinan las categorías para la siguiente temporada.";
+    } else if (lowerInput.includes("nivel") || lowerInput.includes("habilidad") || lowerInput.includes("exist")) {
+      return "Existen 6 niveles de juego en nuestro sistema: Principiante (1), Intermedio Bajo (2), Intermedio (3), Intermedio Alto (4), Avanzado (5) y Profesional (6). Tu nivel se determina por tu rendimiento en los torneos y puede subir o bajar según tus resultados.";
     } else {
-      return "Gracias por tu pregunta. Nuestro equipo está trabajando para mejorar mis respuestas. Mientras tanto, ¿puedo ayudarte con información sobre cómo inscribirte a un torneo, el sistema de ranking o los niveles de juego que existen?";
+      return "No tengo información específica sobre esa consulta. ¿Puedes reformularla o preguntar sobre torneos, el sistema de ranking o los niveles de juego?";
     }
   };
+
+  // Suggestions in Spanish
+  const suggestions = [
+    {
+      text: "¿Cómo me inscribo en un torneo?",
+      icon: <Calendar className="h-4 w-4 mr-2" />,
+    },
+    {
+      text: "¿Cómo funciona el sistema de ranking?",
+      icon: <Trophy className="h-4 w-4 mr-2" />,
+    },
+    {
+      text: "¿Qué niveles de juego existen?",
+      icon: <Key className="h-4 w-4 mr-2" />,
+    },
+  ];
 
   return (
     <DashboardLayout>
       <div className="flex flex-col h-[calc(100vh-4rem)]">
         {/* Header */}
-        <header className="bg-white border-b border-gray-200 py-4 px-6 flex items-center">
-          <h1 className="text-xl font-semibold text-gray-800 flex items-center">
+        <header className="bg-background border-b border-border py-4 px-6 flex items-center">
+          <h1 className="text-xl font-semibold text-foreground flex items-center">
             Asistente Virtual
-            <Sparkles className="ml-2 h-5 w-5 text-blue-500" />
+            <Sparkles className="ml-2 h-5 w-5 text-primary" />
           </h1>
         </header>
 
         {/* Chat container */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 bg-background/50">
           <div className="max-w-3xl mx-auto">
             <div className="space-y-4">
               {messages.map((message) => (
@@ -156,11 +155,11 @@ const AIAssistant = () => {
               ))}
               {isLoading && (
                 <div className="flex justify-start">
-                  <div className="bg-white rounded-lg p-4 shadow-sm max-w-[80%]">
+                  <div className="bg-muted rounded-lg p-4 shadow-sm max-w-[80%]">
                     <div className="animate-pulse flex space-x-2">
-                      <div className="h-2 w-2 bg-gray-300 rounded-full"></div>
-                      <div className="h-2 w-2 bg-gray-300 rounded-full"></div>
-                      <div className="h-2 w-2 bg-gray-300 rounded-full"></div>
+                      <div className="h-2 w-2 bg-muted-foreground/30 rounded-full"></div>
+                      <div className="h-2 w-2 bg-muted-foreground/30 rounded-full"></div>
+                      <div className="h-2 w-2 bg-muted-foreground/30 rounded-full"></div>
                     </div>
                   </div>
                 </div>
@@ -170,7 +169,7 @@ const AIAssistant = () => {
 
             {/* Suggestions */}
             <div className="mt-6 mb-4">
-              <h3 className="text-sm font-medium text-gray-500 mb-2">Preguntas sugeridas:</h3>
+              <h3 className="text-sm font-medium text-muted-foreground mb-2">Preguntas sugeridas:</h3>
               <div className="flex flex-wrap gap-2">
                 {suggestions.map((suggestion, index) => (
                   <SuggestionButton
@@ -186,7 +185,7 @@ const AIAssistant = () => {
         </div>
 
         {/* Input area */}
-        <div className="bg-white border-t border-gray-200 p-4">
+        <div className="bg-background border-t border-border p-4">
           <div className="max-w-3xl mx-auto">
             <ChatInput
               value={inputValue}

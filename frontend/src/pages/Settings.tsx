@@ -1,5 +1,4 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import {
   Card,
@@ -15,6 +14,7 @@ import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { 
   Bell, 
   Globe, 
@@ -25,7 +25,9 @@ import {
   Save, 
   Moon, 
   Sun,
-  Laptop
+  Laptop,
+  Eye,
+  EyeOff
 } from "lucide-react";
 import {
   Dialog,
@@ -41,24 +43,37 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useTheme } from "@/hooks/useTheme";
 import { useFontSize } from "@/hooks/useFontSize";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { useLanguage } from "@/hooks/useLanguage";
-import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Settings = () => {
   const { theme, setTheme } = useTheme();
   const { fontSize, setFontSize } = useFontSize();
-  const { translations } = useLanguage();
+  const { toast } = useToast();
+  const { user, profile } = useAuth();
 
-  const [username, setUsername] = useState("usuario123");
-  const [email, setEmail] = useState("usuario@ligenia.com");
+  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   
   const [passwordModalOpen, setPasswordModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setEmail(user.email || "");
+      setUsername(profile?.username || user.email?.split("@")[0] || "");
+    }
+  }, [user, profile]);
 
   const passwordFormSchema = z.object({
-    currentPassword: z.string().min(1, { message: translations.currentPassword + " " + translations.required }),
-    newPassword: z.string().min(8, { message: translations.newPassword + " " + translations.required }),
-    confirmPassword: z.string().min(1, { message: translations.confirmPassword + " " + translations.required }),
+    currentPassword: z.string().min(1, { message: "La contraseña actual es obligatoria" }),
+    newPassword: z.string()
+      .min(6, { message: "La nueva contraseña debe tener al menos 6 caracteres" }),
+    confirmPassword: z.string().min(1, { message: "La confirmación de contraseña es obligatoria" }),
   }).refine((data) => data.newPassword === data.confirmPassword, {
     message: "Las contraseñas no coinciden",
     path: ["confirmPassword"],
@@ -73,14 +88,48 @@ const Settings = () => {
     },
   });
 
-  const onPasswordSubmit = (values: z.infer<typeof passwordFormSchema>) => {
-    console.log("Changing password:", values);
-    // Here you would typically call an API to change the password
-    
-    passwordForm.reset();
-    setPasswordModalOpen(false);
-    
-    alert("Contraseña actualizada con éxito");
+  const onPasswordSubmit = async (values: z.infer<typeof passwordFormSchema>) => {
+    setIsLoading(true);
+    try {
+      // First, verify the current password by attempting to sign in
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: email, // Using the email state we already have
+        password: values.currentPassword,
+      });
+
+      if (signInError) {
+        toast({
+          title: "Error de verificación",
+          description: "La contraseña actual es incorrecta",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // If current password is correct, update to the new password
+      const { error: updateError } = await supabase.auth.updateUser({
+        password: values.newPassword,
+      });
+
+      if (updateError) throw updateError;
+
+      // Success! Clear the form and show success message
+      passwordForm.reset();
+      setPasswordModalOpen(false);
+      
+      toast({
+        title: "¡Éxito!",
+        description: "Contraseña actualizada correctamente",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Error al actualizar la contraseña",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const [emailNotifications, setEmailNotifications] = useState(true);
@@ -91,44 +140,52 @@ const Settings = () => {
   const [twoFactorAuth, setTwoFactorAuth] = useState(false);
   const [dataSharing, setDataSharing] = useState(true);
 
+  const handleCloseDialog = () => {
+    passwordForm.reset();
+    setShowCurrentPassword(false);
+    setShowNewPassword(false);
+    setShowConfirmPassword(false);
+    setPasswordModalOpen(false);
+  };
+
   return (
     <DashboardLayout>
       <div className="w-full p-4 sm:p-6 space-y-6 flex flex-col min-h-[calc(100vh-64px)]">
         <div className="flex items-center justify-between w-full">
-          <h1 className="text-2xl font-bold tracking-tight">{translations.settings}</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Ajustes</h1>
         </div>
 
         <Tabs defaultValue="account" className="w-full">
           <TabsList className="grid w-full grid-cols-4 mb-6">
             <TabsTrigger value="account" className="flex items-center gap-2">
               <User className="h-4 w-4" />
-              <span className="hidden sm:inline">{translations.account}</span>
+              <span className="hidden sm:inline">Cuenta</span>
             </TabsTrigger>
             <TabsTrigger value="notifications" className="flex items-center gap-2">
               <Bell className="h-4 w-4" />
-              <span className="hidden sm:inline">{translations.notificationPreferences}</span>
+              <span className="hidden sm:inline">Notificaciones</span>
             </TabsTrigger>
             <TabsTrigger value="appearance" className="flex items-center gap-2">
               <PaintBucket className="h-4 w-4" />
-              <span className="hidden sm:inline">{translations.appearancePreferences}</span>
+              <span className="hidden sm:inline">Apariencia</span>
             </TabsTrigger>
             <TabsTrigger value="privacy" className="flex items-center gap-2">
               <Shield className="h-4 w-4" />
-              <span className="hidden sm:inline">{translations.privacyAndSecurity}</span>
+              <span className="hidden sm:inline">Privacidad</span>
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="account" className="w-full">
             <Card className="w-full">
               <CardHeader>
-                <CardTitle>{translations.accountSettings}</CardTitle>
+                <CardTitle>Ajustes de Cuenta</CardTitle>
                 <CardDescription>
-                  {translations.updatePersonalInfo}
+                  Actualiza tu información personal
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="username">{translations.username}</Label>
+                  <Label htmlFor="username">Nombre de Usuario</Label>
                   <Input 
                     id="username" 
                     value={username} 
@@ -136,7 +193,7 @@ const Settings = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="email">{translations.email}</Label>
+                  <Label htmlFor="email">Correo Electrónico</Label>
                   <Input 
                     id="email" 
                     type="email" 
@@ -145,10 +202,10 @@ const Settings = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="password">{translations.password}</Label>
+                  <Label htmlFor="password">Contraseña</Label>
                   <div className="flex gap-2">
                     <Input id="password" type="password" value="••••••••" disabled />
-                    <Button variant="outline" onClick={() => setPasswordModalOpen(true)}>{translations.change}</Button>
+                    <Button variant="outline" onClick={() => setPasswordModalOpen(true)}>Cambiar</Button>
                   </div>
                 </div>
               </CardContent>
@@ -158,17 +215,17 @@ const Settings = () => {
           <TabsContent value="notifications" className="w-full">
             <Card className="w-full">
               <CardHeader>
-                <CardTitle>{translations.notificationPreferences}</CardTitle>
+                <CardTitle>Preferencias de Notificaciones</CardTitle>
                 <CardDescription>
-                  {translations.configureNotifications}
+                  Configura cómo quieres recibir notificaciones
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
-                    <Label>{translations.emailNotifications}</Label>
+                    <Label>Notificaciones por Correo</Label>
                     <p className="text-sm text-muted-foreground">
-                      {translations.emailUpdates}
+                      Recibe actualizaciones por correo electrónico
                     </p>
                   </div>
                   <Switch 
@@ -178,9 +235,9 @@ const Settings = () => {
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
-                    <Label>{translations.tournamentReminders}</Label>
+                    <Label>Recordatorios de Torneos</Label>
                     <p className="text-sm text-muted-foreground">
-                      {translations.tournamentAlerts}
+                      Alertas sobre próximos torneos
                     </p>
                   </div>
                   <Switch 
@@ -190,9 +247,9 @@ const Settings = () => {
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
-                    <Label>{translations.matchResults}</Label>
+                    <Label>Resultados de Partidos</Label>
                     <p className="text-sm text-muted-foreground">
-                      {translations.matchResultNotifications}
+                      Notificaciones sobre resultados de partidos
                     </p>
                   </div>
                   <Switch 
@@ -207,32 +264,32 @@ const Settings = () => {
           <TabsContent value="appearance" className="w-full">
             <Card className="w-full">
               <CardHeader>
-                <CardTitle>{translations.appearancePreferences}</CardTitle>
+                <CardTitle>Preferencias de Apariencia</CardTitle>
                 <CardDescription>
-                  {translations.customizeAppearance}
+                  Personaliza la apariencia de la aplicación
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label>{translations.theme}</Label>
+                  <Label>Tema</Label>
                   <ToggleGroup type="single" value={theme} onValueChange={(value) => value && setTheme(value as 'light' | 'dark' | 'system')} className="justify-start">
-                    <ToggleGroupItem value="light" aria-label={translations.light}>
+                    <ToggleGroupItem value="light" aria-label="Claro">
                       <Sun className="h-4 w-4 mr-2" />
-                      {translations.light}
+                      Claro
                     </ToggleGroupItem>
-                    <ToggleGroupItem value="dark" aria-label={translations.dark}>
+                    <ToggleGroupItem value="dark" aria-label="Oscuro">
                       <Moon className="h-4 w-4 mr-2" />
-                      {translations.dark}
+                      Oscuro
                     </ToggleGroupItem>
-                    <ToggleGroupItem value="system" aria-label={translations.system}>
+                    <ToggleGroupItem value="system" aria-label="Sistema">
                       <Laptop className="h-4 w-4 mr-2" />
-                      {translations.system}
+                      Sistema
                     </ToggleGroupItem>
                   </ToggleGroup>
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label>{translations.fontSize}</Label>
+                    <Label>Tamaño de Fuente</Label>
                     <span className="text-sm">{fontSize}px</span>
                   </div>
                   <Slider 
@@ -243,12 +300,6 @@ const Settings = () => {
                     onValueChange={(value) => setFontSize(value[0])} 
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label>{translations.language}</Label>
-                  <div className="pt-2">
-                    <LanguageSwitcher variant="dashboard" />
-                  </div>
-                </div>
               </CardContent>
             </Card>
           </TabsContent>
@@ -256,30 +307,30 @@ const Settings = () => {
           <TabsContent value="privacy" className="w-full">
             <Card className="w-full">
               <CardHeader>
-                <CardTitle>{translations.privacyAndSecurity}</CardTitle>
+                <CardTitle>Privacidad y Seguridad</CardTitle>
                 <CardDescription>
-                  {translations.managePrivacy}
+                  Gestiona tu privacidad y configuración de seguridad
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="profile-visibility">{translations.profileVisibility}</Label>
+                  <Label htmlFor="profile-visibility">Visibilidad del Perfil</Label>
                   <Select value={profileVisibility} onValueChange={setProfileVisibility}>
                     <SelectTrigger id="profile-visibility">
                       <SelectValue placeholder="Seleccionar visibilidad" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="public">{translations.public}</SelectItem>
-                      <SelectItem value="friends">{translations.friends}</SelectItem>
-                      <SelectItem value="private">{translations.private}</SelectItem>
+                      <SelectItem value="public">Público</SelectItem>
+                      <SelectItem value="friends">Amigos</SelectItem>
+                      <SelectItem value="private">Privado</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
-                    <Label>{translations.twoFactorAuth}</Label>
+                    <Label>Autenticación de Dos Factores</Label>
                     <p className="text-sm text-muted-foreground">
-                      {translations.addSecurity}
+                      Añade una capa adicional de seguridad
                     </p>
                   </div>
                   <Switch 
@@ -289,9 +340,9 @@ const Settings = () => {
                 </div>
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
-                    <Label>{translations.dataSharing}</Label>
+                    <Label>Compartir Datos</Label>
                     <p className="text-sm text-muted-foreground">
-                      {translations.shareGameData}
+                      Compartir estadísticas de juego con otros usuarios
                     </p>
                   </div>
                   <Switch 
@@ -307,17 +358,19 @@ const Settings = () => {
         <div className="w-full flex justify-center mt-6">
           <Button className="bg-blue-600 hover:bg-blue-700" variant="sport">
             <Save className="mr-2 h-4 w-4" />
-            {translations.saveChanges}
+            Guardar Cambios
           </Button>
         </div>
       </div>
 
-      <Dialog open={passwordModalOpen} onOpenChange={setPasswordModalOpen}>
+      <Dialog open={passwordModalOpen} onOpenChange={(open) => {
+        if (!open) handleCloseDialog();
+      }}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
-            <DialogTitle>{translations.change} {translations.password}</DialogTitle>
+            <DialogTitle>Cambiar Contraseña</DialogTitle>
             <DialogDescription>
-              {translations.currentPassword} y {translations.newPassword}
+              Introduce tu contraseña actual y la nueva contraseña
             </DialogDescription>
           </DialogHeader>
 
@@ -328,9 +381,24 @@ const Settings = () => {
                 name="currentPassword"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{translations.currentPassword}</FormLabel>
+                    <FormLabel>Contraseña Actual</FormLabel>
                     <FormControl>
-                      <Input type="password" {...field} />
+                      <div className="relative">
+                        <Input 
+                          type={showCurrentPassword ? "text" : "password"}
+                          {...field} 
+                          disabled={isLoading}
+                          className={passwordForm.formState.errors.currentPassword ? "border-red-500 pr-10" : "pr-10"} 
+                        />
+                        <button 
+                          type="button"
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                          onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                          tabIndex={-1}
+                        >
+                          {showCurrentPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -342,9 +410,24 @@ const Settings = () => {
                 name="newPassword"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{translations.newPassword}</FormLabel>
+                    <FormLabel>Nueva Contraseña</FormLabel>
                     <FormControl>
-                      <Input type="password" {...field} />
+                      <div className="relative">
+                        <Input 
+                          type={showNewPassword ? "text" : "password"}
+                          {...field} 
+                          disabled={isLoading}
+                          className={passwordForm.formState.errors.newPassword ? "border-red-500 pr-10" : "pr-10"} 
+                        />
+                        <button 
+                          type="button"
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                          onClick={() => setShowNewPassword(!showNewPassword)}
+                          tabIndex={-1}
+                        >
+                          {showNewPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -356,9 +439,24 @@ const Settings = () => {
                 name="confirmPassword"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{translations.confirmPassword}</FormLabel>
+                    <FormLabel>Confirmar Contraseña</FormLabel>
                     <FormControl>
-                      <Input type="password" {...field} />
+                      <div className="relative">
+                        <Input 
+                          type={showConfirmPassword ? "text" : "password"}
+                          {...field} 
+                          disabled={isLoading}
+                          className={passwordForm.formState.errors.confirmPassword ? "border-red-500 pr-10" : "pr-10"} 
+                        />
+                        <button 
+                          type="button"
+                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                          onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                          tabIndex={-1}
+                        >
+                          {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                        </button>
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -366,12 +464,17 @@ const Settings = () => {
               />
               
               <DialogFooter className="mt-6">
-                <Button type="button" variant="outline" onClick={() => setPasswordModalOpen(false)}>
-                  {translations.cancel}
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  onClick={handleCloseDialog} 
+                  disabled={isLoading}
+                >
+                  Cancelar
                 </Button>
-                <Button type="submit" variant="sport">
+                <Button type="submit" variant="sport" disabled={isLoading}>
                   <Lock className="mr-2 h-4 w-4" />
-                  {translations.confirmChange}
+                  {isLoading ? "Actualizando..." : "Confirmar Cambio"}
                 </Button>
               </DialogFooter>
             </form>

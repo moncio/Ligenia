@@ -155,53 +155,53 @@ const Dashboard = () => {
     <DashboardLayout>
       <div className="px-4 md:px-6 py-6 md:py-8 w-full">
         <div className="w-full">
-          <h1 className="text-3xl font-bold text-gray-900 mb-6 md:mb-8 transition-opacity duration-500 ease-in-out opacity-100">
+          <h1 className="text-3xl font-bold text-foreground mb-6 md:mb-8 transition-opacity duration-500 ease-in-out opacity-100">
             Mi Jugador
           </h1>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 mb-6 md:mb-8 transition-all duration-500 ease-in-out w-full">
-            <Card className="bg-white shadow-sm hover:shadow transition-shadow w-full">
+            <Card className="relative overflow-hidden border bg-gradient-to-br from-blue-500/10 via-blue-500/5 to-transparent hover:from-blue-500/20 hover:via-blue-500/10 transition-all duration-300">
               <CardHeader className="pb-2">
                 <CardDescription>Ranking Actual</CardDescription>
-                <CardTitle className="text-3xl flex items-center text-blue-600">
+                <CardTitle className="text-3xl flex items-center text-blue-500">
                   #{userStats.currentRanking}
-                  <Trophy className="ml-auto h-5 w-5 text-yellow-500" />
+                  <Trophy className="ml-auto h-5 w-5 text-blue-500" />
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-muted-foreground">
                   Basado en resultados en torneos oficiales
                 </p>
               </CardContent>
             </Card>
             
-            <Card className="bg-white shadow-sm hover:shadow transition-shadow w-full">
+            <Card className="relative overflow-hidden border bg-gradient-to-br from-green-500/10 via-green-500/5 to-transparent hover:from-green-500/20 hover:via-green-500/10 transition-all duration-300">
               <CardHeader className="pb-2">
                 <CardDescription>Porcentaje de Victorias</CardDescription>
-                <CardTitle className="text-3xl flex items-center text-green-600">
+                <CardTitle className="text-3xl flex items-center text-green-500">
                   {userStats.winRate}
                   <BarChart className="ml-auto h-5 w-5 text-green-500" />
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-500">
+                  <span className="text-sm text-muted-foreground">
                     {userStats.wins} victorias / {userStats.losses} derrotas
                   </span>
                 </div>
               </CardContent>
             </Card>
             
-            <Card className="bg-white shadow-sm hover:shadow transition-shadow w-full">
+            <Card className="relative overflow-hidden border bg-gradient-to-br from-purple-500/10 via-purple-500/5 to-transparent hover:from-purple-500/20 hover:via-purple-500/10 transition-all duration-300">
               <CardHeader className="pb-2">
                 <CardDescription>Nivel Estimado</CardDescription>
-                <CardTitle className="text-3xl flex items-center text-purple-600">
+                <CardTitle className="text-3xl flex items-center text-purple-500">
                   {userStats.estimatedLevel}
                   <Award className="ml-auto h-5 w-5 text-purple-500" />
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-muted-foreground">
                   Basado en victorias y categoría de torneos
                 </p>
               </CardContent>
@@ -209,19 +209,25 @@ const Dashboard = () => {
           </div>
           
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-8 mb-6 md:mb-8 transition-all duration-500 ease-in-out w-full">
-            <Card className="lg:col-span-2 bg-white shadow-sm w-full">
+            <Card className="col-span-1 lg:col-span-2 w-full">
               <CardHeader>
-                <CardTitle className="flex items-center">
-                  Torneos Activos
-                  <Trophy className="ml-2 h-5 w-5 text-blue-500" />
-                </CardTitle>
-                <CardDescription>Torneos en los que estás participando actualmente</CardDescription>
+                <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <Trophy className="h-5 w-5 text-primary" />
+                      Torneos activos
+                    </CardTitle>
+                    <CardDescription>
+                      Torneos en los que estás participando actualmente
+                    </CardDescription>
+                  </div>
+                </div>
               </CardHeader>
               <CardContent>
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Nombre</TableHead>
+                      <TableHead>Torneo</TableHead>
                       <TableHead>Categoría</TableHead>
                       <TableHead>Próximo Partido</TableHead>
                       <TableHead>Estado</TableHead>
@@ -231,7 +237,7 @@ const Dashboard = () => {
                     {activeTournaments.map((tournament) => (
                       <TableRow 
                         key={tournament.id}
-                        className="cursor-pointer hover:bg-gray-100"
+                        className="cursor-pointer hover:bg-muted"
                         onClick={() => handleTournamentClick(tournament)}
                       >
                         <TableCell className="font-medium">{tournament.name}</TableCell>
@@ -244,10 +250,10 @@ const Dashboard = () => {
                         <TableCell>
                           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                             tournament.status === 'Activo' 
-                              ? 'bg-green-100 text-green-800' 
+                              ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' 
                               : tournament.status === 'Inscrito' 
-                                ? 'bg-blue-100 text-blue-800' 
-                                : 'bg-gray-100 text-gray-800'
+                                ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200' 
+                                : 'bg-muted text-muted-foreground'
                           }`}>
                             {tournament.status}
                           </span>
@@ -259,7 +265,7 @@ const Dashboard = () => {
               </CardContent>
             </Card>
             
-            <Card className="bg-gradient-to-br from-blue-500 to-blue-700 text-white shadow-md w-full">
+            <Card className="bg-gradient-to-br from-primary/10 to-primary/20 text-foreground shadow-md w-full">
               <CardHeader>
                 <CardTitle className="flex items-center">
                   ¿Sabías que?
@@ -274,19 +280,19 @@ const Dashboard = () => {
           </div>
           
           <div className="transition-all duration-500 ease-in-out w-full">
-            <Card className="bg-white shadow-sm w-full">
+            <Card className="bg-background shadow-sm w-full">
               <CardHeader>
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div>
                     <CardTitle className="flex items-center">
                       Últimos Resultados
-                      <Users className="ml-2 h-5 w-5 text-blue-500" />
+                      <Users className="ml-2 h-5 w-5 text-primary" />
                     </CardTitle>
                     <CardDescription>Resultados de tus partidos más recientes</CardDescription>
                   </div>
                   <div className="flex flex-col sm:flex-row gap-2">
                     <div className="relative">
-                      <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-500" />
+                      <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                       <Input
                         type="text"
                         placeholder="Buscar por torneo/oponente..."
@@ -354,7 +360,7 @@ const Dashboard = () => {
                       ))
                     ) : (
                       <TableRow>
-                        <TableCell colSpan={6} className="text-center py-4 text-gray-500">
+                        <TableCell colSpan={6} className="text-center py-4 text-muted-foreground">
                           No se encontraron resultados que coincidan con los filtros
                         </TableCell>
                       </TableRow>
