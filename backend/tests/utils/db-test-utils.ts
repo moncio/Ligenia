@@ -16,6 +16,12 @@ console.log('Test DB Config:', {
   databaseUrl: process.env.DATABASE_URL?.substring(0, 30) + '...' // Only show part of URL for security
 });
 
+// Add more detailed logging
+console.log('DB_TEST_UTILS: Database HOST:', process.env.DATABASE_HOST);
+console.log('DB_TEST_UTILS: Database PORT:', process.env.DATABASE_PORT);
+console.log('DB_TEST_UTILS: Database USER:', process.env.DATABASE_USER);
+console.log('DB_TEST_UTILS: Database NAME:', process.env.DATABASE_NAME);
+
 // Singleton PrismaClient for all tests
 let prismaInstance: PrismaClient | null = null;
 
@@ -43,11 +49,15 @@ export function getPrismaClient(): PrismaClient {
   
   console.log('Creating PrismaClient with test URL from environment variables');
   
+  // Force the URL to use port 5433, different from the real database port
+  const testDbUrl = "postgresql://ligenia_user_test:C0mpl3x_D8_P4ssw0rd_7531*@localhost:5433/db_ligenia_test";
+  console.log('Forced DB URL:', testDbUrl.replace(/:[^:]*@/, ':****@'));
+  
   // Create a new PrismaClient instance with the explicit DATABASE_URL
   prismaInstance = new PrismaClient({
     datasources: {
       db: {
-        url: dbUrl,
+        url: testDbUrl,
       },
     },
     log: process.env.DEBUG_PRISMA === 'true' ? ['query', 'error'] : ['error'],

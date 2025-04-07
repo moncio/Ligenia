@@ -5,40 +5,59 @@
   "main": "dist/app.js",
   "scripts": {
     "build": "tsc",
-    "prestart": "node scripts/ensure-logs-dir.js",
+    "prestart": "node scripts/deploy/ensure-logs-dir.js",
     "start": "node dist/app.js",
-    "predev": "node scripts/ensure-logs-dir.js",
+    "predev": "node scripts/deploy/ensure-logs-dir.js",
     "dev": "ts-node-dev --respawn --transpile-only src/app.ts",
     "dev:clean": "fuser -k 3000/tcp || true && npm run predev && ts-node-dev --respawn --transpile-only src/app.ts",
     "restart": "npm run dev:clean",
+    
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "test:integration": "jest --testPathPattern=integration --runInBand",
-    "test:integration:watch": "jest --testPathPattern=integration --runInBand --watch",
+    
+    "test:unit": "jest --config=jest.config.js --testMatch='**/tests/unit/**/*.test.ts'",
+    "test:unit:watch": "jest --config=jest.config.js --testMatch='**/tests/unit/**/*.test.ts' --watch",
+    
+    "test:integration": "NODE_ENV=test ./scripts/test/run-integration-tests.sh",
+    "test:integration:watch": "NODE_ENV=test npx dotenv-cli -e .env.test -- jest --config=jest.config.js --runInBand --testMatch='**/tests/integration/**/*.test.ts' --watch",
+    "test:integration:cleanup": "NODE_ENV=test ./scripts/test/run-integration-tests.sh all cleanup",
+    "test:infrastructure": "NODE_ENV=test ./scripts/test/run-integration-tests.sh infrastructure",
+    "test:routes": "NODE_ENV=test ./scripts/test/run-integration-tests.sh routes",
+    
     "setup:integration": "node scripts/setup-integration-tests.js",
-    "lint": "eslint . --ext .ts",
-    "lint:fix": "eslint . --ext .ts --fix",
-    "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\"",
+    
+    "db:test:start": "./scripts/db/db-manager.sh start test",
+    "db:test:stop": "./scripts/db/db-manager.sh stop test",
+    "db:test:reset": "./scripts/db/db-manager.sh restart test",
+    "db:dev:start": "./scripts/db/db-manager.sh start dev",
+    "db:dev:stop": "./scripts/db/db-manager.sh stop dev",
+    "db:dev:reset": "./scripts/db/db-manager.sh restart dev",
+    "db:status": "./scripts/db/db-manager.sh status",
+    "db:generate-testdata": "ts-node scripts/data/generate-test-data.ts",
+    "db:generate-testdata-for-user": "ts-node scripts/data/generate-test-data-for-user.ts",
+    "db:populate-user-data": "ts-node scripts/data/populate-user-data.ts",
+    
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:migrate:deploy": "prisma migrate deploy",
     "prisma:studio": "prisma studio",
     "prisma:seed": "prisma db seed",
+    
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix",
+    "format": "prettier --write \"src/**/*.ts\" \"tests/**/*.ts\"",
+    
     "prepare": "husky install",
-    "test:infrastructure": "NODE_ENV=test npx dotenv-cli -e .env.test -- jest --config=jest.config.js --runInBand --testMatch='**/tests/integration/infrastructure/**/*.test.ts' --detectOpenHandles --forceExit",
-    "test:infrastructure:watch": "NODE_ENV=test npx dotenv-cli -e .env.test -- jest --config=jest.config.js --runInBand --testMatch='**/tests/integration/infrastructure/**/*.test.ts' --watch",
-    "test:routes": "NODE_ENV=test npx dotenv-cli -e .env.test -- jest --config=jest.config.js --runInBand --testMatch='**/tests/integration/routes/**/*.test.ts' --detectOpenHandles --forceExit",
-    "test:routes:watch": "NODE_ENV=test npx dotenv-cli -e .env.test -- jest --config=jest.config.js --runInBand --testMatch='**/tests/integration/routes/**/*.test.ts' --watch",
-    "test:unit": "jest --config=jest.config.js --testMatch='**/tests/unit/**/*.test.ts'",
-    "test:unit:watch": "jest --config=jest.config.js --testMatch='**/tests/unit/**/*.test.ts' --watch",
-    "sync:supabase:users": "ts-node scripts/sync-supabase-users.ts",
-    "sync:users": "ts-node scripts/sync-supabase-users.ts",
-    "admin:create": "ts-node scripts/create-admin-user.ts",
-    "testdata:generate": "ts-node scripts/generate-test-data.ts",
-    "db:generate-testdata": "ts-node scripts/generate-test-data.ts",
-    "player:admin": "ts-node scripts/create-player-and-statistics-for-admin.ts",
-    "fix:statistics": "ts-node scripts/fix-player-statistics.ts"
+    
+    "admin:create": "ts-node scripts/auth/create-admin-user.ts",
+    "admin:fix-role": "node scripts/auth/fix-admin-role.js",
+    "admin:test-token": "node scripts/auth/test-admin-token.js",
+    "auth:debug": "node scripts/auth/debug-auth-middleware.js",
+    
+    "sync:users": "ts-node scripts/auth/sync-supabase-users.ts",
+    "player:admin": "ts-node scripts/data/create-player-and-statistics-for-admin.ts",
+    "fix:statistics": "ts-node scripts/data/fix-player-statistics.ts"
   },
   "prisma": {
     "seed": "ts-node prisma/seed.ts"

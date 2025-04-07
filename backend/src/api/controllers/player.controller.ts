@@ -491,8 +491,15 @@ export class PlayerController {
         console.log('Existing player:', existingPlayer);
         console.log('Current user:', req.user);
         
-        // SOLUCIÓN TEMPORAL: Permitir actualización sin verificar propietario
-        console.log('PERMITIENDO ACTUALIZACIÓN SIN VERIFICAR PROPIETARIO DEL PERFIL');
+        // Verificar que el usuario tenga permisos para actualizar este perfil
+        // Solo el propietario del perfil o un administrador pueden actualizarlo
+        if (existingPlayer.userId !== req.user.id && req.user.role !== UserRole.ADMIN) {
+          await prisma.$disconnect();
+          return res.status(403).json({
+            status: 'error',
+            message: 'You do not have permission to update this player profile',
+          });
+        }
         
         // Extract player data from request body and clean up the data format
         const playerData = {

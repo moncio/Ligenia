@@ -27,11 +27,18 @@ if (!dbUrl) {
 if (!dbUrl.includes('ligenia_user_test')) {
   // Force override to use test database user
   const testDbUrl = dbUrl.replace('ligenia_user', 'ligenia_user_test')
-                          .replace('db_ligenia', 'db_ligenia_test');
+                        .replace('db_ligenia', 'db_ligenia_test');
   console.warn('WARNING: DATABASE_URL not using test user. Overriding to:', 
                testDbUrl.replace(/:[^:]*@/, ':****@'));
   process.env.DATABASE_URL = testDbUrl;
 }
+
+// Add debug logging
+console.log('TEST SETUP: Connecting to database with URL:', process.env.DATABASE_URL.replace(/:[^:]*@/, ':****@'));
+console.log('TEST SETUP: Database HOST:', process.env.DATABASE_HOST);
+console.log('TEST SETUP: Database PORT:', process.env.DATABASE_PORT);
+console.log('TEST SETUP: Database USER:', process.env.DATABASE_USER);
+console.log('TEST SETUP: Database NAME:', process.env.DATABASE_NAME);
 
 // Get the singleton PrismaClient instance
 export const prisma = getPrismaClient();
@@ -42,7 +49,24 @@ beforeAll(async () => {
   
   // Setup Supabase mocks before importing any modules that use Supabase
   console.log('Setting up Supabase mocks...');
-  setupSupabaseMock();
+
+  // Mock Supabase client
+  jest.mock('@supabase/supabase-js', () => {
+    const mockClient = {
+      auth: {
+        signUp: jest.fn(),
+        signIn: jest.fn(),
+        signOut: jest.fn(),
+        getSession: jest.fn(),
+        getUser: jest.fn(),
+      },
+      from: jest.fn(),
+    };
+
+    return {
+      createClient: jest.fn().mockReturnValue(mockClient),
+    };
+  });
 
   // Force Jest to use the correct paths
   console.log('Configuring module mocks...');

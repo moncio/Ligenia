@@ -9,7 +9,7 @@ describe('Result', () => {
       expect(result.isSuccess()).toBe(true);
       expect(result.isFailure()).toBe(false);
       expect(result.getValue()).toBe(value);
-      expect(() => result.getError()).toThrow();
+      expect(result.getError().message).toBe('No error available - this was a successful result');
     });
   });
 

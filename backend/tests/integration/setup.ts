@@ -5,91 +5,89 @@ process.env.NODE_ENV = 'test';
 import { PrismaClient } from '@prisma/client';
 import { config } from 'dotenv';
 import path from 'path';
-import { Container } from 'inversify';
-import { TYPES } from '../../src/config/di-container';
-import { IAuthService } from '../../src/core/application/interfaces/auth-service.interface';
-import { MockAuthService } from '../mocks/auth-service.mock';
-import { createMockContainer } from '../utils/container-mock';
+import supertest from 'supertest';
+import app from '../../src/app';
 
 // Cargar variables de entorno de prueba
 config({ path: path.resolve(__dirname, '../../.env.test') });
 
-// Configurar variables de entorno para pruebas
-process.env.SUPABASE_URL = 'https://test-supabase-url.supabase.co';
-process.env.SUPABASE_ANON_KEY = 'test-supabase-anon-key';
-process.env.SUPABASE_SERVICE_ROLE_KEY = 'test-supabase-service-role-key';
-process.env.JWT_SECRET = 'test-jwt-secret';
+// Sobreescribir DATABASE_URL manualmente para asegurar que usa la DB de test
+process.env.DATABASE_URL = 'postgresql://ligenia_user_test:C0mpl3x_D8_P4ssw0rd_7531*@localhost:5433/db_ligenia_test';
 
-// Create mock container
-const mockContainer = createMockContainer();
+// Verificar que estamos usando la base de datos de prueba
+const dbUrl = process.env.DATABASE_URL;
+if (!dbUrl || !dbUrl.includes('test')) {
+  console.error('ERROR: No se está usando la base de datos de prueba');
+  console.error('DATABASE_URL:', dbUrl);
+  throw new Error('No se está usando la base de datos de prueba. Por favor, verifica las variables de entorno.');
+}
 
-// Registrar el MockAuthService en el contenedor ANTES de importar app
-mockContainer.bind<IAuthService>(TYPES.AuthService).to(MockAuthService).inSingletonScope();
+// Crear un cliente Prisma para las pruebas con la URL específica de test
+export const prisma = new PrismaClient({
+  datasourceUrl: process.env.DATABASE_URL
+});
 
-// Set mock container for auth middleware
-import { setMockContainer } from '../../src/api/middlewares/auth.middleware';
-setMockContainer(mockContainer);
-
-// Ahora podemos importar app ya que el contenedor está configurado
-import supertest from 'supertest';
-import app from '../../src/app';
-
-// Exportar el servicio de autenticación mock para usarlo en las pruebas
-export const mockAuthService = mockContainer.get<IAuthService>(TYPES.AuthService);
-
-// Crear un cliente Prisma para las pruebas
-export const prisma = new PrismaClient();
+// Log de la conexión a la base de datos
+console.log(`Conectando a la base de datos de prueba: ${process.env.DATABASE_URL}`);
 
 // Crear un cliente de peticiones HTTP para las pruebas
 export const request = supertest(app);
 
 // Configuración global antes de todas las pruebas
 beforeAll(async () => {
-  // Skip database cleanup in test mode since we're using mocks
-  if (process.env.NODE_ENV === 'test') {
-    return;
-  }
-
   try {
+    // Verificar la conexión a la base de datos
+    await prisma.$connect();
+    console.log('Conexión a la base de datos de prueba establecida');
+    
     // Limpiar tablas de prueba antes de cada suite de tests
-    await prisma.$transaction([
-      prisma.match.deleteMany(),
-      prisma.player.deleteMany(),
-      prisma.statistic.deleteMany(),
-      prisma.tournament.deleteMany(),
-      prisma.user.deleteMany(),
-    ]);
+    // Limpieza no destructiva - mantiene las tablas pero elimina los datos
+    // Verificamos qué modelos existen en prisma antes de intentar usarlos
+    const deleteOperations = [];
+    
+    // Verificar cada modelo antes de usarlo
+    if ('match' in prisma) deleteOperations.push(prisma.match.deleteMany());
+    if ('player' in prisma) deleteOperations.push(prisma.player.deleteMany());
+    if ('statistic' in prisma) deleteOperations.push(prisma.statistic.deleteMany());
+    if ('tournament' in prisma) deleteOperations.push(prisma.tournament.deleteMany());
+    if ('user' in prisma) deleteOperations.push(prisma.user.deleteMany());
+    
+    // Solo si hay operaciones, ejecutamos la transacción
+    if (deleteOperations.length > 0) {
+      await prisma.$transaction(deleteOperations);
+    }
 
-    // Aquí podrías añadir seeds para pruebas
+    console.log('Base de datos de prueba limpiada correctamente');
   } catch (error) {
     console.error('Error en setup de pruebas:', error);
+    throw error; // Lanzar el error para detener los tests si no se puede conectar a la DB
   }
 });
 
 // Configuración global después de todas las pruebas
 afterAll(async () => {
-  // Skip database cleanup in test mode since we're using mocks
-  if (process.env.NODE_ENV === 'test') {
-    return;
-  }
-
   try {
     // Limpiar tablas después de completar las pruebas
-    await prisma.$transaction([
-      prisma.match.deleteMany(),
-      prisma.player.deleteMany(),
-      prisma.statistic.deleteMany(),
-      prisma.tournament.deleteMany(),
-      prisma.user.deleteMany(),
-    ]);
+    const deleteOperations = [];
+    
+    // Verificar cada modelo antes de usarlo
+    if ('match' in prisma) deleteOperations.push(prisma.match.deleteMany());
+    if ('player' in prisma) deleteOperations.push(prisma.player.deleteMany());
+    if ('statistic' in prisma) deleteOperations.push(prisma.statistic.deleteMany());
+    if ('tournament' in prisma) deleteOperations.push(prisma.tournament.deleteMany());
+    if ('user' in prisma) deleteOperations.push(prisma.user.deleteMany());
+    
+    // Solo si hay operaciones, ejecutamos la transacción
+    if (deleteOperations.length > 0) {
+      await prisma.$transaction(deleteOperations);
+    }
+    
+    console.log('Base de datos de prueba limpiada después de los tests');
   } catch (error) {
     console.error('Error en teardown de pruebas:', error);
   } finally {
+    // Desconectar cliente Prisma
     await prisma.$disconnect();
+    console.log('Desconexión de la base de datos de prueba');
   }
-});
-
-// Limpiar mocks después de cada prueba
-afterEach(() => {
-  jest.clearAllMocks();
 });

@@ -1,494 +1,218 @@
-# Proyecto LIGENIA
+# LIGENIA Backend
+
+## Tabla de Contenidos
+
+- [Descripción General](#descripción-general)
+- [Arquitectura](#arquitectura)
+  - [Base de Datos](#base-de-datos)
+  - [Características de Seguridad](#características-de-seguridad)
+- [Instalación y Configuración](#instalación-y-configuración)
+  - [Requisitos Previos](#requisitos-previos)
+  - [Instalación](#instalación)
+- [Endpoints de la API](#endpoints-de-la-api)
+  - [Autenticación](#autenticación)
+  - [Usuarios y Jugadores](#usuarios-y-jugadores)
+  - [Torneos](#torneos)
+  - [Partidos](#partidos)
+  - [Estadísticas](#estadísticas)
+  - [Rankings](#rankings)
+  - [Rendimiento](#rendimiento)
+  - [Preferencias](#preferencias)
+- [Pruebas](#pruebas)
+  - [Ejecución de Pruebas](#ejecución-de-pruebas)
+  - [API Tester](#api-tester)
+- [Herramientas de Desarrollo](#herramientas-de-desarrollo)
+- [Scripts Útiles](#scripts-útiles)
+- [Despliegue](#despliegue)
+- [Licencia](#licencia)
 
 ## Descripción General
 
-LIGENIA es una innovadora plataforma web que utiliza inteligencia artificial para mejorar la experiencia en el ámbito deportivo. El proyecto se centra en ofrecer una liga virtual con estadísticas en tiempo real, proporcionando análisis predictivo de rendimiento y generación automática de rankings basados en estadísticas avanzadas.
+LIGENIA es una plataforma web que permite la gestión de competiciones, partidos y estadísticas para deportes como pádel. El sistema proporciona herramientas para la creación y gestión de torneos, seguimiento de jugadores, partidos y generación de estadísticas avanzadas.
 
-## Objetivo del Proyecto
+## Arquitectura
 
-El objetivo principal de LIGENIA es crear una aplicación web que asista a los usuarios en todos los pasos del proceso deportivo, desde el análisis y diseño inicial hasta el despliegue final. La plataforma está diseñada para ser accesible y gratuita, utilizando tecnologías modernas para ofrecer una experiencia fluida y eficiente.
+El proyecto sigue una arquitectura limpia (Clean Architecture) con las siguientes capas:
 
-## Características Clave
+- **API (`src/api/`)**: Controladores, rutas, middlewares y validaciones
+- **Core (`src/core/`)**: Entidades de dominio, casos de uso e interfaces
+- **Infraestructura (`src/infrastructure/`)**: Implementaciones de interfaces
+- **Servicios Compartidos (`src/shared/`)**: Utilidades, configuraciones y servicios comunes
 
-- **Análisis de Rendimiento:** Herramientas avanzadas para analizar el rendimiento deportivo.
-- **Rutinas Personalizadas:** Generación de rutinas deportivas adaptadas a las necesidades individuales.
-- **Liga Virtual:** Creación y gestión de ligas con estadísticas en tiempo real.
-- **Estadísticas Avanzadas:** Uso de IA para generar estadísticas y rankings automáticos.
+### Base de Datos
 
-## Tecnologías Utilizadas
-
-- **Backend y Base de Datos:** Railway, que ofrece un entorno unificado para el hosting gratuito de frontend, backend y base de datos.
-- **Base de Datos:** PostgreSQL, proporcionado por Railway.
-- **Despliegue:** Railway permite un despliegue sin interrupciones en un solo entorno.
-
-## Planificación del MVP
-
-El MVP de LIGENIA está diseñado para ser funcional en menos de 30 horas de desarrollo, priorizando la gestión de ligas y torneos. Las funcionalidades avanzadas se dejarán para iteraciones posteriores, asegurando que las funcionalidades esenciales se implementen dentro del límite de tiempo.
-
-## Proyecto Final del Bootcamp AI4Devs
-
-Este proyecto es el resultado final del bootcamp AI4Devs, donde se aplicaron los conocimientos adquiridos en inteligencia artificial y desarrollo web para crear una plataforma innovadora en el ámbito deportivo.
-
-## Estructura de la Base de Datos
-
-La base de datos de LIGENIA ha sido diseñada siguiendo principios de normalización, seguridad y rendimiento. A continuación se detallan los principales modelos y sus características:
-
-### Modelos Principales
-
-1. **User**: Gestión completa de usuarios con características avanzadas de seguridad.
-   - Autenticación robusta con verificación de email y recuperación de contraseña
-   - Soporte para autenticación de dos factores
-   - Sistema de roles flexible que permite asignar múltiples roles a un usuario
-   - Campos de perfil para información deportiva (nivel de juego, mano preferida, etc.)
-   - Protección contra intentos de inicio de sesión fallidos
-
-2. **Role**: Sistema de roles con permisos granulares.
-   - Roles predefinidos (ADMIN, PLAYER, COACH, REFEREE)
-   - Permisos específicos almacenados como JSON para máxima flexibilidad
-   - Relación muchos a muchos con usuarios para permitir múltiples roles
-
-3. **League**: Gestión de ligas deportivas.
-   - Diferentes tipos de puntuación (STANDARD, ADVANCED, CUSTOM)
-   - Metadatos como descripción, logo y visibilidad pública/privada
-   - Relación con torneos para organizar competiciones
-
-4. **Tournament**: Gestión completa de torneos.
-   - Diferentes estados (DRAFT, ACTIVE, COMPLETED, CANCELLED)
-   - Modalidades de juego (SINGLES, DOUBLES, MIXED)
-   - Reglas específicas, premios y cuotas de inscripción
-   - Límites de equipos y fechas de inicio/fin
-
-5. **Team**: Equipos participantes en torneos.
-   - Soporte para equipos de dos jugadores (específico para pádel)
-   - Ranking y logo del equipo
-   - Relaciones con partidos y usuarios
-
-6. **Match**: Gestión de partidos.
-   - Resultados detallados almacenados como JSON
-   - Ubicación específica con relación al modelo Location
-   - Notas y estadísticas asociadas
-
-7. **Statistic**: Estadísticas detalladas de rendimiento.
-   - Estadísticas básicas (puntos, victorias, derrotas)
-   - Estadísticas avanzadas (sets, juegos, aces, dobles faltas, etc.)
-   - Porcentajes y ratings de rendimiento
-   - Soporte para estadísticas personalizadas mediante JSON
-
-8. **Location**: Gestión de ubicaciones para partidos.
-   - Información completa (dirección, ciudad, código postal, país)
-   - Coordenadas geográficas para integración con mapas
-   - Detalles de instalaciones disponibles
-
-9. **Notification**: Sistema de notificaciones para usuarios.
-   - Diferentes tipos (partidos programados, resultados, actualizaciones, etc.)
-   - Estado de lectura y datos relacionados
-   - Optimizado para consultas rápidas
-
-10. **Chatbot**: Asistentes virtuales con IA.
-    - Relación con usuarios para personalización
-    - Base para la integración con servicios de IA como OpenAI
-
-11. **AuditLog**: Sistema de auditoría para seguridad.
-    - Registro de acciones importantes (creación, actualización, eliminación, etc.)
-    - Información detallada sobre el usuario, IP y agente de usuario
-    - Datos específicos de cada acción para análisis posterior
-
-### Optimizaciones de Rendimiento
-
-- **Índices Estratégicos**: Índices simples y compuestos en campos frecuentemente consultados
-- **Relaciones Optimizadas**: Diseño cuidadoso de relaciones para minimizar JOINs innecesarios
-- **Campos JSON**: Uso de campos JSON para datos flexibles sin sacrificar rendimiento
-- **Normalización**: Estructura normalizada para evitar redundancia y mantener integridad
+- PostgreSQL como sistema de gestión de base de datos
+- Prisma como ORM para interactuar con la base de datos
+- Migraciones automatizadas para control de versiones del esquema
 
 ### Características de Seguridad
 
-- **Protección de Contraseñas**: Almacenamiento seguro de contraseñas
-- **Verificación de Email**: Sistema de verificación para prevenir cuentas falsas
-- **Bloqueo de Cuentas**: Protección contra intentos de fuerza bruta
-- **Autenticación de Dos Factores**: Capa adicional de seguridad
-- **Auditoría Completa**: Registro detallado de acciones sensibles
-- **Tokens de Recuperación**: Sistema seguro para recuperación de contraseñas
+- Supabase como sistema de autenticación externo
+- Autenticación basada en JWT proporcionada por Supabase
+- Verificación de roles de usuario (ADMIN, PLAYER)
+- Protección de endpoints sensibles
+- Validación de datos de entrada
 
-### Escalabilidad y Mantenimiento
+## Instalación y Configuración
 
-- **Diseño Modular**: Cada entidad tiene responsabilidades claramente definidas
-- **Campos Timestamp**: Todos los modelos incluyen campos de creación y actualización
-- **Soporte para Metadatos**: Campos flexibles para adaptarse a requisitos futuros
-- **Migraciones Versionadas**: Sistema de migraciones para evolución controlada del esquema
+### Requisitos Previos
 
-### Datos de Prueba (Seed)
+- Node.js >= 16
+- npm o yarn
+- PostgreSQL
+- Cuenta en Supabase para la autenticación
 
-La base de datos incluye un completo conjunto de datos de prueba que permite probar todas las funcionalidades del sistema:
+### Instalación
 
-- **Usuarios con diferentes roles**: Administradores, jugadores, entrenadores y árbitros
-- **Ligas y torneos**: Torneos en diferentes estados (borrador, activo, completado)
-- **Equipos y partidos**: Estructura completa de competición con resultados
-- **Estadísticas detalladas**: Datos de rendimiento para análisis y visualización
-- **Ubicaciones reales**: Información geográfica completa para los partidos
-- **Notificaciones de ejemplo**: Diferentes tipos de notificaciones para probar la interfaz
-- **Registros de auditoría**: Ejemplos de acciones auditadas para seguridad
-- **Chatbots configurados**: Asistentes virtuales listos para integración con IA
-
-Para ejecutar el seed y poblar la base de datos con estos datos de prueba:
-
-```bash
-npx prisma db seed
-```
-
-Este comando limpia los datos existentes y crea un conjunto completo de datos interrelacionados que permiten probar todas las funcionalidades del sistema sin necesidad de crear datos manualmente.
-
-## Gestión de la Base de Datos con Prisma
-
-LIGENIA utiliza Prisma como ORM (Object-Relational Mapping) para interactuar con la base de datos PostgreSQL. A continuación se detallan los comandos más útiles para gestionar la base de datos:
-
-### Comandos Básicos de Prisma
-
-```bash
-# Generar el cliente de Prisma basado en el esquema
-npx prisma generate
-
-# Crear una nueva migración a partir de cambios en el esquema
-npx prisma migrate dev --name nombre_descriptivo
-
-# Aplicar migraciones pendientes en entorno de producción
-npx prisma migrate deploy
-
-# Visualizar y editar datos con Prisma Studio
-npx prisma studio
-
-# Validar el esquema de Prisma
-npx prisma validate
-
-# Formatear el archivo schema.prisma
-npx prisma format
-```
-
-### Estructura de Archivos
-
-- **`prisma/schema.prisma`**: Define el esquema de la base de datos y las relaciones entre modelos
-- **`prisma/migrations/`**: Contiene todas las migraciones versionadas
-- **`prisma/seed.js`**: Script para poblar la base de datos con datos de prueba
-
-### Buenas Prácticas Implementadas
-
-1. **Migraciones Atómicas**: Cada migración realiza cambios específicos y bien documentados
-2. **Índices Estratégicos**: Campos frecuentemente consultados están indexados para mejor rendimiento
-3. **Relaciones Explícitas**: Todas las relaciones están claramente definidas con referencias
-4. **Campos por Defecto**: Valores predeterminados para simplificar la creación de registros
-5. **Validación de Datos**: Restricciones a nivel de base de datos para garantizar integridad
-6. **Campos de Auditoría**: Todos los modelos incluyen timestamps de creación y actualización
-
-## Configuración de Supabase
-
-- **Row Level Security (RLS):** Implementar RLS en las tablas de la base de datos para asegurar que los usuarios solo puedan acceder a los datos que les pertenecen.
-- **Autenticación y Autorización:** Utilizar Supabase Auth para gestionar la autenticación de usuarios, asegurando que cada solicitud incluya un JWT.
-
-## Buenas Prácticas de Seguridad
-
-- **Cifrado de Datos:** Asegurar que todos los datos sensibles estén cifrados tanto en tránsito como en reposo.
-- **Protección contra Ataques Comunes:** Implementar medidas para prevenir inyecciones SQL, XSS, y CSRF.
-- **Gestión de Contraseñas:** Utilizar bcrypt para el hashing de contraseñas.
-
-## Pruebas y CI/CD
-
-- **Desarrollo Guiado por Pruebas (TDD):** Escribir pruebas unitarias e integrales antes de implementar las funcionalidades.
-- **Integración Continua:** Configurar GitHub Actions para ejecutar automáticamente las pruebas en cada commit o pull request.
-
-## Arquitectura y Diseño
-
-- **Arquitectura de Microservicios:** Seguir el diseño de microservicios para asegurar la escalabilidad y flexibilidad del sistema.
-- **Modelo de Datos:** Asegurarse de que el modelo de datos esté bien normalizado y optimizado para el rendimiento.
-
-## Guía de Instalación
-
-1. **Clonar el Repositorio:**
-   ```bash
-   git clone https://github.com/usuario/proyecto-ligenia.git
-   cd proyecto-ligenia/backend
-   ```
-
-2. **Configurar Variables de Entorno:**
-   - Crear un archivo `.env` basado en el ejemplo proporcionado y configurar las variables necesarias para Supabase y Railway.
-
-3. **Instalar Dependencias:**
+1. Clonar el repositorio
+2. Instalar dependencias:
    ```bash
    npm install
    ```
+3. Configurar variables de entorno:
+   - Copiar `.env.example` a `.env` y ajustar los valores
+   - Configurar las variables de Supabase (URL y API Key)
+   - Copiar `.env.test.example` a `.env.test` para entorno de pruebas
 
-4. **Ejecutar el Servidor de Desarrollo:**
+4. Generar cliente de Prisma:
+   ```bash
+   npx prisma generate
+   ```
+
+5. Iniciar la base de datos con Docker:
+   ```bash
+   ./scripts/db/db-manager.sh start dev
+   ```
+
+6. Ejecutar migraciones:
+   ```bash
+   npx prisma migrate dev
+   ```
+
+7. Iniciar el servidor:
    ```bash
    npm run dev
    ```
 
-5. **Ejecutar Pruebas:**
-   ```bash
-   npm test
-   ```
+## Endpoints de la API
 
-Siguiendo estas líneas clave, podemos asegurar que la implementación del backend de LIGENIA sea segura, eficiente y escalable.
+La API proporciona los siguientes grupos de endpoints:
 
-## Pruebas y Testing
+### Autenticación
+- `POST /api/auth/login` (Utiliza Supabase)
+- `POST /api/auth/signup` (Utiliza Supabase)
+- `POST /api/auth/logout` (Utiliza Supabase)
 
-LIGENIA implementa una estrategia de pruebas completa para garantizar la calidad y robustez del código. A continuación se detalla el enfoque actual de pruebas y las mejoras planificadas para el futuro.
+### Usuarios y Jugadores
+- `GET /api/users` (admin)
+- `GET /api/users/:id`
+- `GET /api/players`
+- `GET /api/players/:id`
+- `PUT /api/players/:id`
 
-### Enfoque Actual de Pruebas
+### Torneos
+- `GET /api/tournaments`
+- `GET /api/tournaments/:id`
+- `POST /api/tournaments` (admin)
+- `PUT /api/tournaments/:id` (admin)
+- `DELETE /api/tournaments/:id` (admin)
+- `POST /api/tournaments/:id/register`
+- `DELETE /api/tournaments/:id/unregister`
 
-El proyecto utiliza Jest como framework principal de pruebas, con una implementación completa en TypeScript:
+### Partidos
+- `GET /api/matches`
+- `GET /api/matches/:id`
+- `POST /api/matches` (admin)
+- `PUT /api/matches/:id`
+- `DELETE /api/matches/:id` (admin)
 
-#### Pruebas Unitarias
+### Estadísticas
+- `GET /api/statistics/player/:playerId`
+- `GET /api/statistics/tournament/:tournamentId`
+- `GET /api/statistics/global`
 
-- **Entidades de Dominio**: Pruebas para validar el comportamiento de las entidades principales (User, League, Team, Match).
-- **Casos de Uso**: Verificación de la lógica de negocio implementada en los casos de uso.
-- **Adaptadores y Mappers**: Pruebas para los componentes que interactúan con servicios externos como Supabase.
+### Rankings
+- `GET /api/rankings`
 
-#### Pruebas de Integración
+### Rendimiento
+- `GET /api/performance/history`
+- `GET /api/performance/trends`
 
-- **Repositorios**: Pruebas que verifican la correcta interacción con la base de datos.
-- **Autenticación**: Pruebas de integración para el flujo completo de autenticación con Supabase.
-- **API**: Verificación de endpoints y respuestas HTTP.
+### Preferencias
+- `GET /api/preferences`
+- `PUT /api/preferences`
+- `DELETE /api/preferences/reset`
 
-### Configuración de Pruebas
+## Pruebas
 
-El proyecto utiliza una configuración de Jest que permite ejecutar tanto pruebas unitarias como de integración:
-
-```javascript
-// jest.config.js
-module.exports = {
-  preset: 'ts-jest',
-  testEnvironment: 'node',
-  // Patrones para encontrar archivos de prueba TypeScript
-  testMatch: ['**/__tests__/**/*.ts', '**/?(*.)+(spec|test).ts'],
-  transform: {
-    '^.+\\.ts$': ['ts-jest', {
-      // Configuración específica para ts-jest
-      tsconfig: 'tsconfig.json',
-      // Permitir el uso de 'as' y otras características de TypeScript
-      isolatedModules: false
-    }]
-  },
-  projects: [
-    {
-      displayName: 'unit',
-      testMatch: ['<rootDir>/tests/unit/**/*.test.ts'],
-    },
-    {
-      displayName: 'integration',
-      testMatch: ['<rootDir>/tests/integration/**/*.test.ts', '<rootDir>/tests/integration/**/*.integration.test.ts'],
-      setupFilesAfterEnv: ['<rootDir>/tests/integration/setup.ts'],
-      testTimeout: 30000
-    },
-  ],
-};
-```
-
-Esta configuración nos permite:
-1. Ejecutar todas las pruebas TypeScript sin problemas
-2. Manejar correctamente la sintaxis específica de TypeScript (como el operador `as` y las interfaces)
-3. Mantener una estructura de proyecto coherente y tipada
+El proyecto incluye pruebas unitarias e integrales implementadas con Jest:
 
 ### Ejecución de Pruebas
-
-Para ejecutar las pruebas del proyecto:
 
 ```bash
 # Ejecutar todas las pruebas
 npm test
 
-# Ejecutar solo pruebas unitarias
+# Ejecutar pruebas con cobertura
+npm run test:coverage
+
+# Ejecutar pruebas unitarias
 npm test -- --testPathPattern=unit
 
-# Ejecutar pruebas específicas
-npm test -- --testPathPattern=user.entity.test.ts
+# Ejecutar pruebas de integración
+npm test -- --testPathPattern=integration
 ```
 
-### Enhanced Auth Middleware for Testing
+### API Tester
 
-The authentication middleware has been enhanced to support testing different user roles:
-
-- Predefined test tokens (`admin-token`, `player-token`, etc.) that simulate different roles
-- Support for overriding roles with the `x-test-role` header in test environment
-- Detailed documentation available in `docs/testing-auth.md`
-
-This enhancement enables proper testing of role-based access control throughout the application.
-
-### Tournament Integration Tests
-
-The tournament integration tests (`tests/integration/routes/tournament.routes.test.ts`) verify the behavior of all tournament-related endpoints. Due to the current authentication middleware limitations, the tests focus on:
-
-1. Authentication and authorization checks
-2. Public endpoint functionality
-3. Error handling for validation, non-existent resources, and unauthorized access
-
-Current limitations and future improvements are documented in `COVERAGE_NOTES.md`.
-
-### Mock Auth Middleware
-
-To improve future testing capabilities, a mock version of the auth middleware has been provided in `tests/mocks/auth-middleware.mock.ts`. This mock:
-
-- Respects roles specified in tokens
-- Provides special test tokens for different roles
-- Can be used to test admin functionality properly
-
-## Coverage
-
-Current test coverage (from the most recent full integration test run):
-- Statements: ~51.6% (Target: 70%)
-- Branches: ~25.62% (Target: 70%)
-- Functions: ~47.14% (Target: 70%)
-- Lines: ~51.45% (Target: 70%)
-
-Key progress areas:
-- Tournament controller: 64.76% statement coverage with 100% function coverage
-- Auth middleware: 86.84% statement coverage with 84.61% branch coverage
-- API routes: 99.39% statement coverage
-
-See `COVERAGE_NOTES.md` for improvement plans.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-# Ligenia Backend API
-
-This is the backend API for Ligenia, a platform for managing padel tournaments, players, and matches.
-
-## Project Structure
-
-The project follows a clean architecture approach with the following structure:
-
-- `src/api`: Contains controllers, routes, middlewares, and validations
-- `src/core`: Contains domain entities, use cases, and interfaces
-- `src/infrastructure`: Contains implementations of interfaces
-- `src/shared`: Contains shared utilities
-- `tests`: Contains unit and integration tests
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js >= 14
-- npm or yarn
-- PostgreSQL database
-
-### Installation
-
-1. Clone the repository
-2. Install dependencies: `npm install`
-3. Copy `.env.example` to `.env` and update with your values
-4. Run database migrations: `npm run migrate`
-5. Start the server: `npm run dev`
-
-## API Documentation
-
-The API is documented using Swagger/OpenAPI. After starting the server, you can access the documentation at `/api-docs`.
-
-## Testing
-
-### Test Suite
-
-The project includes both unit and integration tests:
-
-- **Unit tests**: Test individual components in isolation
-- **Integration tests**: Test API endpoints with simulated HTTP requests
-
-### Running Tests
-
-- Run all tests: `npm test`
-- Run with coverage: `npm run test:coverage`
-- Run specific tests: `npx jest <path-to-test-file>`
-
-### Enhanced Auth Middleware for Testing
-
-The authentication middleware has been enhanced to support testing different user roles:
-
-- Predefined test tokens (`admin-token`, `player-token`, etc.) that simulate different roles
-- Support for overriding roles with the `x-test-role` header in test environment
-- Detailed documentation available in `docs/testing-auth.md`
-
-This enhancement enables proper testing of role-based access control throughout the application.
-
-### Tournament Integration Tests
-
-The tournament integration tests (`tests/integration/routes/tournament.routes.test.ts`) verify the behavior of all tournament-related endpoints. Due to the current authentication middleware limitations, the tests focus on:
-
-1. Authentication and authorization checks
-2. Public endpoint functionality
-3. Error handling for validation, non-existent resources, and unauthorized access
-
-Current limitations and future improvements are documented in `COVERAGE_NOTES.md`.
-
-### Mock Auth Middleware
-
-To improve future testing capabilities, a mock version of the auth middleware has been provided in `tests/mocks/auth-middleware.mock.ts`. This mock:
-
-- Respects roles specified in tokens
-- Provides special test tokens for different roles
-- Can be used to test admin functionality properly
-
-## Coverage
-
-## Logging System
-
-LIGENIA features a robust logging system based on Winston that provides:
-
-- **Structured JSON Logging**: Machine-readable logs for easy parsing and analysis
-- **Log Rotation**: Daily log files with automatic rotation and compression
-- **Request ID Tracking**: Correlation IDs to trace requests through the system
-- **Environment-Specific Logging**: Different log levels for development, test, and production
-- **Sensitive Data Redaction**: Automatic redaction of passwords, tokens, and other sensitive information
-
-### Configuration
-
-The logging system is configured through environment variables in `.env`:
+Además, se incluye una herramienta personalizada para probar los endpoints de la API:
 
 ```bash
-# Logging Configuration
-LOG_LEVEL=info               # Log levels: error, warn, info, http, verbose, debug, silly
-LOG_FORMAT=json              # Log formats: json, simple, colorized
-LOG_REDACT_SENSITIVE=true    # Redact sensitive data in logs
-LOG_TO_FILE=true             # Enable logging to files
-LOG_ROTATION=true            # Enable log rotation
-LOG_RETENTION_DAYS=14        # Number of days to keep log files
-LOG_MAX_SIZE=20              # Maximum size of log files in MB
+# Ejecutar el API Tester
+python api_tester.py
 ```
 
-### Usage
+Este tester permite verificar el comportamiento de los endpoints con diferentes roles de usuario (PLAYER, ADMIN).
 
-In controllers and request handlers:
+## Herramientas de Desarrollo
 
-```typescript
-import { logWithRequestId } from '../../config/logger';
+- **ESLint y Prettier**: Formateo y linting consistente
+- **Husky y lint-staged**: Verificación de calidad de código en commits
+- **Jest**: Framework de pruebas
+- **Docker**: Contenedores para base de datos y entornos de desarrollo
+- **Supabase**: Plataforma externa para autenticación y gestión de usuarios
 
-export class ExampleController {
-  public getSomething = async (req: Request, res: Response) => {
-    const log = logWithRequestId(req);
-    
-    try {
-      log.info('Processing request', { params: req.params });
-      // ... business logic ...
-      return res.status(200).json({ success: true });
-    } catch (error) {
-      log.error('Error processing request', { 
-        error: error instanceof Error ? error.message : 'Unknown error' 
-      });
-      return res.status(500).json({ error: 'Internal server error' });
-    }
-  };
-}
+## Scripts Útiles
+
+```bash
+# Iniciar en modo desarrollo
+npm run dev
+
+# Construir para producción
+npm run build
+
+# Iniciar en modo producción
+npm start
+
+# Linting y formateo
+npm run lint
+npm run format
+
+# Gestión de base de datos
+./scripts/db/db-manager.sh start dev    # Iniciar BD desarrollo
+./scripts/db/db-manager.sh start test   # Iniciar BD pruebas
+./scripts/db/db-manager.sh stop all     # Detener todas las BD
 ```
 
-In services and repositories:
+## Despliegue
 
-```typescript
-import { logger } from '../../config/logger';
+La aplicación está configurada para despliegue en Railway:
 
-export class ExampleService {
-  public doSomething() {
-    logger.info('Starting background process');
-    // ... implementation ...
-  }
-}
-```
+1. Asegurarse de que la aplicación pasa todas las pruebas
+2. El despliegue se realiza automáticamente mediante CI/CD cuando se hace push a la rama principal
+3. La configuración de despliegue se encuentra en `railway.toml`
 
-For more details on logging best practices and usage, see [Logging System Guide](./docs/logging-system.md).
+## Licencia
+
+Este proyecto está licenciado bajo la Licencia MIT - ver el archivo LICENSE para más detalles.
 

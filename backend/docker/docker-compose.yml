@@ -3,20 +3,16 @@ services:
   db:
     image: postgres:latest
     container_name: ligenia_db
+    restart: always
+    network_mode: host
     environment:
       POSTGRES_USER: ${DATABASE_USER}
       POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
       POSTGRES_DB: ${DATABASE_NAME}
-    ports:
-      - "${DATABASE_PORT}:5432"
+      POSTGRES_HOST_AUTH_METHOD: trust
+    command: postgres -c 'listen_addresses=*' -c 'log_statement=all'
     volumes:
       - db_data:/var/lib/postgresql/data
-    networks:
-      - app-network
-
-networks:
-  app-network:
-    driver: bridge
 
 volumes:
   db_data: 

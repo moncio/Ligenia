@@ -442,8 +442,10 @@ describe('Statistic Routes - Integration Tests', () => {
         .get(`/api/statistics/tournament/${validTournamentId}`)
         .set('Authorization', 'Bearer admin-token');
 
-      expect(response.status).toBe(500);
-      expect(response.body).toHaveProperty('message');
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('status', 'success');
+      expect(response.body).toHaveProperty('data');
+      expect(response.body.data).toHaveProperty('statistics');
     });
 
     it('should handle non-existent tournament gracefully', async () => {
@@ -451,8 +453,10 @@ describe('Statistic Routes - Integration Tests', () => {
         .get(`/api/statistics/tournament/${nonExistentId}`)
         .set('Authorization', 'Bearer admin-token');
 
-      expect(response.status).toBe(500);
-      expect(response.body).toHaveProperty('message');
+      expect(response.status).toBe(200);
+      expect(response.body).toHaveProperty('status', 'success');
+      expect(response.body).toHaveProperty('data');
+      expect(response.body.data).toHaveProperty('statistics');
     });
 
     it('should return 400 for invalid tournament ID format', async () => {

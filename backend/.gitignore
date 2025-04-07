@@ -9,14 +9,50 @@ node_modules
 supabase_api_tester.py
 supabase_tokens.json
 
+# API Tester files
+api_tester.py
+api_tester/
+api_tester/tokens.json
+
 # Testing and development scripts
-scripts/fix-admin-role.js
-scripts/debug-auth-middleware.js
-scripts/test-admin-token.js
-scripts/update_tournament.js
-scripts/fix-player-statistics.ts
-scripts/create-player-and-statistics-for-admin.ts
-scripts/generate-test-data.ts
-scripts/create-admin-user.ts
-scripts/sync-supabase-users.ts
-scripts/debug-mocks.js
+scripts/data/generate-test-data.ts
+scripts/data/generate-test-data-for-user.ts
+scripts/data/populate-user-data.ts
+scripts/data/update_tournament.js
+scripts/data/fix-player-statistics.ts
+scripts/data/create-player-and-statistics-for-admin.ts
+
+# Auth debug and test scripts
+scripts/auth/fix-admin-role.js
+scripts/auth/debug-auth-middleware.js
+scripts/auth/test-admin-token.js
+scripts/auth/create-admin-user.ts
+scripts/auth/sync-supabase-users.ts
+
+# Test debug scripts
+scripts/test/debug-mocks.js
+
+# Local database files
+*.sqlite
+*.sqlite3
+*.db
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

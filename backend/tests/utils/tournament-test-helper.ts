@@ -36,179 +36,189 @@ export interface TournamentTestData {
  * @returns Promise resolving to TournamentTestData
  */
 export async function createTournamentTestData(prisma: PrismaClient): Promise<TournamentTestData> {
-  // Create admin user if needed
-  const adminUser = await prisma.user.upsert({
-    where: { email: mockUsers.admin.email },
-    update: {},
-    create: {
-      id: mockUsers.admin.id,
-      email: mockUsers.admin.email,
-      name: mockUsers.admin.name,
-      password: 'hashed_password',
-      role: UserRole.ADMIN,
-      emailVerified: true,
-    },
-  });
-
-  // Create player users if needed - using findFirst to prevent ID conflicts
-  let playerUser1 = await prisma.user.findFirst({
-    where: { email: mockUsers.player.email },
-  });
-
-  if (!playerUser1) {
-    playerUser1 = await prisma.user.create({
-      data: {
-        id: mockUsers.player.id,
-        email: mockUsers.player.email,
-        name: mockUsers.player.name,
+  // Add debug logging
+  console.log('TOURNAMENT TEST HELPER: Starting to create tournament test data');
+  console.log('TOURNAMENT TEST HELPER: PrismaClient instance:', !!prisma);
+  
+  try {
+    // Create admin user if needed
+    console.log('TOURNAMENT TEST HELPER: Creating admin user');
+    const adminUser = await prisma.user.upsert({
+      where: { email: mockUsers.admin.email },
+      update: {},
+      create: {
+        id: mockUsers.admin.id,
+        email: mockUsers.admin.email,
+        name: mockUsers.admin.name,
         password: 'hashed_password',
-        role: UserRole.PLAYER,
+        role: UserRole.ADMIN,
         emailVerified: true,
       },
     });
-  }
 
-  let playerUser2 = await prisma.user.findFirst({
-    where: { email: 'player2@example.com' },
-  });
-
-  if (!playerUser2) {
-    playerUser2 = await prisma.user.create({
-      data: {
-        email: 'player2@example.com',
-        name: 'Player Two',
-        password: 'hashed_password',
-        role: UserRole.PLAYER,
-        emailVerified: true,
-      },
+    // Create player users if needed - using findFirst to prevent ID conflicts
+    let playerUser1 = await prisma.user.findFirst({
+      where: { email: mockUsers.player.email },
     });
-  }
 
-  let playerUser3 = await prisma.user.findFirst({
-    where: { email: 'player3@example.com' },
-  });
-
-  if (!playerUser3) {
-    playerUser3 = await prisma.user.create({
-      data: {
-        email: 'player3@example.com',
-        name: 'Player Three',
-        password: 'hashed_password',
-        role: UserRole.PLAYER,
-        emailVerified: true,
-      },
-    });
-  }
-
-  const playerUser4 = await prisma.user.upsert({
-    where: { email: 'player4@example.com' },
-    update: {},
-    create: {
-      email: 'player4@example.com',
-      name: 'Player Four',
-      password: 'hashed_password',
-      role: UserRole.PLAYER,
-      emailVerified: true,
-    },
-  });
-
-  const playerUsers = [playerUser1, playerUser2, playerUser3, playerUser4];
-
-  // Create tournament
-  const startDate = new Date();
-  startDate.setDate(startDate.getDate() + 10); // 10 days from now
-
-  const endDate = new Date(startDate);
-  endDate.setDate(endDate.getDate() + 3); // 3 days after start
-
-  const registrationEndDate = new Date(startDate);
-  registrationEndDate.setDate(registrationEndDate.getDate() - 1); // 1 day before start
-
-  // First delete any existing tournament with the same name to avoid duplicates
-  await prisma.tournament.deleteMany({
-    where: { name: 'Integration Test Tournament' },
-  });
-
-  // Check which player users exist before trying to connect them
-  const existingPlayerUsers = await Promise.all(
-    playerUsers.map(async user => {
-      const exists = await prisma.user.findUnique({
-        where: { id: user.id },
+    if (!playerUser1) {
+      playerUser1 = await prisma.user.create({
+        data: {
+          id: mockUsers.player.id,
+          email: mockUsers.player.email,
+          name: mockUsers.player.name,
+          password: 'hashed_password',
+          role: UserRole.PLAYER,
+          emailVerified: true,
+        },
       });
-      return exists ? user : null;
-    }),
-  );
-
-  const validPlayerUsers = existingPlayerUsers.filter(user => user !== null);
-  console.log(`Found ${validPlayerUsers.length} valid players out of ${playerUsers.length}`);
-
-  const tournament = await prisma.tournament.create({
-    data: {
-      name: 'Integration Test Tournament',
-      description: 'Tournament created for integration tests',
-      startDate,
-      endDate,
-      registrationEndDate,
-      location: 'Test Location',
-      format: TournamentFormat.SINGLE_ELIMINATION,
-      category: PlayerLevel.P3,
-      status: TournamentStatus.ACTIVE,
-      participants:
-        validPlayerUsers.length > 0
-          ? {
-              connect: validPlayerUsers.map(user => ({ id: user.id })),
-            }
-          : undefined,
-    },
-  });
-
-  // Create matches for the tournament - wrap in try/catch to handle potential errors
-  let matches: Match[] = [];
-
-  // Only create matches if we have at least 4 valid players
-  if (validPlayerUsers.length >= 4) {
-    try {
-      matches = await Promise.all([
-        prisma.match.create({
-          data: {
-            tournamentId: tournament.id,
-            homePlayerOneId: validPlayerUsers[0].id,
-            homePlayerTwoId: validPlayerUsers[1].id,
-            awayPlayerOneId: validPlayerUsers[2].id,
-            awayPlayerTwoId: validPlayerUsers[3].id,
-            round: 1,
-            date: startDate,
-            location: 'Test Court 1',
-            status: MatchStatus.PENDING,
-          },
-        }),
-        prisma.match.create({
-          data: {
-            tournamentId: tournament.id,
-            homePlayerOneId: validPlayerUsers[1].id,
-            homePlayerTwoId: validPlayerUsers[2].id,
-            awayPlayerOneId: validPlayerUsers[0].id,
-            awayPlayerTwoId: validPlayerUsers[3].id,
-            round: 2,
-            date: new Date(startDate.getTime() + 24 * 60 * 60 * 1000), // day after start
-            location: 'Test Court 2',
-            status: MatchStatus.PENDING,
-          },
-        }),
-      ]);
-    } catch (error) {
-      console.error('Error creating tournament matches:', error);
-      // Continue with empty matches array
     }
-  }
 
-  // Return the complete test data set
-  return {
-    tournament,
-    adminUser,
-    playerUsers,
-    matches,
-  };
+    let playerUser2 = await prisma.user.findFirst({
+      where: { email: 'player2@example.com' },
+    });
+
+    if (!playerUser2) {
+      playerUser2 = await prisma.user.create({
+        data: {
+          email: 'player2@example.com',
+          name: 'Player Two',
+          password: 'hashed_password',
+          role: UserRole.PLAYER,
+          emailVerified: true,
+        },
+      });
+    }
+
+    let playerUser3 = await prisma.user.findFirst({
+      where: { email: 'player3@example.com' },
+    });
+
+    if (!playerUser3) {
+      playerUser3 = await prisma.user.create({
+        data: {
+          email: 'player3@example.com',
+          name: 'Player Three',
+          password: 'hashed_password',
+          role: UserRole.PLAYER,
+          emailVerified: true,
+        },
+      });
+    }
+
+    const playerUser4 = await prisma.user.upsert({
+      where: { email: 'player4@example.com' },
+      update: {},
+      create: {
+        email: 'player4@example.com',
+        name: 'Player Four',
+        password: 'hashed_password',
+        role: UserRole.PLAYER,
+        emailVerified: true,
+      },
+    });
+
+    const playerUsers = [playerUser1, playerUser2, playerUser3, playerUser4];
+
+    // Create tournament
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() + 10); // 10 days from now
+
+    const endDate = new Date(startDate);
+    endDate.setDate(endDate.getDate() + 3); // 3 days after start
+
+    const registrationEndDate = new Date(startDate);
+    registrationEndDate.setDate(registrationEndDate.getDate() - 1); // 1 day before start
+
+    // First delete any existing tournament with the same name to avoid duplicates
+    await prisma.tournament.deleteMany({
+      where: { name: 'Integration Test Tournament' },
+    });
+
+    // Check which player users exist before trying to connect them
+    const existingPlayerUsers = await Promise.all(
+      playerUsers.map(async user => {
+        const exists = await prisma.user.findUnique({
+          where: { id: user.id },
+        });
+        return exists ? user : null;
+      }),
+    );
+
+    const validPlayerUsers = existingPlayerUsers.filter(user => user !== null);
+    console.log(`Found ${validPlayerUsers.length} valid players out of ${playerUsers.length}`);
+
+    const tournament = await prisma.tournament.create({
+      data: {
+        name: 'Integration Test Tournament',
+        description: 'Tournament created for integration tests',
+        startDate,
+        endDate,
+        registrationEndDate,
+        location: 'Test Location',
+        format: TournamentFormat.SINGLE_ELIMINATION,
+        category: PlayerLevel.P3,
+        status: TournamentStatus.ACTIVE,
+        participants:
+          validPlayerUsers.length > 0
+            ? {
+                connect: validPlayerUsers.map(user => ({ id: user.id })),
+              }
+            : undefined,
+      },
+    });
+
+    // Create matches for the tournament - wrap in try/catch to handle potential errors
+    let matches: Match[] = [];
+
+    // Only create matches if we have at least 4 valid players
+    if (validPlayerUsers.length >= 4) {
+      try {
+        matches = await Promise.all([
+          prisma.match.create({
+            data: {
+              tournamentId: tournament.id,
+              homePlayerOneId: validPlayerUsers[0].id,
+              homePlayerTwoId: validPlayerUsers[1].id,
+              awayPlayerOneId: validPlayerUsers[2].id,
+              awayPlayerTwoId: validPlayerUsers[3].id,
+              round: 1,
+              date: startDate,
+              location: 'Test Court 1',
+              status: MatchStatus.PENDING,
+            },
+          }),
+          prisma.match.create({
+            data: {
+              tournamentId: tournament.id,
+              homePlayerOneId: validPlayerUsers[1].id,
+              homePlayerTwoId: validPlayerUsers[2].id,
+              awayPlayerOneId: validPlayerUsers[0].id,
+              awayPlayerTwoId: validPlayerUsers[3].id,
+              round: 2,
+              date: new Date(startDate.getTime() + 24 * 60 * 60 * 1000), // day after start
+              location: 'Test Court 2',
+              status: MatchStatus.PENDING,
+            },
+          }),
+        ]);
+      } catch (error) {
+        console.error('Error creating tournament matches:', error);
+        // Continue with empty matches array
+      }
+    }
+
+    // Return the complete test data set
+    return {
+      tournament,
+      adminUser,
+      playerUsers,
+      matches,
+    };
+  } catch (error) {
+    console.error('TOURNAMENT TEST HELPER: Error creating tournament test data:', error);
+    throw error;
+  }
 }
 
 /**

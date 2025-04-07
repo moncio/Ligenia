@@ -46,7 +46,7 @@ export class Result<T> {
    */
   getError(): Error {
     if (!this.error) {
-      throw new Error('Cannot get error from a successful result');
+      return new Error('No error available - this was a successful result');
     }
     return this.error;
   }

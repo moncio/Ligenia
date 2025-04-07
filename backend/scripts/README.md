@@ -1,79 +1,110 @@
 # LIGENIA Backend Scripts
 
-This directory contains utility scripts for the LIGENIA backend application.
+Este directorio contiene scripts de utilidad para la aplicación backend de LIGENIA. Los scripts están organizados en las siguientes categorías:
 
-## Test Data Generation Scripts
+## Estructura de Directorios
 
-### Creating Admin User in Supabase
+```
+scripts/
+├── auth/       # Scripts relacionados con autenticación y usuarios
+├── data/       # Scripts para generar y manipular datos
+├── db/         # Scripts para gestión de bases de datos
+├── deploy/     # Scripts para despliegue y configuración de entorno
+├── test/       # Scripts para pruebas e integración
+└── utils/      # Scripts de utilidad general
+```
 
-The `create-admin-user.ts` script creates an admin user in Supabase and synchronizes it with the local database.
+## Categorías de Scripts
+
+### Auth (Autenticación)
+
+Scripts relacionados con la gestión de usuarios, autenticación y autorización:
+
+- `create-admin-user.ts` - Crea un usuario administrador en Supabase y lo sincroniza con la base de datos local
+- `debug-auth-middleware.js` - Simula el proceso de autenticación y autorización del middleware 
+- `fix-admin-role.js` - Corrige problemas con roles de administrador entre Supabase y base de datos
+- `sync-supabase-users.ts` - Sincroniza usuarios desde Supabase Auth a la base de datos local
+- `test-admin-token.js` - Prueba la funcionalidad del token de administrador
 
 ```bash
-# Run using NPM script
+# Crear un usuario administrador
 npm run admin:create
 
-# Or run directly
-ts-node scripts/create-admin-user.ts
-```
-
-This script will:
-1. Prompt you for an email, password, and name for the admin user
-2. Create this user in Supabase Auth with `ADMIN` role
-3. Synchronize the user to your local database
-4. Optionally create a player profile for this admin
-
-### Generating Test Data
-
-The `generate-test-data.ts` script generates comprehensive test data for the database, including players, tournaments, matches, and statistics.
-
-```bash
-# Run using NPM script
-npm run testdata:generate
-
-# Or run directly
-ts-node scripts/generate-test-data.ts
-```
-
-This script will:
-1. Ask for an admin user ID from Supabase (you should create one using the `admin:create` script first)
-2. Create multiple test players with different skill levels
-3. Generate past, active, and future tournaments
-4. Create matches for tournaments
-5. Generate statistics for tournament participants
-6. Add user preferences and performance history
-
-## Synchronizing Supabase Users
-
-The `sync-supabase-users.ts` script synchronizes users from Supabase Auth to the local database.
-
-```bash
-# Run using NPM script
+# Sincronizar usuarios de Supabase
 npm run sync:supabase:users
-
-# Or run directly
-ts-node scripts/sync-supabase-users.ts
 ```
 
-This script will:
-1. Fetch all users from Supabase Auth
-2. For each user not in the local database, create a corresponding user record
-3. Skip users that already exist in the local database
+### Data (Datos)
 
-## Notes
+Scripts para generación y manipulación de datos:
 
-- For these scripts to work properly, you need valid Supabase credentials in your `.env` file:
+- `create-player-and-statistics-for-admin.ts` - Crea un perfil de jugador para un administrador
+- `fix-player-statistics.ts` - Corrige estadísticas de jugadores
+- `generate-test-data.ts` - Genera datos de prueba completos (jugadores, torneos, partidos)
+- `populate-user-data.ts` - Genera datos de usuario para pruebas
+- `update_tournament.js` - Actualiza el estado de los torneos
+
+```bash
+# Generar datos de prueba
+npm run testdata:generate
+```
+
+### DB (Base de Datos)
+
+Scripts para gestión de bases de datos:
+
+- `db-manager.sh` - Administra las bases de datos de desarrollo y prueba
+
+```bash
+# Iniciar base de datos de desarrollo
+./scripts/db/db-manager.sh start dev
+
+# Iniciar base de datos de prueba
+./scripts/db/db-manager.sh start test
+
+# Ver el estado de las bases de datos
+./scripts/db/db-manager.sh status
+```
+
+### Deploy (Despliegue)
+
+Scripts relacionados con el despliegue y configuración del entorno:
+
+- `ensure-logs-dir.js` - Asegura que el directorio de logs exista antes de iniciar la aplicación
+- `railway-migration.js` - Ejecuta migraciones de Prisma en entorno Railway
+
+### Test (Pruebas)
+
+Scripts para pruebas e integración:
+
+- `debug-mocks.js` - Depura los mocks para pruebas
+- `run-integration-tests.sh` - Ejecuta las pruebas de integración
+- `setup-integration-tests.js` - Configura el entorno para pruebas de integración
+
+```bash
+# Ejecutar pruebas de integración
+npm run test:integration
+```
+
+### Utils (Utilidades)
+
+Scripts de utilidad general:
+
+- `update-console-logs.js` - Proporciona guía para reemplazar console.log con el sistema de logger
+
+## Notas Generales
+
+- Para que estos scripts funcionen correctamente, necesitas credenciales válidas de Supabase en tu archivo `.env`:
   - `SUPABASE_URL`
-  - `SUPABASE_SERVICE_ROLE_KEY` or `SUPABASE_ANON_KEY`
-- The database connection settings must also be correctly configured in your `.env` file.
-- Make sure your Prisma schema is up to date before running these scripts.
+  - `SUPABASE_SERVICE_ROLE_KEY` o `SUPABASE_ANON_KEY`
+- La configuración de conexión a la base de datos debe estar correctamente configurada en tu archivo `.env`
+- Asegúrate de que tu esquema de Prisma esté actualizado antes de ejecutar estos scripts
 
-## Usage Example
+## Uso Recomendado
 
-The recommended workflow is:
+Para configurar un entorno de desarrollo completo:
 
-1. Create an admin user: `npm run admin:create`
-2. Note the admin user ID from the console output
-3. Generate test data: `npm run testdata:generate`
-4. When prompted, enter the admin user ID from step 2
-
-This will set up your database with all necessary test data for API testing. 
+1. Inicia la base de datos: `./scripts/db/db-manager.sh start dev`
+2. Crea un usuario administrador: `npm run admin:create`
+3. Genera datos de prueba: `npm run testdata:generate`
+4. Ejecuta pruebas de integración: `npm run test:integration` 
