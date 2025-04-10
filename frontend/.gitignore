@@ -26,3 +26,4 @@ dist-ssr
 # Custom files
 .session.json
 api-tester.js
+MVP_INTEGRATION_CHECKLIST.md
