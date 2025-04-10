@@ -1,0 +1,164 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #007AFFAA);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+/* Sports app specific styles - Updated for modern sports theme */
+.sports-header {
+  background: linear-gradient(135deg, #007AFF 0%, #0056B3 100%);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+  border-radius: 0.75rem;
+}
+
+.sports-button {
+  background-color: #007AFF;
+  color: white;
+  border-radius: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  transition: all 0.3s ease;
+  letter-spacing: 0.75px;
+  padding: 0.75rem 1.5rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 122, 255, 0.4);
+}
+
+.sports-button:hover {
+  background-color: #0056B3;
+  transform: translateY(-3px);
+  box-shadow: 0 15px 20px -5px rgba(0, 0, 0, 0.3);
+}
+
+.sports-section {
+  padding: 2rem 1.5rem;
+  border-radius: 1rem;
+  border-left: 4px solid #007AFF;
+  background: linear-gradient(to right, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  backdrop-filter: blur(8px);
+}
+
+.sports-card {
+  background-color: white;
+  border-radius: 1rem;
+  box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  border-top: 4px solid #007AFF;
+}
+
+.sports-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.2);
+}
+
+.sports-data-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f5f9ff 100%);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  border-left: 4px solid #32CD32;
+  box-shadow: 0 8px 20px -5px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.sports-data-card:hover {
+  box-shadow: 0 12px 25px -8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-3px);
+}
+
+.sports-stats {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.25rem;
+  color: #1A1A1A;
+  line-height: 1;
+}
+
+.sports-highlight {
+  background: linear-gradient(90deg, #007AFF, #6C47FF);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  font-weight: 800;
+}
+
+.sports-badge {
+  background: linear-gradient(90deg, #FF9500, #FF3B30);
+  color: white;
+  font-weight: 700;
+  padding: 0.3rem 0.6rem;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  box-shadow: 0 4px 8px -2px rgba(255, 59, 48, 0.4);
+}
+
+/* Form styles for login/register */
+.form-sports-input {
+  border-radius: 0.75rem;
+  border: 1px solid rgba(0, 122, 255, 0.2);
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 10px -5px rgba(0, 0, 0, 0.05);
+}
+
+.form-sports-input:focus {
+  border-color: #007AFF;
+  box-shadow: 0 5px 15px -5px rgba(0, 122, 255, 0.2);
+  transform: translateY(-1px);
+}
+
+/* Dialog/modal styles */
+.sports-dialog {
+  border-radius: 1.5rem;
+  overflow: hidden;
+  border-top: 5px solid #007AFF;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.sports-dialog-header {
+  background: linear-gradient(135deg, rgba(0, 122, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(0, 122, 255, 0.1);
+}
+
+.sports-dialog-footer {
+  background: rgba(0, 122, 255, 0.03);
+  padding: 1.5rem;
+  border-top: 1px solid rgba(0, 122, 255, 0.1);
+}

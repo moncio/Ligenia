@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <style>
+    .logo { fill: #00ccff; }
+    .circuit { fill: none; stroke: #00ffcc; stroke-width: 1.5; }
+    .dot { fill: #00ffcc; }
+    @media (prefers-color-scheme: dark) {
+      .logo { fill: #00ccff; }
+      .circuit { stroke: #00ffcc; }
+      circle.background { fill: #0a1020; }
+    }
+    @media (prefers-color-scheme: light) {
+      .logo { fill: #0099cc; }
+      .circuit { stroke: #00cc99; }
+      circle.background { fill: #f0f8ff; }
+    }
+  </style>
+  <circle class="background" cx="50" cy="50" r="45" />
+  <g class="runner">
+    <path class="logo" d="M60,30 C65,35 68,45 60,55 C55,62 45,65 35,55 C40,65 50,70 65,60 C75,50 70,35 60,30z" />
+    <circle class="dot" cx="62" cy="42" r="5" />
+  </g>
+  <g class="circuit">
+    <path d="M20,20 Q5,35 20,50 Q35,65 50,50 Q65,35 80,50 Q95,65 80,80" />
+    <circle class="dot" cx="20" cy="20" r="2" />
+    <circle class="dot" cx="20" cy="50" r="2" />
+    <circle class="dot" cx="50" cy="50" r="2" />
+    <circle class="dot" cx="80" cy="50" r="2" />
+    <circle class="dot" cx="80" cy="80" r="2" />
+  </g>
+</svg> 

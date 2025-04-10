@@ -1,0 +1,196 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                 String               @id @default(uuid())
+  email              String               @unique
+  /// @zod.string().min(8) - Almacena solo hash bcrypt, nunca texto plano
+  password           String
+  /// @zod.string().min(2).max(100)
+  name               String
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  role               UserRole             @default(PLAYER)
+  emailVerified      Boolean              @default(false)
+  awayMatches        Match[]              @relation("AwayPlayerOne")
+  awayMatchesTwo     Match[]              @relation("AwayPlayerTwo")
+  homeMatches        Match[]              @relation("HomePlayerOne")
+  homeMatchesTwo     Match[]              @relation("HomePlayerTwo")
+  performanceHistory PerformanceHistory[]
+  playerProfile      Player?
+  statistics         Statistic[]
+  preferences        UserPreference?
+  tokens             UserToken[]
+  tournaments        Tournament[]         @relation("TournamentParticipants")
+
+  @@index([name])
+  @@index([role])
+  @@index([email])
+}
+
+model Player {
+  id         String      @id @default(uuid())
+  userId     String      @unique
+  level      PlayerLevel @default(P3)
+  age        Int?
+  country    String?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+  avatar_url String?
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([level])
+}
+
+model Tournament {
+  id                  String           @id @default(uuid())
+  /// @zod.string().min(3).max(100)
+  name                String
+  description         String?
+  startDate           DateTime
+  endDate             DateTime
+  registrationEndDate DateTime
+  location            String?
+  format              TournamentFormat @default(SINGLE_ELIMINATION)
+  category            PlayerLevel      @default(P3)
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+  status              TournamentStatus @default(DRAFT)
+  matches             Match[]
+  statistics          Statistic[]
+  participants        User[]           @relation("TournamentParticipants")
+
+  @@index([startDate, endDate])
+  @@index([name])
+  @@index([registrationEndDate])
+  @@index([category])
+  @@index([status, startDate])
+}
+
+model Match {
+  id              String      @id @default(uuid())
+  tournamentId    String
+  homePlayerOneId String
+  homePlayerTwoId String
+  awayPlayerOneId String
+  awayPlayerTwoId String
+  round           Int
+  date            DateTime?
+  location        String?
+  status          MatchStatus @default(PENDING)
+  homeScore       Int?
+  awayScore       Int?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  awayPlayerOne   User        @relation("AwayPlayerOne", fields: [awayPlayerOneId], references: [id])
+  awayPlayerTwo   User        @relation("AwayPlayerTwo", fields: [awayPlayerTwoId], references: [id])
+  homePlayerOne   User        @relation("HomePlayerOne", fields: [homePlayerOneId], references: [id])
+  homePlayerTwo   User        @relation("HomePlayerTwo", fields: [homePlayerTwoId], references: [id])
+  tournament      Tournament  @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+
+  @@index([tournamentId])
+  @@index([status])
+  @@index([date])
+  @@index([round])
+  @@index([homePlayerOneId, homePlayerTwoId])
+  @@index([awayPlayerOneId, awayPlayerTwoId])
+  @@index([status, date])
+}
+
+model Statistic {
+  id            String     @id @default(uuid())
+  userId        String
+  tournamentId  String
+  matchesPlayed Int        @default(0)
+  wins          Int        @default(0)
+  losses        Int        @default(0)
+  points        Int        @default(0)
+  rank          Int        @default(0)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  tournament    Tournament @relation(fields: [tournamentId], references: [id], onDelete: Cascade)
+  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, tournamentId])
+  @@index([userId])
+  @@index([tournamentId])
+  @@index([points])
+  @@index([wins, losses])
+  @@index([rank])
+}
+
+model UserPreference {
+  id                  String   @id @default(uuid())
+  userId              String   @unique
+  theme               String   @default("light")
+  fontSize            Int      @default(16)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model PerformanceHistory {
+  id            String   @id @default(uuid())
+  userId        String
+  year          Int
+  month         Int?
+  matchesPlayed Int      @default(0)
+  wins          Int      @default(0)
+  losses        Int      @default(0)
+  points        Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, year, month])
+  @@index([userId, year])
+}
+
+model UserToken {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique
+  type      String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId, type])
+  @@index([expiresAt])
+}
+
+enum UserRole {
+  ADMIN
+  PLAYER
+}
+
+enum TournamentFormat {
+  SINGLE_ELIMINATION
+}
+
+enum MatchStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum PlayerLevel {
+  P1
+  P2
+  P3
+}
+
+enum TournamentStatus {
+  DRAFT
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}

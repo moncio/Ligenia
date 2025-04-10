@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  db_test:
+    image: postgres:latest
+    container_name: ligenia_db_test
+    network_mode: host
+    environment:
+      POSTGRES_USER: ${DATABASE_USER}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
+      POSTGRES_HOST_AUTH_METHOD: trust
+    command: postgres -c 'port=5433' -c 'listen_addresses=*' -c 'log_statement=all'
+    volumes:
+      - db_test_data:/var/lib/postgresql/data
+
+volumes:
+  db_test_data: 
