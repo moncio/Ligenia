@@ -3,10 +3,13 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
+# Update npm to a specific version and clear cache
+RUN npm install -g npm@10.2.4 \
+    && npm cache clean --force
+
 # Copy package files and install dependencies
 COPY package*.json ./
-# Using npm install instead of npm ci to handle potential lock file issues
-RUN npm install
+RUN npm install --legacy-peer-deps
 
 # Copy prisma schema
 COPY prisma ./prisma/
