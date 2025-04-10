@@ -1,38 +1,24 @@
-# Build stage
-FROM node:20-alpine AS builder
+FROM node:20-alpine
 
 WORKDIR /app
 
-# Update npm to a specific version and clear cache
-RUN npm install -g npm@10.2.4 \
-    && npm cache clean --force
+# First, copy only package files to leverage Docker cache
+COPY package.json ./
+COPY package-lock.json ./
 
-# Copy package files and install dependencies
-COPY package*.json ./
-RUN npm install --legacy-peer-deps
-
-# Copy prisma schema
-COPY prisma ./prisma/
-
-# Generate Prisma client
-RUN npx prisma generate
+# Install dependencies with clean npm install
+RUN npm cache clean --force && \
+    rm -rf node_modules && \
+    npm install
 
 # Copy the rest of the application
 COPY . .
 
+# Generate Prisma client
+RUN npx prisma generate
+
 # Build the application
 RUN npm run build
-
-# Production stage
-FROM node:20-alpine AS production
-
-WORKDIR /app
-
-# Copy built application from builder stage
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/package*.json ./
-COPY --from=builder /app/prisma ./prisma
 
 # Create log directory
 RUN mkdir -p logs
