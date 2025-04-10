@@ -27,3 +27,8 @@ dist-ssr
 .session.json
 api-tester.js
 MVP_INTEGRATION_CHECKLIST.md
+
+# Vite
+.vite/
+*.map
+vite/deps/
