@@ -1,8 +1,20 @@
+import React from 'react';
+import { createRoot } from 'react-dom/client';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import App from './App';
+import './index.css';
+import { ErrorBoundary } from 'react-error-boundary';
 
-import { createRoot } from 'react-dom/client'
-import App from './App.tsx'
-import './index.css'
-import { ErrorBoundary } from 'react-error-boundary'
+// Create a client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      retry: 1,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    },
+  },
+});
 
 // Simple fallback component to display when errors occur
 const ErrorFallback = ({ error, resetErrorBoundary }: { error: Error, resetErrorBoundary: () => void }) => {
@@ -35,9 +47,11 @@ if (!rootElement) {
   
   try {
     root.render(
-      <ErrorBoundary FallbackComponent={ErrorFallback}>
-        <App />
-      </ErrorBoundary>
+      <React.StrictMode>
+        <ErrorBoundary FallbackComponent={ErrorFallback}>
+          <App />
+        </ErrorBoundary>
+      </React.StrictMode>
     );
     console.log("Aplicación renderizada correctamente");
   } catch (error) {

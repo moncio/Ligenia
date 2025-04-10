@@ -205,4 +205,49 @@ router.get(
   rankingController.getRankings
 );
 
+/**
+ * @swagger
+ * /api/rankings/me:
+ *   get:
+ *     summary: Get current user's ranking position
+ *     description: Retrieve the current authenticated user's position in the global rankings
+ *     tags: [Rankings]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User's ranking position
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: success
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     position:
+ *                       type: integer
+ *                       nullable: true
+ *                       description: User's position in the ranking (null if not ranked)
+ *                     player:
+ *                       type: object
+ *                       nullable: true
+ *                       properties:
+ *                         id:
+ *                           type: string
+ *                         name:
+ *                           type: string
+ *       401:
+ *         description: User not authenticated
+ */
+router.get(
+  '/me',
+  authenticate,
+  diMiddleware,
+  rankingController.getCurrentUserRanking
+);
+
 export default router;

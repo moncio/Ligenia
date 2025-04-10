@@ -16,7 +16,27 @@ import { PrismaClient } from '@prisma/client';
 
 // This would be replaced with proper DI container initialization in a real application
 export class PrismaModule {
-  private static prismaClient: PrismaClient = new PrismaClient();
+  private static prismaClient: PrismaClient = new PrismaClient({
+    log: ['warn', 'error'],
+  });
+
+  // Inicialización inmediata para probar la conexión
+  static {
+    // Conectar y verificar la conexión al iniciar
+    this.prismaClient.$connect()
+      .then(() => {
+        console.log('Successfully connected to database');
+      })
+      .catch(e => {
+        console.error('Failed to connect to database:', e);
+        // Reintentar una vez más después de un breve retraso
+        setTimeout(() => {
+          this.prismaClient.$connect()
+            .then(() => console.log('Successfully connected to database on retry'))
+            .catch(err => console.error('Failed to connect to database on retry:', err));
+        }, 3000);
+      });
+  }
 
   /**
    * Dictionary of repository factories

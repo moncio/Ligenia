@@ -26,21 +26,39 @@ const port = process.env.PORT || 3000;
 // Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors());
-app.use(helmet());
 
-// Add request ID middleware - must be added before other middleware
+// Security middleware with adjusted settings
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  crossOriginOpenerPolicy: { policy: "unsafe-none" },
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      connectSrc: ["'self'", "http://localhost:3000", "http://localhost:5173", "http://127.0.0.1:5173"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+      styleSrc: ["'self'", "'unsafe-inline'"],
+      imgSrc: ["'self'", "data:", "blob:"],
+      fontSrc: ["'self'", "data:"],
+    },
+  },
+}));
+
+// CORS Configuration - Must come after Helmet
+app.use(cors({
+  origin: ['http://localhost:8080', 'http://127.0.0.1:8080', 'http://localhost:5173', 'http://127.0.0.1:5173'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-request-id', 'x-correlation-id'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range'],
+  credentials: true,
+  maxAge: 86400,
+  optionsSuccessStatus: 200,
+}));
+
+// Add request ID middleware
 app.use(requestIdMiddleware);
 
 // Use morgan with custom format to include request ID
-app.use(morgan(':method :url :status :response-time ms - :res[content-length]', {
-  stream: {
-    write: (message: string) => {
-      // Skip logging in morgan, as we're already logging in the request ID middleware
-      return true;
-    }
-  }
-}));
+app.use(morgan('dev'));
 
 // Inject container into request
 app.use(diMiddleware);

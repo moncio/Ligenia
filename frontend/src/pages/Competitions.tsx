@@ -1,140 +1,20 @@
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { DashboardLayout } from "@/components/DashboardLayout";
 import { useToast } from "@/hooks/use-toast";
-import { Filter, Calendar, Trophy, Search } from "lucide-react";
+import { Filter, Calendar, Trophy, Search, Info } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TournamentCarousel from "@/components/TournamentCarousel";
 import { useIsDesktop, useIsTablet, useIsMobile } from "@/hooks/use-mobile";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
+import { useTournaments, useRegisterForTournament } from "@/hooks/api/useTournament";
+import { Tournament } from "@/lib/api/services/tournamentService";
+import { Skeleton } from "@/components/ui/skeleton";
 
-type EstadoTorneo = "Inscripción abierta" | "Inscripción cerrada" | "En curso" | "Finalizado";
-type CategoriaTorneo = "P1" | "P2" | "P3";
 type FilterType = "todos" | "proximos" | "activos" | "finalizados";
 
-const torneos = [{
-  id: 1,
-  nombre: "Torneo Apertura",
-  liga: "Liga Madrid Primavera",
-  fechaInicio: "15/06/2023",
-  fechaFin: "30/06/2023",
-  fechaLimiteInscripcion: "08/06/2023",
-  localizacion: "Club de Padel Madrid Centro",
-  categoria: "P1" as CategoriaTorneo,
-  estado: "Inscripción abierta" as EstadoTorneo
-}, {
-  id: 2,
-  nombre: "Copa Verano",
-  liga: "Liga Nacional Amateur",
-  fechaInicio: "01/07/2023",
-  fechaFin: "15/07/2023",
-  fechaLimiteInscripcion: "24/06/2023",
-  localizacion: "Padel Indoor Alcalá",
-  categoria: "P2" as CategoriaTorneo,
-  estado: "En curso" as EstadoTorneo
-}, {
-  id: 3,
-  nombre: "Grand Slam Local",
-  liga: "Copa Regional Padel",
-  fechaInicio: "20/07/2023",
-  fechaFin: "05/08/2023",
-  fechaLimiteInscripcion: "13/07/2023",
-  localizacion: "Club Deportivo El Estudiante",
-  categoria: "P1" as CategoriaTorneo,
-  estado: "Inscripción cerrada" as EstadoTorneo
-}, {
-  id: 4,
-  nombre: "Torneo Femenino",
-  liga: "Liga Femenina Elite",
-  fechaInicio: "10/08/2023",
-  fechaFin: "25/08/2023",
-  fechaLimiteInscripcion: "03/08/2023",
-  localizacion: "Polideportivo San José",
-  categoria: "P2" as CategoriaTorneo,
-  estado: "Inscripción abierta" as EstadoTorneo
-}, {
-  id: 5,
-  nombre: "Copa Otoño",
-  liga: "Liga Nacional Amateur",
-  fechaInicio: "01/09/2023",
-  fechaFin: "15/09/2023",
-  fechaLimiteInscripcion: "25/08/2023",
-  localizacion: "Centro Deportivo Alameda",
-  categoria: "P3" as CategoriaTorneo,
-  estado: "Inscripción cerrada" as EstadoTorneo
-}, {
-  id: 6,
-  nombre: "Torneo Municipal",
-  liga: "Torneo Municipal",
-  fechaInicio: "01/06/2023",
-  fechaFin: "10/06/2023",
-  fechaLimiteInscripcion: "25/05/2023",
-  localizacion: "Polideportivo Municipal",
-  categoria: "P3" as CategoriaTorneo,
-  estado: "Finalizado" as EstadoTorneo
-}, {
-  id: 7,
-  nombre: "Torneo Primavera",
-  liga: "Liga Madrid Primavera",
-  fechaInicio: "15/03/2023",
-  fechaFin: "30/04/2023",
-  fechaLimiteInscripcion: "08/03/2023",
-  localizacion: "Madrid Arena",
-  categoria: "P1" as CategoriaTorneo,
-  estado: "Finalizado" as EstadoTorneo
-}, {
-  id: 8,
-  nombre: "Torneo Invitacional",
-  liga: "Liga Nacional Amateur",
-  fechaInicio: "10/05/2023",
-  fechaFin: "25/05/2023",
-  fechaLimiteInscripcion: "03/05/2023",
-  localizacion: "Club de Campo Villa de Madrid",
-  categoria: "P2" as CategoriaTorneo,
-  estado: "Finalizado" as EstadoTorneo
-}, {
-  id: 9,
-  nombre: "Copa Elite",
-  liga: "Liga Femenina Elite",
-  fechaInicio: "05/07/2023",
-  fechaFin: "20/07/2023",
-  fechaLimiteInscripcion: "28/06/2023",
-  localizacion: "Centro Deportivo Vallehermoso",
-  categoria: "P1" as CategoriaTorneo,
-  estado: "Inscripción abierta" as EstadoTorneo
-}, {
-  id: 10,
-  nombre: "Torneo Regional",
-  liga: "Copa Regional Padel",
-  fechaInicio: "01/08/2023",
-  fechaFin: "15/08/2023",
-  fechaLimiteInscripcion: "25/07/2023",
-  localizacion: "Club Padel Las Rozas",
-  categoria: "P3" as CategoriaTorneo,
-  estado: "Inscripción abierta" as EstadoTorneo
-}, {
-  id: 11,
-  nombre: "Campeonato Nacional",
-  liga: "Liga Nacional Amateur",
-  fechaInicio: "10/06/2023",
-  fechaFin: "30/06/2023",
-  fechaLimiteInscripcion: "03/06/2023",
-  localizacion: "Centro Deportivo Nacional",
-  categoria: "P1" as CategoriaTorneo,
-  estado: "En curso" as EstadoTorneo
-}, {
-  id: 12,
-  nombre: "Torneo Clasificatorio",
-  liga: "Liga Madrid Primavera",
-  fechaInicio: "01/07/2023",
-  fechaFin: "10/07/2023",
-  fechaLimiteInscripcion: "24/06/2023",
-  localizacion: "Club Padel Madrid Norte",
-  categoria: "P2" as CategoriaTorneo,
-  estado: "Inscripción cerrada" as EstadoTorneo
-}];
-
+// Brackets de ejemplo que serán reemplazados por datos reales más adelante
 const bracketsEjemplo = [[{
   equipo1: "García/Martínez",
   equipo2: "López/Fernández",
@@ -180,62 +60,178 @@ const Competitions = () => {
   const { toast } = useToast();
   const [filtroEstado, setFiltroEstado] = useState<FilterType>("todos");
   const [searchTerm, setSearchTerm] = useState("");
+  const [localTorneos, setLocalTorneos] = useState<Tournament[]>([]);
   const isDesktop = useIsDesktop();
   const isTablet = useIsTablet();
   const isMobile = useIsMobile();
   
-  const handleInscripcionTorneo = (torneoId: number, torneoNombre: string) => {
-    toast({
-      title: "Inscripción al torneo enviada",
-      description: `Tu solicitud de inscripción al torneo ${torneoNombre} ha sido enviada.`,
-      variant: "default"
-    });
+  // Obtener datos de torneos desde la API
+  const { 
+    data: tournamentsData, 
+    isLoading: isLoadingTournaments, 
+    isError: isErrorTournaments
+  } = useTournaments(
+    filtroEstado !== "finalizados" 
+      ? { 
+          status: filtroEstado === "proximos" 
+            ? "DRAFT" 
+            : filtroEstado === "activos" 
+              ? "ACTIVE" 
+              : undefined 
+        }
+      : undefined
+  );
+
+  // Query adicional para traer torneos COMPLETED
+  const { 
+    data: completedTournamentsData, 
+    isLoading: isLoadingCompletedTournaments, 
+    isError: isErrorCompletedTournaments
+  } = useTournaments(
+    filtroEstado === "finalizados" ? { status: "COMPLETED" } : undefined,
+    { 
+      enabled: filtroEstado === "finalizados",
+      queryKey: ['tournaments', 'completed']
+    }
+  );
+
+  // Query adicional para traer torneos CANCELLED
+  const { 
+    data: cancelledTournamentsData, 
+    isLoading: isLoadingCancelledTournaments, 
+    isError: isErrorCancelledTournaments
+  } = useTournaments(
+    filtroEstado === "finalizados" ? { status: "CANCELLED" } : undefined,
+    { 
+      enabled: filtroEstado === "finalizados",
+      queryKey: ['tournaments', 'cancelled']
+    }
+  );
+
+  // Combinar torneos finalizados (COMPLETED y CANCELLED)
+  useEffect(() => {
+    if (filtroEstado === "finalizados") {
+      const completedTournaments = completedTournamentsData?.data?.tournaments || [];
+      const cancelledTournaments = cancelledTournamentsData?.data?.tournaments || [];
+      setLocalTorneos([...completedTournaments, ...cancelledTournaments]);
+    } else {
+      setLocalTorneos(tournamentsData?.data?.tournaments || []);
+    }
+  }, [
+    filtroEstado, 
+    tournamentsData, 
+    completedTournamentsData, 
+    cancelledTournamentsData
+  ]);
+
+  // Determinar si estamos cargando torneos
+  const isLoading = 
+    isLoadingTournaments || 
+    (filtroEstado === "finalizados" && (isLoadingCompletedTournaments || isLoadingCancelledTournaments));
+
+  // Determinar si hay error al cargar torneos
+  const isError = 
+    isErrorTournaments || 
+    (filtroEstado === "finalizados" && (isErrorCompletedTournaments || isErrorCancelledTournaments));
+
+  // Mutación para registrarse en un torneo
+  const registerMutation = useRegisterForTournament();
+  
+  // Manejar la inscripción a un torneo
+  const handleInscripcionTorneo = async (torneoId: string, torneoNombre: string) => {
+    try {
+      registerMutation.mutate(torneoId, {
+        onSuccess: (data) => {
+          toast({
+            title: "Inscripción al torneo enviada",
+            description: `Tu solicitud de inscripción al torneo ${torneoNombre} ha sido enviada.`,
+            variant: "default"
+          });
+        },
+        onError: (error) => {
+          toast({
+            title: "Error",
+            description: `No se pudo completar la inscripción: ${error.message}`,
+            variant: "destructive"
+          });
+        }
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Ha ocurrido un error al procesar la inscripción",
+        variant: "destructive"
+      });
+    }
   };
 
-  const filtrarTorneosPorEstado = () => {
-    const fechaActual = new Date();
-    const formatearFecha = (fechaString: string) => {
-      const [dia, mes, anio] = fechaString.split('/');
-      return new Date(`${anio}-${mes}-${dia}`);
-    };
+  // Convertir los datos de la API al formato esperado por el componente
+  const mapApiTournamentsToUI = (tournaments: Tournament[] = []) => {
+    return tournaments.map(tournament => ({
+      id: tournament.id,
+      nombre: tournament.name,
+      liga: "Liga General",
+      fechaInicio: new Date(tournament.startDate).toLocaleDateString(),
+      fechaFin: tournament.endDate ? new Date(tournament.endDate).toLocaleDateString() : "",
+      fechaLimiteInscripcion: tournament.registrationDeadline ? 
+        new Date(tournament.registrationDeadline).toLocaleDateString() : "",
+      localizacion: tournament.location || "Por definir",
+      categoria: (tournament.category as "P1" | "P2" | "P3") || "P1",
+      estado: mapStatusToUIStatus(tournament.status),
+      status: tournament.status
+    }));
+  };
+
+  // Mapear estados de la API a estados de la UI
+  const mapStatusToUIStatus = (
+    status: Tournament['status']
+  ): "Inscripción abierta" | "Inscripción cerrada" | "En curso" | "Finalizado" => {
+    switch (status) {
+      case 'DRAFT':
+        return "Inscripción abierta";
+      case 'ACTIVE':
+        return "En curso";
+      case 'COMPLETED':
+        return "Finalizado";
+      case 'CANCELLED':
+        return "Finalizado";
+      default:
+        return "Inscripción cerrada";
+    }
+  };
+
+  // Aplicar filtros a los torneos
+  const filtrarTorneosPorEstado = (tournaments: Tournament[] = []) => {
+    const torneosMapeados = mapApiTournamentsToUI(tournaments);
+    let torneosFiltered = torneosMapeados;
     
-    let torneosFiltered = torneos;
-    
+    // Aplicar filtro de búsqueda por texto
     if (searchTerm.trim().length > 0) {
-      torneosFiltered = torneosFiltered.filter(torneo => 
+      torneosFiltered = torneosMapeados.filter(torneo => 
         torneo.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        torneo.liga.toLowerCase().includes(searchTerm.toLowerCase())
+        torneo.localizacion.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        torneo.categoria.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
     
-    return torneosFiltered.filter(torneo => {
-      const fechaInicio = formatearFecha(torneo.fechaInicio);
-      const fechaFin = formatearFecha(torneo.fechaFin);
-      switch (filtroEstado) {
-        case "proximos":
-          return fechaInicio > fechaActual;
-        case "activos":
-          return fechaInicio <= fechaActual && fechaFin >= fechaActual || torneo.estado === "Inscripción abierta" || torneo.estado === "En curso";
-        case "finalizados":
-          return fechaFin < fechaActual || torneo.estado === "Finalizado";
-        default:
-          return true;
-      }
-    }).sort((a, b) => {
-      const fechaA = a.fechaInicio.split('/').reverse().join('-');
-      const fechaB = b.fechaInicio.split('/').reverse().join('-');
-      return new Date(fechaB).getTime() - new Date(fechaA).getTime();
+    // Ordenar torneos por fecha (más recientes primero)
+    return torneosFiltered.sort((a, b) => {
+      return new Date(b.fechaInicio).getTime() - new Date(a.fechaInicio).getTime();
     });
   };
 
-  const torneosFiltrados = filtrarTorneosPorEstado();
+  // Memorizar la lista filtrada de torneos para evitar cálculos innecesarios
+  const torneosFiltrados = useMemo(() => {
+    if (isLoading || isError) return [];
+    return filtrarTorneosPorEstado(localTorneos);
+  }, [localTorneos, searchTerm, isLoading, isError]);
 
   const getNombreFiltro = () => {
     switch (filtroEstado) {
       case "proximos":
-        return "Próximos";
+        return "Inscripción";
       case "activos":
-        return "Activos";
+        return "En curso";
       case "finalizados":
         return "Finalizados";
       default:
@@ -284,8 +280,8 @@ const Competitions = () => {
                   <div className="w-full sm:w-auto overflow-x-auto pb-2 sm:pb-0">
                     <TabsList className="inline-flex h-auto p-1 bg-muted rounded-lg w-full sm:w-auto min-w-[300px] sm:min-w-0">
                       <TabsTrigger value="todos" className="px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-md font-medium data-[state=active]:bg-background data-[state=active]:shadow-sm flex-1 sm:flex-none whitespace-nowrap">Todos</TabsTrigger>
-                      <TabsTrigger value="proximos" className="px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-md font-medium data-[state=active]:bg-background data-[state=active]:shadow-sm flex-1 sm:flex-none whitespace-nowrap">Próximos</TabsTrigger>
-                      <TabsTrigger value="activos" className="px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-md font-medium data-[state=active]:bg-background data-[state=active]:shadow-sm flex-1 sm:flex-none whitespace-nowrap">Activos</TabsTrigger>
+                      <TabsTrigger value="proximos" className="px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-md font-medium data-[state=active]:bg-background data-[state=active]:shadow-sm flex-1 sm:flex-none whitespace-nowrap">Inscripción</TabsTrigger>
+                      <TabsTrigger value="activos" className="px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-md font-medium data-[state=active]:bg-background data-[state=active]:shadow-sm flex-1 sm:flex-none whitespace-nowrap">En curso</TabsTrigger>
                       <TabsTrigger value="finalizados" className="px-3 sm:px-4 py-2 text-xs sm:text-sm rounded-md font-medium data-[state=active]:bg-background data-[state=active]:shadow-sm flex-1 sm:flex-none whitespace-nowrap">Finalizados</TabsTrigger>
                     </TabsList>
                   </div>
@@ -294,28 +290,28 @@ const Competitions = () => {
                 <TabsContent value="todos" className="mt-0">
                   <div className="flex items-center gap-2 mb-4 text-sm text-muted-foreground">
                     <Calendar className="h-4 w-4" />
-                    <span>Mostrando todos los torneos ({torneosFiltrados.length})</span>
+                    <span>Mostrando todos los torneos ({isLoadingTournaments ? '...' : torneosFiltrados.length})</span>
                   </div>
                 </TabsContent>
                 
                 <TabsContent value="proximos" className="mt-0">
                   <div className="flex items-center gap-2 mb-4 text-sm text-muted-foreground">
                     <Calendar className="h-4 w-4" />
-                    <span>Mostrando torneos próximos ({torneosFiltrados.length})</span>
+                    <span>Mostrando torneos con inscripción abierta ({isLoadingTournaments ? '...' : torneosFiltrados.length})</span>
                   </div>
                 </TabsContent>
                 
                 <TabsContent value="activos" className="mt-0">
                   <div className="flex items-center gap-2 mb-4 text-sm text-muted-foreground">
                     <Calendar className="h-4 w-4" />
-                    <span>Mostrando torneos activos ({torneosFiltrados.length})</span>
+                    <span>Mostrando torneos en curso ({isLoadingTournaments ? '...' : torneosFiltrados.length})</span>
                   </div>
                 </TabsContent>
                 
                 <TabsContent value="finalizados" className="mt-0">
                   <div className="flex items-center gap-2 mb-4 text-sm text-muted-foreground">
                     <Calendar className="h-4 w-4" />
-                    <span>Mostrando torneos finalizados ({torneosFiltrados.length})</span>
+                    <span>Mostrando torneos finalizados ({isLoadingTournaments ? '...' : torneosFiltrados.length})</span>
                   </div>
                 </TabsContent>
               </Tabs>
@@ -328,7 +324,31 @@ const Competitions = () => {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="rounded-xl overflow-hidden bg-background shadow-sm border"
           >
-            {torneosFiltrados.length === 0 ? (
+            {isLoading ? (
+              <div className="p-8">
+                <div className="space-y-4">
+                  <Skeleton className="h-48 w-full" />
+                  <div className="flex gap-4">
+                    <Skeleton className="h-12 w-32" />
+                    <Skeleton className="h-12 w-32" />
+                  </div>
+                </div>
+              </div>
+            ) : isError ? (
+              <div className="p-8 text-center w-full">
+                <motion.div
+                  animate={{ scale: [1, 1.05, 1] }}
+                  transition={{ repeat: Infinity, duration: 3 }}
+                  className="mx-auto w-16 h-16 bg-destructive/10 rounded-full flex items-center justify-center mb-4"
+                >
+                  <Trophy className="h-8 w-8 text-destructive" />
+                </motion.div>
+                <h3 className="text-lg font-medium text-foreground mb-2">Error al cargar torneos</h3>
+                <p className="text-muted-foreground max-w-md mx-auto">
+                  Ocurrió un error al cargar los torneos. Por favor, intenta nuevamente.
+                </p>
+              </div>
+            ) : torneosFiltrados.length === 0 ? (
               <div className="p-8 text-center w-full">
                 <motion.div
                   animate={{ scale: [1, 1.05, 1] }}

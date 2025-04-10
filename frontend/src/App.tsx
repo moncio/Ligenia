@@ -14,17 +14,14 @@ import AIAssistant from "./pages/AIAssistant";
 import Settings from "./pages/Settings";
 import AuthGuard from "./components/auth/AuthGuard";
 import { AuthProvider } from "./contexts/AuthContext";
-import { useTheme } from "./hooks/useTheme";
 import { useEffect } from "react";
+import { ThemeInitializer } from "./components/ThemeInitializer";
 
 // Create a new query client
 const queryClient = new QueryClient();
 
 const App = () => {
-  // Initialize theme using the useTheme hook
-  const { theme } = useTheme();
-  
-  // Apply font size on app load
+  // Apply font size on app load (from localStorage)
   useEffect(() => {
     try {
       const root = window.document.documentElement;
@@ -34,8 +31,20 @@ const App = () => {
       if (savedFontSize) {
         root.style.fontSize = `${savedFontSize}px`;
       }
+      
+      // Apply saved theme
+      const savedTheme = localStorage.getItem('theme');
+      if (savedTheme) {
+        root.classList.add(savedTheme === 'system' 
+          ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+          : savedTheme
+        );
+      } else {
+        // Default to light theme
+        root.classList.add('light');
+      }
     } catch (error) {
-      console.error('Error initializing font size:', error);
+      console.error('Error initializing app appearance:', error);
     }
   }, []);
   
@@ -45,6 +54,7 @@ const App = () => {
         <AuthProvider>
           <TooltipProvider>
             <SidebarProvider>
+              <ThemeInitializer />
               <div className="min-h-screen w-full bg-background">
                 <Toaster />
                 <Sonner />

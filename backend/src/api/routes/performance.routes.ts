@@ -212,6 +212,7 @@ router.get(
  */
 router.get(
   '/trends',
+  authenticate,
   validateQuery(performanceTrendsQuerySchema),
   performanceController.trackPerformanceTrends,
 );
@@ -292,6 +293,7 @@ router.get(
  */
 router.get(
   '/player/:playerId/history',
+  authenticate,
   validateParams(playerIdParamSchema),
   validateQuery(playerPerformanceQuerySchema),
   performanceController.getPlayerPerformanceHistory,
@@ -356,6 +358,7 @@ router.get(
  */
 router.get(
   '/player/:playerId/summary',
+  authenticate,
   validateParams(playerIdParamSchema),
   validateQuery(playerPerformanceQuerySchema),
   performanceController.getPlayerPerformanceSummary,
@@ -431,6 +434,7 @@ router.get(
  */
 router.get(
   '/player/:playerId/trends',
+  authenticate,
   validateParams(playerIdParamSchema),
   validateQuery(playerPerformanceTrendsQuerySchema),
   performanceController.getPlayerPerformanceTrends,

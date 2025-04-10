@@ -56,3 +56,68 @@ lerna-debug.log*
 *.njsproj
 *.sln
 *.sw?
+
+# Archivos temporales y de desarrollo
+.tmp/
+.temp/
+*.bak
+*.swp
+*.tmp
+*.temp
+.cache/
+
+# Documentación generada automáticamente
+docs/generated/
+swagger-output.json
+apidoc/
+
+# Archivos de test generados
+coverage/
+.nyc_output/
+test-report.xml
+junit.xml
+
+# Archivos específicos de despliegue temporales
+.railway/tmp/
+railway-*.log
+.deployment-*.json
+
+# Archivos de análisis y diagnóstico
+*.heapsnapshot
+*.cpuprofile
+*.gz
+trace-*.json
+
+# Documentos de trabajo en progreso y borradores
+docs/**/*.draft.md
+docs/**/*.wip.md
+docs/**/*.todo.md
+docs/**/*.notes.md
+docs/**/*-borrador.*
+docs/**/*-draft.*
+docs/**/*-temp.*
+
+# Documentos con información potencialmente sensible
+docs/**/*-credentials.*
+docs/**/*-keys.*
+docs/**/*-personal.*
+docs/**/*-secret.*
+docs/**/secrets/
+docs/**/private/
+
+# Documentación temporal de pruebas
+docs/**/test-results/
+docs/**/test-output/
+docs/**/performance-reports/
+docs/**/*-testrun.*
+
+# Archivos de documentación muy grandes
+docs/**/*.pdf
+docs/**/*.pptx
+docs/**/*.docx
+docs/**/*.xlsx
+
+# Copia de seguridad y archivos de sincronización
+docs/**/*.sync
+docs/**/*.backup
+docs/**/*~

@@ -135,10 +135,11 @@ router.get(
  *         description: Player not found
  */
 router.get(
-  '/:id', 
+  '/:id',
+  authenticate,
   diMiddleware,
-  validateParams(idParamSchema), 
-  playerController.getPlayerById
+  validateParams(idParamSchema),
+  withAuthContainer(playerController.getPlayerById)
 );
 
 /**

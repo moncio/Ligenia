@@ -256,4 +256,115 @@ export class RankingController {
       });
     }
   };
+
+  /**
+   * Get current authenticated user's ranking position
+   * @route GET /api/rankings/me
+   */
+  public getCurrentUserRanking = async (req: ContainerRequest, res: Response) => {
+    try {
+      console.log('Received request: getCurrentUserRanking');
+      
+      // Get the authenticated user's ID from the request
+      const userId = req.user?.id;
+      
+      if (!userId) {
+        return res.status(401).json({
+          status: 'error',
+          message: 'User not authenticated'
+        });
+      }
+      
+      console.log(`Getting ranking position for user ${userId}`);
+      
+      try {
+        // Use prisma to get the player info and ranking
+        const { PrismaClient } = require('@prisma/client');
+        const prisma = new PrismaClient();
+        
+        // First, find the player associated with this user
+        const player = await prisma.player.findFirst({
+          where: {
+            userId: userId
+          },
+          select: {
+            id: true,
+            user: {
+              select: {
+                name: true
+              }
+            }
+          }
+        });
+        
+        if (!player) {
+          console.log(`No player profile found for user ${userId}`);
+          return res.status(200).json({
+            status: 'success',
+            data: {
+              position: null,
+              player: null
+            }
+          });
+        }
+        
+        console.log(`Found player with ID ${player.id}`);
+        
+        // Get all players with their total points (similar to getGlobalRankingList)
+        const players = await prisma.player.findMany({
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                statistics: true
+              }
+            }
+          }
+        });
+        
+        // Calculate total points for each player
+        const playerRankings = players.map((p: any) => {
+          const totalPoints = p.user.statistics.reduce((sum: number, stat: any) => sum + stat.points, 0);
+          return {
+            playerId: p.id,
+            userId: p.user.id,
+            name: p.user.name,
+            points: totalPoints
+          };
+        });
+        
+        // Sort by total points (descending)
+        playerRankings.sort((a: any, b: any) => b.points - a.points);
+        
+        // Find the position of the current user's player
+        const position = playerRankings.findIndex((p: any) => p.playerId === player.id) + 1; // +1 because index is 0-based
+        
+        console.log(`User's ranking position: ${position}`);
+        
+        return res.status(200).json({
+          status: 'success',
+          data: {
+            position: position > 0 ? position : null,
+            player: {
+              id: player.id,
+              name: player.user.name
+            }
+          }
+        });
+      } catch (dbError) {
+        console.error('Error accessing database for user ranking:', dbError);
+        return res.status(500).json({ 
+          status: 'error', 
+          message: 'Internal server error - Database access failed' 
+        });
+      }
+    } catch (error) {
+      console.error('Error in getCurrentUserRanking:', error);
+      return res.status(500).json({ 
+        status: 'error', 
+        message: 'Internal server error' 
+      });
+    }
+  };
 } 

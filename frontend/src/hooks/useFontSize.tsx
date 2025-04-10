@@ -1,22 +1,47 @@
+import { useEffect, useState } from 'react';
 
-import { useState, useEffect } from 'react';
+type FontSizeType = 'sm' | 'md' | 'lg' | 'xl';
 
-export function useFontSize() {
-  // Estado para almacenar el tamaño de fuente actual
-  const [fontSize, setFontSize] = useState<number>(() => {
-    // Intentar recuperar del localStorage al inicializar
-    const savedFontSize = localStorage.getItem('fontSize');
-    return savedFontSize ? parseInt(savedFontSize, 10) : 16; // Valor predeterminado: 16px
-  });
-
-  // Efecto para aplicar el tamaño de fuente al documento
-  useEffect(() => {
-    // Aplicar al elemento raíz para que afecte a toda la aplicación
-    document.documentElement.style.fontSize = `${fontSize}px`;
+/**
+ * Hook to manage the font size of the application.
+ * Gets the initial font size from localStorage and updates it as needed.
+ */
+export const useFontSize = () => {
+  // Initialize from localStorage or default to 'md'
+  const getInitialFontSize = (): FontSizeType => {
+    if (typeof window !== 'undefined') {
+      const storedFontSize = localStorage.getItem('fontSize');
+      if (storedFontSize && ['sm', 'md', 'lg', 'xl'].includes(storedFontSize)) {
+        return storedFontSize as FontSizeType;
+      }
+    }
+    return 'md';
+  };
+  
+  const [fontSize, setFontSize] = useState<FontSizeType>(getInitialFontSize);
+  
+  // Set fontSize in DOM and localStorage
+  const applyFontSize = (newFontSize: FontSizeType) => {
+    // Remove all current font size classes
+    document.documentElement.classList.remove('text-sm', 'text-md', 'text-lg', 'text-xl');
     
-    // Guardar en localStorage
-    localStorage.setItem('fontSize', fontSize.toString());
-  }, [fontSize]);
-
-  return { fontSize, setFontSize };
-}
+    // Add the new font size class
+    document.documentElement.classList.add(`text-${newFontSize}`);
+    
+    // Save to localStorage
+    localStorage.setItem('fontSize', newFontSize);
+  };
+  
+  // Initialize font size on load
+  useEffect(() => {
+    applyFontSize(fontSize);
+  }, []);
+  
+  // Function to set the font size
+  const setFontSizeValue = (newFontSize: FontSizeType) => {
+    setFontSize(newFontSize);
+    applyFontSize(newFontSize);
+  };
+  
+  return { fontSize, setFontSize: setFontSizeValue };
+};

@@ -1,7 +1,7 @@
 import React from "react";
+import { Card } from "@/components/ui/card";
+import { Trophy, Calendar, MapPin, Users, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Trophy } from "lucide-react";
-import { motion } from "framer-motion";
 
 interface Partido {
   equipo1: string;
@@ -18,171 +18,137 @@ interface TournamentBracketProps {
   brackets: Partido[][];
 }
 
-const TournamentBracket: React.FC<TournamentBracketProps> = ({
+const TournamentBracket = ({
   torneoNombre,
   torneoLiga,
   torneoEstado,
-  brackets
-}) => {
-  // Si no hay brackets o están vacíos
-  if (!brackets || brackets.length === 0) {
-    return (
-      <div className="flex flex-col items-center justify-center h-72">
-        <Trophy className="h-12 w-12 text-sport-blue mb-4" />
-        <h3 className="text-lg font-medium text-gray-900 mb-2">No hay cuadro disponible</h3>
-        <p className="text-gray-500 max-w-md text-center">
-          El cuadro de juego para este torneo aún no está disponible.
-        </p>
-      </div>
-    );
-  }
+  brackets,
+}: TournamentBracketProps) => {
+  const getStatusClass = (status: string) => {
+    switch (status) {
+      case "Inscripción abierta":
+        return "bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200";
+      case "Inscripción cerrada":
+        return "bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200";
+      case "En curso":
+        return "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200";
+      case "Finalizado":
+        return "bg-muted text-muted-foreground";
+      default:
+        return "bg-muted text-muted-foreground";
+    }
+  };
 
-  // Si el torneo está en inscripción abierta
-  if (torneoEstado === "Inscripción abierta") {
-    return (
-      <div className="flex flex-col items-center justify-center h-72">
-        <Clock className="h-12 w-12 text-sport-blue mb-4" />
-        <h3 className="text-lg font-medium text-gray-900 mb-2">Inscripciones abiertas</h3>
-        <p className="text-gray-500 max-w-md text-center">
-          El cuadro de juego se creará cuando finalice el periodo de inscripción.
-        </p>
-      </div>
-    );
-  }
-
-  // Adaptar el espacio vertical según el número de partidos
-  const maxPartidosPorRonda = Math.max(...brackets.map(ronda => ronda.length));
-  const espaciadoClase = maxPartidosPorRonda > 4 
-    ? "space-y-2" 
-    : "space-y-4";
+  const getMatchStatusClass = (isCompleted: boolean, isScheduled: boolean) => {
+    if (isCompleted) {
+      return "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200";
+    } else if (isScheduled) {
+      return "bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200";
+    } else {
+      return "bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300";
+    }
+  };
 
   return (
-    <div className="py-2 px-1 md:py-4 md:px-2 w-full">
-      <h2 className="text-base sm:text-lg md:text-xl font-bold text-foreground mb-2 md:mb-4 text-center">
-        Cuadro de Juego - {torneoNombre}
-        <div className="text-xs sm:text-sm font-normal text-muted-foreground mt-1">{torneoLiga}</div>
-      </h2>
-      
-      <div className="bracket-container w-full overflow-x-auto overflow-y-auto pb-4 max-h-[calc(100vh-10rem)]">
-        <div className="inline-flex flex-nowrap min-w-full space-x-2 md:space-x-4 lg:space-x-8 pb-4">
-          {/* Ronda 1 - Cuartos de final */}
-          <div className={`flex flex-col ${espaciadoClase} min-w-[170px] sm:min-w-[200px] md:min-w-[250px]`}>
-            <h3 className="text-xs sm:text-sm font-medium text-muted-foreground text-center mb-1 md:mb-2">Cuartos de Final</h3>
-            
-            {brackets[0].map((partido, index) => (
-              <motion.div
-                key={`cuartos-${index}`}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className={`relative p-3 rounded-lg border bg-card shadow-sm ${index > 0 ? 'mt-2 md:mt-4' : ''}`}
-              >
-                <div className="flex flex-col gap-1">
-                  <div className="text-xs sm:text-sm truncate-team-name">{partido.equipo1}</div>
-                  <div className="text-xs sm:text-sm truncate-team-name">{partido.equipo2}</div>
-                  
-                  {partido.completado ? (
-                    <div className="mt-1 flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">{partido.resultado}</span>
-                      <Badge variant="success" className="text-[10px] h-4">
-                        Completado
-                      </Badge>
-                    </div>
-                  ) : (
-                    <div className="mt-1 flex items-center justify-between">
-                      <div className="flex items-center text-xs text-muted-foreground">
-                        <Clock className="h-3 w-3 mr-1" />
-                        {partido.horario}
-                      </div>
-                      <Badge variant="secondary" className="text-[10px] h-4">
-                        Pendiente
-                      </Badge>
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            ))}
-          </div>
-          
-          {/* Ronda 2 - Semifinales */}
-          <div className={`flex flex-col ${espaciadoClase} min-w-[170px] sm:min-w-[200px] md:min-w-[250px]`}>
-            <h3 className="text-xs sm:text-sm font-medium text-muted-foreground text-center mb-1 md:mb-2">Semifinales</h3>
-            
-            {brackets[1].map((partido, index) => (
-              <motion.div
-                key={`semifinal-${index}`}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 + index * 0.1 }}
-                className={`relative p-3 rounded-lg border bg-card shadow-sm ${index > 0 ? 'mt-2 md:mt-4' : ''}`}
-              >
-                <div className="flex flex-col gap-1">
-                  <div className="text-xs sm:text-sm truncate-team-name">{partido.equipo1}</div>
-                  <div className="text-xs sm:text-sm truncate-team-name">{partido.equipo2}</div>
-                  
-                  {partido.completado ? (
-                    <div className="mt-1 flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">{partido.resultado}</span>
-                      <Badge variant="success" className="text-[10px] h-4">
-                        Completado
-                      </Badge>
-                    </div>
-                  ) : (
-                    <div className="mt-1 flex items-center justify-between">
-                      <div className="flex items-center text-xs text-muted-foreground">
-                        <Clock className="h-3 w-3 mr-1" />
-                        {partido.horario}
-                      </div>
-                      <Badge variant="secondary" className="text-[10px] h-4">
-                        Pendiente
-                      </Badge>
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            ))}
-          </div>
-          
-          {/* Ronda 3 - Final */}
-          <div className={`flex flex-col ${espaciadoClase} min-w-[170px] sm:min-w-[200px] md:min-w-[250px]`}>
-            <h3 className="text-xs sm:text-sm font-medium text-muted-foreground text-center mb-1 md:mb-2">Final</h3>
-            
-            {brackets[2].map((partido, index) => (
-              <motion.div
-                key={`final-${index}`}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6 + index * 0.1 }}
-                className={`relative p-3 rounded-lg border bg-card shadow-sm ${index > 0 ? 'mt-2 md:mt-4' : ''}`}
-              >
-                <div className="flex flex-col gap-1">
-                  <div className="text-xs sm:text-sm truncate-team-name">{partido.equipo1}</div>
-                  <div className="text-xs sm:text-sm truncate-team-name">{partido.equipo2}</div>
-                  
-                  {partido.completado ? (
-                    <div className="mt-1 flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">{partido.resultado}</span>
-                      <Badge variant="success" className="text-[10px] h-4">
-                        Completado
-                      </Badge>
-                    </div>
-                  ) : (
-                    <div className="mt-1 flex items-center justify-between">
-                      <div className="flex items-center text-xs text-muted-foreground">
-                        <Clock className="h-3 w-3 mr-1" />
-                        {partido.horario}
-                      </div>
-                      <Badge variant="secondary" className="text-[10px] h-4">
-                        Pendiente
-                      </Badge>
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            ))}
+    <div className="mb-6">
+      <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-6 gap-4">
+        <div>
+          <h2 className="text-2xl font-bold">{torneoNombre}</h2>
+          <div className="flex items-center mt-1 text-muted-foreground">
+            <Trophy className="h-4 w-4 mr-1" />
+            <span>{torneoLiga}</span>
           </div>
         </div>
+        <Badge className={getStatusClass(torneoEstado)}>
+          {torneoEstado}
+        </Badge>
       </div>
+
+      {brackets.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-12">
+          <Trophy className="h-16 w-16 text-muted-foreground mb-4" />
+          <h3 className="text-xl font-medium mb-2">Cuadro no disponible</h3>
+          <p className="text-muted-foreground text-center max-w-md">
+            {torneoEstado === "Inscripción abierta" 
+              ? "Las inscripciones están abiertas. El cuadro de juego estará disponible cuando comience el torneo."
+              : "El cuadro de juego para este torneo aún no está disponible."}
+          </p>
+        </div>
+      ) : (
+        <div className="flex flex-nowrap overflow-x-auto pb-4 gap-8">
+          {brackets.map((ronda, rondaIndex) => (
+            <div key={rondaIndex} className="flex-shrink-0 min-w-[280px] w-[280px]">
+              <h3 className="font-semibold mb-3 text-center">
+                {rondaIndex === brackets.length - 1
+                  ? "Final"
+                  : rondaIndex === brackets.length - 2
+                  ? "Semifinales"
+                  : rondaIndex === brackets.length - 3
+                  ? "Cuartos de final"
+                  : rondaIndex === 0
+                  ? "Primera ronda"
+                  : `Ronda ${rondaIndex + 1}`}
+              </h3>
+              <div className="space-y-4">
+                {ronda.map((partido, partidoIndex) => {
+                  const isScheduled = !!partido.horario;
+                  const statusClass = getMatchStatusClass(partido.completado, isScheduled);
+                  
+                  return (
+                    <Card 
+                      key={partidoIndex} 
+                      className="p-3 border shadow-sm hover:shadow-md transition-shadow"
+                    >
+                      <div className="mb-2">
+                        <Badge className={statusClass}>
+                          {partido.completado 
+                            ? "Finalizado" 
+                            : isScheduled 
+                              ? "Programado" 
+                              : "Pendiente"}
+                        </Badge>
+                      </div>
+                      
+                      <div className="flex flex-col space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium truncate max-w-[180px]" title={partido.equipo1}>
+                            {partido.equipo1}
+                          </span>
+                          {partido.completado && (
+                            <span className="text-sm font-semibold">
+                              {partido.resultado.split('-')[0]}
+                            </span>
+                          )}
+                        </div>
+                        
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium truncate max-w-[180px]" title={partido.equipo2}>
+                            {partido.equipo2}
+                          </span>
+                          {partido.completado && (
+                            <span className="text-sm font-semibold">
+                              {partido.resultado.split('-')[1]}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {isScheduled && (
+                        <div className="mt-3 pt-2 border-t text-xs text-muted-foreground">
+                          <div className="flex items-center">
+                            <Clock className="h-3 w-3 mr-1" />
+                            <span>{partido.horario}</span>
+                          </div>
+                        </div>
+                      )}
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

@@ -5,14 +5,13 @@ This directory contains documentation for the Ligenia backend project.
 ## Directory Structure
 
 - **`api/`**: API documentation
-  - API endpoints
-  - Request/response formats
-  - Authentication details
+  - `api-structure-checklist.md`: Checklist for API structure design
+  - `controller-checklist.md`: Implementation checklist for API controllers
+  - **`endpoints/`**: Documentation for specific API endpoints
+    - `api-testing-checklist.md`: Comprehensive testing checklist for all API endpoints
 
 - **`architecture/`**: System architecture documentation
-  - Component diagrams
-  - System design
-  - Architectural decisions
+  - `core-checklist.md`: Implementation checklist for core components
 
 - **`database/`**: Database documentation
   - Schema diagrams
@@ -20,10 +19,30 @@ This directory contains documentation for the Ligenia backend project.
   - Migration information
 
 - **`deployment/`**: Contains deployment-related documentation
-  - `RAILWAY_DEPLOYMENT.md`: Instructions for deploying the application to Railway
+  - `railway-guide.md`: Instructions for deploying the application to Railway
+  - `test-plan.md`: Test plan for verifying deployments
+
+- **`development/`**: Contains development-related documentation
+  - `logging-system.md`: Documentation for the logging system
+  - `logging-migration-example.md`: Examples of migrating to the new logging system
+
+- **`guides/`**: Practical guides for common tasks
+  - `supabase-setup.md`: Guide for setting up Supabase authentication
+
+- **`project/`**: Project management documentation
+  - `final-backend-checklist.md`: Tracking document for backend completion status
 
 - **`testing/`**: Contains testing-related documentation
-  - `COVERAGE_NOTES.md`: Notes about test coverage, improvements, and future plans
+  - `authentication-testing.md`: Guide for testing authentication features
+  - `test-improvements.md`: Notes on testing improvements
+  - **`coverage/`**: Test coverage documentation
+    - `notes.md`: Notes about test coverage, improvements, and future plans
+
+## MVP Integration and Deployment
+
+For the integration between the backend and frontend, and final deployment to Railway, refer to the root-level document:
+
+- `MVP_INTEGRATION_CHECKLIST.md`: Comprehensive checklist for integrating backend with frontend and deploying to production
 
 ## About Documentation
 

@@ -1,4 +1,3 @@
-
 import { ReactNode, useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -27,18 +26,11 @@ const AuthGuard = ({ children }: AuthGuardProps) => {
         
         if (!isMounted) return;
         
-        if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+        if (event === 'SIGNED_OUT') {
           console.log('AuthGuard: User signed out');
           setIsAuthenticated(false);
           setIsLoading(false);
           navigate('/', { replace: true });
-          
-          if (event === 'USER_DELETED') {
-            toast({
-              title: "Cuenta eliminada",
-              description: "Tu cuenta ha sido eliminada correctamente",
-            });
-          }
         } else if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
           console.log('AuthGuard: User signed in or token refreshed');
           setIsAuthenticated(true);
@@ -61,8 +53,8 @@ const AuthGuard = ({ children }: AuthGuardProps) => {
             navigate('/', { replace: true });
             
             toast({
-              title: "Error de autenticación",
-              description: "Hubo un problema al verificar tu sesión",
+              title: "Authentication Error",
+              description: "There was a problem verifying your session",
               variant: "destructive"
             });
           }
@@ -79,46 +71,61 @@ const AuthGuard = ({ children }: AuthGuardProps) => {
           return;
         }
         
-        // Check if token is close to expiring (within 5 minutes)
-        const currentTime = Math.floor(Date.now() / 1000); // current time in seconds
-        const expiresAt = session.expires_at;
-        const timeToExpire = expiresAt ? expiresAt - currentTime : 0;
-        
-        if (expiresAt && timeToExpire < 300) { // less than 5 minutes
-          console.log('AuthGuard: Token close to expiration, attempting refresh');
-          try {
-            const { data, error } = await supabase.auth.refreshSession();
-            if (error) {
-              throw error;
+        // Always try to refresh the token to ensure validity
+        console.log('AuthGuard: Refreshing token to ensure validity');
+        try {
+          const { data, error } = await supabase.auth.refreshSession();
+          
+          if (error) {
+            console.error('AuthGuard: Error refreshing token:', error);
+            if (isMounted) {
+              setIsAuthenticated(false);
+              navigate('/', { replace: true });
+              
+              toast({
+                title: "Invalid Session",
+                description: "Could not refresh your session. Please sign in again.",
+              });
             }
+            return;
+          }
+          
+          if (!data.session) {
+            console.log('AuthGuard: No session after refresh, redirecting to login');
+            if (isMounted) {
+              setIsAuthenticated(false);
+              navigate('/', { replace: true });
+              
+              toast({
+                title: "Session Expired",
+                description: "Your session has expired. Please sign in again.",
+              });
+            }
+            return;
+          }
+          
+          console.log('AuthGuard: Token refreshed successfully, session valid until:', new Date(data.session.expires_at * 1000).toLocaleString());
+          setIsAuthenticated(true);
+          setIsLoading(false);
+        } catch (refreshError) {
+          console.error('AuthGuard: Exception refreshing token:', refreshError);
+          if (isMounted) {
+            setIsAuthenticated(false);
+            navigate('/', { replace: true });
             
-            if (!data.session) {
-              console.log('AuthGuard: Unable to refresh token, redirecting to login');
-              if (isMounted) {
-                setIsAuthenticated(false);
-                navigate('/', { replace: true });
-                
-                toast({
-                  title: "Sesión expirada",
-                  description: "Tu sesión ha expirado. Por favor, inicia sesión de nuevo.",
-                });
-              }
-              return;
-            }
-          } catch (refreshError) {
-            console.error('AuthGuard: Error refreshing token:', refreshError);
+            toast({
+              title: "Session Error",
+              description: "Error refreshing your session. Please sign in again.",
+            });
+            setIsLoading(false);
           }
         }
-        
-        console.log('AuthGuard: Valid session found, user is authenticated');
-        setIsAuthenticated(true);
-        setIsLoading(false);
       } catch (error) {
         console.error('AuthGuard: Error checking session:', error);
         if (isMounted) {
           toast({
-            title: "Error de autenticación",
-            description: "Hubo un problema al verificar tu sesión",
+            title: "Authentication Error",
+            description: "There was a problem verifying your session",
             variant: "destructive"
           });
           navigate('/', { replace: true });

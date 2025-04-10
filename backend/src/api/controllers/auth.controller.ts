@@ -1,7 +1,9 @@
 import { Request, Response } from 'express';
-import { AuthRequest } from '../middlewares/auth.middleware';
+import { AuthRequest, AuthContainerRequest } from '../middlewares/auth.middleware';
 import { UserRole } from '../../core/domain/user/user.entity';
 import { logWithRequestId } from '../../config/logger';
+import { TYPES } from '../../config/di-container';
+import { PrismaClient } from '@prisma/client';
 
 /**
  * Authentication controller - Mock implementation for testing
@@ -130,7 +132,7 @@ export class AuthController {
    * Get current user profile
    * @route GET /api/auth/me
    */
-  public getMe = async (req: AuthRequest, res: Response) => {
+  public getMe = async (req: AuthContainerRequest, res: Response) => {
     const log = logWithRequestId(req);
     
     try {
@@ -143,13 +145,41 @@ export class AuthController {
         });
       }
 
-      // The req.user object is populated by the auth middleware
+      // Get PrismaClient from container
+      const prisma = req.container.get<PrismaClient>(TYPES.PrismaClient);
+      
+      // Get full user information including player profile
+      const userWithProfile = await prisma.user.findUnique({
+        where: {
+          id: req.user.id
+        },
+        include: {
+          playerProfile: true
+        }
+      });
+      
+      if (!userWithProfile) {
+        log.warn('User found in token but not in database', { userId: req.user.id });
+        return res.status(404).json({
+          status: 'error',
+          message: 'User not found',
+        });
+      }
+
+      // Prepare response data
       const user = {
-        id: req.user.id,
-        email: req.user.email,
-        name: req.user.name || req.user.email?.split('@')[0] || 'User',
-        role: req.user.role || 'PLAYER',
-        emailVerified: req.user.emailVerified || false,
+        id: userWithProfile.id,
+        email: userWithProfile.email,
+        name: userWithProfile.name || userWithProfile.email?.split('@')[0] || 'User',
+        role: userWithProfile.role || 'PLAYER',
+        emailVerified: userWithProfile.emailVerified || false,
+        playerProfile: userWithProfile.playerProfile ? {
+          id: userWithProfile.playerProfile.id,
+          level: userWithProfile.playerProfile.level,
+          age: userWithProfile.playerProfile.age,
+          country: userWithProfile.playerProfile.country,
+          avatar_url: userWithProfile.playerProfile.avatar_url
+        } : null
       };
 
       log.info('User profile retrieved successfully', { userId: user.id });

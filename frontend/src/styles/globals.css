@@ -1,0 +1,63 @@
+/* Tournament Bracket Styles */
+.bracket-container {
+  position: relative;
+}
+
+.bracket-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    to right,
+    hsl(var(--muted) / 0.05) 0px,
+    hsl(var(--muted) / 0.05) 1px,
+    transparent 1px,
+    transparent 20px
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.bracket-round {
+  position: relative;
+  z-index: 1;
+}
+
+.bracket-match {
+  position: relative;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+}
+
+.bracket-match.completed {
+  background-color: hsl(var(--background));
+  border-color: hsl(var(--primary) / 0.3);
+}
+
+/* Draw connection lines between brackets */
+.bracket-round:not(:last-child) .bracket-match {
+  position: relative;
+}
+
+.bracket-round:not(:last-child) .bracket-match::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: -16px;
+  width: 16px;
+  height: 2px;
+  background-color: hsl(var(--muted) / 0.3);
+}
+
+.bracket-round:not(:first-child) .bracket-match::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -16px;
+  width: 16px;
+  height: 2px;
+  background-color: hsl(var(--muted) / 0.3);
+} 

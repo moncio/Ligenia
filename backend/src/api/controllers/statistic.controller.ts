@@ -512,14 +512,123 @@ export class StatisticController {
    * @deprecated Use getPlayerStatistics instead
    */
   public getUserStatistics = async (req: Request, res: Response): Promise<void> => {
+    const userId = req.params.userId;
+    console.log(`[getUserStatistics] Processing request for userId: ${userId}`);
+    
     try {
-      const userId = req.params.userId;
-      res.status(200).json({
-        message: 'This endpoint is deprecated. Use /api/statistics/player/:playerId instead',
-        userId,
-      });
+      // Get PrismaClient
+      const { PrismaClient } = require('@prisma/client');
+      const prisma = new PrismaClient();
+      
+      // Log the user ID we're looking for
+      console.log(`[getUserStatistics] Looking for statistics with userId: ${userId}`);
+      
+      try {
+        // First check if user exists
+        const user = await prisma.user.findUnique({
+          where: { id: userId },
+          include: { playerProfile: true }
+        });
+        
+        if (!user) {
+          console.log(`[getUserStatistics] User not found with ID: ${userId}`);
+          await prisma.$disconnect();
+          
+          // Return empty statistics instead of 404
+          res.status(200).json({
+            status: 'success',
+            data: {
+              statistics: {
+                totalMatches: 0,
+                wins: 0,
+                losses: 0,
+                totalPoints: 0,
+                currentRanking: 9999,
+                winRate: '0%',
+                estimatedLevel: 'Principiante',
+                averagePointsPerMatch: '0'
+              }
+            }
+          });
+          return;
+        }
+        
+        console.log(`[getUserStatistics] User found: ${user.name}, fetching statistics...`);
+        
+        // Get all statistics for the user
+        const statistics = await prisma.statistic.findMany({
+          where: { userId }
+        });
+        
+        console.log(`[getUserStatistics] Found ${statistics.length} statistic records for user`);
+        
+        // Calculate aggregated statistics
+        const matchesPlayed = statistics.reduce((sum: number, stat: { matchesPlayed: number }) => sum + stat.matchesPlayed, 0);
+        const matchesWon = statistics.reduce((sum: number, stat: { wins: number }) => sum + stat.wins, 0);
+        const matchesLost = statistics.reduce((sum: number, stat: { losses: number }) => sum + stat.losses, 0);
+        const points = statistics.reduce((sum: number, stat: { points: number }) => sum + stat.points, 0);
+        const rank = statistics.length > 0 ? Math.min(...statistics.map((s: { rank: number }) => s.rank)) : 9999;
+        
+        console.log(`[getUserStatistics] Calculated values: matches=${matchesPlayed}, wins=${matchesWon}, points=${points}, rank=${rank}`);
+        
+        await prisma.$disconnect();
+        
+        res.status(200).json({
+          status: 'success',
+          data: {
+            userId: userId,
+            statistics: {
+              totalMatches: matchesPlayed,
+              wins: matchesWon,
+              losses: matchesLost,
+              totalPoints: points,
+              currentRanking: rank,
+              winRate: matchesPlayed > 0 ? ((matchesWon / matchesPlayed) * 100).toFixed(2) + '%' : '0%',
+              estimatedLevel: user.playerProfile?.level || 'Principiante',
+              averagePointsPerMatch: matchesPlayed > 0 ? (points / matchesPlayed).toFixed(2) : '0'
+            }
+          }
+        });
+      } catch (dbError) {
+        console.error('[getUserStatistics] Database error:', dbError);
+        await prisma.$disconnect();
+        
+        // Return empty statistics instead of error
+        res.status(200).json({
+          status: 'success',
+          data: {
+            userId: userId,
+            statistics: {
+              totalMatches: 0,
+              wins: 0,
+              losses: 0,
+              totalPoints: 0,
+              currentRanking: 9999,
+              winRate: '0%',
+              estimatedLevel: 'Principiante',
+              averagePointsPerMatch: '0'
+            }
+          }
+        });
+      }
     } catch (error) {
-      res.status(500).json({ error: 'Internal server error' });
+      console.error('[getUserStatistics] Unexpected error:', error);
+      res.status(200).json({
+        status: 'success',
+        data: {
+          userId: userId,
+          statistics: {
+            totalMatches: 0,
+            wins: 0,
+            losses: 0,
+            totalPoints: 0,
+            currentRanking: 9999,
+            winRate: '0%',
+            estimatedLevel: 'Principiante',
+            averagePointsPerMatch: '0'
+          }
+        }
+      });
     }
   };
 }

@@ -1,69 +1,214 @@
-# Welcome to your Lovable project
+# LIGENIA Frontend
 
-## Project info
+## Tabla de Contenidos
 
-**URL**: https://lovable.dev/projects/bf29e415-6db9-49a7-9343-faa6db441c7d
+- [Descripción General](#descripción-general)
+- [Arquitectura](#arquitectura)
+  - [Estructura de Carpetas](#estructura-de-carpetas)
+  - [Componentes Principales](#componentes-principales)
+  - [Características de Seguridad](#características-de-seguridad)
+- [Tecnologías](#tecnologías)
+- [Instalación y Configuración](#instalación-y-configuración)
+  - [Requisitos Previos](#requisitos-previos)
+  - [Instalación](#instalación)
+- [Funcionalidades Principales](#funcionalidades-principales)
+  - [Autenticación](#autenticación)
+  - [Dashboard](#dashboard)
+  - [Torneos](#torneos)
+  - [Partidos](#partidos)
+  - [Estadísticas](#estadísticas)
+  - [Rankings](#rankings)
+  - [Preferencias de Usuario](#preferencias-de-usuario)
+- [Utilidades](#utilidades)
+  - [Formateo de Fechas](#formateo-de-fechas)
+  - [Transformación de Datos](#transformación-de-datos)
+- [Herramientas de Desarrollo](#herramientas-de-desarrollo)
+- [Scripts Útiles](#scripts-útiles)
+- [Despliegue](#despliegue)
 
-## How can I edit this code?
+## Descripción General
 
-There are several ways of editing your application.
+LIGENIA es una plataforma web que permite la gestión de competiciones, partidos y estadísticas para deportes como pádel. El frontend proporciona una interfaz intuitiva y moderna para interactuar con todas las funcionalidades del sistema, permitiendo a los usuarios gestionar torneos, partidos y visualizar estadísticas avanzadas.
 
-**Use Lovable**
+## Arquitectura
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/bf29e415-6db9-49a7-9343-faa6db441c7d) and start prompting.
+El frontend sigue una arquitectura moderna basada en componentes, con separación clara de responsabilidades y gestión eficiente del estado.
 
-Changes made via Lovable will be committed automatically to this repo.
+### Estructura de Carpetas
 
-**Use your preferred IDE**
+- **`src/components/`**: Componentes reutilizables de React
+- **`src/pages/`**: Páginas principales de la aplicación
+- **`src/hooks/`**: Hooks personalizados para la gestión de estado y lógica
+- **`src/lib/`**: Utilidades para la UI y cliente API
+- **`src/utils/`**: Funciones utilitarias y de ayuda
+- **`src/contexts/`**: Contextos de React para la gestión de estado global
+- **`src/types/`**: Definiciones de tipos TypeScript
+- **`src/integrations/`**: Integraciones con servicios externos
+- **`src/config/`**: Configuraciones de la aplicación
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Componentes Principales
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+- **UI Components**: Componentes de interfaz de usuario basados en shadcn/ui
+- **Layouts**: Estructuras de diseño reutilizables para diferentes páginas
+- **Forms**: Componentes de formulario con validación integrada
+- **Data Display**: Componentes para mostrar datos (tablas, gráficos, etc.)
+- **Navigation**: Componentes de navegación (menú, barra lateral, etc.)
 
-Follow these steps:
+### Características de Seguridad
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+- Autenticación basada en token proporcionada por Supabase
+- Protección de rutas según roles de usuario
+- Manejo seguro de tokens y datos sensibles
+- Validación de formularios del lado del cliente
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+## Tecnologías
 
-# Step 3: Install the necessary dependencies.
-npm i
+El frontend está construido con las siguientes tecnologías principales:
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+- **React**: Biblioteca para construir interfaces de usuario
+- **TypeScript**: Superset tipado de JavaScript
+- **Vite**: Herramienta de construcción rápida
+- **Tailwind CSS**: Framework de CSS utilitario
+- **shadcn/ui**: Componentes de UI accesibles y personalizables
+- **React Router**: Enrutamiento para aplicaciones React
+- **React Query**: Gestión de estado del servidor y caché
+- **React Hook Form**: Manejo de formularios
+- **Zod**: Validación de esquemas
+- **Supabase**: Autenticación y gestión de usuarios
+- **Axios**: Cliente HTTP para peticiones a la API
+- **Recharts**: Biblioteca para visualización de datos
+
+## Instalación y Configuración
+
+### Requisitos Previos
+
+- Node.js >= 16
+- npm o yarn
+- Backend de LIGENIA en funcionamiento
+
+### Instalación
+
+1. Clonar el repositorio
+2. Instalar dependencias:
+   ```bash
+   npm install
+   ```
+3. Configurar variables de entorno:
+   - Copiar `.env.example` a `.env` y ajustar los valores
+   - Configurar las variables de Supabase (URL y API Key)
+   - Configurar la URL de la API del backend
+
+4. Iniciar el servidor de desarrollo:
+   ```bash
+   npm run dev
+   ```
+
+## Funcionalidades Principales
+
+### Autenticación
+- Registro de usuarios
+- Inicio de sesión
+- Recuperación de contraseña
+- Gestión de perfil de usuario
+
+### Dashboard
+- Resumen de estadísticas del jugador
+- Próximos partidos
+- Resultados recientes
+- Torneos activos
+- Ranking actual
+
+### Torneos
+- Listado de torneos disponibles
+- Detalles de torneo
+- Inscripción/Cancelación de inscripción
+- Visualización de cuadros y resultados
+- Calendario de partidos
+
+### Partidos
+- Listado de partidos
+- Detalles de partido
+- Registro de resultados
+- Historial de partidos jugados
+
+### Estadísticas
+- Estadísticas individuales del jugador
+- Comparativa con otros jugadores
+- Evolución del rendimiento
+- Gráficos y visualizaciones
+
+### Rankings
+- Ranking global
+- Rankings por categoría
+- Evolución del ranking
+
+### Preferencias de Usuario
+- Configuración de notificaciones
+- Preferencias de visualización
+- Configuración de privacidad
+
+## Utilidades
+
+### Formateo de Fechas
+
+El proyecto incluye un conjunto de utilidades para el formateo de fechas en `src/utils/dateUtils.ts`:
+
+- `formatShortDate`: Formato corto (DD/MM/YYYY)
+- `formatMediumDate`: Formato medio (DD MMM YYYY)
+- `formatLongDate`: Formato largo (DD de MMMM de YYYY)
+- `formatDateTime`: Fecha con hora (DD/MM/YYYY HH:MM)
+- `formatTime`: Solo hora (HH:MM)
+- `formatRelativeTime`: Formato relativo (Hoy, Mañana, Ayer, Hace X días)
+
+### Transformación de Datos
+
+Se proporcionan funciones para transformar datos del backend al formato requerido por el frontend:
+
+- `transformPlayerStatistics`: Transforma estadísticas de jugador
+- Otras utilidades en `src/utils/dataTransformer.ts`
+
+## Herramientas de Desarrollo
+
+- **ESLint y TypeScript-ESLint**: Linting de código
+- **Tailwind CSS**: Estilizado mediante clases utilitarias
+- **shadcn/ui**: Componentes de UI accesibles
+- **Vite**: Servidor de desarrollo rápido
+- **React DevTools**: Depuración de componentes React
+
+## Scripts Útiles
+
+```bash
+# Iniciar en modo desarrollo
 npm run dev
+
+# Construir para producción
+npm run build
+
+# Construir para desarrollo
+npm run build:dev
+
+# Linting de código
+npm run lint
+
+# Vista previa de la build
+npm run preview
 ```
 
-**Edit a file directly in GitHub**
+## Despliegue
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+El frontend de LIGENIA está configurado para ser desplegado en Railway, en consonancia con el backend:
 
-**Use GitHub Codespaces**
+1. Construir la aplicación para producción:
+   ```bash
+   npm run build
+   ```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+2. El despliegue se realiza automáticamente mediante CI/CD cuando se hace push a la rama principal.
 
-## What technologies are used for this project?
+3. La configuración de despliegue se encuentra en el archivo de configuración de Railway correspondiente.
 
-This project is built with .
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/bf29e415-6db9-49a7-9343-faa6db441c7d) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+4. Aunque Railway es la plataforma de despliegue principal, los archivos generados en el directorio `dist/` también pueden ser servidos por otros servicios como:
+   - Vercel
+   - Netlify
+   - GitHub Pages
+   - Firebase Hosting

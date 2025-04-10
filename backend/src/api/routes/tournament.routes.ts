@@ -75,7 +75,11 @@ const tournamentController = new TournamentController();
  *       400:
  *         description: Bad request
  */
-router.get('/', validateQuery(getTournamentsQuerySchema), withAuthContainer(tournamentController.getTournaments));
+router.get('/', 
+  authenticate,
+  validateQuery(getTournamentsQuerySchema), 
+  withAuthContainer(tournamentController.getTournaments)
+);
 
 /**
  * @swagger
@@ -100,7 +104,11 @@ router.get('/', validateQuery(getTournamentsQuerySchema), withAuthContainer(tour
  *       400:
  *         description: Invalid tournament ID format
  */
-router.get('/:id', validateParams(idParamSchema), withAuthContainer(tournamentController.getTournamentById));
+router.get('/:id',
+  authenticate,
+  validateParams(idParamSchema),
+  withAuthContainer(tournamentController.getTournamentById)
+);
 
 /**
  * @swagger

@@ -76,6 +76,7 @@ const statisticController = new StatisticController();
  */
 router.get(
   '/player/:playerId',
+  authenticate,
   diMiddleware,
   validateParams(playerIdParamSchema),
   withAuthContainer(statisticController.getPlayerStatistics)
@@ -130,6 +131,7 @@ router.get(
  */
 router.get(
   '/tournament/:tournamentId',
+  authenticate,
   diMiddleware,
   validateParams(tournamentIdParamSchema),
   withAuthContainer(statisticController.getTournamentStatistics)
@@ -185,6 +187,7 @@ router.get(
  */
 router.get(
   '/global',
+  authenticate,
   diMiddleware,
   validateQuery(getStatisticsQuerySchema),
   withAuthContainer(statisticController.getGlobalStatistics)
@@ -553,6 +556,7 @@ router.delete(
  */
 router.get(
   '/user/:userId',
+  authenticate,
   diMiddleware,
   validateParams(userIdParamSchema),
   withAuthContainer(statisticController.getUserStatistics)

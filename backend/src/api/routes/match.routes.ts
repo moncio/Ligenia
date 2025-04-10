@@ -137,9 +137,9 @@ router.get(
  */
 router.get(
   '/:id', 
-  diMiddleware,
   authenticate,
-  validateParams(idParamSchema), 
+  diMiddleware,
+  validateParams(idParamSchema),
   withAuthContainer(matchController.getMatchById)
 );
 
