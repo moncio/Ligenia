@@ -5,7 +5,8 @@ WORKDIR /app
 
 # Copy package files and install dependencies
 COPY package*.json ./
-RUN npm ci
+# Using npm install instead of npm ci to handle potential lock file issues
+RUN npm install
 
 # Copy prisma schema
 COPY prisma ./prisma/
