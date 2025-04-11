@@ -1,0 +1,24 @@
+[phases.setup]
+nixPkgs = [
+  "nodejs_20",
+  "postgresql",
+  "openssl"
+]
+
+[phases.install]
+cmds = [
+  "npm ci"
+]
+
+[phases.build]
+cmds = [
+  "npx prisma generate",
+  "npm run build"
+]
+
+[start]
+cmd = "node dist/src/app.js"
+
+[env]
+NODE_ENV = "production"
+PORT = "3000" 

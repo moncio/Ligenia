@@ -1,6 +1,8 @@
 [build]
 # Usar el sistema nativo de Railway para Node.js (nixpacks)
 builder = "nixpacks"
+# Ignorar Dockerfile explícitamente
+doNotBuildDockerfile = true
 
 # Comandos personalizados para el proceso de construcción
 buildCommand = "npm ci && npx prisma generate && npm run build"

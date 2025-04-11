@@ -1,0 +1,27 @@
+# Ignorar cualquier archivo relacionado con Docker
+Dockerfile
+Dockerfile.*
+docker-compose.*
+docker/
+.docker/
+
+# Ignorar archivos de testing
+**/tests/
+**/*.test.ts
+**/*.spec.ts
+jest.config.*
+
+# Ignorar archivos de desarrollo
+.vscode/
+.idea/
+.github/
+docs/
+
+# Ignorar archivos de logs y temporales
+logs/
+**/*.log
+.tmp/
+.temp/
+
+# Ignorar archivos específicos
+**/node_modules/.cache/ 
