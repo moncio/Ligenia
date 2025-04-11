@@ -6,10 +6,10 @@ WORKDIR /app
 COPY package.json ./
 COPY package-lock.json ./
 
-# Install dependencies with clean npm install
+# Install dependencies with specific flags to handle version mismatches
 RUN npm cache clean --force && \
     rm -rf node_modules && \
-    npm install
+    npm install --no-package-lock --legacy-peer-deps
 
 # Copy the rest of the application
 COPY . .
