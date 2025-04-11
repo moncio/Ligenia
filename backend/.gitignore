@@ -5,6 +5,10 @@ node_modules
 !.env.example
 !.env.test.example
 
+# Railway deployment files
+RAILWAY_DEPLOY.md
+docs/deployment/RAILWAY_DEPLOY.md
+
 # Supabase testing files
 supabase_api_tester.py
 supabase_tokens.json

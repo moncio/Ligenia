@@ -1,0 +1,41 @@
+[build]
+# Usar el sistema nativo de Railway para Node.js (nixpacks)
+builder = "nixpacks"
+
+# Comandos personalizados para el proceso de construcción
+buildCommand = "npm ci && npx prisma generate && npm run build"
+
+[deploy]
+# Comando para iniciar la aplicación
+startCommand = "node dist/src/app.js"
+
+# Configuración del healthcheck
+healthcheckPath = "/api/health"
+healthcheckTimeout = 300
+restartPolicyType = "on_failure"
+restartPolicyMaxRetries = 5
+
+# Variables de entorno por defecto
+[variables]
+NODE_ENV = "production"
+LOG_LEVEL = "info"
+
+# Optimizaciones de recursos
+[scaling]
+min = 1
+max = 1
+memory = 512
+
+# Configuración de Nixpacks específica para Node.js
+[nixpacks]
+# Asegurar que se instalan los paquetes necesarios
+[nixpacks.setup]
+nixPkgs = ["nodejs_20", "postgresql", "git", "openssl"]
+
+# Configuración del inicio del servicio
+[nixpacks.start]
+cmd = "node dist/src/app.js"
+
+# Hook para ejecutar migraciones de Prisma antes del despliegue
+[phases.deploy]
+cmd = "npx prisma migrate deploy" 
